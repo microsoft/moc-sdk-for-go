@@ -1,0 +1,31 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  GO111MODULE: 'on'
+steps:
+- task: GoTool@0
+  inputs:
+    version: '1.14'
+- task: InstallSSHKey@0
+  inputs:
+    knownHostsEntry: '$(KNOWN_HOST)' 
+    sshPublicKey: '$(SSH_PUBLIC_KEY)'
+    sshKeySecureFile: 'azure-pipelines-ssh-key'
+- script: |
+    git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+    git config --global url."git@ssh.dev.azure.com:v3".insteadOf https://dev.azure.com
+  displayName: 'Set up the Go workspace'
+
+- script: |
+    make all
+  workingDirectory: '$(System.DefaultWorkingDirectory)'
+  displayName: 'Build'
