@@ -6,8 +6,8 @@ package kubernetes
 import (
 	"testing"
 
-	wssdcloud "github.com/microsoft/moc-proto/rpc/cloudagent/cloud"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 )
 
 var (

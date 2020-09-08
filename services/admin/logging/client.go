@@ -5,8 +5,8 @@ package logging
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/admin/logging/internal"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 // Service interfacetype Service interface {

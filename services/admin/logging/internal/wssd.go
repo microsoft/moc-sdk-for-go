@@ -6,10 +6,10 @@ package internal
 import (
 	"context"
 	"errors"
-	"github.com/microsoft/moc-proto/pkg/auth"
-	loggingHelpers "github.com/microsoft/moc-proto/pkg/logging"
-	wssdadmin "github.com/microsoft/moc-proto/rpc/cloudagent/admin"
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc/pkg/auth"
+	loggingHelpers "github.com/microsoft/moc/pkg/logging"
+	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
 	"io"
 	"os"
 	"strconv"

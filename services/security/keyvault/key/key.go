@@ -4,13 +4,14 @@
 package key
 
 import (
+	"encoding/pem"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
-	"github.com/microsoft/moc-proto/pkg/convert"
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
+	"github.com/microsoft/moc/pkg/convert"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 func getKey(sec *wssdcloudsecurity.Key, vaultName string) (keyvault.Key, error) {
@@ -18,11 +19,23 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string) (keyvault.Key, error) 
 	if err != nil {
 		return keyvault.Key{}, errors.Wrapf(err, "INVESTIAGE")
 	}
-
+	value := ""
+	switch sec.Type {
+	case wssdcloudcommon.JsonWebKeyType_RSA:
+		fallthrough
+	case wssdcloudcommon.JsonWebKeyType_RSA_HSM:
+		pubBlk := pem.Block{
+			Type:    "RSA PUBLIC KEY",
+			Headers: nil,
+			Bytes:   sec.PublicKey,
+		}
+		value = string(pem.EncodeToMemory(&pubBlk))
+	}
 	return keyvault.Key{
 		ID:      &sec.Id,
 		Name:    &sec.Name,
 		Version: &sec.Status.Version.Number,
+		Value:   &value,
 		KeyProperties: &keyvault.KeyProperties{
 			Statuses: status.GetStatuses(sec.GetStatus()),
 			KeyType:  getKeyType(sec.Type),
@@ -31,14 +44,25 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string) (keyvault.Key, error) 
 	}, nil
 }
 
+func getWssdKeyByVaultName(name string, groupName,
+	vaultName string, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Key, error) {
+	key := &wssdcloudsecurity.Key{
+		Name:      name,
+		VaultName: vaultName,
+		GroupName: groupName,
+		Type:      wssdcloudcommon.JsonWebKeyType_EC,
+		Size:      wssdcloudcommon.KeySize_K_UNKNOWN,
+		KeyOps:    []wssdcloudcommon.KeyOperation{},
+		Status:    status.InitStatus(),
+	}
+
+	// No Update support
+	return key, nil
+}
+
 func getWssdKey(name string, sec *keyvault.Key,
 	groupName, vaultName string, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Key, error) {
-
 	keysize, err := getMOCKeySize(*sec.KeySize)
-	if err != nil {
-		return nil, err
-	}
-	keyops, err := getMOCKeyOperations(sec.KeyOps)
 	if err != nil {
 		return nil, err
 	}
@@ -48,12 +72,11 @@ func getWssdKey(name string, sec *keyvault.Key,
 		GroupName: groupName,
 		Type:      getMOCKeyType(sec.KeyType),
 		Size:      keysize,
-		KeyOps:    keyops,
+		KeyOps:    []wssdcloudcommon.KeyOperation{},
 		Status:    status.InitStatus(),
 	}
 
 	// No Update support
-
 	return key, nil
 }
 
@@ -69,6 +92,8 @@ func getMOCKeyType(ktype keyvault.JSONWebKeyType) wssdcloudcommon.JsonWebKeyType
 		return wssdcloudcommon.JsonWebKeyType_RSA
 	case keyvault.RSAHSM:
 		return wssdcloudcommon.JsonWebKeyType_RSA_HSM
+	case keyvault.AES:
+		return wssdcloudcommon.JsonWebKeyType_AES
 	default:
 		return wssdcloudcommon.JsonWebKeyType_EC
 	}
@@ -86,6 +111,8 @@ func getKeyType(ktype wssdcloudcommon.JsonWebKeyType) keyvault.JSONWebKeyType {
 		return keyvault.RSA
 	case wssdcloudcommon.JsonWebKeyType_RSA_HSM:
 		return keyvault.RSAHSM
+	case wssdcloudcommon.JsonWebKeyType_AES:
+		return keyvault.AES
 	default:
 		return keyvault.EC
 	}
@@ -203,4 +230,18 @@ func getMOCAlgorithm(algo keyvault.JSONWebKeyEncryptionAlgorithm) (wssdcloudcomm
 		return wssdcloudcommon.Algorithm_A256KW, nil
 	}
 	return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+}
+
+func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, error) {
+	switch algo {
+	case "RSA1_5":
+		return keyvault.RSA15, nil
+	case "RSA-OAEP":
+		return keyvault.RSAOAEP, nil
+	case "RSA-OAEP-256":
+		return keyvault.RSAOAEP256, nil
+	case "A-256-KW":
+		return keyvault.A256KW, nil
+	}
+	return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 }

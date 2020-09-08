@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
-	wssdcloudsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
+	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {
@@ -30,7 +30,7 @@ func newKeyClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Get
 func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]keyvault.Key, error) {
-	request, err := getKeyRequest(wssdcloudcommon.Operation_GET, group, vaultName, name, nil)
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]key
 
 // get
 func (c *client) get(ctx context.Context, group, vaultName, name string) ([]*wssdcloudsecurity.Key, error) {
-	request, err := getKeyRequest(wssdcloudcommon.Operation_GET, group, vaultName, name, nil)
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name)
 	if err != nil {
 		return nil, err
 	}
@@ -59,10 +59,12 @@ func (c *client) get(ctx context.Context, group, vaultName, name string) ([]*wss
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name string,
 	param *keyvault.Key) (*keyvault.Key, error) {
-
 	err := c.validate(ctx, group, vaultName, name, param)
 	if err != nil {
 		return nil, err
+	}
+	if param.KeySize == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Invalid KeySize - Missing")
 	}
 	request, err := getKeyRequest(wssdcloudcommon.Operation_POST, group, vaultName, name, param)
 	if err != nil {
@@ -81,7 +83,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name stri
 	if len(*sec) == 0 {
 		return nil, fmt.Errorf("[Key][Create] Unexpected error: Creating a key returned no result")
 	}
-
 	return &((*sec)[0]), err
 }
 
@@ -89,18 +90,12 @@ func (c *client) validate(ctx context.Context, group, vaultName, name string, pa
 	if param == nil {
 		return errors.Wrapf(errors.InvalidInput, "Invalid Configuration")
 	}
-	if len(vaultName) == 0 {
-		return errors.Wrapf(errors.InvalidInput, "Missing Vault Name")
-	}
 
 	if len(vaultName) == 0 {
 		errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
 	}
 	if len(name) == 0 {
 		errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
-	}
-	if param.KeySize == nil {
-		errors.Wrapf(errors.InvalidInput, "Invalid KeySize - Missing")
 	}
 
 	return nil
@@ -189,12 +184,24 @@ func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName stri
 	return &tmp, nil
 }
 
+func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name string) (*wssdcloudsecurity.KeyRequest, error) {
+	request := &wssdcloudsecurity.KeyRequest{
+		OperationType: opType,
+		Keys:          []*wssdcloudsecurity.Key{},
+	}
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, opType)
+	if err != nil {
+		return nil, err
+	}
+	request.Keys = append(request.Keys, key)
+	return request, nil
+}
+
 func getKeyRequest(opType wssdcloudcommon.Operation, groupName, vaultName, name string, param *keyvault.Key) (*wssdcloudsecurity.KeyRequest, error) {
 	request := &wssdcloudsecurity.KeyRequest{
 		OperationType: opType,
 		Keys:          []*wssdcloudsecurity.Key{},
 	}
-
 	key, err := getWssdKey(name, param, groupName, vaultName, opType)
 	if err != nil {
 		return nil, err

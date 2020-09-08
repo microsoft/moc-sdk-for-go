@@ -5,8 +5,8 @@ package authentication
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 // Service interface

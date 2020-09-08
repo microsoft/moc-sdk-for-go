@@ -6,8 +6,8 @@ package client
 import (
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	network_pb "github.com/microsoft/moc-proto/rpc/cloudagent/network"
+	"github.com/microsoft/moc/pkg/auth"
+	network_pb "github.com/microsoft/moc/rpc/cloudagent/network"
 )
 
 // GetVirtualNetworkClient returns the virtual network client to communicate with the wssdagent

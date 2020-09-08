@@ -6,12 +6,12 @@ package kubernetes
 import (
 	"context"
 	"fmt"
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	"github.com/microsoft/moc/pkg/auth"
 
-	wssdcloudk8s "github.com/microsoft/moc-proto/rpc/cloudagent/cloud"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	wssdcloudk8s "github.com/microsoft/moc/rpc/cloudagent/cloud"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

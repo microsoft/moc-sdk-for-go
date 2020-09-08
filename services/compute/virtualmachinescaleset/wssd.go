@@ -7,15 +7,15 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 
-	wssdcloudcompute "github.com/microsoft/moc-proto/rpc/cloudagent/compute"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/compute/virtualmachine"
+	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
 type client struct {

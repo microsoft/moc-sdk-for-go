@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 
-	wssdcloud "github.com/microsoft/moc-proto/rpc/cloudagent/cloud"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

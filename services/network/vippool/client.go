@@ -6,8 +6,8 @@ package vippool
 import (
 	"context"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 // Service interface

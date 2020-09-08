@@ -10,12 +10,12 @@ import (
 
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudnetwork "github.com/microsoft/moc-proto/rpc/cloudagent/network"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

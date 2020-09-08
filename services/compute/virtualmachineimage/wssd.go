@@ -6,11 +6,11 @@ package virtualmachineimage
 import (
 	"context"
 	"fmt"
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
-	wssdcloudcompute "github.com/microsoft/moc-proto/rpc/cloudagent/compute"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
+	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

@@ -6,12 +6,12 @@ package networkinterface
 import (
 	"context"
 	"fmt"
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
-	wssdcloudnetwork "github.com/microsoft/moc-proto/rpc/cloudagent/network"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
+	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

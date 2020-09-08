@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 const (

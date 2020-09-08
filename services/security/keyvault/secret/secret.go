@@ -6,10 +6,10 @@ package secret
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 func getSecret(sec *wssdcloudsecurity.Secret, vaultName string) *keyvault.Secret {

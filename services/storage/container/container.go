@@ -5,9 +5,9 @@ package container
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudstorage "github.com/microsoft/moc-proto/rpc/cloudagent/storage"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
 )
 
 // Conversion functions from storage to wssdcloudstorage
