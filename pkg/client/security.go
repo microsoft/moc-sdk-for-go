@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc"
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	security_pb "github.com/microsoft/moc-proto/rpc/cloudagent/security"
+	"github.com/microsoft/moc/pkg/auth"
+	security_pb "github.com/microsoft/moc/rpc/cloudagent/security"
 )
 
 // GetKeyVaultClient returns the keyvault client to communicate with the wssdagent

@@ -4,12 +4,12 @@
 package virtualmachinescaleset
 
 import (
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudcompute "github.com/microsoft/moc-proto/rpc/cloudagent/compute"
-	wssdcloudnetwork "github.com/microsoft/moc-proto/rpc/cloudagent/network"
-	wssdcommon "github.com/microsoft/moc-proto/rpc/common"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
 func (c *client) getVirtualMachineScaleSet(vmss *wssdcloudcompute.VirtualMachineScaleSet, group string) (*compute.VirtualMachineScaleSet, error) {

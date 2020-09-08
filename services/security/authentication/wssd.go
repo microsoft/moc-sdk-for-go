@@ -5,10 +5,10 @@ package authentication
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
-	wssdsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
+	"github.com/microsoft/moc/pkg/auth"
+	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	//log "k8s.io/klog"
 )
 

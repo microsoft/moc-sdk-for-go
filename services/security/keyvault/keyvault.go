@@ -7,10 +7,10 @@ import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
 
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 )
 
 type SecretProperties struct {
@@ -57,6 +57,8 @@ const (
 	RSA JSONWebKeyType = "RSA"
 	// RSAHSM RSA with a private key which is not exportable from the HSM.
 	RSAHSM JSONWebKeyType = "RSA-HSM"
+	// AES Advanced Encrytion Standard.
+	AES JSONWebKeyType = "AES"
 )
 
 // JSONWebKeyCurveName enumerates the values for json web key curve name.
@@ -77,7 +79,7 @@ const (
 type KeyProperties struct {
 	// Exportable - Indicates if the private key can be exported.
 	Exportable *bool `json:"exportable,omitempty"`
-	// KeyType - The type of key pair to be used for the certificate. Possible values include: 'EC', 'ECHSM', 'RSA', 'RSAHSM', 'Oct'
+	// KeyType - The type of key pair to be used for the certificate. Possible values include: 'EC', 'ECHSM', 'RSA', 'RSAHSM', 'Oct', 'AES'
 	KeyType JSONWebKeyType         `json:"kty,omitempty"`
 	KeyOps  *[]JSONWebKeyOperation `json:"key_ops,omitempty"`
 	// KeySize - The key size in bits. For example: 2048, 3072, or 4096 for RSA.

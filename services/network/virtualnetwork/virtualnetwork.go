@@ -3,11 +3,11 @@
 package virtualnetwork
 
 import (
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudnetwork "github.com/microsoft/moc-proto/rpc/cloudagent/network"
-	wssdcommonproto "github.com/microsoft/moc-proto/rpc/common"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	wssdcommonproto "github.com/microsoft/moc/rpc/common"
 )
 
 // Conversion functions from network to wssdcloudnetwork

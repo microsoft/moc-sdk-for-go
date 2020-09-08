@@ -5,8 +5,8 @@ package virtualmachineimage
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 
-	"github.com/microsoft/moc-proto/pkg/errors"
-	wssdcloudcompute "github.com/microsoft/moc-proto/rpc/cloudagent/compute"
+	"github.com/microsoft/moc/pkg/errors"
+	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
 // Conversion functions from compute to wssdcloudcompute

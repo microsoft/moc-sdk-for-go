@@ -6,8 +6,8 @@ package client
 import (
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	admin_pb "github.com/microsoft/moc-proto/rpc/cloudagent/admin"
+	"github.com/microsoft/moc/pkg/auth"
+	admin_pb "github.com/microsoft/moc/rpc/cloudagent/admin"
 )
 
 // GetLogClient returns the log client to communicate with the wssdcloud agent

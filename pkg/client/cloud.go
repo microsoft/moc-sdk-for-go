@@ -6,8 +6,8 @@ package client
 import (
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	cloud_pb "github.com/microsoft/moc-proto/rpc/cloudagent/cloud"
+	"github.com/microsoft/moc/pkg/auth"
+	cloud_pb "github.com/microsoft/moc/rpc/cloudagent/cloud"
 )
 
 // GetLocationClient returns the virtual machine client to comminicate with the wssd agent

@@ -8,9 +8,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 )
 
 type Service interface {

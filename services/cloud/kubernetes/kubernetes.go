@@ -4,10 +4,10 @@
 package kubernetes
 
 import (
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloud "github.com/microsoft/moc-proto/rpc/cloudagent/cloud"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 )
 
 // Conversion functions from cloud to wssdcloud

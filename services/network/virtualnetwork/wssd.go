@@ -6,13 +6,13 @@ package virtualnetwork
 import (
 	"context"
 	"fmt"
-	"github.com/microsoft/moc-proto/pkg/errors"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
+	"github.com/microsoft/moc/pkg/errors"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	wssdcloudnetwork "github.com/microsoft/moc-proto/rpc/cloudagent/network"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc/pkg/auth"
+	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

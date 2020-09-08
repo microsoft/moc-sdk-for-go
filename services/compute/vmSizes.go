@@ -4,7 +4,7 @@
 package compute
 
 import (
-	cloudcompute "github.com/microsoft/moc-proto/rpc/common"
+	cloudcompute "github.com/microsoft/moc/rpc/common"
 )
 
 func GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(size cloudcompute.VirtualMachineSizeType) VirtualMachineSizeTypes {

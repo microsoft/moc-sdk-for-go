@@ -7,11 +7,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	wssdcloudsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
+	"github.com/microsoft/moc/pkg/auth"
+	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 	log "k8s.io/klog"
 )
 

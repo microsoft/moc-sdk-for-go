@@ -4,10 +4,10 @@
 package certificate
 
 import (
-	"github.com/microsoft/moc-proto/pkg/errors"
-	"github.com/microsoft/moc-proto/pkg/status"
-	wssdcloudsecurity "github.com/microsoft/moc-proto/rpc/cloudagent/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
+	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/status"
+	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 )
 
 func getCertificate(cert *wssdcloudsecurity.Certificate) *security.Certificate {

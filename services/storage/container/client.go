@@ -5,8 +5,8 @@ package container
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 // Service interface

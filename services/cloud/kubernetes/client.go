@@ -5,8 +5,8 @@ package kubernetes
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 // Service interface

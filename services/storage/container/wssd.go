@@ -6,12 +6,12 @@ package container
 import (
 	"context"
 	"fmt"
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
-	wssdcloudstorage "github.com/microsoft/moc-proto/rpc/cloudagent/storage"
-	wssdcloudcommon "github.com/microsoft/moc-proto/rpc/common"
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
+	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {

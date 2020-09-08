@@ -6,8 +6,8 @@ package client
 import (
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	storage_pb "github.com/microsoft/moc-proto/rpc/cloudagent/storage"
+	"github.com/microsoft/moc/pkg/auth"
+	storage_pb "github.com/microsoft/moc/rpc/cloudagent/storage"
 )
 
 // GetVirtualHardDiskClient returns the virtual network client to communicate with the wssdagent

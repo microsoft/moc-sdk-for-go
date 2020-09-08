@@ -5,8 +5,8 @@ package client
 import (
 	log "k8s.io/klog"
 
-	"github.com/microsoft/moc-proto/pkg/auth"
-	compute_pb "github.com/microsoft/moc-proto/rpc/cloudagent/compute"
+	"github.com/microsoft/moc/pkg/auth"
+	compute_pb "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
 // GetGalleryImageClient returns the virtual machine client to comminicate with the wssd agent

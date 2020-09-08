@@ -5,9 +5,9 @@ package virtualharddisk
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
-	"github.com/microsoft/moc-proto/pkg/errors"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 )
 
 // Service interface

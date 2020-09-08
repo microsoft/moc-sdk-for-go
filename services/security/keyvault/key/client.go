@@ -5,9 +5,9 @@ package key
 
 import (
 	"context"
-	"github.com/microsoft/moc-proto/pkg/auth"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
+	"github.com/microsoft/moc/pkg/auth"
 )
 
 // Service interface
@@ -38,8 +38,8 @@ func NewKeyClient(cloudFQDN string, authorizer auth.Authorizer) (*KeyClient, err
 }
 
 // Get methods invokes the client Get method
-func (c *KeyClient) Get(ctx context.Context, group, name, vaultName string) (*[]keyvault.Key, error) {
-	return c.internal.Get(ctx, group, name, vaultName)
+func (c *KeyClient) Get(ctx context.Context, group, vaultName, name string) (*[]keyvault.Key, error) {
+	return c.internal.Get(ctx, group, vaultName, name)
 }
 
 // CreateOrUpdate methods invokes create or update on the client
@@ -49,26 +49,26 @@ func (c *KeyClient) CreateOrUpdate(ctx context.Context, group, vaultName, name s
 }
 
 // Delete methods invokes delete of the keyvault resource
-func (c *KeyClient) Delete(ctx context.Context, group, name, vaultName string) error {
+func (c *KeyClient) Delete(ctx context.Context, group, vaultName, name string) error {
 	return c.internal.Delete(ctx, group, name, vaultName)
 }
 
 // Encrypt methods invokes encrypt of the keyvault resource
 func (c *KeyClient) Encrypt(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	return c.internal.Encrypt(ctx, group, name, vaultName, parameters)
+	return c.internal.Encrypt(ctx, group, vaultName, name, parameters)
 }
 
 // Decrypt methods invokes encrypt of the keyvault resource
 func (c *KeyClient) Decrypt(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	return c.internal.Decrypt(ctx, group, name, vaultName, parameters)
+	return c.internal.Decrypt(ctx, group, vaultName, name, parameters)
 }
 
 // WrapKey
 func (c *KeyClient) WrapKey(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	return c.internal.WrapKey(ctx, group, name, vaultName, parameters)
+	return c.internal.WrapKey(ctx, group, vaultName, name, parameters)
 }
 
 // UnwrapKey
 func (c *KeyClient) UnwrapKey(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	return c.internal.UnwrapKey(ctx, group, name, vaultName, parameters)
+	return c.internal.UnwrapKey(ctx, group, vaultName, name, parameters)
 }
