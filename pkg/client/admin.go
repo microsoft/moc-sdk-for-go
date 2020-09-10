@@ -8,6 +8,7 @@ import (
 
 	"github.com/microsoft/moc/pkg/auth"
 	admin_pb "github.com/microsoft/moc/rpc/cloudagent/admin"
+	cadmin_pb "github.com/microsoft/moc/rpc/common/admin"
 )
 
 // GetLogClient returns the log client to communicate with the wssdcloud agent
@@ -18,4 +19,14 @@ func GetLogClient(serverAddress *string, authorizer auth.Authorizer) (admin_pb.L
 	}
 
 	return admin_pb.NewLogAgentClient(conn), nil
+}
+
+// GetRecoveryClient returns the log client to communicate with the wssdcloud agent
+func GetRecoveryClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_pb.RecoveryAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get RecoveryClient. Failed to dial: %v", err)
+	}
+
+	return cadmin_pb.NewRecoveryAgentClient(conn), nil
 }
