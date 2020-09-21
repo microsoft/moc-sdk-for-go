@@ -28,7 +28,7 @@ func newCertificateClient(subID string, authorizer auth.Authorizer) (*client, er
 }
 
 // Get
-func (c *client) Get(ctx context.Context, name, group string) (*[]security.Certificate, error) {
+func (c *client) Get(ctx context.Context, group, name string) (*[]security.Certificate, error) {
 	request, err := getCertificateRequest(name, nil)
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (c *client) Get(ctx context.Context, name, group string) (*[]security.Certi
 }
 
 // CreateOrUpdate
-func (c *client) CreateOrUpdate(ctx context.Context, name, group string, sg *security.Certificate) (*security.Certificate, error) {
+func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *security.Certificate) (*security.Certificate, error) {
 	request, err := getCertificateRequest(name, sg)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, name, group string, sg *sec
 }
 
 // Delete methods invokes create or update on the client
-func (c *client) Delete(ctx context.Context, name, group string) error {
+func (c *client) Delete(ctx context.Context, group, name string) error {
 	cert, err := c.Get(ctx, name, group)
 	if err != nil {
 		return err
