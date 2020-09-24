@@ -44,12 +44,6 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 		if c.VirtualNetworkPropertiesFormat.MacPoolName != nil {
 			wssdnetwork.MacPoolName = *c.VirtualNetworkPropertiesFormat.MacPoolName
 		}
-
-		if c.Vlan == nil {
-			wssdnetwork.Vlan = 0
-		} else {
-			wssdnetwork.Vlan = uint32(*c.Vlan)
-		}
 	}
 
 	if c.Type == nil {
@@ -95,6 +89,11 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 	for _, subnet := range *subnets {
 		wssdsubnet := &wssdcloudnetwork.Subnet{
 			Name: *subnet.Name,
+		}
+		if subnet.Vlan == nil {
+			wssdsubnet.Vlan = 0
+		} else {
+			wssdsubnet.Vlan = uint32(*subnet.Vlan)
 		}
 		if subnet.SubnetPropertiesFormat == nil || subnet.AddressPrefix == nil {
 			err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
@@ -179,7 +178,6 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 			Subnets:     getNetworkSubnets(c.Subnets),
 			Statuses:    status.GetStatuses(c.GetStatus()),
 			MacPoolName: &c.MacPoolName,
-			Vlan:        getVlan(c.Vlan),
 		},
 	}
 }
@@ -191,6 +189,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 		subnets = append(subnets, network.Subnet{
 			Name: &subnet.Name,
 			ID:   &subnet.Id,
+			Vlan: getVlan(subnet.Vlan),
 			SubnetPropertiesFormat: &network.SubnetPropertiesFormat{
 				AddressPrefix: &subnet.Cidr,
 				RouteTable:    getNetworkRoutetable(subnet.Routes),

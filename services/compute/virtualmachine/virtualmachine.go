@@ -289,7 +289,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
-			Host:                    c.getVirtualMachineHostDescription(vm),
+			Host: c.getVirtualMachineHostDescription(vm),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
