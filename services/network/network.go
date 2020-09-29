@@ -519,7 +519,7 @@ type VirtualNetworkPropertiesFormat struct {
 	// MACPool name - Name of the associated MAC pool (or leave empty to use the default mac pool)
 	MacPoolName *string `json:"macPoolName,omitempty"`
 	// Vlan
-	Vlan *int32 `json:"vlan,omitempty"`
+	Vlan *uint16 `json:"vlan,omitempty"`
 	// ProvisioningState - The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
