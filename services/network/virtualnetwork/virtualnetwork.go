@@ -221,8 +221,8 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcloudnetwork.Route) *network.Ro
 	}
 }
 
-func getVlan(wssdvlan uint32) *int32 {
-	vlan := int32(wssdvlan)
+func getVlan(wssdvlan uint32) *uint16 {
+	vlan := uint16(wssdvlan)
 	return &vlan
 }
 

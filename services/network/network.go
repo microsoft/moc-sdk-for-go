@@ -119,7 +119,7 @@ type Subnet struct {
 	// ID - Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Vlan
-	Vlan *int32 `json:"vlan,omitempty"`
+	Vlan *uint16 `json:"vlan,omitempty"`
 }
 
 // Subnet is assoicated with a Virtual Network.
