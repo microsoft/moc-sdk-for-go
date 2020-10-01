@@ -118,8 +118,6 @@ type Subnet struct {
 	Etag *string `json:"etag,omitempty"`
 	// ID - Resource ID.
 	ID *string `json:"id,omitempty"`
-	// Vlan
-	Vlan *uint16 `json:"vlan,omitempty"`
 }
 
 // Subnet is assoicated with a Virtual Network.
@@ -134,6 +132,8 @@ type SubnetPropertiesFormat struct {
 	IPConfigurationReferences *[]IPConfigurationReference `json:"ipConfigurationReferences,omitempty"`
 	// IPAllocationMethod - The IP address allocation method. Possible values include: 'Static', 'Dynamic'
 	IPAllocationMethod IPAllocationMethod `json:"ipAllocationMethod,omitempty"`
+	// Vlan
+	Vlan *uint16 `json:"vlan,omitempty"`
 }
 
 // MACRange is associated with MACPool and respresents the start and end addresses.

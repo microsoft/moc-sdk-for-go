@@ -90,17 +90,21 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		wssdsubnet := &wssdcloudnetwork.Subnet{
 			Name: *subnet.Name,
 		}
+
+		if subnet.SubnetPropertiesFormat != nil && subnet.IPAllocationMethod == network.Static {
+			if subnet.AddressPrefix == nil {
+				err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
+				return
+			}
+			wssdsubnet.Cidr = *subnet.AddressPrefix
+		}
+
 		if subnet.Vlan == nil {
 			wssdsubnet.Vlan = 0
 		} else {
 			wssdsubnet.Vlan = uint32(*subnet.Vlan)
 		}
-		if subnet.SubnetPropertiesFormat == nil || subnet.AddressPrefix == nil {
-			err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
-			return
-		}
 
-		wssdsubnet.Cidr = *subnet.AddressPrefix
 		wssdsubnetRoutes, err1 := getWssdNetworkRoutes(subnet.RouteTable)
 		if err1 != nil {
 			err = err1
@@ -189,12 +193,12 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 		subnets = append(subnets, network.Subnet{
 			Name: &subnet.Name,
 			ID:   &subnet.Id,
-			Vlan: getVlan(subnet.Vlan),
 			SubnetPropertiesFormat: &network.SubnetPropertiesFormat{
 				AddressPrefix: &subnet.Cidr,
 				RouteTable:    getNetworkRoutetable(subnet.Routes),
 				// TODO: implement something for IPConfigurationReferences
 				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
+				Vlan:               getVlan(subnet.Vlan),
 			},
 		})
 	}
