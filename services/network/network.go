@@ -132,6 +132,8 @@ type SubnetPropertiesFormat struct {
 	IPConfigurationReferences *[]IPConfigurationReference `json:"ipConfigurationReferences,omitempty"`
 	// IPAllocationMethod - The IP address allocation method. Possible values include: 'Static', 'Dynamic'
 	IPAllocationMethod IPAllocationMethod `json:"ipAllocationMethod,omitempty"`
+	// Vlan
+	Vlan *uint16 `json:"vlan,omitempty"`
 }
 
 // MACRange is associated with MACPool and respresents the start and end addresses.
@@ -518,8 +520,6 @@ type VirtualNetworkPropertiesFormat struct {
 	Subnets *[]Subnet `json:"subnets,omitempty"`
 	// MACPool name - Name of the associated MAC pool (or leave empty to use the default mac pool)
 	MacPoolName *string `json:"macPoolName,omitempty"`
-	// Vlan
-	Vlan *int32 `json:"vlan,omitempty"`
 	// ProvisioningState - The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State

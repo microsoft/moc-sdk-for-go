@@ -44,12 +44,6 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 		if c.VirtualNetworkPropertiesFormat.MacPoolName != nil {
 			wssdnetwork.MacPoolName = *c.VirtualNetworkPropertiesFormat.MacPoolName
 		}
-
-		if c.Vlan == nil {
-			wssdnetwork.Vlan = 0
-		} else {
-			wssdnetwork.Vlan = uint32(*c.Vlan)
-		}
 	}
 
 	if c.Type == nil {
@@ -96,12 +90,21 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		wssdsubnet := &wssdcloudnetwork.Subnet{
 			Name: *subnet.Name,
 		}
-		if subnet.SubnetPropertiesFormat == nil || subnet.AddressPrefix == nil {
-			err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
-			return
+
+		if subnet.SubnetPropertiesFormat != nil && subnet.IPAllocationMethod == network.Static {
+			if subnet.AddressPrefix == nil {
+				err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
+				return
+			}
+			wssdsubnet.Cidr = *subnet.AddressPrefix
 		}
 
-		wssdsubnet.Cidr = *subnet.AddressPrefix
+		if subnet.Vlan == nil {
+			wssdsubnet.Vlan = 0
+		} else {
+			wssdsubnet.Vlan = uint32(*subnet.Vlan)
+		}
+
 		wssdsubnetRoutes, err1 := getWssdNetworkRoutes(subnet.RouteTable)
 		if err1 != nil {
 			err = err1
@@ -179,7 +182,6 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 			Subnets:     getNetworkSubnets(c.Subnets),
 			Statuses:    status.GetStatuses(c.GetStatus()),
 			MacPoolName: &c.MacPoolName,
-			Vlan:        getVlan(c.Vlan),
 		},
 	}
 }
@@ -196,6 +198,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 				RouteTable:    getNetworkRoutetable(subnet.Routes),
 				// TODO: implement something for IPConfigurationReferences
 				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
+				Vlan:               getVlan(subnet.Vlan),
 			},
 		})
 	}
@@ -222,8 +225,8 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcloudnetwork.Route) *network.Ro
 	}
 }
 
-func getVlan(wssdvlan uint32) *int32 {
-	vlan := int32(wssdvlan)
+func getVlan(wssdvlan uint32) *uint16 {
+	vlan := uint16(wssdvlan)
 	return &vlan
 }
 
