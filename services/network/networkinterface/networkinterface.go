@@ -40,6 +40,7 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 		Name:             *c.Name,
 		IpConfigurations: wssdipconfigs,
 		GroupName:        group,
+		Dns:              getDns(c.DNSSettings),
 	}
 
 	if c.Version != nil {
@@ -53,6 +54,16 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 		vnic.Macaddress = *c.MacAddress
 	}
 	return vnic, nil
+}
+
+func getWssdDNSSettings(dnssetting *wssdcommonproto.Dns) *network.InterfaceDNSSettings {
+	if dnssetting == nil {
+		return nil
+	}
+	return &network.InterfaceDNSSettings{
+		DNSServers:               &dnssetting.Servers,
+		InternalDomainNameSuffix: &dnssetting.Domain,
+	}
 }
 
 func ipAllocationMethodProtobufToSdk(wssdIpconfig *wssdcloudnetwork.IpConfiguration, ipConfig *network.InterfaceIPConfiguration) {
@@ -129,11 +140,26 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			MacAddress: &c.Macaddress,
 			// TODO: Type
 			IPConfigurations: &ipConfigs,
+			DNSSettings:      getWssdDNSSettings(c.Dns),
 			Statuses:         status.GetStatuses(c.GetStatus()),
 		},
 	}
 
 	return vnetIntf, nil
+}
+
+func getDns(dnssetting *network.InterfaceDNSSettings) *wssdcommonproto.Dns {
+	if dnssetting == nil {
+		return nil
+	}
+	var dns wssdcommonproto.Dns
+	if dnssetting.DNSServers != nil {
+		dns.Servers = *dnssetting.DNSServers
+	}
+	if dnssetting.InternalDomainNameSuffix != nil {
+		dns.Domain = *dnssetting.InternalDomainNameSuffix
+	}
+	return &dns
 }
 
 func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *network.InterfaceIPConfiguration {
