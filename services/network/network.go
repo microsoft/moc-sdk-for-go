@@ -872,6 +872,8 @@ type InterfacePropertiesFormat struct {
 	MacAddress *string `json:"macAddress,omitempty"`
 	// Primary - Gets whether this is a primary network interface on a virtual machine.
 	Primary *bool `json:"primary,omitempty"`
+	// EnableAcceleratedNetworking - If the network interface is accelerated networking enabled.
+	EnableAcceleratedNetworking *bool `json:"enableAcceleratedNetworking,omitempty"`
 	// EnableIPForwarding - Indicates whether IP forwarding is enabled on this network interface.
 	EnableIPForwarding *bool `json:"enableIPForwarding,omitempty"`
 	// ProvisioningState - The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.

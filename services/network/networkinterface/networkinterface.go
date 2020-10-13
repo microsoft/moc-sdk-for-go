@@ -52,6 +52,15 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 	if c.MacAddress != nil {
 		vnic.Macaddress = *c.MacAddress
 	}
+
+	if c.EnableAcceleratedNetworking != nil {
+		if *c.EnableAcceleratedNetworking {
+			vnic.IovWeight = uint32(100)
+		} else {
+			vnic.IovWeight = uint32(0)
+		}
+	}
+
 	return vnic, nil
 }
 
@@ -128,8 +137,9 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 		InterfacePropertiesFormat: &network.InterfacePropertiesFormat{
 			MacAddress: &c.Macaddress,
 			// TODO: Type
-			IPConfigurations: &ipConfigs,
-			Statuses:         status.GetStatuses(c.GetStatus()),
+			IPConfigurations:            &ipConfigs,
+			Statuses:                    status.GetStatuses(c.GetStatus()),
+			EnableAcceleratedNetworking: getIovSetting(c),
 		},
 	}
 
@@ -157,4 +167,12 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 	}
 	ipconfig.LoadBalancerBackendAddressPools = &addresspools
 	return ipconfig
+}
+
+func getIovSetting(vnic *wssdcloudnetwork.NetworkInterface) *bool {
+	isAcceleratedNetworkingEnabled := false
+	if vnic.IovWeight > 0 {
+		isAcceleratedNetworkingEnabled = true
+	}
+	return &isAcceleratedNetworkingEnabled
 }
