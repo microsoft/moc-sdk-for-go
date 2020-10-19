@@ -80,6 +80,7 @@ github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0/go.mod h1:8NvIoxWQoOIhqOTXgf
 github.com/grpc-ecosystem/grpc-gateway v1.9.0/go.mod h1:vNeuVxBJEsws4ogUvrchl83t/GYV9WGTSLVdBhOQFDY=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
+github.com/jmespath/go-jmespath v0.3.0 h1:OS12ieG61fsCg5+qLJ+SsW9NicxNkg3b25OyT2yCeUc=
 github.com/jmespath/go-jmespath v0.3.0/go.mod h1:9QtRXoHjLGCJ5IBSaohpXITPlowMeeYCZ7fLUTSywik=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
@@ -103,6 +104,8 @@ github.com/microsoft/moc v0.10.1-alpha.4 h1:5P6UR+2kq+X9dsjVA2OBDPLNBg0YOgGsqqUR
 github.com/microsoft/moc v0.10.1-alpha.4/go.mod h1:oK8iLrb4IOdvmokCAgbMWzPj2m7PcARZnCa3g3tNrFI=
 github.com/microsoft/moc v0.10.4 h1:bgZCdRhY2YEzTLjZrrueeMZFm5NFzvq9VQuDFA30XaQ=
 github.com/microsoft/moc v0.10.4/go.mod h1:drS7YrfMSpBkhkOmGOXusIAniGCtbT08BbVF9sEyTS0=
+github.com/microsoft/moc v0.10.5-alpha.1 h1:iS4UitVEUIki7EoyCnHEWu/3IaHIpc9kNFsxRSu+8ZM=
+github.com/microsoft/moc v0.10.5-alpha.1/go.mod h1:drS7YrfMSpBkhkOmGOXusIAniGCtbT08BbVF9sEyTS0=
 github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQzvN1EDeE=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
