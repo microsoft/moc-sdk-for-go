@@ -17,6 +17,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	CreateOrUpdate(context.Context, string, string, *compute.VirtualMachine) (*compute.VirtualMachine, error)
 	Delete(context.Context, string, string) error
+	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
 }
@@ -48,6 +49,11 @@ func (c *VirtualMachineClient) CreateOrUpdate(ctx context.Context, group, name s
 // Delete methods invokes delete of the compute resource
 func (c *VirtualMachineClient) Delete(ctx context.Context, group string, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Query method invokes the client Get method and uses the provided query to filter the returned results
+func (c *VirtualMachineClient) Query(ctx context.Context, group, query string) (*[]compute.VirtualMachine, error) {
+	return c.internal.Query(ctx, group, query)
 }
 
 // Start the Virtual Machine

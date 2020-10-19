@@ -6,8 +6,11 @@ package virtualmachine
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/config"
+	"github.com/microsoft/moc/pkg/marshal"
 
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 
@@ -89,6 +92,26 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	_, err = c.VirtualMachineAgentClient.Invoke(ctx, request)
 
 	return err
+}
+
+// Query
+func (c *client) Query(ctx context.Context, group, query string) (*[]compute.VirtualMachine, error) {
+	vms, err := c.Get(ctx, group, "")
+	if err != nil {
+		return nil, err
+	}
+
+	filteredBytes, err := config.MarshalOutput(*vms, query, "yaml")
+	if err != nil {
+		return nil, err
+	}
+
+	err = marshal.FromYAMLBytes(filteredBytes, vms)
+	if err != nil {
+		return nil, err
+	}
+
+	return vms, nil
 }
 
 // Stop
