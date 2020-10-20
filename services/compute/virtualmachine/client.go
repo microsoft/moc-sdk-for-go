@@ -5,6 +5,7 @@ package virtualmachine
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -233,4 +234,16 @@ func (c *VirtualMachineClient) NetworkInterfaceRemove(ctx context.Context, group
 		break
 	}
 	return
+}
+
+// Get the Virtual Machine by querying for the specified computer name
+func (c *VirtualMachineClient) GetByComputerName(ctx context.Context, group string, computerName string) (*[]compute.VirtualMachine, error) {
+	query := fmt.Sprintf("[?virtualmachineproperties.osprofile.computername=='%s']", computerName)
+
+	vms, err := c.Query(ctx, group, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return vms, nil
 }
