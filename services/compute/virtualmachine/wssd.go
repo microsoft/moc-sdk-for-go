@@ -105,7 +105,6 @@ func (c *client) Query(ctx context.Context, group, query string) (*[]compute.Vir
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("ITS: %s\n", string(filteredBytes))
 
 	err = marshal.FromJSONBytes(filteredBytes, vms)
 	if err != nil {
