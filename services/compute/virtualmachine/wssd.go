@@ -101,12 +101,13 @@ func (c *client) Query(ctx context.Context, group, query string) (*[]compute.Vir
 		return nil, err
 	}
 
-	filteredBytes, err := config.MarshalOutput(*vms, query, "yaml")
+	filteredBytes, err := config.MarshalOutput(*vms, query, "json")
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("ITS: %s\n", string(filteredBytes))
 
-	err = marshal.FromYAMLBytes(filteredBytes, vms)
+	err = marshal.FromJSONBytes(filteredBytes, vms)
 	if err != nil {
 		return nil, err
 	}
