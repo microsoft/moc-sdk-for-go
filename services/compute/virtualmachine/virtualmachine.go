@@ -85,6 +85,10 @@ func (c *client) getWssdVirtualMachineStorageConfiguration(s *compute.StoragePro
 		Datadisks: []*wssdcloudcompute.Disk{},
 	}
 
+	if s == nil {
+		return wssdstorage, nil
+	}
+
 	if s.ImageReference != nil {
 		imageReference, err := c.getWssdVirtualMachineStorageConfigurationImageReference(s.ImageReference)
 		if err != nil {
@@ -210,6 +214,15 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	osType := wssdcommon.OperatingSystemType_WINDOWS
 	var err error
 
+	osconfig := wssdcloudcompute.OperatingSystemConfiguration{
+		Users:  []*wssdcloudcompute.UserConfiguration{},
+		Ostype: osType,
+	}
+
+	if s == nil {
+		return &osconfig, nil
+	}
+
 	if s.LinuxConfiguration != nil || s.WindowsConfiguration != nil {
 		var sshConfiguration *compute.SSHConfiguration = nil
 
@@ -253,13 +266,9 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 		return nil, errors.Wrapf(errors.InvalidInput, "ComputerName is missing")
 	}
 
-	osconfig := wssdcloudcompute.OperatingSystemConfiguration{
-		ComputerName:  *s.ComputerName,
-		Administrator: adminuser,
-		Users:         []*wssdcloudcompute.UserConfiguration{},
-		Publickeys:    publickeys,
-		Ostype:        osType,
-	}
+	osconfig.ComputerName = *s.ComputerName
+	osconfig.Administrator = adminuser
+	osconfig.Publickeys = publickeys
 
 	if s.CustomData != nil {
 		osconfig.CustomData = *s.CustomData
@@ -289,7 +298,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
-			Host: c.getVirtualMachineHostDescription(vm),
+			Host:                    c.getVirtualMachineHostDescription(vm),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
