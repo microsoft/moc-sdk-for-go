@@ -248,3 +248,34 @@ type Cluster struct {
 	// Nodes
 	Nodes *[]Node `json:"nodes,omitempty"`
 }
+
+// ControlPlaneProperties the resource group properties.
+type ControlPlaneProperties struct {
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+	// Fqdn
+	Fqdn *string `json:"fqdn,omitempty"`
+	// Port
+	Port *int32 `json:"port,omitempty"`
+	// AuthorizerPort
+	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
+	// Certificate
+	Certificate *string `json:"certificate,omitempty"`
+}
+
+// ControlPlane resource group information.
+type ControlPlaneInfo struct {
+	autorest.Response `json:"-"`
+	// ID - READ-ONLY; The ID of the resource group.
+	ID *string `json:"id,omitempty"`
+	// Name - The name of the resource group.
+	Name *string `json:"name,omitempty"`
+	//Properties
+	*ControlPlaneProperties `json:"properties,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - The location of the resource group. It cannot be changed after the resource group has been created. It must be one of the supported Azure locations.
+	Location *string `json:"location,omitempty"`
+	// Tags - The tags attached to the resource group.
+	Tags map[string]*string `json:"tags"`
+}
