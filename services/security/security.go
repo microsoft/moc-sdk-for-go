@@ -242,7 +242,7 @@ type Certificate struct {
 	Name *string `json:"name,omitempty"`
 	// X509Thumbprint - READ-ONLY; Thumbprint of the certificate. (a URL-encoded base64 string)
 	X509Thumbprint *string `json:"x5t,omitempty"`
-	// Cer - CER contents of x509 certificate.
+	// Cer - CER contents of x509 certificate string encoded in base64
 	Cer *string `json:"cer,omitempty"`
 	// Type - The content type of the certificate
 	Type *string `json:"contentType,omitempty"`
@@ -268,8 +268,8 @@ type Identity struct {
 	Type *string `json:"type,omitempty"`
 	// Token
 	Token *string `json:"token,omitempty"`
-	// Certificates
-	Certificate *string `json:"certificates,omitempty"`
+	// Certificate string encoded in base64
+	Certificate *string `json:"certificate,omitempty"`
 	// Tags - Custom resource tags
 	Tags map[string]*string `json:"tags"`
 	// Properties
