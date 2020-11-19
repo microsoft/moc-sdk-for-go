@@ -25,16 +25,11 @@ func getWssdControlPlane(nd *cloud.ControlPlaneInfo, location string) (*wssdclou
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Port in Configuration")
 	}
 
-	if nd.AuthorizerPort == nil {
-		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing AuthorizrPort in Configuration")
-	}
-
 	controlPlane := &wssdcloud.ControlPlane{
-		Name:           *nd.Name,
-		Fqdn:           *nd.Fqdn,
-		LocationName:   location,
-		Port:           *nd.Port,
-		AuthorizerPort: *nd.AuthorizerPort,
+		Name:         *nd.Name,
+		Fqdn:         *nd.Fqdn,
+		LocationName: location,
+		Port:         *nd.Port,
 	}
 
 	if nd.Version != nil {
@@ -42,10 +37,6 @@ func getWssdControlPlane(nd *cloud.ControlPlaneInfo, location string) (*wssdclou
 			controlPlane.Status = status.InitStatus()
 		}
 		controlPlane.Status.Version.Number = *nd.Version
-	}
-
-	if nd.Certificate != nil {
-		controlPlane.Certificate = *nd.Certificate
 	}
 
 	return controlPlane, nil
@@ -57,11 +48,9 @@ func getControlPlane(nd *wssdcloud.ControlPlane) *cloud.ControlPlaneInfo {
 		Name:     &nd.Name,
 		Location: &nd.LocationName,
 		ControlPlaneProperties: &cloud.ControlPlaneProperties{
-			Fqdn:           &nd.Fqdn,
-			Port:           &nd.Port,
-			AuthorizerPort: &nd.AuthorizerPort,
-			Certificate:    &nd.Certificate,
-			Statuses:       getControlPlaneStatuses(nd),
+			Fqdn:     &nd.Fqdn,
+			Port:     &nd.Port,
+			Statuses: getControlPlaneStatuses(nd),
 		},
 		Version: &nd.Status.Version.Number,
 	}

@@ -117,10 +117,6 @@ func (c *client) validate(ctx context.Context, sg *cloud.ControlPlaneInfo, locat
 		err = errors.Wrapf(errors.InvalidInput, "Missing ControlPlaneProperties.Port")
 		return
 	}
-	if sg.ControlPlaneProperties.AuthorizerPort == nil {
-		err = errors.Wrapf(errors.InvalidInput, "Missing ControlPlaneProperties.AuthorizerPort")
-		return
-	}
 	return
 
 }
