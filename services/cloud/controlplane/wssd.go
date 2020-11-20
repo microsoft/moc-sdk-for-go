@@ -129,7 +129,7 @@ func (c *client) getControlPlaneFromResponse(response *wssdcloud.ControlPlaneRes
 	return &gps
 }
 
-func (c *client) getControlPlaneRequest(opType wssdcloudcommon.Operation, location, name string, gpss *cloud.ControlPlaneInfo) (*wssdcloud.ControlPlaneRequest, error) {
+func (c *client) getControlPlaneRequest(opType wssdcloudcommon.Operation, location, name string, cpRequest *cloud.ControlPlaneInfo) (*wssdcloud.ControlPlaneRequest, error) {
 	request := &wssdcloud.ControlPlaneRequest{
 		OperationType: opType,
 		ControlPlanes: []*wssdcloud.ControlPlane{},
@@ -139,8 +139,8 @@ func (c *client) getControlPlaneRequest(opType wssdcloudcommon.Operation, locati
 		LocationName: location,
 	}
 	var err error
-	if gpss != nil {
-		wssdControlPlane, err = getWssdControlPlane(gpss, location)
+	if cpRequest != nil {
+		wssdControlPlane, err = getWssdControlPlane(cpRequest, location)
 		if err != nil {
 			return nil, err
 		}
