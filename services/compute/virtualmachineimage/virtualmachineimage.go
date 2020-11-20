@@ -31,8 +31,8 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 // Conversion function from wssdcloudcompute to compute
 func getVirtualMachineImage(c *wssdcloudcompute.VirtualMachineImage, group string) *compute.VirtualMachineImage {
 	return &compute.VirtualMachineImage{
-		Name:                          &c.Name,
-		ID:                            &c.Id,
+		Name: &c.Name,
+		ID:   &c.Id,
 		VirtualMachineImageProperties: &compute.VirtualMachineImageProperties{},
 	}
 }
