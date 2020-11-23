@@ -5,6 +5,7 @@ package authentication
 
 import (
 	"context"
+
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
@@ -36,10 +37,11 @@ func (c *client) Login(ctx context.Context, group string, identity *security.Ide
 }
 
 func getAuthenticationRequest(identity *security.Identity) *wssdsecurity.AuthenticationRequest {
+	certs := map[string]string{"": *identity.Certificate}
 	request := &wssdsecurity.AuthenticationRequest{
 		Identity: &wssdsecurity.Identity{
-			Name:        *identity.Name,
-			Certificate: *identity.Certificate,
+			Name:         *identity.Name,
+			Certificates: certs,
 		},
 	}
 	return request
