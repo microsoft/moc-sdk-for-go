@@ -44,6 +44,12 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 		if c.VirtualNetworkPropertiesFormat.MacPoolName != nil {
 			wssdnetwork.MacPoolName = *c.VirtualNetworkPropertiesFormat.MacPoolName
 		}
+
+		if c.DhcpOptions != nil && c.DhcpOptions.DNSServers != nil {
+			wssdnetwork.Dns = &wssdcommonproto.Dns{
+				Servers: *c.DhcpOptions.DNSServers,
+			}
+		}
 	}
 
 	if c.Type == nil {
@@ -172,6 +178,10 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 // Conversion function from wssdcloudnetwork to network
 func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *network.VirtualNetwork {
 	stringType := virtualNetworkTypeToString(c.Type)
+	dnsservers := []string{}
+	if c.Dns != nil {
+		dnsservers = c.Dns.Servers
+	}
 	return &network.VirtualNetwork{
 		Name:     &c.Name,
 		Location: &c.LocationName,
@@ -182,6 +192,9 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 			Subnets:     getNetworkSubnets(c.Subnets),
 			Statuses:    status.GetStatuses(c.GetStatus()),
 			MacPoolName: &c.MacPoolName,
+			DhcpOptions: &network.DhcpOptions{
+				DNSServers: &dnsservers,
+			},
 		},
 	}
 }
