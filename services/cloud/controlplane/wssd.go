@@ -109,7 +109,7 @@ func (c *client) validate(ctx context.Context, sg *cloud.ControlPlaneInfo, locat
 		err = errors.Wrapf(errors.InvalidInput, "Missing ControlPlaneProperties")
 		return
 	}
-	if sg.ControlPlaneProperties.Fqdn == nil {
+	if sg.ControlPlaneProperties.FQDN == nil {
 		err = errors.Wrapf(errors.InvalidInput, "Missing ControlPlaneProperties.Fqdn")
 		return
 	}
