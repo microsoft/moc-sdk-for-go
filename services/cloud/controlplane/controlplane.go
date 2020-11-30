@@ -18,7 +18,7 @@ func getWssdControlPlane(cp *cloud.ControlPlaneInfo, location string) (*wssdclou
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Name in Configuration")
 	}
 
-	if cp.Fqdn == nil {
+	if cp.FQDN == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing FQDN in Configuration")
 	}
 
@@ -28,7 +28,7 @@ func getWssdControlPlane(cp *cloud.ControlPlaneInfo, location string) (*wssdclou
 
 	controlPlane := &wssdcloud.ControlPlane{
 		Name:         *cp.Name,
-		Fqdn:         *cp.Fqdn,
+		Fqdn:         *cp.FQDN,
 		LocationName: location,
 		Port:         *cp.Port,
 	}
@@ -49,7 +49,7 @@ func getControlPlane(cp *wssdcloud.ControlPlane) *cloud.ControlPlaneInfo {
 		Name:     &cp.Name,
 		Location: &cp.LocationName,
 		ControlPlaneProperties: &cloud.ControlPlaneProperties{
-			Fqdn:     &cp.Fqdn,
+			FQDN:     &cp.Fqdn,
 			Port:     &cp.Port,
 			Statuses: getControlPlaneStatuses(cp),
 		},

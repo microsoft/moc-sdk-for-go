@@ -253,8 +253,8 @@ type Cluster struct {
 type ControlPlaneProperties struct {
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
-	// Fqdn
-	Fqdn *string `json:"fqdn,omitempty"`
+	// FQDN
+	FQDN *string `json:"fqdn,omitempty"`
 	// Port
 	Port *int32 `json:"port,omitempty"`
 	// AuthorizerPort
@@ -270,7 +270,7 @@ type ControlPlaneInfo struct {
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource group.
 	Name *string `json:"name,omitempty"`
-	//Properties
+	// Properties
 	*ControlPlaneProperties `json:"properties,omitempty"`
 	// Version
 	Version *string `json:"version,omitempty"`
