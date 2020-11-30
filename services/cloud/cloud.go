@@ -251,16 +251,15 @@ type Cluster struct {
 
 // ControlPlaneProperties the resource group properties.
 type ControlPlaneProperties struct {
-	// State - State
+	// Statuses - provides state of the ControlPlane like denoting whether
+	// each ControlPlane is the Leader or Active
 	Statuses map[string]*string `json:"statuses"`
-	// FQDN
+	// FQDN - provides the ControlPlane FQDN (or IP) used for the leadership
+	// election.
 	FQDN *string `json:"fqdn,omitempty"`
-	// Port
+	// Port - provides the ControlPlane Port (or IP) used for the leadership
+	// election.
 	Port *int32 `json:"port,omitempty"`
-	// AuthorizerPort
-	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
-	// Certificate
-	Certificate *string `json:"certificate,omitempty"`
 }
 
 // ControlPlane resource group information.
