@@ -6,57 +6,59 @@ package controlplane
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
+	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 )
 
 // Conversion functions from cloud to wssdcloud
-func getWssdControlPlane(nd *cloud.ControlPlaneInfo, location string) (*wssdcloud.ControlPlane, error) {
-	if nd.Name == nil {
+func getWssdControlPlane(cp *cloud.ControlPlaneInfo, location string) (*wssdcloud.ControlPlane, error) {
+	if cp.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Name in Configuration")
 	}
 
-	if nd.Fqdn == nil {
+	if cp.Fqdn == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing FQDN in Configuration")
 	}
 
-	if nd.Port == nil {
+	if cp.Port == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Port in Configuration")
 	}
 
 	controlPlane := &wssdcloud.ControlPlane{
-		Name:         *nd.Name,
-		Fqdn:         *nd.Fqdn,
+		Name:         *cp.Name,
+		Fqdn:         *cp.Fqdn,
 		LocationName: location,
-		Port:         *nd.Port,
+		Port:         *cp.Port,
 	}
 
-	if nd.Version != nil {
+	if cp.Version != nil {
 		if controlPlane.Status == nil {
 			controlPlane.Status = status.InitStatus()
 		}
-		controlPlane.Status.Version.Number = *nd.Version
+		controlPlane.Status.Version.Number = *cp.Version
 	}
 
 	return controlPlane, nil
 }
 
 // Conversion functions from wssdcloud to cloud
-func getControlPlane(nd *wssdcloud.ControlPlane) *cloud.ControlPlaneInfo {
+func getControlPlane(cp *wssdcloud.ControlPlane) *cloud.ControlPlaneInfo {
 	return &cloud.ControlPlaneInfo{
-		Name:     &nd.Name,
-		Location: &nd.LocationName,
+		Name:     &cp.Name,
+		Location: &cp.LocationName,
 		ControlPlaneProperties: &cloud.ControlPlaneProperties{
-			Fqdn:     &nd.Fqdn,
-			Port:     &nd.Port,
-			Statuses: getControlPlaneStatuses(nd),
+			Fqdn:     &cp.Fqdn,
+			Port:     &cp.Port,
+			Statuses: getControlPlaneStatuses(cp),
 		},
-		Version: &nd.Status.Version.Number,
+		Version: &cp.Status.Version.Number,
 	}
 }
 
-func getControlPlaneStatuses(controlPlane *wssdcloud.ControlPlane) map[string]*string {
-	statuses := status.GetStatuses(controlPlane.GetStatus())
+func getControlPlaneStatuses(cp *wssdcloud.ControlPlane) map[string]*string {
+	statuses := status.GetStatuses(cp.GetStatus())
+	statuses["State"] = convert.ToStringPtr(cp.GetState().String())
 	return statuses
 }
