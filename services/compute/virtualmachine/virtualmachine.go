@@ -242,14 +242,14 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 
 	switch s.OsType {
 	case compute.Linux:
-		osType = wssdcommon.OperatingSystemType_LINUX
+		osconfig.Ostype = wssdcommon.OperatingSystemType_LINUX
 	case compute.Windows:
-		osType = wssdcommon.OperatingSystemType_WINDOWS
+		osconfig.Ostype = wssdcommon.OperatingSystemType_WINDOWS
 	default:
 		if s.LinuxConfiguration != nil {
-			osType = wssdcommon.OperatingSystemType_LINUX
+			osconfig.Ostype = wssdcommon.OperatingSystemType_LINUX
 		} else {
-			osType = wssdcommon.OperatingSystemType_WINDOWS
+			osconfig.Ostype = wssdcommon.OperatingSystemType_WINDOWS
 		}
 	}
 
