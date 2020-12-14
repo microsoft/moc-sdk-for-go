@@ -59,3 +59,13 @@ func GetClusterClient(serverAddress *string, authorizer auth.Authorizer) (cloud_
 
 	return cloud_pb.NewClusterAgentClient(conn), nil
 }
+
+// GetControlPlaneClient returns the cluster client to communicate with the wssd agent
+func GetControlPlaneClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.ControlPlaneAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get ControlPlaneClient. Failed to dial: %v", err)
+	}
+
+	return cloud_pb.NewControlPlaneAgentClient(conn), nil
+}
