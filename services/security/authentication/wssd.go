@@ -40,9 +40,12 @@ func getAuthenticationRequest(identity *security.Identity) *wssdsecurity.Authent
 	certs := map[string]string{"": *identity.Certificate}
 	request := &wssdsecurity.AuthenticationRequest{
 		Identity: &wssdsecurity.Identity{
-			Name:         *identity.Name,
 			Certificates: certs,
 		},
 	}
+	if identity.Name != nil {
+		request.Identity.Name = *identity.Name
+	}
+
 	return request
 }

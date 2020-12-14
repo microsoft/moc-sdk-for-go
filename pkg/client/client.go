@@ -53,7 +53,10 @@ func getServerEndpoint(serverAddress *string) string {
 	return fmt.Sprintf("%s:%d", *serverAddress, ServerPort)
 }
 
-func getAuthServerEndpoint(serverAddress *string) string {
+func GetAuthServerEndpoint(serverAddress *string) string {
+	if strings.Contains(*serverAddress, ":") {
+		return *serverAddress
+	}
 	return fmt.Sprintf("%s:%d", *serverAddress, AuthPort)
 }
 

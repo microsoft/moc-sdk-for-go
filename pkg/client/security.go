@@ -67,7 +67,7 @@ func GetAuthenticationClient(serverAddress *string, authorizer auth.Authorizer) 
 	opts = append(opts, grpc.WithTransportCredentials(authorizer.WithTransportAuthorization()))
 	opts = append(opts, grpc.WithPerRPCCredentials(authorizer.WithRPCAuthorization()))
 
-	conn, err := grpc.Dial(getAuthServerEndpoint(serverAddress), opts...)
+	conn, err := grpc.Dial(GetAuthServerEndpoint(serverAddress), opts...)
 	if err != nil {
 		log.Fatalf("Unable to get AuthenticationClient. Failed to dial: %v", err)
 	}
