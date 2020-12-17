@@ -209,14 +209,50 @@ func (c *client) getWssdVirtualMachineOSSSHPublicKeys(ssh *compute.SSHConfigurat
 
 }
 
+func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration *compute.WindowsConfiguration) *wssdcloudcompute.WindowsConfiguration {
+	wc := &wssdcloudcompute.WindowsConfiguration{
+		RDPConfiguration: &wssdcloudcompute.RDPConfiguration{},
+	}
+
+	if windowsConfiguration.RDP == nil {
+		return wc
+	}
+
+	if windowsConfiguration.RDP != nil && windowsConfiguration.RDP.DisableRDP != nil {
+		wc.RDPConfiguration.DisableRDP = *windowsConfiguration.RDP.DisableRDP
+	}
+
+	if windowsConfiguration.EnableAutomaticUpdates != nil {
+		wc.EnableAutomaticUpdates = *windowsConfiguration.EnableAutomaticUpdates
+	}
+
+	if windowsConfiguration.TimeZone != nil {
+		wc.TimeZone = *windowsConfiguration.TimeZone
+	}
+
+	return wc
+}
+
+func (c *client) getWssdVirtualMachineLinuxConfiguration(linuxConfiguration *compute.LinuxConfiguration) *wssdcloudcompute.LinuxConfiguration {
+	lc := &wssdcloudcompute.LinuxConfiguration{}
+
+	if linuxConfiguration.DisablePasswordAuthentication != nil {
+		lc.DisablePasswordAuthentication = *linuxConfiguration.DisablePasswordAuthentication
+	}
+
+	return lc
+
+}
+
 func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*wssdcloudcompute.OperatingSystemConfiguration, error) {
 	publickeys := []*wssdcloudcompute.SSHPublicKey{}
 	osType := wssdcommon.OperatingSystemType_WINDOWS
 	var err error
 
 	osconfig := wssdcloudcompute.OperatingSystemConfiguration{
-		Users:  []*wssdcloudcompute.UserConfiguration{},
-		Ostype: osType,
+		Users:             []*wssdcloudcompute.UserConfiguration{},
+		Ostype:            osType,
+		OsBootstrapEngine: wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT,
 	}
 
 	if s == nil {
@@ -269,6 +305,23 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	osconfig.ComputerName = *s.ComputerName
 	osconfig.Administrator = adminuser
 	osconfig.Publickeys = publickeys
+
+	switch s.OsBootstrapEngine {
+	case compute.WindowsAnswerFiles:
+		osconfig.OsBootstrapEngine = wssdcommon.OperatingSystemBootstrapEngine_WINDOWS_ANSWER_FILES
+	case compute.CloudInit:
+		fallthrough
+	default:
+		osconfig.OsBootstrapEngine = wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT
+	}
+
+	if s.WindowsConfiguration != nil {
+		osconfig.WindowsConfiguration = c.getWssdVirtualMachineWindowsConfiguration(s.WindowsConfiguration)
+	}
+
+	if s.LinuxConfiguration != nil {
+		osconfig.LinuxConfiguration = c.getWssdVirtualMachineLinuxConfiguration(s.LinuxConfiguration)
+	}
 
 	if s.CustomData != nil {
 		osconfig.CustomData = *s.CustomData
@@ -388,6 +441,36 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 	}
 	return np
 }
+
+func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
+	wc := &compute.WindowsConfiguration{
+		RDP: &compute.RDPConfiguration{},
+	}
+
+	if windowsConfiguration == nil {
+		return wc
+	}
+
+	if windowsConfiguration.RDPConfiguration != nil {
+		wc.RDP.DisableRDP = &windowsConfiguration.RDPConfiguration.DisableRDP
+	}
+
+	wc.EnableAutomaticUpdates = &windowsConfiguration.EnableAutomaticUpdates
+	wc.TimeZone = &windowsConfiguration.TimeZone
+
+	return wc
+}
+
+func (c *client) getVirtualMachineLinuxConfiguration(linuxConfiguration *wssdcloudcompute.LinuxConfiguration) *compute.LinuxConfiguration {
+	lc := &compute.LinuxConfiguration{}
+
+	if linuxConfiguration != nil {
+		lc.DisablePasswordAuthentication = &linuxConfiguration.DisablePasswordAuthentication
+	}
+
+	return lc
+}
+
 func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemConfiguration) *compute.OSProfile {
 	osType := compute.Windows
 	switch o.Ostype {
@@ -397,10 +480,25 @@ func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemC
 		osType = compute.Windows
 	}
 
+	osBootstrapEngine := compute.CloudInit
+	switch o.OsBootstrapEngine {
+	case wssdcommon.OperatingSystemBootstrapEngine_WINDOWS_ANSWER_FILES:
+		osBootstrapEngine = compute.WindowsAnswerFiles
+	case wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT:
+		fallthrough
+	default:
+		osBootstrapEngine = compute.CloudInit
+	}
+
 	return &compute.OSProfile{
 		ComputerName: &o.ComputerName,
 		OsType:       osType,
 		// AdminUsername: &o.Administrator.Username,
 		// AdminPassword: &o.Administrator.Password,
+		// Publickeys: &o.Publickeys,
+		// Users : &o.Users,
+		OsBootstrapEngine:    osBootstrapEngine,
+		WindowsConfiguration: c.getVirtualMachineWindowsConfiguration(o.WindowsConfiguration),
+		LinuxConfiguration:   c.getVirtualMachineLinuxConfiguration(o.LinuxConfiguration),
 	}
 }

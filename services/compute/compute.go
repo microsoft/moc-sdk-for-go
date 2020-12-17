@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the Apache v2.0 License.
 
+// Based on https://godoc.org/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2015-06-15/compute
+
 package compute
 
 import (
@@ -21,6 +23,13 @@ const (
 	Linux OperatingSystemTypes = "Linux"
 	// Windows
 	Windows OperatingSystemTypes = "Windows"
+)
+
+type OperatingSystemBootstrapEngine string
+
+const (
+	CloudInit          OperatingSystemBootstrapEngine = "CloudInit"
+	WindowsAnswerFiles OperatingSystemBootstrapEngine = "WindowsAnswerFiles"
 )
 
 type VMType string
@@ -108,6 +117,12 @@ type SSHConfiguration struct {
 	PublicKeys *[]SSHPublicKey `json:"publicKeys,omitempty"`
 }
 
+type RDPConfiguration struct {
+	// Set to 'true' to disable Remote Desktop
+	DisableRDP *bool
+}
+
+// Based on https://godoc.org/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2015-06-15/compute
 type WindowsConfiguration struct {
 	// EnableAutomaticUpdates
 	EnableAutomaticUpdates *bool `json:"enableAutomaticUpdates,omitempty"`
@@ -117,8 +132,11 @@ type WindowsConfiguration struct {
 	// AdditionalUnattendContent *[]AdditionalUnattendContent `json:"additionalUnattendContent,omitempty"`
 	// SSH
 	SSH *SSHConfiguration `json:"ssh,omitempty"`
+	// RDP
+	RDP *RDPConfiguration `json:"rdp,omitempty"`
 }
 
+// Based on https://godoc.org/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2015-06-15/compute#LinuxConfiguration
 type LinuxConfiguration struct {
 	// SSH
 	SSH *SSHConfiguration `json:"ssh,omitempty"`
@@ -141,6 +159,8 @@ type OSProfile struct {
 	WindowsConfiguration *WindowsConfiguration `json:"windowsconfiguration,omitempty"`
 	// LinuxConfiguration
 	LinuxConfiguration *LinuxConfiguration `json:"linuxconfiguration,omitempty"`
+	// Bootstrap engine
+	OsBootstrapEngine OperatingSystemBootstrapEngine `json:"osbootstrapengine,omitempty"`
 }
 
 type HardwareProfile struct {
@@ -416,6 +436,8 @@ type VirtualMachineScaleSetOSProfile struct {
 	LinuxConfiguration *LinuxConfiguration `json:"linuxConfiguration,omitempty"`
 	// Secrets - Specifies set of certificates that should be installed onto the virtual machines in the scale set.
 	Secrets *[]VaultSecretGroup `json:"secrets,omitempty"`
+	// Bootstrap engine
+	OsBootstrapEngine OperatingSystemBootstrapEngine `json:"osbootstrapengine,omitempty"`
 }
 
 // DiskCreateOptionTypes enumerates the values for disk create option types.
