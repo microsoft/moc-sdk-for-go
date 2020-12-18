@@ -14,3 +14,4 @@ require (
 )
 
 replace github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
+replace github.com/microsoft/moc => X:\go\src\github.com\microsoft\moc
