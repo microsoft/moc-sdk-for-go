@@ -171,6 +171,26 @@ func (c *client) getVirtualMachineScaleSetNetworkConfigurationIpConfiguration(ni
 	}, nil
 }
 
+func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
+	wc := &compute.WindowsConfiguration{
+		RDP: &compute.RDPConfiguration{
+			DisableRDP: &windowsConfiguration.RDPConfiguration.DisableRDP,
+		},
+		EnableAutomaticUpdates: &windowsConfiguration.EnableAutomaticUpdates,
+		TimeZone:               &windowsConfiguration.TimeZone,
+	}
+
+	return wc
+}
+
+func (c *client) getVirtualMachineLinuxConfiguration(linuxConfiguration *wssdcloudcompute.LinuxConfiguration) *compute.LinuxConfiguration {
+	lc := &compute.LinuxConfiguration{
+		DisablePasswordAuthentication: &linuxConfiguration.DisablePasswordAuthentication,
+	}
+
+	return lc
+}
+
 func (c *client) getVirtualMachineScaleSetOSProfile(o *wssdcloudcompute.OperatingSystemConfiguration) (*compute.VirtualMachineScaleSetOSProfile, error) {
 	publicKeys := []compute.SSHPublicKey{}
 	for _, wssdpkey := range o.Publickeys {
@@ -183,11 +203,26 @@ func (c *client) getVirtualMachineScaleSetOSProfile(o *wssdcloudcompute.Operatin
 
 	ssh := compute.SSHConfiguration{PublicKeys: &publicKeys}
 
+	osBootstrapEngine := compute.CloudInit
+	switch o.OsBootstrapEngine {
+	case wssdcommon.OperatingSystemBootstrapEngine_WINDOWS_ANSWER_FILES:
+		osBootstrapEngine = compute.WindowsAnswerFiles
+	case wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT:
+		fallthrough
+	default:
+		osBootstrapEngine = compute.CloudInit
+	}
+
 	osprofile := &compute.VirtualMachineScaleSetOSProfile{
 		ComputerNamePrefix: &o.ComputerName,
 		CustomData:         &o.CustomData,
 		// AdminUsername: &o.Administrator.Username,
 		// AdminPassword: &o.Administrator.Password,
+		// Publickeys: &o.Publickeys,
+		// Users : &o.Users,
+		OsBootstrapEngine:    osBootstrapEngine,
+		WindowsConfiguration: c.getVirtualMachineWindowsConfiguration(o.WindowsConfiguration),
+		LinuxConfiguration:   c.getVirtualMachineLinuxConfiguration(o.LinuxConfiguration),
 	}
 
 	switch o.Ostype {
@@ -436,6 +471,37 @@ func (c *client) getWssdVirtualMachineScaleSetOSSSHPublicKey(sshKey *compute.SSH
 	return &wssdcloudcompute.SSHPublicKey{Keydata: *sshKey.KeyData}, nil
 }
 
+func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration *compute.WindowsConfiguration) *wssdcloudcompute.WindowsConfiguration {
+	wc := &wssdcloudcompute.WindowsConfiguration{
+		RDPConfiguration: &wssdcloudcompute.RDPConfiguration{},
+	}
+
+	if windowsConfiguration.RDP.DisableRDP != nil {
+		wc.RDPConfiguration.DisableRDP = *windowsConfiguration.RDP.DisableRDP
+	}
+
+	if windowsConfiguration.EnableAutomaticUpdates != nil {
+		wc.EnableAutomaticUpdates = *windowsConfiguration.EnableAutomaticUpdates
+	}
+
+	if windowsConfiguration.TimeZone != nil {
+		wc.TimeZone = *windowsConfiguration.TimeZone
+	}
+
+	return wc
+}
+
+func (c *client) getWssdVirtualMachineLinuxConfiguration(linuxConfiguration *compute.LinuxConfiguration) *wssdcloudcompute.LinuxConfiguration {
+	lc := &wssdcloudcompute.LinuxConfiguration{}
+
+	if linuxConfiguration.DisablePasswordAuthentication != nil {
+		lc.DisablePasswordAuthentication = *linuxConfiguration.DisablePasswordAuthentication
+	}
+
+	return lc
+
+}
+
 func (c *client) getWssdVirtualMachineScaleSetOSConfiguration(s *compute.VirtualMachineScaleSetOSProfile) (*wssdcloudcompute.OperatingSystemConfiguration, error) {
 	sshConfig, err := c.getWssdVirtualMachineScaleSetOSConfigurationSSH(s)
 	if err != nil {
@@ -462,12 +528,35 @@ func (c *client) getWssdVirtualMachineScaleSetOSConfiguration(s *compute.Virtual
 		adminuser.Password = *s.AdminPassword
 	}
 
+	osBootstrapEngine := wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT
+	switch s.OsBootstrapEngine {
+	case compute.WindowsAnswerFiles:
+		osBootstrapEngine = wssdcommon.OperatingSystemBootstrapEngine_WINDOWS_ANSWER_FILES
+	case compute.CloudInit:
+		fallthrough
+	default:
+		osBootstrapEngine = wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT
+	}
+
+	var windowsConfiguration *wssdcloudcompute.WindowsConfiguration = nil
+	if s.WindowsConfiguration != nil {
+		windowsConfiguration = c.getWssdVirtualMachineWindowsConfiguration(s.WindowsConfiguration)
+	}
+
+	var linuxConfiguration *wssdcloudcompute.LinuxConfiguration = nil
+	if s.LinuxConfiguration != nil {
+		linuxConfiguration = c.getWssdVirtualMachineLinuxConfiguration(s.LinuxConfiguration)
+	}
+
 	osconfig := wssdcloudcompute.OperatingSystemConfiguration{
-		ComputerName:  *s.ComputerNamePrefix,
-		Administrator: adminuser,
-		Users:         []*wssdcloudcompute.UserConfiguration{},
-		Publickeys:    publickeys,
-		Ostype:        wssdcommon.OperatingSystemType_WINDOWS,
+		ComputerName:         *s.ComputerNamePrefix,
+		Administrator:        adminuser,
+		Users:                []*wssdcloudcompute.UserConfiguration{},
+		Publickeys:           publickeys,
+		Ostype:               wssdcommon.OperatingSystemType_WINDOWS,
+		OsBootstrapEngine:    osBootstrapEngine,
+		WindowsConfiguration: windowsConfiguration,
+		LinuxConfiguration:   linuxConfiguration,
 	}
 
 	if s.LinuxConfiguration != nil {
