@@ -50,7 +50,7 @@ func getWssdSecret(sec *keyvault.Secret, opType wssdcloudcommon.Operation) (*wss
 		return nil, errors.Wrapf(errors.InvalidInput, "Secrets Value is empty")
 	}
 	if opType == wssdcloudcommon.Operation_POST {
-		secret.Value = []byte(*sec.Value)
+		secret.Value = *sec.Value
 	}
 
 	return secret, nil
