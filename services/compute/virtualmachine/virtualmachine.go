@@ -218,7 +218,7 @@ func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration 
 		return wc
 	}
 
-	if windowsConfiguration.RDP != nil && windowsConfiguration.RDP.DisableRDP != nil {
+	if windowsConfiguration.RDP.DisableRDP != nil {
 		wc.RDPConfiguration.DisableRDP = *windowsConfiguration.RDP.DisableRDP
 	}
 
