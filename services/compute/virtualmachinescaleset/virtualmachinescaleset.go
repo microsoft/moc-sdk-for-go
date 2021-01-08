@@ -173,12 +173,19 @@ func (c *client) getVirtualMachineScaleSetNetworkConfigurationIpConfiguration(ni
 
 func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
 	wc := &compute.WindowsConfiguration{
-		RDP: &compute.RDPConfiguration{
-			DisableRDP: &windowsConfiguration.RDPConfiguration.DisableRDP,
-		},
-		EnableAutomaticUpdates: &windowsConfiguration.EnableAutomaticUpdates,
-		TimeZone:               &windowsConfiguration.TimeZone,
+		RDP: &compute.RDPConfiguration{},
 	}
+
+	if windowsConfiguration == nil {
+		return wc
+	}
+
+	if windowsConfiguration.RDPConfiguration != nil {
+		wc.RDP.DisableRDP = &windowsConfiguration.RDPConfiguration.DisableRDP
+	}
+
+	wc.EnableAutomaticUpdates = &windowsConfiguration.EnableAutomaticUpdates
+	wc.TimeZone = &windowsConfiguration.TimeZone
 
 	return wc
 }
@@ -474,6 +481,10 @@ func (c *client) getWssdVirtualMachineScaleSetOSSSHPublicKey(sshKey *compute.SSH
 func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration *compute.WindowsConfiguration) *wssdcloudcompute.WindowsConfiguration {
 	wc := &wssdcloudcompute.WindowsConfiguration{
 		RDPConfiguration: &wssdcloudcompute.RDPConfiguration{},
+	}
+
+	if windowsConfiguration == nil {
+		return wc
 	}
 
 	if windowsConfiguration.RDP.DisableRDP != nil {
