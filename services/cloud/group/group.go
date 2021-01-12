@@ -4,10 +4,10 @@
 package group
 
 import (
-	"github.com/microsoft/moc/pkg/errors"
-
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 )
 
@@ -21,6 +21,7 @@ func getWssdGroup(gp *cloud.Group, location string) (*wssdcloud.Group, error) {
 	group := &wssdcloud.Group{
 		Name:         *gp.Name,
 		LocationName: location,
+		Tags:         tags.MapToProto(gp.Tags),
 	}
 
 	if gp.Version != nil {
@@ -42,5 +43,6 @@ func getGroup(gp *wssdcloud.Group) *cloud.Group {
 		GroupProperties: &cloud.GroupProperties{
 			Statuses: status.GetStatuses(gp.GetStatus()),
 		},
+		Tags: tags.ProtoToMap(gp.Tags),
 	}
 }

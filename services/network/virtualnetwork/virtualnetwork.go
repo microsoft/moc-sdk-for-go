@@ -3,9 +3,12 @@
 package virtualnetwork
 
 import (
+	"strings"
+
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcommonproto "github.com/microsoft/moc/rpc/common"
 )
@@ -21,6 +24,7 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 	wssdnetwork := &wssdcloudnetwork.VirtualNetwork{
 		Name:      *c.Name,
 		GroupName: groupName,
+		Tags:      tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -93,16 +97,15 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 	}
 
 	for _, subnet := range *subnets {
-		wssdsubnet := &wssdcloudnetwork.Subnet{
-			Name: *subnet.Name,
+		wssdsubnet := &wssdcloudnetwork.Subnet{}
+		if subnet.Name == nil {
+			err = errors.Wrapf(errors.InvalidInput, "Name is missing in subnet")
+			return
 		}
+		wssdsubnet.Name = *subnet.Name
 
-		if subnet.SubnetPropertiesFormat != nil && subnet.IPAllocationMethod == network.Static {
-			if subnet.AddressPrefix == nil {
-				err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
-				return
-			}
-			wssdsubnet.Cidr = *subnet.AddressPrefix
+		if subnet.SubnetPropertiesFormat == nil {
+			continue
 		}
 
 		if subnet.Vlan == nil {
@@ -118,6 +121,30 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		}
 		wssdsubnet.Routes = wssdsubnetRoutes
 		wssdsubnet.Allocation = ipAllocationMethodSdkToProtobuf(subnet.IPAllocationMethod)
+
+		if subnet.AddressPrefix != nil {
+			wssdsubnet.Cidr = *subnet.AddressPrefix
+		}
+
+		//An address prefix is required if using ippools
+		if len(subnet.IPPools) > 0 && subnet.AddressPrefix == nil {
+			err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
+			return
+		}
+
+		for _, ippool := range subnet.IPPools {
+			ippoolType := wssdcloudnetwork.IPPoolType_VM
+			if strings.EqualFold(string(ippool.Type), string(network.VIPPOOL)) {
+				ippoolType = wssdcloudnetwork.IPPoolType_VIPPool
+			}
+			wssdsubnet.Ippools = append(wssdsubnet.Ippools, &wssdcloudnetwork.IPPool{
+				Name:  ippool.Name,
+				Type:  ippoolType,
+				Start: ippool.Start,
+				End:   ippool.End,
+			})
+		}
+
 		wssdsubnets = append(wssdsubnets, wssdsubnet)
 	}
 
@@ -196,6 +223,7 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 				DNSServers: &dnsservers,
 			},
 		},
+		Tags: tags.ProtoToMap(c.Tags),
 	}
 }
 
@@ -212,11 +240,28 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 				// TODO: implement something for IPConfigurationReferences
 				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
 				Vlan:               getVlan(subnet.Vlan),
+				IPPools:            getIPPools(subnet.Ippools),
 			},
 		})
 	}
 
 	return &subnets
+}
+func getIPPools(wssdcloudippools []*wssdcloudnetwork.IPPool) []network.IPPool {
+	ippool := []network.IPPool{}
+	for _, wssdcloudippool := range wssdcloudippools {
+		ippoolType := network.VM
+		if wssdcloudippool.Type == wssdcloudnetwork.IPPoolType_VIPPool {
+			ippoolType = network.VIPPOOL
+		}
+		ippool = append(ippool, network.IPPool{
+			Name:  wssdcloudippool.Name,
+			Type:  ippoolType,
+			Start: wssdcloudippool.Start,
+			End:   wssdcloudippool.End,
+		})
+	}
+	return ippool
 }
 
 func getNetworkRoutetable(wssdcloudroutes []*wssdcloudnetwork.Route) *network.RouteTable {
