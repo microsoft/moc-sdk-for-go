@@ -104,11 +104,19 @@ func (c *client) getVirtualMachineScaleSetStorageProfileDataDisk(dd *wssdcloudco
 
 func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.VirtualMachineScaleSetHardwareProfile, error) {
 	sizeType := compute.VirtualMachineSizeTypesDefault
+	var customSize *compute.VirtualMachineCustomSize
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
+		if vm.Hardware.CustomSize != nil {
+			customSize = &compute.VirtualMachineCustomSize{
+				CpuCount: &vm.Hardware.CustomSize.CpuCount,
+				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
+			}
+		}
 	}
 	hardwareProfile := &compute.VirtualMachineScaleSetHardwareProfile{
-		VMSize: sizeType,
+		VMSize:     sizeType,
+		CustomSize: customSize,
 	}
 
 	return hardwareProfile, nil
@@ -385,11 +393,19 @@ func (c *client) getWssdVirtualMachineScaleSetStorageConfigurationDataDisk(d *co
 
 func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcloudcompute.HardwareConfiguration, error) {
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
+	var customSize *wssdcommon.VirtualMachineCustomSize
 	if vmp.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vmp.HardwareProfile.VMSize)
+		if vmp.HardwareProfile.CustomSize != nil {
+			customSize = &wssdcommon.VirtualMachineCustomSize{
+				CpuCount: *vmp.HardwareProfile.CustomSize.CpuCount,
+				MemoryMB: *vmp.HardwareProfile.CustomSize.MemoryMB,
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
-		VMSize: sizeType,
+		VMSize:     sizeType,
+		CustomSize: customSize,
 	}
 	return wssdhardware, nil
 }
