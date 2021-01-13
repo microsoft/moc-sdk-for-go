@@ -163,8 +163,15 @@ type OSProfile struct {
 	OsBootstrapEngine OperatingSystemBootstrapEngine `json:"osbootstrapengine,omitempty"`
 }
 
+// VirtualMachineCustomSize Specifies cpu/memory information for custom VMSize types.
+type VirtualMachineCustomSize struct {
+	CpuCount *int32 `json:"cpucount,omitempty"`
+	MemoryMB *int32 `json:"memorymb,omitempty"`
+}
+
 type HardwareProfile struct {
-	VMSize VirtualMachineSizeTypes `json:"vmsize,omitempty"`
+	VMSize     VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
+	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
 }
 
 // NetworkInterfaceReferenceProperties describes a network interface reference properties.
@@ -498,6 +505,8 @@ type VirtualMachineScaleSetStorageProfile struct {
 type VirtualMachineScaleSetHardwareProfile struct {
 	// VMSize - Specifies the size of the virtual machine.
 	VMSize VirtualMachineSizeTypes `json:"vmSize,omitempty"`
+	// CustomSize - Specifies cpu/memory information for custom VMSize types.
+	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
 }
 
 // VirtualMachineScaleSetVMProfile describes a virtual machine scale set virtual machine profile.

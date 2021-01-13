@@ -80,7 +80,7 @@ func (c *VirtualMachineClient) Restart(ctx context.Context, group string, name s
 }
 
 // Resize the Virtual Machine
-func (c *VirtualMachineClient) Resize(ctx context.Context, group string, name string, newSize compute.VirtualMachineSizeTypes) (err error) {
+func (c *VirtualMachineClient) Resize(ctx context.Context, group string, name string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize) (err error) {
 	vms, err := c.Get(ctx, group, name)
 	if err != nil {
 		return
@@ -91,6 +91,7 @@ func (c *VirtualMachineClient) Resize(ctx context.Context, group string, name st
 
 	vm := (*vms)[0]
 	vm.HardwareProfile.VMSize = newSize
+	vm.HardwareProfile.CustomSize = newCustomSize
 
 	// TODO: If we get invalid Version, retry here
 	_, err = c.CreateOrUpdate(ctx, group, name, &vm)
