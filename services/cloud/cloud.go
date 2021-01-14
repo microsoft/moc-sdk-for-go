@@ -283,9 +283,9 @@ type ControlPlaneInfo struct {
 type EtcdClusterProperties struct {
 	// CaCertificate used as root certificate for communication among ETCD nodes
 	// and to the ETCD cluster
-	CaCertificate *string `json:"caCertificate,omitempty"`
+	CaCertificate *string `json:"cacertificate,omitempty"`
 	// CaKey is the private key corresponding to the CaCertificate
-	CaKey *string `json:"caKey,omitempty"`
+	CaKey *string `json:"cakey,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
