@@ -133,7 +133,27 @@ type SubnetPropertiesFormat struct {
 	// IPAllocationMethod - The IP address allocation method. Possible values include: 'Static', 'Dynamic'
 	IPAllocationMethod IPAllocationMethod `json:"ipAllocationMethod,omitempty"`
 	// Vlan
-	Vlan *uint16 `json:"vlan,omitempty"`
+	Vlan    *uint16  `json:"vlan,omitempty"`
+	IPPools []IPPool `json:"ippools,omitempty"`
+}
+
+type IPPoolType string
+
+const (
+	VM      IPPoolType = "vm"
+	VIPPOOL IPPoolType = "vippool"
+)
+
+// IPPool is assoicated with a network and represents pool of IP addresses.
+type IPPool struct {
+	// Name
+	Name string `json:"name,omitempty"`
+	// Type
+	Type IPPoolType `json:"ippooltype,omitempty"`
+	// Start - The starting ip address of the pool
+	Start string `json:"start,omitempty"`
+	// end - The ending ip address of the pool
+	End string `json:"end,omitempty"`
 }
 
 // MACRange is associated with MACPool and respresents the start and end addresses.
