@@ -69,3 +69,23 @@ func GetControlPlaneClient(serverAddress *string, authorizer auth.Authorizer) (c
 
 	return cloud_pb.NewControlPlaneAgentClient(conn), nil
 }
+
+// GetEtcdClusterClient returns the cluster client to communicate with the wssd agent
+func GetEtcdClusterClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.EtcdClusterAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get EtcdClusterClient. Failed to dial: %v", err)
+	}
+
+	return cloud_pb.NewEtcdClusterAgentClient(conn), nil
+}
+
+// GetEtcdServerClient returns the server client to communicate with the wssd agent
+func GetEtcdServerClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.EtcdServerAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get EtcdServerClient. Failed to dial: %v", err)
+	}
+
+	return cloud_pb.NewEtcdServerAgentClient(conn), nil
+}
