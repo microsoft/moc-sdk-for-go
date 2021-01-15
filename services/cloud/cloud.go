@@ -278,3 +278,31 @@ type ControlPlaneInfo struct {
 	// Tags - The tags attached to the resource group.
 	Tags map[string]*string `json:"tags"`
 }
+
+// EtcdClusterProperties the resource group properties.
+type EtcdClusterProperties struct {
+	// CaCertificate used as root certificate for communication among ETCD nodes
+	// and to the ETCD cluster
+	CaCertificate *string `json:"cacertificate,omitempty"`
+	// CaKey is the private key corresponding to the CaCertificate
+	CaKey *string `json:"cakey,omitempty"`
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+}
+
+// EtcdCluster resource group information.
+type EtcdCluster struct {
+	autorest.Response `json:"-"`
+	// ID - READ-ONLY; The ID of the resource group.
+	ID *string `json:"id,omitempty"`
+	// Name - The name of the resource group.
+	Name *string `json:"name,omitempty"`
+	// Properties
+	*EtcdClusterProperties `json:"properties,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - The location of the resource group. It cannot be changed after the resource group has been created. It must be one of the supported Azure locations.
+	Location *string `json:"location,omitempty"`
+	// Tags - The tags attached to the resource group.
+	Tags map[string]*string `json:"tags"`
+}
