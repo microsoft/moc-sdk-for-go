@@ -5,6 +5,7 @@ package certificate
 
 import (
 	"context"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 )
@@ -14,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]security.Certificate, error)
 	CreateOrUpdate(context.Context, string, string, *security.Certificate) (*security.Certificate, error)
 	Delete(context.Context, string, string) error
+	CreateClientCertificate(context.Context, string, string, *security.CertificateRequest) (*security.Certificate, string, error)
 }
 
 // Client structure
@@ -45,4 +47,9 @@ func (c *CertificateClient) CreateOrUpdate(ctx context.Context, group, name stri
 // Delete methods invokes delete of the Certificate resource
 func (c *CertificateClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Sign methods invokes sign to create a CA-Signed Certificate
+func (c *CertificateClient) CreateClientCertificate(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	return c.internal.CreateClientCertificate(ctx, group, name, csr)
 }

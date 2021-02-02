@@ -252,6 +252,35 @@ type Certificate struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+// CertificateAttributes the certificate management attributes
+type CertificateRequestAttributes struct {
+	// DNSNames - DNS names to be added to the certificate
+	DNSNames *[]string `json:"DNSNames,omitempty"`
+	// IPs - IPs to be added to the certificate
+	IPs *[]string `json:"IPs,omitempty"`
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+}
+
+// Certificate a certificate consists of a certificate (X509) plus its attributes.
+type CertificateRequest struct {
+	autorest.Response `json:"-"`
+	// Name - The certificate name
+	Name *string `json:"name,omitempty"`
+	// CaName - The ca certificate name to sign the certificate
+	CaName *string `json:"caname,omitempty"`
+	// Renew - In CSR request is renew request
+	Renew bool `json:"renew,omitempty"`
+	// PrivateKey Key contents of RSA Private Key string encoded in base64
+	PrivateKey *string `json:"privatekey,omitempty"`
+	// OldCertificate Certificate contents of x509 certificate string to be renewed encoded in base64
+	OldCertificate *string `json:"oldcert,omitempty"`
+	// Attributes - The certificate attributes.
+	Attributes *CertificateRequestAttributes `json:"attributes,omitempty"`
+	// Tags - Application-specific metadata in the form of key-value pairs
+	Tags map[string]*string `json:"tags"`
+}
+
 // IdentityProperties defines the structure of a Security Item
 type IdentityProperties struct {
 	// State - State
