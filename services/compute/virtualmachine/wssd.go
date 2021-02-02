@@ -11,7 +11,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/config"
 	"github.com/microsoft/moc/pkg/marshal"
-
+	prototags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -180,4 +180,12 @@ func (c *client) getVirtualMachineOperationRequest(ctx context.Context,
 		VirtualMachines: vms,
 	}
 	return
+}
+
+func getComputeTags(tags *wssdcloudproto.Tags) map[string]*string {
+	return prototags.ProtoToMap(tags)
+}
+
+func getWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
+	return prototags.MapToProto(tags)
 }

@@ -59,6 +59,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		Network:   networkConfig,
 		GroupName: group,
 		VmType:    vmtype,
+		Tags:      getWssdTags(vm.Tags),
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -349,6 +350,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 	return &compute.VirtualMachine{
 		Name: &vm.Name,
 		ID:   &vm.Id,
+		Tags: getComputeTags(vm.GetTags()),
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
 			ProvisioningState:       status.GetProvisioningState(vm.GetStatus().GetProvisioningStatus()),
 			Statuses:                c.getVirtualMachineStatuses(vm),
