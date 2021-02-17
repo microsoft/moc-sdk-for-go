@@ -269,8 +269,6 @@ type CertificateRequest struct {
 	Name *string `json:"name,omitempty"`
 	// CaName - The ca certificate name to sign the certificate
 	CaName *string `json:"caname,omitempty"`
-	// Renew - In CSR request is renew request
-	Renew bool `json:"renew,omitempty"`
 	// PrivateKey Key contents of RSA Private Key string encoded in base64
 	PrivateKey *string `json:"privatekey,omitempty"`
 	// OldCertificate Certificate contents of x509 certificate string to be renewed encoded in base64

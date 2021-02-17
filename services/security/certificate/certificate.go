@@ -35,7 +35,7 @@ func getWssdCertificate(cert *security.Certificate) (*wssdcloudsecurity.Certific
 	}, nil
 }
 
-func getWssdCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.CertificateSigningRequest, string, error) {
+func getMocCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.CertificateSigningRequest, string, error) {
 	if csr.Name == nil {
 		return nil, "", errors.Wrapf(errors.InvalidInput, "CSR name is missing")
 	}
@@ -64,9 +64,8 @@ func getWssdCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.Certificat
 		return nil, "", errors.Wrapf(errors.Failed, "Failed creating certificate Request")
 	}
 	request := &wssdcloudsecurity.CertificateSigningRequest{
-		Name:  *csr.Name,
-		Csr:   string(csrRequest),
-		Renew: csr.Renew,
+		Name: *csr.Name,
+		Csr:  string(csrRequest),
 	}
 	if csr.OldCertificate != nil {
 		request.OldCertificate = *csr.OldCertificate

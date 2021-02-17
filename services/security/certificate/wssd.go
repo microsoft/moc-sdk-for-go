@@ -61,20 +61,39 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *sec
 	return &((*cert)[0]), err
 }
 
-// CreateOrUpdate
-func (c *client) CreateClientCertificate(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
-	if csr.Renew && (csr.OldCertificate == nil || len(*csr.OldCertificate) == 0) {
-		log.Errorf("[Certificate] Renew missing oldCert field")
-	}
-	// If not renew the old certificate will be set to null
-	if !csr.Renew {
-		csr.OldCertificate = nil
-	}
+// Sign
+func (c *client) Sign(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	csr.OldCertificate = nil
 	request, key, err := getCSRRequest(name, csr)
 	if err != nil {
 		return nil, "", err
 	}
-	response, err := c.CertificateAgentClient.CreateClientCertificate(ctx, request)
+	response, err := c.CertificateAgentClient.Sign(ctx, request)
+	if err != nil {
+		log.Errorf("[Certificate] Create failed with error %v", err)
+		return nil, "", err
+	}
+
+	cert := getCertificatesFromResponse(response)
+
+	if len(*cert) == 0 {
+		return nil, "", fmt.Errorf("[Certificate][Create] Unexpected error: Creating a security returned no result")
+	}
+
+	return &((*cert)[0]), string(key), err
+}
+
+// CreateOrUpdate
+func (c *client) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	if csr.OldCertificate == nil || len(*csr.OldCertificate) == 0 {
+		log.Errorf("[Certificate] Renew missing oldCert field")
+	}
+
+	request, key, err := getCSRRequest(name, csr)
+	if err != nil {
+		return nil, "", err
+	}
+	response, err := c.CertificateAgentClient.Renew(ctx, request)
 	if err != nil {
 		log.Errorf("[Certificate] Create failed with error %v", err)
 		return nil, "", err
@@ -146,7 +165,7 @@ func getCSRRequest(name string, csr *security.CertificateRequest) (*wssdcloudsec
 	var err error
 	var key string
 	if csr != nil {
-		wssdcsr, key, err = getWssdCSR(csr)
+		wssdcsr, key, err = getMocCSR(csr)
 		if err != nil {
 			return nil, "", err
 		}

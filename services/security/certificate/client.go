@@ -15,7 +15,8 @@ type Service interface {
 	Get(context.Context, string, string) (*[]security.Certificate, error)
 	CreateOrUpdate(context.Context, string, string, *security.Certificate) (*security.Certificate, error)
 	Delete(context.Context, string, string) error
-	CreateClientCertificate(context.Context, string, string, *security.CertificateRequest) (*security.Certificate, string, error)
+	Sign(context.Context, string, string, *security.CertificateRequest) (*security.Certificate, string, error)
+	Renew(context.Context, string, string, *security.CertificateRequest) (*security.Certificate, string, error)
 }
 
 // Client structure
@@ -50,6 +51,11 @@ func (c *CertificateClient) Delete(ctx context.Context, group, name string) erro
 }
 
 // Sign methods invokes sign to create a CA-Signed Certificate
-func (c *CertificateClient) CreateClientCertificate(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
-	return c.internal.CreateClientCertificate(ctx, group, name, csr)
+func (c *CertificateClient) Sign(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	return c.internal.Sign(ctx, group, name, csr)
+}
+
+// Sign methods invokes sign to create a CA-Signed Certificate
+func (c *CertificateClient) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	return c.internal.Renew(ctx, group, name, csr)
 }
