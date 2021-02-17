@@ -61,9 +61,56 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *sec
 	return &((*cert)[0]), err
 }
 
+// Sign
+func (c *client) Sign(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	csr.OldCertificate = nil
+	request, key, err := getCSRRequest(name, csr)
+	if err != nil {
+		return nil, "", err
+	}
+	response, err := c.CertificateAgentClient.Sign(ctx, request)
+	if err != nil {
+		log.Errorf("[Certificate] Create failed with error %v", err)
+		return nil, "", err
+	}
+
+	cert := getCertificatesFromResponse(response)
+
+	if len(*cert) == 0 {
+		return nil, "", fmt.Errorf("[Certificate][Create] Unexpected error: Creating a security returned no result")
+	}
+
+	return &((*cert)[0]), string(key), err
+}
+
+// CreateOrUpdate
+func (c *client) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
+	if csr.OldCertificate == nil || len(*csr.OldCertificate) == 0 {
+		log.Errorf("[Certificate] Renew missing oldCert field")
+	}
+
+	request, key, err := getCSRRequest(name, csr)
+	if err != nil {
+		return nil, "", err
+	}
+	response, err := c.CertificateAgentClient.Renew(ctx, request)
+	if err != nil {
+		log.Errorf("[Certificate] Create failed with error %v", err)
+		return nil, "", err
+	}
+
+	cert := getCertificatesFromResponse(response)
+
+	if len(*cert) == 0 {
+		return nil, "", fmt.Errorf("[Certificate][Create] Unexpected error: Creating a security returned no result")
+	}
+
+	return &((*cert)[0]), string(key), err
+}
+
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name string) error {
-	cert, err := c.Get(ctx, name, group)
+	cert, err := c.Get(ctx, group, name)
 	if err != nil {
 		return err
 	}
@@ -105,4 +152,24 @@ func getCertificateRequest(name string, cert *security.Certificate) (*wssdclouds
 	}
 	request.Certificates = append(request.Certificates, wssdcertificate)
 	return request, nil
+}
+
+func getCSRRequest(name string, csr *security.CertificateRequest) (*wssdcloudsecurity.CSRRequest, string, error) {
+	request := &wssdcloudsecurity.CSRRequest{
+		CSRs: []*wssdcloudsecurity.CertificateSigningRequest{},
+	}
+	wssdcsr := &wssdcloudsecurity.CertificateSigningRequest{
+		Name: name,
+	}
+
+	var err error
+	var key string
+	if csr != nil {
+		wssdcsr, key, err = getMocCSR(csr)
+		if err != nil {
+			return nil, "", err
+		}
+	}
+	request.CSRs = append(request.CSRs, wssdcsr)
+	return request, key, nil
 }
