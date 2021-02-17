@@ -55,7 +55,7 @@ func (c *CertificateClient) Sign(ctx context.Context, group, name string, csr *s
 	return c.internal.Sign(ctx, group, name, csr)
 }
 
-// Sign methods invokes sign to create a CA-Signed Certificate
+// Renew methods invokes renew to renew signed-certificate
 func (c *CertificateClient) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
 	return c.internal.Renew(ctx, group, name, csr)
 }
