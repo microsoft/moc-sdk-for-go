@@ -8,8 +8,8 @@ import (
 
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
-	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
@@ -27,10 +27,11 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		TokenExpiry: &id.TokenExpiry,
 		Location:    &id.LocationName,
 		IdentityProperties: &security.IdentityProperties{
-			Statuses:   status.GetStatuses(id.GetStatus()),
-			ClientType: clitype,
-			CloudFqdn:  &id.CloudFqdn,
-			CloudPort:  &id.CloudPort,
+			Statuses:      status.GetStatuses(id.GetStatus()),
+			ClientType:    clitype,
+			CloudFqdn:     &id.CloudFqdn,
+			CloudPort:     &id.CloudPort,
+			CloudAuthPort: &id.CloudAuthPort,
 		},
 	}
 }
@@ -66,6 +67,10 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 
 		if id.IdentityProperties.CloudPort != nil {
 			wssdidentity.CloudPort = *id.CloudPort
+		}
+
+		if id.IdentityProperties.CloudAuthPort != nil {
+			wssdidentity.CloudAuthPort = *id.CloudAuthPort
 		}
 	}
 

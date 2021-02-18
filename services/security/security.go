@@ -295,6 +295,8 @@ type IdentityProperties struct {
 	CloudFqdn *string `json:"cloudfqdn,omitempty"`
 	// CloudAgent port
 	CloudPort *int32 `json:"cloudport,omitempty"`
+	// CloudAgent authentication port
+	CloudAuthPort *int32 `json:"cloudauthport,omitempty"`
 	// Client type
 	ClientType ClientType `json:"clienttype,omitempty"`
 }
