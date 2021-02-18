@@ -9,7 +9,7 @@ import (
 	compute_pb "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
-// GetGalleryImageClient returns the virtual machine client to comminicate with the wssd agent
+// GetGalleryImageClient returns the virtual machine client to communicate with the wssd agent
 func GetGalleryImageClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.GalleryImageAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {
@@ -19,7 +19,7 @@ func GetGalleryImageClient(serverAddress *string, authorizer auth.Authorizer) (c
 	return compute_pb.NewGalleryImageAgentClient(conn), nil
 }
 
-// GetVirtualMachineClient returns the virtual machine client to comminicate with the wssd agent
+// GetVirtualMachineClient returns the virtual machine client to communicate with the wssd agent
 func GetVirtualMachineClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.VirtualMachineAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {
@@ -29,7 +29,7 @@ func GetVirtualMachineClient(serverAddress *string, authorizer auth.Authorizer) 
 	return compute_pb.NewVirtualMachineAgentClient(conn), nil
 }
 
-// GetVirtualMachineScaleSetClient returns the virtual machine client to comminicate with the wssd agent
+// GetVirtualMachineScaleSetClient returns the virtual machine client to communicate with the wssd agent
 func GetVirtualMachineScaleSetClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.VirtualMachineScaleSetAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {
@@ -39,7 +39,7 @@ func GetVirtualMachineScaleSetClient(serverAddress *string, authorizer auth.Auth
 	return compute_pb.NewVirtualMachineScaleSetAgentClient(conn), nil
 }
 
-// GetBareMetalMachineClient returns the bare metal machine client to comminicate with the wssd agent
+// GetBareMetalMachineClient returns the bare metal machine client to communicate with the wssd agent
 func GetBareMetalMachineClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.BareMetalMachineAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {

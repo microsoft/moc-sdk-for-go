@@ -32,7 +32,7 @@ func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, group st
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get Security Configuration")
 	}
-	osconfig, err := c.getWssdBareMetalMachineOSConfiguration(bmm.OsProfile)
+	osConfig, err := c.getWssdBareMetalMachineOSConfiguration(bmm.OsProfile)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get OS Configuration")
 	}
@@ -47,10 +47,14 @@ func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, group st
 		Storage:   storageConfig,
 		Hardware:  hardwareConfig,
 		Security:  securityConfig,
-		Os:        osconfig,
+		Os:        osConfig,
 		Network:   networkConfig,
 		GroupName: group,
 		Tags:      getWssdTags(bmm.Tags),
+	}
+
+	if bmm.Host != nil && bmm.Host.ID != nil {
+		bmmOut.NodeName = *bmm.Host.ID
 	}
 
 	if bmm.Version != nil {
@@ -111,7 +115,7 @@ func (c *client) getWssdBareMetalMachineStorageConfigurationDisk(s *compute.Bare
 		return nil, errors.Wrapf(errors.InvalidInput, "Name is missing in BareMetalMachineDisk")
 	}
 	if s.DiskSizeGB == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Disk Size is missing in BareMetalMachineDisk ")
+		return nil, errors.Wrapf(errors.InvalidInput, "Disk Size is missing in BareMetalMachineDisk")
 	}
 	return &wssdcloudcompute.BareMetalMachineDisk{
 		DiskName:   *s.Name,
@@ -190,53 +194,53 @@ func (c *client) getWssdBareMetalMachineLinuxConfiguration(linuxConfiguration *c
 }
 
 func (c *client) getWssdBareMetalMachineOSConfiguration(s *compute.BareMetalMachineOSProfile) (*wssdcloudcompute.BareMetalMachineOperatingSystemConfiguration, error) {
-	publickeys := []*wssdcloudcompute.SSHPublicKey{}
+	publicKeys := []*wssdcloudcompute.SSHPublicKey{}
 	var err error
 
-	osconfig := wssdcloudcompute.BareMetalMachineOperatingSystemConfiguration{
+	osConfig := wssdcloudcompute.BareMetalMachineOperatingSystemConfiguration{
 		Users: []*wssdcloudcompute.UserConfiguration{},
 	}
 
 	if s == nil {
-		return &osconfig, nil
+		return &osConfig, nil
 	}
 
 	if s.LinuxConfiguration != nil {
 		var sshConfiguration *compute.SSHConfiguration = s.LinuxConfiguration.SSH
 
 		if sshConfiguration != nil {
-			publickeys, err = c.getWssdBareMetalMachineOSSSHPublicKeys(sshConfiguration)
+			publicKeys, err = c.getWssdBareMetalMachineOSSSHPublicKeys(sshConfiguration)
 			if err != nil {
 				return nil, errors.Wrapf(err, "SSH Configuration Invalid")
 			}
 		}
 	}
 
-	adminuser := &wssdcloudcompute.UserConfiguration{}
+	adminUser := &wssdcloudcompute.UserConfiguration{}
 	if s.AdminUsername != nil {
-		adminuser.Username = *s.AdminUsername
+		adminUser.Username = *s.AdminUsername
 	}
 
 	if s.AdminPassword != nil {
-		adminuser.Password = *s.AdminPassword
+		adminUser.Password = *s.AdminPassword
 	}
 
 	if s.ComputerName == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "ComputerName is missing")
 	}
 
-	osconfig.ComputerName = *s.ComputerName
-	osconfig.Administrator = adminuser
-	osconfig.Publickeys = publickeys
+	osConfig.ComputerName = *s.ComputerName
+	osConfig.Administrator = adminUser
+	osConfig.PublicKeys = publicKeys
 
 	if s.LinuxConfiguration != nil {
-		osconfig.LinuxConfiguration = c.getWssdBareMetalMachineLinuxConfiguration(s.LinuxConfiguration)
+		osConfig.LinuxConfiguration = c.getWssdBareMetalMachineLinuxConfiguration(s.LinuxConfiguration)
 	}
 
 	if s.CustomData != nil {
-		osconfig.CustomData = *s.CustomData
+		osConfig.CustomData = *s.CustomData
 	}
-	return &osconfig, nil
+	return &osConfig, nil
 }
 
 // Conversion functions from wssdcloudcompute to compute
