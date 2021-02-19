@@ -35,10 +35,16 @@ func NewAuthenticationClient(cloudFQDN string, authorizer auth.Authorizer) (*Aut
 }
 
 // NewClient method returns new client based on the authentication mode
-func NewAuthenticationClientAuthMode(cloudFQDN string, authorizer auth.Authorizer, loginType auth.LoginType) (*AuthenticationClient, error) {
+func NewAuthenticationClientAuthMode(cloudFQDN string, loginconfig auth.LoginConfig) (*AuthenticationClient, error) {
 	var c Service
 	var err error
-	switch loginType {
+
+	authorizer, err := auth.NewAuthorizerForAuth(loginconfig.Token, loginconfig.Certificate, cloudFQDN)
+	if err != nil {
+		return nil, err
+	}
+
+	switch loginconfig.Type {
 	case auth.SelfSigned:
 		c, err = selfsigned.NewAuthenticationClient(cloudFQDN, authorizer)
 	case auth.CASigned:
