@@ -89,6 +89,8 @@ github.com/microsoft/moc v0.10.7-alpha.2 h1:S14zvhQxV9egx7AOJlXwU1seRGh1s5caV/G1
 github.com/microsoft/moc v0.10.7-alpha.2/go.mod h1:2/6wA6NZ+3X1MfBxkNYGeAJaChXmH3qfK7eMEGKslFI=
 github.com/microsoft/moc v0.10.7-alpha.4 h1:FZkHH29+6tQA2SP/nRMLt2dBLE2MXaWn+fYm1b1V1/w=
 github.com/microsoft/moc v0.10.7-alpha.4/go.mod h1:D8xNkWHFHrgd0E6ol885gfsQRFhJoy0fU+RyTf9FS7U=
+github.com/microsoft/moc v0.10.7-alpha.5 h1:J2RRXbZ9v+0/QX9/lvB4Sx8YblBi7dDEoce8bq5fpPo=
+github.com/microsoft/moc v0.10.7-alpha.5/go.mod h1:D8xNkWHFHrgd0E6ol885gfsQRFhJoy0fU+RyTf9FS7U=
 github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQzvN1EDeE=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
