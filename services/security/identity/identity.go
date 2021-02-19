@@ -16,7 +16,7 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 	clitype := security.ExternalClient
 	if id.ClientType == wssdcloudcommon.ClientType_CONTROLPLANE {
 		clitype = security.ControlPlane
-	} else if id.ClientType == wssdcloudcommon.ClientType_EXTERNALCLIENT {
+	} else if id.ClientType == wssdcloudcommon.ClientType_NODE {
 		clitype = security.Node
 	}
 
@@ -57,7 +57,7 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	if id.IdentityProperties != nil {
 		if id.IdentityProperties.ClientType == security.ControlPlane {
 			clitype = wssdcloudcommon.ClientType_CONTROLPLANE
-		} else if id.IdentityProperties.ClientType == security.ExternalClient {
+		} else if id.IdentityProperties.ClientType == security.Node {
 			clitype = wssdcloudcommon.ClientType_NODE
 		}
 
