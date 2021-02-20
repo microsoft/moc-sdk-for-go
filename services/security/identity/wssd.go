@@ -10,6 +10,7 @@ import (
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 	log "k8s.io/klog"
@@ -44,6 +45,10 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.Ident
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *security.Identity) (*security.Identity, error) {
+	if sg.Name == nil {
+		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Name for Identity")
+	}
+
 	request, err := getIdentityRequest(wssdcloudcommon.Operation_POST, name, sg)
 	if err != nil {
 		return nil, err

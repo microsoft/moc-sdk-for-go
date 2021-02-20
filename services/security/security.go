@@ -159,6 +159,14 @@ const (
 	StoragePermissionsUpdate StoragePermissions = "update"
 )
 
+type ClientType string
+
+const (
+	ControlPlane   ClientType = "ControlPlane"
+	ExternalClient ClientType = "ExternalClient"
+	Node           ClientType = "Node"
+)
+
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
 type Permissions struct {
 	// Keys - Permissions to keys
@@ -283,6 +291,14 @@ type CertificateRequest struct {
 type IdentityProperties struct {
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// CloudAgent FQDN
+	CloudFqdn *string `json:"cloudfqdn,omitempty"`
+	// CloudAgent port
+	CloudPort *int32 `json:"cloudport,omitempty"`
+	// CloudAgent authentication port
+	CloudAuthPort *int32 `json:"cloudauthport,omitempty"`
+	// Client type
+	ClientType ClientType `json:"clienttype,omitempty"`
 }
 
 // Identity defines the structure of a identity
@@ -295,8 +311,12 @@ type Identity struct {
 	Type *string `json:"type,omitempty"`
 	// Token
 	Token *string `json:"token,omitempty"`
+	// Token Expiry
+	TokenExpiry *int64 `json:"tokenexpiry,omitempty"`
 	// Certificate string encoded in base64
 	Certificate *string `json:"certificate,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
 	// Tags - Custom resource tags
 	Tags map[string]*string `json:"tags"`
 	// Properties
