@@ -827,3 +827,96 @@ type VirtualMachineImage struct {
 	// Tags - Resource tags
 	Tags map[string]*string `json:"tags"`
 }
+
+type BareMetalMachineImageReference struct {
+	// ID - Resource Id
+	ID *string `json:"id,omitempty"`
+	// Name - Name of the image
+	Name *string `json:"name,omitempty"`
+}
+
+// BareMetalMachineDisk describes a bare metal machine disk.
+type BareMetalMachineDisk struct {
+	// Name - Name of the disk
+	Name *string `json:"name,omitempty"`
+	// DiskSizeGB - Specifies the size of the disk in gigabytes
+	DiskSizeGB *int32 `json:"diskSizeGB,omitempty"`
+}
+
+type BareMetalMachineStorageProfile struct {
+	// ImageReference - Specifies information about the image to use.
+	ImageReference *BareMetalMachineImageReference `json:"imagereference,omitempty"`
+	// Disks
+	Disks *[]BareMetalMachineDisk `json:"disks,omitempty"`
+}
+
+type BareMetalMachineOSProfile struct {
+	// ComputerName
+	ComputerName *string `json:"computername,omitempty"`
+	// AdminUsername
+	AdminUsername *string `json:"adminusername,omitempty"`
+	// AdminPassword
+	AdminPassword *string `json:"adminpassword,omitempty"`
+	// CustomData Specifies a base-64 encoded string of custom data.
+	CustomData *string `json:"customdata,omitempty"`
+	// LinuxConfiguration
+	LinuxConfiguration *LinuxConfiguration `json:"linuxconfiguration,omitempty"`
+}
+
+type BareMetalMachineNetworkInterface struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+}
+
+type BareMetalMachineNetworkProfile struct {
+	// NetworkInterfaces
+	NetworkInterfaces *[]BareMetalMachineNetworkInterface `json:"networkinterfaces,omitempty"`
+}
+
+// BareMetalMachineSize Specifies cpu/memory information for bare metal machines.
+type BareMetalMachineSize struct {
+	CpuCount *int32 `json:"cpucount,omitempty"`
+	GpuCount *int32 `json:"gpucount,omitempty"`
+	MemoryMB *int32 `json:"memorymb,omitempty"`
+}
+
+type BareMetalMachineHardwareProfile struct {
+	MachineSize *BareMetalMachineSize `json:"machinesize,omitempty"`
+}
+
+// BareMetalMachineProperties describes the properties of a Bare Metal Machine.
+type BareMetalMachineProperties struct {
+	// StorageProfile
+	StorageProfile *BareMetalMachineStorageProfile `json:"storageprofile,omitempty"`
+	// OsProfile
+	OsProfile *BareMetalMachineOSProfile `json:"osprofile,omitempty"`
+	// NetworkProfile
+	NetworkProfile *BareMetalMachineNetworkProfile `json:"networkprofile,omitempty"`
+	// HardwareProfile - Specifies the hardware settings for the bare metal machine.
+	HardwareProfile *BareMetalMachineHardwareProfile `json:"hardwareprofile,omitempty"`
+	// SecurityProfile - Specifies the security settings for the bare metal machine.
+	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
+	// Host - Specifies information about the host.
+	Host *SubResource `json:"host,omitempty"`
+	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
+	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+}
+
+type BareMetalMachine struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	Type *string `json:"type,omitempty"`
+	// Tags - Custom resource tags
+	Tags map[string]*string `json:"tags"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+	// Properties
+	*BareMetalMachineProperties `json:"baremetalmachineproperties,omitempty"`
+}
