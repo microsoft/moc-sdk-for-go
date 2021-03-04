@@ -32,8 +32,8 @@ func newBareMetalMachineClient(subID string, authorizer auth.Authorizer) (*clien
 }
 
 // Get
-func (c *client) Get(ctx context.Context, group, name string) (*[]compute.BareMetalMachine, error) {
-	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_GET, group, name, nil)
+func (c *client) Get(ctx context.Context, location, name string) (*[]compute.BareMetalMachine, error) {
+	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -41,12 +41,12 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.BareMe
 	if err != nil {
 		return nil, err
 	}
-	return c.getBareMetalMachineFromResponse(response, group), nil
+	return c.getBareMetalMachineFromResponse(response, location), nil
 }
 
 // CreateOrUpdate
-func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *compute.BareMetalMachine) (*compute.BareMetalMachine, error) {
-	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_POST, group, name, sg)
+func (c *client) CreateOrUpdate(ctx context.Context, location, name string, sg *compute.BareMetalMachine) (*compute.BareMetalMachine, error) {
+	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_POST, location, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 	if err != nil {
 		return nil, err
 	}
-	bmms := c.getBareMetalMachineFromResponse(response, group)
+	bmms := c.getBareMetalMachineFromResponse(response, location)
 	if len(*bmms) == 0 {
 		return nil, fmt.Errorf("Creation of Bare Metal Machine failed to unknown reason.")
 	}
@@ -63,8 +63,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 }
 
 // Delete methods invokes create or update on the client
-func (c *client) Delete(ctx context.Context, group, name string) error {
-	bmms, err := c.Get(ctx, group, name)
+func (c *client) Delete(ctx context.Context, location, name string) error {
+	bmms, err := c.Get(ctx, location, name)
 	if err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Bare Metal Machine [%s] not found", name)
 	}
 
-	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_DELETE, group, name, &(*bmms)[0])
+	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_DELETE, location, name, &(*bmms)[0])
 	if err != nil {
 		return err
 	}
@@ -82,8 +82,8 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 }
 
 // Query
-func (c *client) Query(ctx context.Context, group, query string) (*[]compute.BareMetalMachine, error) {
-	bmms, err := c.Get(ctx, group, "")
+func (c *client) Query(ctx context.Context, location, query string) (*[]compute.BareMetalMachine, error) {
+	bmms, err := c.Get(ctx, location, "")
 	if err != nil {
 		return nil, err
 	}
@@ -102,27 +102,27 @@ func (c *client) Query(ctx context.Context, group, query string) (*[]compute.Bar
 }
 
 // Private methods
-func (c *client) getBareMetalMachineFromResponse(response *wssdcloudcompute.BareMetalMachineResponse, group string) *[]compute.BareMetalMachine {
+func (c *client) getBareMetalMachineFromResponse(response *wssdcloudcompute.BareMetalMachineResponse, location string) *[]compute.BareMetalMachine {
 	bmms := []compute.BareMetalMachine{}
 	for _, bmm := range response.GetBareMetalMachines() {
-		bmms = append(bmms, *(c.getBareMetalMachine(bmm, group)))
+		bmms = append(bmms, *(c.getBareMetalMachine(bmm, location)))
 	}
 
 	return &bmms
 }
 
-func (c *client) getBareMetalMachineRequest(opType wssdcloudproto.Operation, group, name string, bmm *compute.BareMetalMachine) (*wssdcloudcompute.BareMetalMachineRequest, error) {
+func (c *client) getBareMetalMachineRequest(opType wssdcloudproto.Operation, location, name string, bmm *compute.BareMetalMachine) (*wssdcloudcompute.BareMetalMachineRequest, error) {
 	request := &wssdcloudcompute.BareMetalMachineRequest{
 		OperationType:     opType,
 		BareMetalMachines: []*wssdcloudcompute.BareMetalMachine{},
 	}
 	var err error
 	wssdbmm := &wssdcloudcompute.BareMetalMachine{
-		Name:      name,
-		GroupName: group,
+		Name:         name,
+		LocationName: location,
 	}
 	if bmm != nil {
-		wssdbmm, err = c.getWssdBareMetalMachine(bmm, group)
+		wssdbmm, err = c.getWssdBareMetalMachine(bmm, location)
 		if err != nil {
 			return nil, err
 		}

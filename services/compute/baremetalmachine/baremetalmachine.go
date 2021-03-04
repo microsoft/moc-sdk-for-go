@@ -13,48 +13,52 @@ import (
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
-func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, group string) (*wssdcloudcompute.BareMetalMachine, error) {
+func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, location string) (*wssdcloudcompute.BareMetalMachine, error) {
 	if bmm.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Bare Metal Machine name is missing")
 	}
-	if len(group) == 0 {
-		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
-	}
-	storageConfig, err := c.getWssdBareMetalMachineStorageConfiguration(bmm.StorageProfile)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get Storage Configuration")
-	}
-	hardwareConfig, err := c.getWssdBareMetalMachineHardwareConfiguration(bmm)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get Hardware Configuration")
-	}
-	securityConfig, err := c.getWssdBareMetalMachineSecurityConfiguration(bmm)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get Security Configuration")
-	}
-	osConfig, err := c.getWssdBareMetalMachineOSConfiguration(bmm.OsProfile)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get OS Configuration")
-	}
-
-	networkConfig, err := c.getWssdBareMetalMachineNetworkConfiguration(bmm.NetworkProfile)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get Network Configuration")
+	if len(location) == 0 {
+		return nil, errors.Wrapf(errors.InvalidInput, "Location not specified")
 	}
 
 	bmmOut := wssdcloudcompute.BareMetalMachine{
-		Name:      *bmm.Name,
-		Storage:   storageConfig,
-		Hardware:  hardwareConfig,
-		Security:  securityConfig,
-		Os:        osConfig,
-		Network:   networkConfig,
-		GroupName: group,
-		Tags:      getWssdTags(bmm.Tags),
+		Name:         *bmm.Name,
+		LocationName: location,
+		Tags:         getWssdTags(bmm.Tags),
 	}
 
-	if bmm.Host != nil && bmm.Host.ID != nil {
-		bmmOut.NodeName = *bmm.Host.ID
+	if bmm.BareMetalMachineProperties != nil {
+		storageConfig, err := c.getWssdBareMetalMachineStorageConfiguration(bmm.StorageProfile)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to get Storage Configuration")
+		}
+		hardwareConfig, err := c.getWssdBareMetalMachineHardwareConfiguration(bmm)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to get Hardware Configuration")
+		}
+		securityConfig, err := c.getWssdBareMetalMachineSecurityConfiguration(bmm)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to get Security Configuration")
+		}
+		osConfig, err := c.getWssdBareMetalMachineOSConfiguration(bmm.OsProfile)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to get OS Configuration")
+		}
+
+		networkConfig, err := c.getWssdBareMetalMachineNetworkConfiguration(bmm.NetworkProfile)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Failed to get Network Configuration")
+		}
+
+		bmmOut.Storage = storageConfig
+		bmmOut.Hardware = hardwareConfig
+		bmmOut.Security = securityConfig
+		bmmOut.Os = osConfig
+		bmmOut.Network = networkConfig
+
+		if bmm.Host != nil && bmm.Host.ID != nil {
+			bmmOut.NodeName = *bmm.Host.ID
+		}
 	}
 
 	if bmm.Version != nil {
@@ -62,10 +66,6 @@ func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, group st
 			bmmOut.Status = status.InitStatus()
 		}
 		bmmOut.Status.Version.Number = *bmm.Version
-	}
-
-	if bmm.Location != nil {
-		bmmOut.LocationName = *bmm.Location
 	}
 
 	return &bmmOut, nil
@@ -245,7 +245,7 @@ func (c *client) getWssdBareMetalMachineOSConfiguration(s *compute.BareMetalMach
 
 // Conversion functions from wssdcloudcompute to compute
 
-func (c *client) getBareMetalMachine(bmm *wssdcloudcompute.BareMetalMachine, group string) *compute.BareMetalMachine {
+func (c *client) getBareMetalMachine(bmm *wssdcloudcompute.BareMetalMachine, location string) *compute.BareMetalMachine {
 	return &compute.BareMetalMachine{
 		Name: &bmm.Name,
 		ID:   &bmm.Id,
@@ -372,12 +372,20 @@ func (c *client) getBareMetalMachineLinuxConfiguration(linuxConfiguration *wssdc
 	return lc
 }
 
-func (c *client) getBareMetalMachineOSProfile(o *wssdcloudcompute.BareMetalMachineOperatingSystemConfiguration) *compute.BareMetalMachineOSProfile {
-	return &compute.BareMetalMachineOSProfile{
-		ComputerName:       &o.ComputerName,
-		AdminUsername:      &o.Administrator.Username,
-		AdminPassword:      &o.Administrator.Password,
-		CustomData:         &o.CustomData,
-		LinuxConfiguration: c.getBareMetalMachineLinuxConfiguration(o.LinuxConfiguration),
+func (c *client) getBareMetalMachineOSProfile(osConfiguration *wssdcloudcompute.BareMetalMachineOperatingSystemConfiguration) *compute.BareMetalMachineOSProfile {
+	op := &compute.BareMetalMachineOSProfile{
+		ComputerName:       &osConfiguration.ComputerName,
+		CustomData:         &osConfiguration.CustomData,
+		LinuxConfiguration: c.getBareMetalMachineLinuxConfiguration(osConfiguration.LinuxConfiguration),
 	}
+
+	if osConfiguration.Administrator != nil {
+		op.AdminUsername = &osConfiguration.Administrator.Username
+	}
+
+	if osConfiguration.Administrator != nil {
+		op.AdminPassword = &osConfiguration.Administrator.Password
+	}
+
+	return op
 }
