@@ -9,6 +9,7 @@ import (
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
+	"github.com/microsoft/moc-sdk-for-go/services/security/certificate"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
@@ -41,6 +42,18 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.Ident
 		return nil, err
 	}
 	return getIdentitysFromResponse(response), nil
+}
+
+func (c *client) get(ctx context.Context, name string) ([]*wssdcloudsecurity.Identity, error) {
+	request, err := getIdentityRequest(wssdcloudcommon.Operation_GET, name, nil)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.IdentityAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return response.GetIdentitys(), nil
 }
 
 // CreateOrUpdate
@@ -86,6 +99,69 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+// Revoke
+func (c *client) Revoke(ctx context.Context, group, name string) (*security.Identity, error) {
+	request, err := c.getIdentityOperationRequest(ctx, wssdcloudcommon.IdentityOperation_REVOKE, name)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.IdentityAgentClient.Operate(ctx, request)
+	if err != nil {
+		log.Errorf("[Identity] Create failed with error %v", err)
+		return nil, err
+	}
+
+	cert := getIdentitysFromResponse(response)
+
+	if len(*cert) == 0 {
+		return nil, fmt.Errorf("[Identity][Create] Unexpected error: Creating a security returned no result")
+	}
+
+	return &((*cert)[0]), err
+}
+
+// CreateCertificate
+func (c *client) CreateCertificate(ctx context.Context, group, name string, csrs []*security.CertificateRequest) (certificates []*security.Certificate, key string, err error) {
+	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.IdentityCertificateOperation_CREATE_CERTIFICATE, name, csrs)
+	if err != nil {
+		return nil, key, err
+	}
+	response, err := c.IdentityAgentClient.OperateCertificates(ctx, request)
+	if err != nil {
+		log.Errorf("[Identity] CreateCertificate failed with error %v", err)
+		return nil, key, err
+	}
+
+	certs := getCertificatesFromResponse(response)
+
+	if len(certs) == 0 {
+		return nil, key, fmt.Errorf("[Identity][CreateCertificate] Unexpected error: Creating a certificate returned no result")
+	}
+
+	return certs, key, nil
+}
+
+// RenewCertificate
+func (c *client) RenewCertificate(ctx context.Context, group, name string, csrs []*security.CertificateRequest) (certificates []*security.Certificate, key string, err error) {
+	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.IdentityCertificateOperation_RENEW_CERTIFICATE, name, csrs)
+	if err != nil {
+		return nil, key, err
+	}
+	response, err := c.IdentityAgentClient.OperateCertificates(ctx, request)
+	if err != nil {
+		log.Errorf("[Identity] RenewCertificate failed with error %v", err)
+		return nil, key, err
+	}
+
+	certs := getCertificatesFromResponse(response)
+
+	if len(certs) == 0 {
+		return nil, key, fmt.Errorf("[Identity][RenewCertificate] Unexpected error: Renewing a certificate returned no result")
+	}
+
+	return certs, key, nil
+}
+
 func getIdentitysFromResponse(response *wssdcloudsecurity.IdentityResponse) *[]security.Identity {
 	certs := []security.Identity{}
 	for _, identitys := range response.GetIdentitys() {
@@ -95,7 +171,9 @@ func getIdentitysFromResponse(response *wssdcloudsecurity.IdentityResponse) *[]s
 	return &certs
 }
 
-func getIdentityRequest(opType wssdcloudcommon.Operation, name string, cert *security.Identity) (*wssdcloudsecurity.IdentityRequest, error) {
+func getIdentityRequest(opType wssdcloudcommon.Operation,
+	name string,
+	ident *security.Identity) (*wssdcloudsecurity.IdentityRequest, error) {
 	request := &wssdcloudsecurity.IdentityRequest{
 		OperationType: opType,
 		Identitys:     []*wssdcloudsecurity.Identity{},
@@ -105,12 +183,57 @@ func getIdentityRequest(opType wssdcloudcommon.Operation, name string, cert *sec
 	}
 
 	var err error
-	if cert != nil {
-		wssdidentity, err = getWssdIdentity(cert)
+	if ident != nil {
+		wssdidentity, err = getWssdIdentity(ident)
 		if err != nil {
 			return nil, err
 		}
 	}
 	request.Identitys = append(request.Identitys, wssdidentity)
 	return request, nil
+}
+
+func (c *client) getIdentityOperationRequest(ctx context.Context,
+	opType wssdcloudcommon.IdentityOperation,
+	name string) (request *wssdcloudsecurity.IdentityOperationRequest, err error) {
+
+	identities, err := c.get(ctx, name)
+	if err != nil {
+		return
+	}
+
+	request = &wssdcloudsecurity.IdentityOperationRequest{
+		OperationType: opType,
+		Identities:    identities,
+	}
+	return
+}
+
+func (c *client) getIdentityCertificateRequest(ctx context.Context,
+	opType wssdcloudcommon.IdentityCertificateOperation,
+	name string, csrs []*security.CertificateRequest) (request *wssdcloudsecurity.IdentityCertificateRequest, key string, err error) {
+	wssdCSRS := []*wssdcloudsecurity.CertificateSigningRequest{}
+	for _, csr := range csrs {
+		var wssdCSR *wssdcloudsecurity.CertificateSigningRequest
+		wssdCSR, key, err = certificate.GetMocCSR(csr)
+		if err != nil {
+			return nil, "", err
+		}
+		wssdCSRS = append(wssdCSRS, wssdCSR)
+	}
+
+	request = &wssdcloudsecurity.IdentityCertificateRequest{
+		OperationType: opType,
+		IdentityName:  name,
+		CSR:           wssdCSRS,
+	}
+	return
+}
+
+func getCertificatesFromResponse(response *wssdcloudsecurity.IdentityCertificateResponse) []*security.Certificate {
+	certificates := []*security.Certificate{}
+	for _, wssdCert := range response.GetCertificates() {
+		certificates = append(certificates, certificate.GetCertificate(wssdCert))
+	}
+	return certificates
 }

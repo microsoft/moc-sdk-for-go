@@ -10,6 +10,7 @@ import (
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	log "k8s.io/klog"
 )
@@ -86,7 +87,7 @@ func (c *client) Sign(ctx context.Context, group, name string, csr *security.Cer
 // CreateOrUpdate
 func (c *client) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
 	if csr.OldCertificate == nil || len(*csr.OldCertificate) == 0 {
-		log.Errorf("[Certificate] Renew missing oldCert field")
+		return nil, "", errors.Wrapf(errors.NotFound, "[Certificate] Renew missing oldCert field")
 	}
 
 	request, key, err := getCSRRequest(name, csr)
@@ -129,7 +130,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 func getCertificatesFromResponse(response *wssdcloudsecurity.CertificateResponse) *[]security.Certificate {
 	certs := []security.Certificate{}
 	for _, certificates := range response.GetCertificates() {
-		certs = append(certs, *(getCertificate(certificates)))
+		certs = append(certs, *(GetCertificate(certificates)))
 	}
 
 	return &certs
@@ -145,7 +146,7 @@ func getCertificateRequest(name string, cert *security.Certificate) (*wssdclouds
 
 	var err error
 	if cert != nil {
-		wssdcertificate, err = getWssdCertificate(cert)
+		wssdcertificate, err = GetWssdCertificate(cert)
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +166,7 @@ func getCSRRequest(name string, csr *security.CertificateRequest) (*wssdcloudsec
 	var err error
 	var key string
 	if csr != nil {
-		wssdcsr, key, err = getMocCSR(csr)
+		wssdcsr, key, err = GetMocCSR(csr)
 		if err != nil {
 			return nil, "", err
 		}

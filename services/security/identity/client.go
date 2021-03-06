@@ -15,6 +15,9 @@ type Service interface {
 	Get(context.Context, string, string) (*[]security.Identity, error)
 	CreateOrUpdate(context.Context, string, string, *security.Identity) (*security.Identity, error)
 	Delete(context.Context, string, string) error
+	Revoke(context.Context, string, string) (*security.Identity, error)
+	CreateCertificate(context.Context, string, string, []*security.CertificateRequest) ([]*security.Certificate, string, error)
+	RenewCertificate(context.Context, string, string, []*security.CertificateRequest) ([]*security.Certificate, string, error)
 }
 
 // Client structure
@@ -46,4 +49,19 @@ func (c *IdentityClient) CreateOrUpdate(ctx context.Context, group, name string,
 // Delete methods invokes delete of the Identity resource
 func (c *IdentityClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Revoke methods invokes revokes an identity
+func (c *IdentityClient) Revoke(ctx context.Context, group, name string) (*security.Identity, error) {
+	return c.internal.Revoke(ctx, group, name)
+}
+
+// CreateCertificate methods invokes creates client certificate for the identity
+func (c *IdentityClient) CreateCertificate(ctx context.Context, group, name string, csr []*security.CertificateRequest) ([]*security.Certificate, string, error) {
+	return c.internal.CreateCertificate(ctx, group, name, csr)
+}
+
+// RenewCertificate methods invokes renew client certificate for the identity
+func (c *IdentityClient) RenewCertificate(ctx context.Context, group, name string, csr []*security.CertificateRequest) ([]*security.Certificate, string, error) {
+	return c.internal.RenewCertificate(ctx, group, name, csr)
 }
