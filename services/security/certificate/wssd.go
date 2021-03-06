@@ -129,7 +129,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 func getCertificatesFromResponse(response *wssdcloudsecurity.CertificateResponse) *[]security.Certificate {
 	certs := []security.Certificate{}
 	for _, certificates := range response.GetCertificates() {
-		certs = append(certs, *(getCertificate(certificates)))
+		certs = append(certs, *(GetCertificate(certificates)))
 	}
 
 	return &certs
@@ -145,7 +145,7 @@ func getCertificateRequest(name string, cert *security.Certificate) (*wssdclouds
 
 	var err error
 	if cert != nil {
-		wssdcertificate, err = getWssdCertificate(cert)
+		wssdcertificate, err = GetWssdCertificate(cert)
 		if err != nil {
 			return nil, err
 		}
@@ -165,7 +165,7 @@ func getCSRRequest(name string, csr *security.CertificateRequest) (*wssdcloudsec
 	var err error
 	var key string
 	if csr != nil {
-		wssdcsr, key, err = getMocCSR(csr)
+		wssdcsr, key, err = GetMocCSR(csr)
 		if err != nil {
 			return nil, "", err
 		}

@@ -86,6 +86,34 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+// CreateOrUpdate
+func (c *client) Revoke(ctx context.Context, group, name string) (*security.Identity, error) {
+	id, err := c.Get(ctx, group, name)
+	if err != nil {
+		return nil, err
+	}
+	if len(*id) == 0 {
+		return nil, fmt.Errorf("Identity [%s] not found", name)
+	}
+	request, err := getIdentityRequest(wssdcloudcommon.Operation_REVOKE, name, &(*id)[0])
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.IdentityAgentClient.Invoke(ctx, request)
+	if err != nil {
+		log.Errorf("[Identity] Create failed with error %v", err)
+		return nil, err
+	}
+
+	cert := getIdentitysFromResponse(response)
+
+	if len(*cert) == 0 {
+		return nil, fmt.Errorf("[Identity][Create] Unexpected error: Creating a security returned no result")
+	}
+
+	return &((*cert)[0]), err
+}
+
 func getIdentitysFromResponse(response *wssdcloudsecurity.IdentityResponse) *[]security.Identity {
 	certs := []security.Identity{}
 	for _, identitys := range response.GetIdentitys() {
@@ -95,7 +123,7 @@ func getIdentitysFromResponse(response *wssdcloudsecurity.IdentityResponse) *[]s
 	return &certs
 }
 
-func getIdentityRequest(opType wssdcloudcommon.Operation, name string, cert *security.Identity) (*wssdcloudsecurity.IdentityRequest, error) {
+func getIdentityRequest(opType wssdcloudcommon.Operation, name string, ident *security.Identity) (*wssdcloudsecurity.IdentityRequest, error) {
 	request := &wssdcloudsecurity.IdentityRequest{
 		OperationType: opType,
 		Identitys:     []*wssdcloudsecurity.Identity{},
@@ -105,8 +133,8 @@ func getIdentityRequest(opType wssdcloudcommon.Operation, name string, cert *sec
 	}
 
 	var err error
-	if cert != nil {
-		wssdidentity, err = getWssdIdentity(cert)
+	if ident != nil {
+		wssdidentity, err = getWssdIdentity(ident)
 		if err != nil {
 			return nil, err
 		}

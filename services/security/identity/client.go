@@ -15,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]security.Identity, error)
 	CreateOrUpdate(context.Context, string, string, *security.Identity) (*security.Identity, error)
 	Delete(context.Context, string, string) error
+	Revoke(context.Context, string, string) (*security.Identity, error)
 }
 
 // Client structure
@@ -46,4 +47,9 @@ func (c *IdentityClient) CreateOrUpdate(ctx context.Context, group, name string,
 // Delete methods invokes delete of the Identity resource
 func (c *IdentityClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// CreateOrUpdate methods invokes create or update on the client
+func (c *IdentityClient) Revoke(ctx context.Context, group, name string) (*security.Identity, error) {
+	return c.internal.Revoke(ctx, group, name)
 }

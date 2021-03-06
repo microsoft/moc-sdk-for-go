@@ -8,5 +8,6 @@ import (
 )
 
 const (
-	DefaultServerContextTimeout = 10 * time.Minute
+	DefaultServerContextTimeout          = 10 * time.Minute
+	CertificateValidityThreshold float64 = (30.0 / 100.0)
 )

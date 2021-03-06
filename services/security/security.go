@@ -5,6 +5,7 @@ package security
 
 import (
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/microsoft/moc/pkg/auth"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -307,12 +308,16 @@ type Identity struct {
 	ID *string `json:"ID,omitempty"`
 	// Name
 	Name *string `json:"name,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
 	// Type
 	Type *string `json:"type,omitempty"`
 	// Token
 	Token *string `json:"token,omitempty"`
 	// Token Expiry
 	TokenExpiry *int64 `json:"tokenexpiry,omitempty"`
+	// AuthType
+	AuthType auth.LoginType `json:"AuthType,omitempty"`
 	// Certificate string encoded in base64
 	Certificate *string `json:"certificate,omitempty"`
 	// Location - Resource location

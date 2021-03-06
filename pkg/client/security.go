@@ -61,6 +61,16 @@ func GetIdentityClient(serverAddress *string, authorizer auth.Authorizer) (secur
 	return security_pb.NewIdentityAgentClient(conn), nil
 }
 
+// GetIdentityClient returns the secret client to communicate with the wssdagent
+func GetRenewClient(serverAddress *string, authorizer auth.Authorizer) (security_pb.RenewalAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get IdentityClient. Failed to dial: %v", err)
+	}
+
+	return security_pb.NewRenewalAgentClient(conn), nil
+}
+
 // GetAuthenticationClient returns the secret client to communicate with the wssdagent
 func GetAuthenticationClient(serverAddress *string, authorizer auth.Authorizer) (security_pb.AuthenticationAgentClient, error) {
 	var opts []grpc.DialOption

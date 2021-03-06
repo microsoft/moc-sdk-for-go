@@ -6,6 +6,7 @@ package identity
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 
+	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
@@ -26,6 +27,8 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		Token:       &id.Token,
 		TokenExpiry: &id.TokenExpiry,
 		Location:    &id.LocationName,
+		Version:     &id.Status.Version.Number,
+		AuthType:    auth.AuthTypeToLoginType(id.AuthType),
 		IdentityProperties: &security.IdentityProperties{
 			Statuses:      status.GetStatuses(id.GetStatus()),
 			ClientType:    clitype,
@@ -51,6 +54,13 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 
 	if id.Location != nil { // WIll need to do error checking if location not set !!!!s
 		wssdidentity.LocationName = *id.Location
+	}
+
+	if id.Version != nil {
+		if wssdidentity.Status == nil {
+			wssdidentity.Status = status.InitStatus()
+		}
+		wssdidentity.Status.Version.Number = *id.Version
 	}
 
 	clitype := wssdcloudcommon.ClientType_EXTERNALCLIENT
