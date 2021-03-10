@@ -10,6 +10,7 @@ import (
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	log "k8s.io/klog"
 )
@@ -86,7 +87,7 @@ func (c *client) Sign(ctx context.Context, group, name string, csr *security.Cer
 // CreateOrUpdate
 func (c *client) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
 	if csr.OldCertificate == nil || len(*csr.OldCertificate) == 0 {
-		log.Errorf("[Certificate] Renew missing oldCert field")
+		return nil, "", errors.Wrapf(errors.NotFound, "[Certificate] Renew missing oldCert field")
 	}
 
 	request, key, err := getCSRRequest(name, csr)

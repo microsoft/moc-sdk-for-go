@@ -58,6 +58,7 @@ func (c *client) LoginWithConfig(group string, loginconfig auth.LoginConfig) (*a
 		return nil, err
 	}
 	accessFile.ClientCertificate = *clientCert
+	accessFile.ClientCertificateType = auth.CASigned
 	return &accessFile, err
 }
 
