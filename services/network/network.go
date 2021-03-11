@@ -501,6 +501,8 @@ type LoadBalancerPropertiesFormat struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// ReplicateionCount
+	ReplicationCount uint32 `json:"replicationCount,omitempty"`
 }
 
 // LoadBalancer loadBalancer resource.
