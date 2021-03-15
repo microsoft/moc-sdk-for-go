@@ -56,6 +56,9 @@ func (c *client) LoginWithConfig(group string, loginconfig auth.LoginConfig) (*a
 	if err != nil {
 		return nil, err
 	}
+	accessFile.ClientCertificateType = auth.SelfSigned
+	accessFile.IdentityName = loginconfig.Name
+	auth.PrintAccessFile(accessFile)
 	return &accessFile, err
 }
 

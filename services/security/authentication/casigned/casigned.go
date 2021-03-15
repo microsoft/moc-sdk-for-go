@@ -58,7 +58,10 @@ func (c *client) LoginWithConfig(group string, loginconfig auth.LoginConfig) (*a
 		return nil, err
 	}
 	accessFile.ClientCertificate = *clientCert
-	return &accessFile, err
+	accessFile.ClientCertificateType = auth.CASigned
+	accessFile.IdentityName = loginconfig.Name
+	auth.PrintAccessFile(accessFile)
+	return &accessFile, nil
 }
 
 func getAuthenticationRequest(identity *security.Identity) *wssdsecurity.AuthenticationRequest {

@@ -9,11 +9,12 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/certs"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/marshal"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 )
 
-func getCertificate(cert *wssdcloudsecurity.Certificate) *security.Certificate {
+func GetCertificate(cert *wssdcloudsecurity.Certificate) *security.Certificate {
 	return &security.Certificate{
 		ID:   &cert.Id,
 		Name: &cert.Name,
@@ -26,7 +27,7 @@ func getCertificate(cert *wssdcloudsecurity.Certificate) *security.Certificate {
 	}
 }
 
-func getWssdCertificate(cert *security.Certificate) (*wssdcloudsecurity.Certificate, error) {
+func GetWssdCertificate(cert *security.Certificate) (*wssdcloudsecurity.Certificate, error) {
 	if cert.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Certificate name is missing")
 	}
@@ -35,7 +36,7 @@ func getWssdCertificate(cert *security.Certificate) (*wssdcloudsecurity.Certific
 	}, nil
 }
 
-func getMocCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.CertificateSigningRequest, string, error) {
+func GetMocCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.CertificateSigningRequest, string, error) {
 	if csr.Name == nil {
 		return nil, "", errors.Wrapf(errors.InvalidInput, "CSR name is missing")
 	}
@@ -52,11 +53,16 @@ func getMocCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.Certificate
 			conf.AltNames.IPs = append(conf.AltNames.IPs, ip)
 		}
 	}
+
 	var key []byte
 	var csrRequest []byte
 	var err error
 	if csr.PrivateKey != nil {
-		csrRequest, key, err = certs.GenerateCertificateRequest(&conf, []byte(*csr.PrivateKey))
+		pemKey, err := marshal.FromBase64(*csr.PrivateKey)
+		if err != nil {
+			return nil, "", err
+		}
+		csrRequest, key, err = certs.GenerateCertificateRequest(&conf, pemKey)
 	} else {
 		csrRequest, key, err = certs.GenerateCertificateRequest(&conf, nil)
 	}
