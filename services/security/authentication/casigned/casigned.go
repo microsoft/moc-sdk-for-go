@@ -60,6 +60,7 @@ func (c *client) LoginWithConfig(group string, loginconfig auth.LoginConfig) (*a
 	accessFile.ClientCertificate = *clientCert
 	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
+	auth.PrintAccessFile(accessFile)
 	return &accessFile, nil
 }
 
