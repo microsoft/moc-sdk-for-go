@@ -61,6 +61,26 @@ func GetIdentityClient(serverAddress *string, authorizer auth.Authorizer) (secur
 	return security_pb.NewIdentityAgentClient(conn), nil
 }
 
+// GetRoleClient returns the role client to communicate with the wssdagent
+func GetRoleClient(serverAddress *string, authorizer auth.Authorizer) (security_pb.RoleAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get RoleClient. Failed to dial: %v", err)
+	}
+
+	return security_pb.NewRoleAgentClient(conn), nil
+}
+
+// GetRoleAssignmentClient returns the roleAssignment client to communicate with the wssdagent
+func GetRoleAssignmentClient(serverAddress *string, authorizer auth.Authorizer) (security_pb.RoleAssignmentAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get RoleAssignmentClient. Failed to dial: %v", err)
+	}
+
+	return security_pb.NewRoleAssignmentAgentClient(conn), nil
+}
+
 // GetAuthenticationClient returns the secret client to communicate with the wssdagent
 func GetAuthenticationClient(serverAddress *string, authorizer auth.Authorizer) (security_pb.AuthenticationAgentClient, error) {
 	var opts []grpc.DialOption
