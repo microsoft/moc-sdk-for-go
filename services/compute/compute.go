@@ -898,6 +898,14 @@ type BareMetalMachineProperties struct {
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// Host - Specifies information about the host.
 	Host *SubResource `json:"host,omitempty"`
+	// FQDN
+	FQDN *string `json:"fqdn,omitempty"`
+	// Port
+	Port *int32 `json:"port,omitempty"`
+	// AuthorizerPort
+	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
+	// Certificate
+	Certificate *string `json:"certificate,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State

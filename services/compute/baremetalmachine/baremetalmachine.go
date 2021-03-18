@@ -59,6 +59,22 @@ func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, location
 		if bmm.Host != nil && bmm.Host.ID != nil {
 			bmmOut.NodeName = *bmm.Host.ID
 		}
+
+		if bmm.FQDN != nil {
+			bmmOut.Fqdn = *bmm.FQDN
+		}
+
+		if bmm.Port != nil {
+			bmmOut.Port = *bmm.Port
+		}
+
+		if bmm.AuthorizerPort != nil {
+			bmmOut.AuthorizerPort = *bmm.AuthorizerPort
+		}
+
+		if bmm.Certificate != nil {
+			bmmOut.Certificate = *bmm.Certificate
+		}
 	}
 
 	if bmm.Version != nil {
@@ -259,6 +275,10 @@ func (c *client) getBareMetalMachine(bmm *wssdcloudcompute.BareMetalMachine, loc
 			OsProfile:         c.getBareMetalMachineOSProfile(bmm.Os),
 			NetworkProfile:    c.getBareMetalMachineNetworkProfile(bmm.Network),
 			Host:              c.getBareMetalMachineHostDescription(bmm),
+			FQDN:              &bmm.Fqdn,
+			Port:              &bmm.Port,
+			AuthorizerPort:    &bmm.AuthorizerPort,
+			Certificate:       &bmm.Certificate,
 		},
 		Version:  &bmm.Status.Version.Number,
 		Location: &bmm.LocationName,
