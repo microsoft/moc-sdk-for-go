@@ -236,7 +236,8 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 		ID:       &wssdLB.Id,
 		Version:  &wssdLB.Status.Version.Number,
 		LoadBalancerPropertiesFormat: &network.LoadBalancerPropertiesFormat{
-			Statuses: status.GetStatuses(wssdLB.GetStatus()),
+			Statuses:         status.GetStatuses(wssdLB.GetStatus()),
+			ReplicationCount: wssdLB.GetReplicationCount(),
 		},
 	}
 
