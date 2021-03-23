@@ -106,6 +106,10 @@ func (c *client) getWssdVirtualMachineStorageConfiguration(s *compute.StoragePro
 		wssdstorage.Osdisk = osdisk
 	}
 
+	if s.VmConfigContainerName != nil {
+		wssdstorage.VmConfigContainerName = *s.VmConfigContainerName
+	}
+
 	if s.DataDisks == nil {
 		return wssdstorage, nil
 	}
@@ -116,10 +120,6 @@ func (c *client) getWssdVirtualMachineStorageConfiguration(s *compute.StoragePro
 			return nil, err
 		}
 		wssdstorage.Datadisks = append(wssdstorage.Datadisks, wssddatadisk)
-	}
-
-	if s.VmConfigContainerName != nil {
-		wssdstorage.VmConfigContainerName = *s.VmConfigContainerName
 	}
 
 	return wssdstorage, nil
