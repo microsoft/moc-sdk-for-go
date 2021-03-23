@@ -79,22 +79,66 @@ func (c *VirtualMachineClient) Restart(ctx context.Context, group string, name s
 	return
 }
 
+type UpdateFunctor interface {
+	Update(context.Context, *compute.VirtualMachine) (*compute.VirtualMachine, error)
+}
+
+// Update the VM with a retry
+func (c *VirtualMachineClient) Update(ctx context.Context, group string, vmName string, updateFunctor UpdateFunctor) (err error) {
+	for {
+		vms, err := c.Get(ctx, group, vmName)
+		if err != nil {
+			return err
+		}
+		if vms == nil || len(*vms) == 0 {
+			return errors.Wrapf(errors.NotFound, "Virtual Machine [%s] not found", vmName)
+		}
+
+		vm, err := updateFunctor.Update(ctx, &(*vms)[0])
+		if err != nil {
+			return err
+		}
+
+		_, err = c.CreateOrUpdate(ctx, group, vmName, vm)
+		if err != nil {
+			if errors.IsInvalidVersion(err) {
+				// Retry only on invalid version
+				time.Sleep(100 * time.Millisecond)
+				continue
+			}
+			return err
+		}
+		break
+	}
+	return
+}
+
 // Resize the Virtual Machine
-func (c *VirtualMachineClient) Resize(ctx context.Context, group string, name string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize) (err error) {
-	vms, err := c.Get(ctx, group, name)
-	if err != nil {
-		return
-	}
-	if len(*vms) == 0 {
-		return errors.Wrapf(errors.NotFound, "Virtual Machine [%s] not found", name)
-	}
+func (c *VirtualMachineClient) Resize(ctx context.Context, group string, vmName string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize) (err error) {
+	for {
+		vms, err := c.Get(ctx, group, vmName)
+		if err != nil {
+			return err
+		}
+		if vms == nil || len(*vms) == 0 {
+			return errors.Wrapf(errors.NotFound, "Virtual Machine [%s] not found", vmName)
+		}
 
-	vm := (*vms)[0]
-	vm.HardwareProfile.VMSize = newSize
-	vm.HardwareProfile.CustomSize = newCustomSize
+		vm := (*vms)[0]
+		vm.HardwareProfile.VMSize = newSize
+		vm.HardwareProfile.CustomSize = newCustomSize
 
-	// TODO: If we get invalid Version, retry here
-	_, err = c.CreateOrUpdate(ctx, group, name, &vm)
+		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
+		if err != nil {
+			if errors.IsInvalidVersion(err) {
+				// Retry only on invalid version
+				time.Sleep(100 * time.Millisecond)
+				continue
+			}
+			return err
+		}
+		break
+	}
 	return
 }
 
