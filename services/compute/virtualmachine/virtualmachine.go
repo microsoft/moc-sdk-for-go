@@ -161,9 +161,14 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 	if vm.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vm.HardwareProfile.VMSize)
 		if vm.HardwareProfile.CustomSize != nil {
-			customSize = &wssdcommon.VirtualMachineCustomSize{
-				CpuCount: *vm.HardwareProfile.CustomSize.CpuCount,
-				MemoryMB: *vm.HardwareProfile.CustomSize.MemoryMB,
+			customSize = &wssdcommon.VirtualMachineCustomSize{}
+
+			if vm.HardwareProfile.CustomSize.CpuCount != nil {
+				customSize.CpuCount = *vm.HardwareProfile.CustomSize.CpuCount
+			}
+
+			if vm.HardwareProfile.CustomSize.MemoryMB != nil {
+				customSize.MemoryMB = *vm.HardwareProfile.CustomSize.MemoryMB
 			}
 		}
 	}
