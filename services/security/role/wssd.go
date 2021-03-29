@@ -13,7 +13,6 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
-	log "k8s.io/klog"
 )
 
 type client struct {
@@ -63,7 +62,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, name string, role *security
 
 	response, err := c.RoleAgentClient.Invoke(ctx, request)
 	if err != nil {
-		log.Errorf("[Role] Create failed with error %v", err)
 		return nil, err
 	}
 

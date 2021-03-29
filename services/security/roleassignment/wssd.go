@@ -13,7 +13,6 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
-	log "k8s.io/klog"
 )
 
 type client struct {
@@ -38,7 +37,6 @@ func (c *client) Get(ctx context.Context, inputRa *security.RoleAssignment) (*[]
 
 	response, err := c.RoleAssignmentAgentClient.Invoke(ctx, request)
 	if err != nil {
-		log.Errorf("[RoleAssignment] Get failed with error %v", err)
 		return nil, err
 	}
 
@@ -79,7 +77,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, inputRa *security.RoleAssig
 
 	response, err := c.RoleAssignmentAgentClient.Invoke(ctx, request)
 	if err != nil {
-		log.Errorf("[RoleAssignment] Create failed with error %v", err)
 		return nil, err
 	}
 
