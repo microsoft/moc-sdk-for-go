@@ -120,8 +120,8 @@ func (c *client) validate(ctx context.Context, role *security.Role) (err error) 
 
 func (c *client) getRolesFromResponse(response *wssdcloudsecurity.RoleResponse) (*[]security.Role, error) {
 	roles := []security.Role{}
-	for _, wssdrole := range response.GetRoles() {
-		role, err := getRole(wssdrole)
+	for _, mocrole := range response.GetRoles() {
+		role, err := getRole(mocrole)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +150,7 @@ func (c *client) getRoleRequest(opType wssdcloudcommon.Operation, name string, r
 
 	var err error
 	if role != nil {
-		wssdrole, err = getWssdRole(role)
+		wssdrole, err = getMocRole(role)
 		if err != nil {
 			return nil, err
 		}

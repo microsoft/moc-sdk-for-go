@@ -11,86 +11,90 @@ import (
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
-func getScope(wssdscope *wssdcloudcommon.Scope) *security.Scope {
-	if wssdscope == nil {
+func getScope(mocscope *wssdcloudcommon.Scope) *security.Scope {
+	if mocscope == nil {
 		return &security.Scope{}
 	}
 	return &security.Scope{
-		Location: &wssdscope.Location,
-		Group:    &wssdscope.ResourceGroup,
-		Provider: security.GetProviderType(wssdscope.ProviderType),
-		Resource: &wssdscope.Resource,
+		Location: &mocscope.Location,
+		Group:    &mocscope.ResourceGroup,
+		Provider: security.GetProviderType(mocscope.ProviderType),
+		Resource: &mocscope.Resource,
 	}
 }
 
-func getRoleAssignment(wssdra *wssdcloudsecurity.RoleAssignment) *security.RoleAssignment {
+func getRoleAssignment(mocra *wssdcloudsecurity.RoleAssignment) *security.RoleAssignment {
 	return &security.RoleAssignment{
-		ID:      &wssdra.Id,
-		Name:    &wssdra.Name,
-		Version: &wssdra.Status.Version.Number,
+		ID:      &mocra.Id,
+		Name:    &mocra.Name,
+		Version: &mocra.Status.Version.Number,
 		RoleAssignmentProperties: &security.RoleAssignmentProperties{
-			RoleName:     &wssdra.RoleName,
-			IdentityName: &wssdra.IdentityName,
-			Scope:        getScope(wssdra.Scope),
+			RoleName:     &mocra.RoleName,
+			IdentityName: &mocra.IdentityName,
+			Scope:        getScope(mocra.Scope),
 		},
 	}
 }
 
-func getWssdScope(scope *security.Scope) (*wssdcloudcommon.Scope, error) {
-	wssdscope := &wssdcloudcommon.Scope{}
+func getMocScope(scope *security.Scope) (*wssdcloudcommon.Scope, error) {
+	mocscope := &wssdcloudcommon.Scope{}
 
 	if scope == nil {
-		return wssdscope, nil
+		return mocscope, nil
 	}
 
 	if scope.Location != nil {
-		wssdscope.Location = *scope.Location
+		mocscope.Location = *scope.Location
 	}
 
 	if scope.Group != nil {
-		wssdscope.ResourceGroup = *scope.Group
+		mocscope.ResourceGroup = *scope.Group
 	}
 
-	providerType, err := security.GetWssdProviderType(scope.Provider)
+	providerType, err := security.GetMocProviderType(scope.Provider)
 	if err != nil {
 		return nil, err
 	}
-	wssdscope.ProviderType = providerType
+	mocscope.ProviderType = providerType
 
 	if scope.Resource != nil {
-		wssdscope.Resource = *scope.Resource
+		mocscope.Resource = *scope.Resource
 	}
 
-	return wssdscope, nil
+	return mocscope, nil
 }
 
-func getWssdRoleAssignment(ra *security.RoleAssignment) (*wssdcloudsecurity.RoleAssignment, error) {
-	wssdra := &wssdcloudsecurity.RoleAssignment{}
+func getMocRoleAssignment(ra *security.RoleAssignment) (*wssdcloudsecurity.RoleAssignment, error) {
+	mocra := &wssdcloudsecurity.RoleAssignment{}
+
+	if ra.Name != nil {
+		mocra.Name = *ra.Name
+	}
 
 	if ra.Version != nil {
-		if wssdra.Status == nil {
-			wssdra.Status = status.InitStatus()
+		if mocra.Status == nil {
+			mocra.Status = status.InitStatus()
 		}
-		wssdra.Status.Version.Number = *ra.Version
+		mocra.Status.Version.Number = *ra.Version
 	}
 
 	if ra.RoleAssignmentProperties != nil {
 		if ra.RoleAssignmentProperties.IdentityName != nil {
-			wssdra.IdentityName = *ra.IdentityName
+			mocra.IdentityName = *ra.IdentityName
 		}
 
 		if ra.RoleAssignmentProperties.RoleName != nil {
-			wssdra.RoleName = *ra.RoleName
+			mocra.RoleName = *ra.RoleName
 		}
 
 		if ra.RoleAssignmentProperties.Scope != nil {
-			scope, err := getWssdScope(ra.Scope)
+			scope, err := getMocScope(ra.Scope)
 			if err != nil {
 				return nil, err
 			}
-			wssdra.Scope = scope
+			mocra.Scope = scope
 		}
 	}
 
-	return wssdra, nil
+	return mocra, nil
 }

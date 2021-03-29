@@ -17,7 +17,7 @@ func GetProviderType(pbProvider pbcom.ProviderType) ProviderType {
 	return ProviderType(value)
 }
 
-func GetWssdProviderType(providerType ProviderType) (pbcom.ProviderType, error) {
+func GetMocProviderType(providerType ProviderType) (pbcom.ProviderType, error) {
 	// Convert sdk enum to string representation
 	providerString := string(providerType)
 
@@ -39,7 +39,7 @@ func GetWssdProviderType(providerType ProviderType) (pbcom.ProviderType, error) 
 type ProviderType string
 
 var (
-	AnyProviderType            ProviderType = ""
+	AnyProviderType            ProviderType = "AnyProvider"
 	VirtualMachineType         ProviderType = "VirtualMachine"
 	VirtualMachineScaleSetType ProviderType = "VirtualMachineScaleSet"
 	LoadBalancerType           ProviderType = "LoadBalancer"

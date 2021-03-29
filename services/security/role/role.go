@@ -12,11 +12,11 @@ import (
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
-func getActions(wssdactions []*wssdcloudsecurity.Action) ([]security.Action, error) {
+func getActions(mocactions []*wssdcloudsecurity.Action) ([]security.Action, error) {
 	var actions []security.Action
-	for _, wssdaction := range wssdactions {
+	for _, mocaction := range mocactions {
 		action := security.Action{}
-		switch wssdaction.Operation {
+		switch mocaction.Operation {
 		case wssdcloudsecurity.AccessOperation_Read:
 			action.Operation = security.ReadAccess
 		case wssdcloudsecurity.AccessOperation_Write:
@@ -26,20 +26,20 @@ func getActions(wssdactions []*wssdcloudsecurity.Action) ([]security.Action, err
 		case wssdcloudsecurity.AccessOperation_All:
 			action.Operation = security.AllAccess
 		default:
-			return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", wssdaction.Operation)
+			return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", mocaction.Operation)
 		}
 
-		action.Provider = security.GetProviderType(wssdaction.ProviderType)
+		action.Provider = security.GetProviderType(mocaction.ProviderType)
 		actions = append(actions, action)
 	}
 
 	return actions, nil
 }
 
-func getPermissions(wssdperms []*wssdcloudsecurity.Permission) (*[]security.RolePermission, error) {
+func getPermissions(mocperms []*wssdcloudsecurity.Permission) (*[]security.RolePermission, error) {
 	permissions := []security.RolePermission{}
 
-	for _, perm := range wssdperms {
+	for _, perm := range mocperms {
 		actions, err := getActions(perm.Actions)
 		if err != nil {
 			return nil, err
@@ -63,15 +63,15 @@ func getPermissions(wssdperms []*wssdcloudsecurity.Permission) (*[]security.Role
 	return &permissions, nil
 }
 
-func getAssignableScopes(wssdscopes []*wssdcloudcommon.Scope) (*[]security.Scope, error) {
+func getAssignableScopes(mocscopes []*wssdcloudcommon.Scope) (*[]security.Scope, error) {
 	scopes := []security.Scope{}
 
-	for _, wssdscope := range wssdscopes {
+	for _, mocscope := range mocscopes {
 		scopes = append(scopes, security.Scope{
-			Location: &wssdscope.Location,
-			Group:    &wssdscope.ResourceGroup,
-			Provider: security.GetProviderType(wssdscope.ProviderType),
-			Resource: &wssdscope.Resource,
+			Location: &mocscope.Location,
+			Group:    &mocscope.ResourceGroup,
+			Provider: security.GetProviderType(mocscope.ProviderType),
+			Resource: &mocscope.Resource,
 		})
 	}
 
@@ -101,130 +101,130 @@ func getRole(role *wssdcloudsecurity.Role) (*security.Role, error) {
 	}, nil
 }
 
-func getWssdAction(action *security.Action) (*wssdcloudsecurity.Action, error) {
-	wssdaction := &wssdcloudsecurity.Action{}
+func getMocAction(action *security.Action) (*wssdcloudsecurity.Action, error) {
+	mocaction := &wssdcloudsecurity.Action{}
 
 	if action == nil {
-		return wssdaction, nil
+		return mocaction, nil
 	}
 
 	switch action.Operation {
 	case security.ReadAccess:
-		wssdaction.Operation = wssdcloudsecurity.AccessOperation_Read
+		mocaction.Operation = wssdcloudsecurity.AccessOperation_Read
 	case security.WriteAccess:
-		wssdaction.Operation = wssdcloudsecurity.AccessOperation_Write
+		mocaction.Operation = wssdcloudsecurity.AccessOperation_Write
 	case security.DeleteAccess:
-		wssdaction.Operation = wssdcloudsecurity.AccessOperation_Delete
+		mocaction.Operation = wssdcloudsecurity.AccessOperation_Delete
 	case security.AllAccess:
-		wssdaction.Operation = wssdcloudsecurity.AccessOperation_All
+		mocaction.Operation = wssdcloudsecurity.AccessOperation_All
 	default:
 		return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", action.Operation)
 	}
 
-	providerType, err := security.GetWssdProviderType(action.Provider)
+	providerType, err := security.GetMocProviderType(action.Provider)
 	if err != nil {
 		return nil, err
 	}
-	wssdaction.ProviderType = providerType
+	mocaction.ProviderType = providerType
 
-	return wssdaction, nil
+	return mocaction, nil
 }
 
-func getWssdPermission(permission *security.RolePermission) (*wssdcloudsecurity.Permission, error) {
-	wssdperm := &wssdcloudsecurity.Permission{}
+func getMocPermission(permission *security.RolePermission) (*wssdcloudsecurity.Permission, error) {
+	mocperm := &wssdcloudsecurity.Permission{}
 
 	if permission == nil {
-		return wssdperm, nil
+		return mocperm, nil
 	}
 
 	if permission.Actions != nil {
 		for _, action := range *permission.Actions {
-			wssdaction, err := getWssdAction(&action)
+			mocaction, err := getMocAction(&action)
 			if err != nil {
 				return nil, err
 			}
-			wssdperm.Actions = append(wssdperm.Actions, wssdaction)
+			mocperm.Actions = append(mocperm.Actions, mocaction)
 		}
 	}
 
 	if permission.NotActions != nil {
 		for _, action := range *permission.NotActions {
-			wssdaction, err := getWssdAction(&action)
+			mocaction, err := getMocAction(&action)
 			if err != nil {
 				return nil, err
 			}
-			wssdperm.NotActions = append(wssdperm.NotActions, wssdaction)
+			mocperm.NotActions = append(mocperm.NotActions, mocaction)
 		}
 	}
 
-	return wssdperm, nil
+	return mocperm, nil
 }
 
-func getWssdAssignableScope(scope *security.Scope) (*wssdcloudcommon.Scope, error) {
-	wssdscope := &wssdcloudcommon.Scope{}
+func getMocAssignableScope(scope *security.Scope) (*wssdcloudcommon.Scope, error) {
+	mocscope := &wssdcloudcommon.Scope{}
 
 	if scope == nil {
-		return wssdscope, nil
+		return mocscope, nil
 	}
 
 	if scope.Location != nil {
-		wssdscope.Location = *scope.Location
+		mocscope.Location = *scope.Location
 	}
 
 	if scope.Group != nil {
-		wssdscope.ResourceGroup = *scope.Group
+		mocscope.ResourceGroup = *scope.Group
 	}
 
-	providerType, err := security.GetWssdProviderType(scope.Provider)
+	providerType, err := security.GetMocProviderType(scope.Provider)
 	if err != nil {
 		return nil, err
 	}
-	wssdscope.ProviderType = providerType
+	mocscope.ProviderType = providerType
 
 	if scope.Resource != nil {
-		wssdscope.Resource = *scope.Resource
+		mocscope.Resource = *scope.Resource
 	}
 
-	return wssdscope, nil
+	return mocscope, nil
 }
 
-func getWssdRole(role *security.Role) (*wssdcloudsecurity.Role, error) {
+func getMocRole(role *security.Role) (*wssdcloudsecurity.Role, error) {
 	if role.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Role name is missing")
 	}
 
-	wssdrole := &wssdcloudsecurity.Role{
+	mocrole := &wssdcloudsecurity.Role{
 		Name: *role.Name,
 	}
 
 	if role.Version != nil {
-		if wssdrole.Status == nil {
-			wssdrole.Status = status.InitStatus()
+		if mocrole.Status == nil {
+			mocrole.Status = status.InitStatus()
 		}
-		wssdrole.Status.Version.Number = *role.Version
+		mocrole.Status.Version.Number = *role.Version
 	}
 
 	if role.RoleProperties != nil {
 		if role.RoleProperties.Permissions != nil {
 			for _, permission := range *role.Permissions {
-				wssdperm, err := getWssdPermission(&permission)
+				mocperm, err := getMocPermission(&permission)
 				if err != nil {
 					return nil, err
 				}
-				wssdrole.Permissions = append(wssdrole.Permissions, wssdperm)
+				mocrole.Permissions = append(mocrole.Permissions, mocperm)
 			}
 		}
 
 		if role.RoleProperties.AssignableScopes != nil {
 			for _, scope := range *role.AssignableScopes {
-				wssdscope, err := getWssdAssignableScope(&scope)
+				mocscope, err := getMocAssignableScope(&scope)
 				if err != nil {
 					return nil, err
 				}
-				wssdrole.AssignableScopes = append(wssdrole.AssignableScopes, wssdscope)
+				mocrole.AssignableScopes = append(mocrole.AssignableScopes, mocscope)
 			}
 		}
 	}
 
-	return wssdrole, nil
+	return mocrole, nil
 }

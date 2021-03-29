@@ -131,7 +131,7 @@ func (c *client) getRoleAssignmentRequest(opType wssdcloudcommon.Operation, ra *
 		RoleAssignments: []*wssdcloudsecurity.RoleAssignment{},
 	}
 
-	wssdra, err := getWssdRoleAssignment(ra)
+	wssdra, err := getMocRoleAssignment(ra)
 	if err != nil {
 		return nil, err
 	}
