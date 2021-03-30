@@ -8,7 +8,6 @@ import (
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
-	wssdcommon "github.com/microsoft/moc/common"
 	"github.com/microsoft/moc/pkg/auth"
 	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	//log "k8s.io/klog"
@@ -37,7 +36,7 @@ func (c *client) Login(ctx context.Context, group string, identity *security.Ide
 	return &response.Token, nil
 }
 
-func (c *client) LoginWithConfig(group string, loginconfig auth.LoginConfig) (*auth.WssdConfig, error) {
+func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig) (*auth.WssdConfig, error) {
 
 	clientCert, accessFile, err := auth.GenerateClientKey(loginconfig)
 	if err != nil {
@@ -48,9 +47,6 @@ func (c *client) LoginWithConfig(group string, loginconfig auth.LoginConfig) (*a
 		Name:        &loginconfig.Name,
 		Certificate: &clientCert,
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), wssdcommon.DefaultServerContextTimeout)
-	defer cancel()
 
 	_, err = c.Login(ctx, group, &id)
 	if err != nil {
