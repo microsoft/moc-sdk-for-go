@@ -14,11 +14,13 @@ import (
 )
 
 func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
-	clitype := security.ExternalClient
+	clitype := auth.ExternalClient
 	if id.ClientType == wssdcloudcommon.ClientType_CONTROLPLANE {
-		clitype = security.ControlPlane
+		clitype = auth.ControlPlane
 	} else if id.ClientType == wssdcloudcommon.ClientType_NODE {
-		clitype = security.Node
+		clitype = auth.Node
+	} else if id.ClientType == wssdcloudcommon.ClientType_ADMIN {
+		clitype = auth.Admin
 	}
 
 	return &security.Identity{
@@ -52,7 +54,7 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 		wssdidentity.TokenExpiry = *id.TokenExpiry
 	}
 
-	if id.Location != nil { // WIll need to do error checking if location not set !!!!s
+	if id.Location != nil {
 		wssdidentity.LocationName = *id.Location
 	}
 
@@ -65,10 +67,12 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 
 	clitype := wssdcloudcommon.ClientType_EXTERNALCLIENT
 	if id.IdentityProperties != nil {
-		if id.IdentityProperties.ClientType == security.ControlPlane {
+		if id.IdentityProperties.ClientType == auth.ControlPlane {
 			clitype = wssdcloudcommon.ClientType_CONTROLPLANE
-		} else if id.IdentityProperties.ClientType == security.Node {
+		} else if id.IdentityProperties.ClientType == auth.Node {
 			clitype = wssdcloudcommon.ClientType_NODE
+		} else if id.IdentityProperties.ClientType == auth.Admin {
+			clitype = wssdcloudcommon.ClientType_ADMIN
 		}
 
 		if id.IdentityProperties.CloudFqdn != nil {

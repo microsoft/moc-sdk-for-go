@@ -160,12 +160,13 @@ const (
 	StoragePermissionsUpdate StoragePermissions = "update"
 )
 
-type ClientType string
+type Operation string
 
 const (
-	ControlPlane   ClientType = "ControlPlane"
-	ExternalClient ClientType = "ExternalClient"
-	Node           ClientType = "Node"
+	ReadAccess   Operation = "read"
+	WriteAccess  Operation = "write"
+	DeleteAccess Operation = "delete"
+	AllAccess    Operation = "all"
 )
 
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
@@ -288,6 +289,81 @@ type CertificateRequest struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+type Scope struct {
+	// Location - The location that limits scope
+	Location *string `json:"location,omitempty"`
+	// Group - The resource group that limits scope
+	Group *string `json:"group,omitempty"`
+	// Provider - The provider type that limits scope
+	Provider ProviderType `json:"provider,omitempty"`
+	// Resource - The resource that scope is applied to
+	Resource *string `json:"resource,omitempty"`
+}
+
+type Action struct {
+	// Provider - The provider type to which an operation is done
+	Provider ProviderType `json:"provider,omitempty"`
+	// Operation - The operation that a permission is refering to
+	Operation Operation `json:"operation,omitempty"`
+}
+
+type RolePermission struct {
+	Actions    *[]Action `json:"actions,omitempty"`
+	NotActions *[]Action `json:"notactions,omitempty"`
+}
+
+// RoleProperties defines the properties of a role
+type RoleProperties struct {
+	// Permissions - Role definition permissions.
+	Permissions *[]RolePermission `json:"permissions,omitempty"`
+	// AssignableScopes - Role definition assignable scopes.
+	AssignableScopes *[]Scope `json:"scopes,omitempty"`
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+}
+
+// Role defines the structure of an identity's role
+type Role struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name - The role name.
+	Name *string `json:"name,omitempty"`
+	// Type - READ-ONLY; The resource type of the role.
+	Type *string `json:"type,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Tags - The tags that will be assigned to the role.
+	Tags map[string]*string `json:"tags"`
+	// Properties
+	*RoleProperties `json:"properties,omitempty"`
+}
+
+// RoleAssignmentProperties defines the properties of a role assignment
+type RoleAssignmentProperties struct {
+	// RoleName - The name of the role to apply
+	RoleName *string `json:"role,omitempty"`
+	// IdentityName - The name of the identity to be assigned to
+	IdentityName *string `json:"identity,omitempty"`
+	// Scope - The scope to which role is applied
+	Scope *Scope `json:"scope,omitempty"`
+}
+
+// RoleAssignment defines the structure of a role assignment to an identity
+type RoleAssignment struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name - The role name.
+	Name *string `json:"name,omitempty"`
+	// Type - READ-ONLY; The resource type of the role.
+	Type *string `json:"type,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Tags - The tags that will be assigned to the role.
+	Tags map[string]*string `json:"tags"`
+	// Properties
+	*RoleAssignmentProperties `json:"properties,omitempty"`
+}
+
 // IdentityProperties defines the structure of a Security Item
 type IdentityProperties struct {
 	// State - State
@@ -299,7 +375,7 @@ type IdentityProperties struct {
 	// CloudAgent authentication port
 	CloudAuthPort *int32 `json:"cloudauthport,omitempty"`
 	// Client type
-	ClientType ClientType `json:"clienttype,omitempty"`
+	ClientType auth.ClientType `json:"clienttype,omitempty"`
 }
 
 // Identity defines the structure of a identity
