@@ -27,6 +27,13 @@ type client struct {
 	cloudFQDN string
 }
 
+var loginConfig auth.LoginConfig
+
+// UpdateLoginConfig
+func UpdateLoginConfig(loginconfig auth.LoginConfig) {
+	loginConfig = loginconfig
+}
+
 // NewAuthenticationClient creates a client session with the backend wssd agent
 func NewAuthenticationClient(subID string, authorizer auth.Authorizer) (*client, error) {
 	c, err := wssdclient.GetAuthenticationClient(&subID, authorizer)
@@ -34,6 +41,20 @@ func NewAuthenticationClient(subID string, authorizer auth.Authorizer) (*client,
 		return nil, err
 	}
 	return &client{c, subID}, nil
+}
+
+func ReLoginOnExpiry(ctx context.Context, loginconfig auth.LoginConfig, group, cloudFQDN string) error {
+	authorizer, err := auth.NewAuthorizerForAuth(loginconfig.Token, loginconfig.Certificate, cloudFQDN)
+	if err != nil {
+		return err
+	}
+
+	c, err := NewAuthenticationClient(cloudFQDN, authorizer)
+	if err != nil {
+		return err
+	}
+	_, err = c.LoginWithConfig(ctx, group, loginconfig, false)
+	return err
 }
 
 // Login
@@ -71,9 +92,17 @@ func RenewRoutine(ctx context.Context, group, server string) {
 		span.Log("Attempting to renew certificate\n")
 		err = auth.RenewCertificates(server, auth.GetWssdConfigLocation())
 		if err != nil {
+			// If certificate is expired, we attempt to re-login with set login config
 			if errors.IsExpired(err) {
-				span.Log("Certificate Expired %v", err)
-				panic("Certificate has expired")
+				span.Log("Certificate Expired, Attemptin re-login %v", err)
+				err = ReLoginOnExpiry(ctx, loginConfig, group, server)
+				if err == nil {
+					span.Log("Re-Login successful")
+					renewalAttempt = 0
+					continue
+				} else {
+					span.Log("Re-Login Failure %v", err)
+				}
 			}
 			renewalAttempt += 1
 			span.Log("Failed to renew cert: %v. Attempts %d", err, renewalAttempt)
@@ -88,7 +117,7 @@ func RenewRoutine(ctx context.Context, group, server string) {
 }
 
 // Get methods invokes the client Get method
-func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig) (*auth.WssdConfig, error) {
+func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig, enableRenewRoutine bool) (*auth.WssdConfig, error) {
 
 	clientCsr, accessFile, err := auth.GenerateClientCsr(loginconfig)
 	if err != nil {
@@ -108,9 +137,12 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
 	auth.PrintAccessFile(accessFile)
-	once.Do(func() {
-		go RenewRoutine(ctx, group, c.cloudFQDN)
-	})
+	UpdateLoginConfig(loginconfig)
+	if enableRenewRoutine {
+		once.Do(func() {
+			go RenewRoutine(ctx, group, c.cloudFQDN)
+		})
+	}
 	return &accessFile, nil
 }
 

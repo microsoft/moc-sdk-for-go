@@ -120,6 +120,27 @@ func (c *client) Revoke(ctx context.Context, group, name string) (*security.Iden
 	return &((*cert)[0]), err
 }
 
+// Rotate
+func (c *client) Rotate(ctx context.Context, group, name string) (*security.Identity, error) {
+	request, err := c.getIdentityOperationRequest(ctx, wssdcloudcommon.IdentityOperation_ROTATE, name)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.IdentityAgentClient.Operate(ctx, request)
+	if err != nil {
+		log.Errorf("[Identity] Create failed with error %v", err)
+		return nil, err
+	}
+
+	cert := getIdentitysFromResponse(response)
+
+	if len(*cert) == 0 {
+		return nil, fmt.Errorf("[Identity][Create] Unexpected error: Creating a security returned no result")
+	}
+
+	return &((*cert)[0]), err
+}
+
 // CreateCertificate
 func (c *client) CreateCertificate(ctx context.Context, group, name string, csrs []*security.CertificateRequest) (certificates []*security.Certificate, key string, err error) {
 	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.IdentityCertificateOperation_CREATE_CERTIFICATE, name, csrs)

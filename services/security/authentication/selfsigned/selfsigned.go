@@ -36,7 +36,7 @@ func (c *client) Login(ctx context.Context, group string, identity *security.Ide
 	return &response.Token, nil
 }
 
-func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig) (*auth.WssdConfig, error) {
+func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig, enableRenewRoutine bool) (*auth.WssdConfig, error) {
 
 	clientCert, accessFile, err := auth.GenerateClientKey(loginconfig)
 	if err != nil {
