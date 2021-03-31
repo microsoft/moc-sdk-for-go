@@ -15,7 +15,7 @@ import (
 // Service interface
 type Service interface {
 	Login(context.Context, string, *security.Identity) (*string, error)
-	LoginWithConfig(context.Context, string, auth.LoginConfig) (*auth.WssdConfig, error)
+	LoginWithConfig(context.Context, string, auth.LoginConfig, bool) (*auth.WssdConfig, error)
 }
 
 // Client structure
@@ -64,6 +64,6 @@ func (c *AuthenticationClient) Login(ctx context.Context, group string, identity
 }
 
 // Get methods invokes the client Get method
-func (c *AuthenticationClient) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig) (*auth.WssdConfig, error) {
-	return c.internal.LoginWithConfig(ctx, group, loginconfig)
+func (c *AuthenticationClient) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig, enableRenewRoutine bool) (*auth.WssdConfig, error) {
+	return c.internal.LoginWithConfig(ctx, group, loginconfig, enableRenewRoutine)
 }
