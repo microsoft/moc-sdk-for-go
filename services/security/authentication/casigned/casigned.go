@@ -5,10 +5,12 @@ package casigned
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"os"
 	"sync"
 	"time"
 
-	"github.com/microsoft/moc-pkg/pkg/trace"
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
@@ -71,48 +73,45 @@ func RenewRoutine(ctx context.Context, group, server string) {
 	renewalAttempt := 0
 	// Waiting for a few seconds to avoid spamming short-lived sdk user
 	time.Sleep(time.Second * 5)
-	var err error
-	_, span := trace.NewSpan(ctx, "RenewRoutine")
-	defer span.End(err)
 	for {
 		wssdConfig := auth.WssdConfig{}
 		err := marshal.FromJSONFile(auth.GetWssdConfigLocation(), &wssdConfig)
 		if err != nil {
-			span.Log("Failed to open config file in location %s: %v\n", auth.GetWssdConfigLocation(), err)
+			fmt.Fprintf(os.Stderr, "Failed to open config file in location %s: %v\n", auth.GetWssdConfigLocation(), err)
 			return
 		}
 
 		sleepTime, renewalBackoff, expiry, err := renewTime(wssdConfig.ClientCertificate)
 		if err != nil {
-			span.Log("Failed while calculating certificate renew time %v \n", err)
+			fmt.Fprintf(os.Stderr, "Failed while calculating certificate renew time %v \n", err)
 			return
 		}
-		span.Log("Waiting for %v to renew cert\n", sleepTime)
+		log.Printf("Waiting for %v to renew cert\n", sleepTime)
 		time.Sleep(sleepTime)
-		span.Log("Attempting to renew certificate\n")
+		log.Printf("Attempting to renew certificate\n")
 		err = auth.RenewCertificates(server, auth.GetWssdConfigLocation())
 		if err != nil {
 			// If certificate is expired, we attempt to re-login with set login config
 			if errors.IsExpired(err) {
-				span.Log("Certificate Expired, Attemptin re-login %v", err)
+				fmt.Fprintf(os.Stderr, "Certificate Expired, Attemptin re-login %v", err)
 				err = ReLoginOnExpiry(ctx, loginConfig, group, server)
 				if err == nil {
-					span.Log("Re-Login successful")
+					log.Println("Re-Login successful")
 					renewalAttempt = 0
 					continue
 				} else {
-					span.Log("Re-Login Failure %v", err)
+					fmt.Fprintf(os.Stderr, "Re-Login Failure %v", err)
 				}
 			}
 			renewalAttempt += 1
-			span.Log("Failed to renew cert: %v. Attempts %d", err, renewalAttempt)
-			span.Log("Certificate Expiry %s, Now %s", expiry.UTC().String(), time.Now().UTC().String())
+			log.Printf("Failed to renew cert: %v. Attempts %d\n", err, renewalAttempt)
+			log.Printf("Certificate Expiry %s, Now %s\n", expiry.UTC().String(), time.Now().UTC().String())
 			time.Sleep(renewalBackoff)
 			continue
 		}
 		//reset renewalAttempt after successful renewal
 		renewalAttempt = 0
-		span.Log("Certificate renewal complete\n")
+		log.Println("Certificate renewal complete\n")
 	}
 }
 
