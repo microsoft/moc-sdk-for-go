@@ -390,8 +390,10 @@ type Identity struct {
 	Type *string `json:"type,omitempty"`
 	// Token
 	Token *string `json:"token,omitempty"`
-	// Token Expiry
+	// Token Expiry in Days
 	TokenExpiry *int64 `json:"tokenexpiry,omitempty"`
+	// Revoked
+	Revoked bool `json:"revoked,omitempty"`
 	// AuthType
 	AuthType auth.LoginType `json:"AuthType,omitempty"`
 	// Certificate string encoded in base64
