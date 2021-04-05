@@ -5,6 +5,7 @@ package selfsigned
 
 import (
 	"context"
+	"os"
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
@@ -55,6 +56,9 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	accessFile.ClientCertificateType = auth.SelfSigned
 	accessFile.IdentityName = loginconfig.Name
 	auth.PrintAccessFile(accessFile)
+	if err := os.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
+		return &accessFile, err
+	}
 	return &accessFile, err
 }
 
