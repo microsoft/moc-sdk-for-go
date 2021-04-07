@@ -124,6 +124,8 @@ github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5
 github.com/microsoft/moc v0.10.6-alpha.7/go.mod h1:cIuJXU7UOjEXnHEZj8IGH4z9Lrc8lcVGp5/h+YVemec=
 github.com/microsoft/moc v0.10.8-alpha.12 h1:OXy3Yy7mZZ41Sbm3smU9FIbkv1E8IMUNPD+q3JZXRYU=
 github.com/microsoft/moc v0.10.8-alpha.12/go.mod h1:bY29w3GntaOpAFMT7eOQb6S/X0yOMCBOkaMhwvIPoOM=
+github.com/microsoft/moc v0.10.8-alpha.13 h1:5nLZiJvT3O2mbJ/FMdxX1Sus9HMrIyREqf1Vs74S00U=
+github.com/microsoft/moc v0.10.8-alpha.13/go.mod h1:bY29w3GntaOpAFMT7eOQb6S/X0yOMCBOkaMhwvIPoOM=
 github.com/microsoft/moc-pkg v0.10.7 h1:fCGP6uEfyQvb0hUM/JIeyqnXv6MxiXGQJ6zBIjHWlEY=
 github.com/microsoft/moc-pkg v0.10.7/go.mod h1:4wKBUXseNOqt5xyjmy0oB3WowiNSZFFfC+IEuguv9D8=
 github.com/microsoft/wmi v0.3.1-alpha.4/go.mod h1:dCXZgJVjwILNv4HD6VOM356/Yh5MTi393MUbYpUhrHA=
