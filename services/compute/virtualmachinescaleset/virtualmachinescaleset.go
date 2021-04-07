@@ -175,6 +175,7 @@ func (c *client) getVirtualMachineScaleSetNetworkConfigurationIpConfiguration(ni
 			Subnet: &compute.APIEntityReference{
 				ID: &nic.Subnetid,
 			},
+			Primary: &nic.Primary,
 		},
 	}, nil
 }
