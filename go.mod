@@ -10,7 +10,6 @@ require (
 	github.com/spf13/viper v1.6.2
 	google.golang.org/grpc v1.27.1
 	google.golang.org/protobuf v1.25.0 // indirect
-	gotest.tools v2.2.0+incompatible
 	k8s.io/klog v1.0.0
 )
 
