@@ -17,6 +17,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/certs"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/fs"
 	"github.com/microsoft/moc/pkg/marshal"
 	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	//log "k8s.io/klog"
@@ -136,7 +137,7 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
 	auth.PrintAccessFile(accessFile)
-	if err := os.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
+	if err := fs.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
 		return &accessFile, err
 	}
 	UpdateLoginConfig(loginconfig)

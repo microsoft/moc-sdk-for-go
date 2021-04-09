@@ -5,11 +5,11 @@ package selfsigned
 
 import (
 	"context"
-	"os"
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/fs"
 	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	//log "k8s.io/klog"
 )
@@ -56,7 +56,7 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	accessFile.ClientCertificateType = auth.SelfSigned
 	accessFile.IdentityName = loginconfig.Name
 	auth.PrintAccessFile(accessFile)
-	if err := os.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
+	if err := fs.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
 		return &accessFile, err
 	}
 	return &accessFile, err
