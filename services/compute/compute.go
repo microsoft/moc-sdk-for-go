@@ -828,6 +828,96 @@ type VirtualMachineImage struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+// BareMetalHostDisk describes a bare metal host disk.
+type BareMetalHostDisk struct {
+	// Name - Name of the disk
+	Name *string `json:"name,omitempty"`
+	// DiskSizeGB - Specifies the size of the disk in gigabytes
+	DiskSizeGB *int32 `json:"diskSizeGB,omitempty"`
+}
+
+type BareMetalHostStorageProfile struct {
+	// Disks
+	Disks *[]BareMetalHostDisk `json:"disks,omitempty"`
+}
+
+type BareMetalHostOSProfile struct {
+	// ComputerName
+	ComputerName *string `json:"computername,omitempty"`
+	// AdminUsername
+	AdminUsername *string `json:"adminusername,omitempty"`
+	// AdminPassword
+	AdminPassword *string `json:"adminpassword,omitempty"`
+	// LinuxConfiguration
+	LinuxConfiguration *LinuxConfiguration `json:"linuxconfiguration,omitempty"`
+}
+
+type BareMetalHostNetworkInterface struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+}
+
+type BareMetalHostNetworkProfile struct {
+	// NetworkInterfaces
+	NetworkInterfaces *[]BareMetalHostNetworkInterface `json:"networkinterfaces,omitempty"`
+}
+
+// BareMetalHostSize Specifies cpu/memory information for bare metal hosts.
+type BareMetalHostSize struct {
+	CpuCount *int32 `json:"cpucount,omitempty"`
+	GpuCount *int32 `json:"gpucount,omitempty"`
+	MemoryMB *int32 `json:"memorymb,omitempty"`
+}
+
+type BareMetalHostHardwareProfile struct {
+	MachineSize *BareMetalHostSize `json:"machinesize,omitempty"`
+}
+
+// BareMetalHostProperties describes the properties of a Bare Metal Host.
+type BareMetalHostProperties struct {
+	// StorageProfile
+	StorageProfile *BareMetalHostStorageProfile `json:"storageprofile,omitempty"`
+	// OsProfile
+	OsProfile *BareMetalHostOSProfile `json:"osprofile,omitempty"`
+	// NetworkProfile
+	NetworkProfile *BareMetalHostNetworkProfile `json:"networkprofile,omitempty"`
+	// HardwareProfile - Specifies the hardware settings for the bare metal host.
+	HardwareProfile *BareMetalHostHardwareProfile `json:"hardwareprofile,omitempty"`
+	// SecurityProfile - Specifies the security settings for the bare metal host.
+	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
+	// ClaimedByBareMetalMachine - Determines whether the bare metal host is claimed by a bare metal machine.
+	ClaimedByBareMetalMachine *bool `json:"claimedbybaremetalmachine,omitempty"`
+	// FQDN
+	FQDN *string `json:"fqdn,omitempty"`
+	// Port
+	Port *int32 `json:"port,omitempty"`
+	// AuthorizerPort
+	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
+	// Certificate
+	Certificate *string `json:"certificate,omitempty"`
+	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
+	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+}
+
+type BareMetalHost struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	Type *string `json:"type,omitempty"`
+	// Tags - Custom resource tags
+	Tags map[string]*string `json:"tags"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+	// Properties
+	*BareMetalHostProperties `json:"baremetalhostproperties,omitempty"`
+}
+
 type BareMetalMachineImageReference struct {
 	// ID - Resource Id
 	ID *string `json:"id,omitempty"`
@@ -835,19 +925,9 @@ type BareMetalMachineImageReference struct {
 	Name *string `json:"name,omitempty"`
 }
 
-// BareMetalMachineDisk describes a bare metal machine disk.
-type BareMetalMachineDisk struct {
-	// Name - Name of the disk
-	Name *string `json:"name,omitempty"`
-	// DiskSizeGB - Specifies the size of the disk in gigabytes
-	DiskSizeGB *int32 `json:"diskSizeGB,omitempty"`
-}
-
 type BareMetalMachineStorageProfile struct {
 	// ImageReference - Specifies information about the image to use.
 	ImageReference *BareMetalMachineImageReference `json:"imagereference,omitempty"`
-	// Disks
-	Disks *[]BareMetalMachineDisk `json:"disks,omitempty"`
 }
 
 type BareMetalMachineOSProfile struct {
@@ -863,41 +943,16 @@ type BareMetalMachineOSProfile struct {
 	LinuxConfiguration *LinuxConfiguration `json:"linuxconfiguration,omitempty"`
 }
 
-type BareMetalMachineNetworkInterface struct {
-	// Name
-	Name *string `json:"name,omitempty"`
-}
-
-type BareMetalMachineNetworkProfile struct {
-	// NetworkInterfaces
-	NetworkInterfaces *[]BareMetalMachineNetworkInterface `json:"networkinterfaces,omitempty"`
-}
-
-// BareMetalMachineSize Specifies cpu/memory information for bare metal machines.
-type BareMetalMachineSize struct {
-	CpuCount *int32 `json:"cpucount,omitempty"`
-	GpuCount *int32 `json:"gpucount,omitempty"`
-	MemoryMB *int32 `json:"memorymb,omitempty"`
-}
-
-type BareMetalMachineHardwareProfile struct {
-	MachineSize *BareMetalMachineSize `json:"machinesize,omitempty"`
-}
-
 // BareMetalMachineProperties describes the properties of a Bare Metal Machine.
 type BareMetalMachineProperties struct {
 	// StorageProfile
 	StorageProfile *BareMetalMachineStorageProfile `json:"storageprofile,omitempty"`
 	// OsProfile
 	OsProfile *BareMetalMachineOSProfile `json:"osprofile,omitempty"`
-	// NetworkProfile
-	NetworkProfile *BareMetalMachineNetworkProfile `json:"networkprofile,omitempty"`
-	// HardwareProfile - Specifies the hardware settings for the bare metal machine.
-	HardwareProfile *BareMetalMachineHardwareProfile `json:"hardwareprofile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the bare metal machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
-	// Host - Specifies information about the host.
-	Host *SubResource `json:"host,omitempty"`
+	// BareMetalHost - Specifies information about the bare metal host.
+	BareMetalHost *SubResource `json:"baremetalhost,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
