@@ -841,17 +841,6 @@ type BareMetalHostStorageProfile struct {
 	Disks *[]BareMetalHostDisk `json:"disks,omitempty"`
 }
 
-type BareMetalHostOSProfile struct {
-	// ComputerName
-	ComputerName *string `json:"computername,omitempty"`
-	// AdminUsername
-	AdminUsername *string `json:"adminusername,omitempty"`
-	// AdminPassword
-	AdminPassword *string `json:"adminpassword,omitempty"`
-	// LinuxConfiguration
-	LinuxConfiguration *LinuxConfiguration `json:"linuxconfiguration,omitempty"`
-}
-
 type BareMetalHostNetworkInterface struct {
 	// Name
 	Name *string `json:"name,omitempty"`
@@ -877,16 +866,14 @@ type BareMetalHostHardwareProfile struct {
 type BareMetalHostProperties struct {
 	// StorageProfile
 	StorageProfile *BareMetalHostStorageProfile `json:"storageprofile,omitempty"`
-	// OsProfile
-	OsProfile *BareMetalHostOSProfile `json:"osprofile,omitempty"`
 	// NetworkProfile
 	NetworkProfile *BareMetalHostNetworkProfile `json:"networkprofile,omitempty"`
 	// HardwareProfile - Specifies the hardware settings for the bare metal host.
 	HardwareProfile *BareMetalHostHardwareProfile `json:"hardwareprofile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the bare metal host.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
-	// ClaimedByBareMetalMachine - Determines whether the bare metal host is claimed by a bare metal machine.
-	ClaimedByBareMetalMachine *bool `json:"claimedbybaremetalmachine,omitempty"`
+	// BareMetalMachine - Specifies information about the bare metal machine.
+	BareMetalMachine *SubResource `json:"baremetalmachine,omitempty"`
 	// FQDN
 	FQDN *string `json:"fqdn,omitempty"`
 	// Port

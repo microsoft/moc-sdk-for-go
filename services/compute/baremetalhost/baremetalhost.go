@@ -40,10 +40,6 @@ func (c *client) getWssdBareMetalHost(bmh *compute.BareMetalHost, location strin
 		if err != nil {
 			return nil, errors.Wrapf(err, "Failed to get Security Configuration")
 		}
-		osConfig, err := c.getWssdBareMetalHostOSConfiguration(bmh.OsProfile)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Failed to get OS Configuration")
-		}
 
 		networkConfig, err := c.getWssdBareMetalHostNetworkConfiguration(bmh.NetworkProfile)
 		if err != nil {
@@ -53,11 +49,10 @@ func (c *client) getWssdBareMetalHost(bmh *compute.BareMetalHost, location strin
 		bmhOut.Storage = storageConfig
 		bmhOut.Hardware = hardwareConfig
 		bmhOut.Security = securityConfig
-		bmhOut.Os = osConfig
 		bmhOut.Network = networkConfig
 
-		if bmh.ClaimedByBareMetalMachine != nil {
-			bmhOut.ClaimedByBareMetalMachine = *bmh.ClaimedByBareMetalMachine
+		if bmh.BareMetalMachine != nil && bmh.BareMetalMachine.ID != nil {
+			bmhOut.BareMetalMachineName = *bmh.BareMetalMachine.ID
 		}
 
 		if bmh.FQDN != nil {
@@ -168,79 +163,6 @@ func (c *client) getWssdBareMetalHostNetworkConfiguration(s *compute.BareMetalHo
 	return nc, nil
 }
 
-func (c *client) getWssdBareMetalHostOSSSHPublicKeys(ssh *compute.SSHConfiguration) ([]*wssdcloudcompute.SSHPublicKey, error) {
-	keys := []*wssdcloudcompute.SSHPublicKey{}
-	if ssh == nil {
-		return keys, nil
-	}
-	for _, key := range *ssh.PublicKeys {
-		if key.KeyData == nil {
-			return nil, errors.Wrapf(errors.InvalidInput, "SSH KeyData is missing")
-		}
-		keys = append(keys, &wssdcloudcompute.SSHPublicKey{Keydata: *key.KeyData})
-	}
-	return keys, nil
-
-}
-
-func (c *client) getWssdBareMetalHostLinuxConfiguration(linuxConfiguration *compute.LinuxConfiguration) *wssdcloudcompute.LinuxConfiguration {
-	lc := &wssdcloudcompute.LinuxConfiguration{}
-
-	if linuxConfiguration.DisablePasswordAuthentication != nil {
-		lc.DisablePasswordAuthentication = *linuxConfiguration.DisablePasswordAuthentication
-	}
-
-	return lc
-
-}
-
-func (c *client) getWssdBareMetalHostOSConfiguration(s *compute.BareMetalHostOSProfile) (*wssdcloudcompute.BareMetalHostOperatingSystemConfiguration, error) {
-	publicKeys := []*wssdcloudcompute.SSHPublicKey{}
-	var err error
-
-	osConfig := wssdcloudcompute.BareMetalHostOperatingSystemConfiguration{
-		Users: []*wssdcloudcompute.UserConfiguration{},
-	}
-
-	if s == nil {
-		return &osConfig, nil
-	}
-
-	if s.LinuxConfiguration != nil {
-		var sshConfiguration *compute.SSHConfiguration = s.LinuxConfiguration.SSH
-
-		if sshConfiguration != nil {
-			publicKeys, err = c.getWssdBareMetalHostOSSSHPublicKeys(sshConfiguration)
-			if err != nil {
-				return nil, errors.Wrapf(err, "SSH Configuration Invalid")
-			}
-		}
-	}
-
-	adminUser := &wssdcloudcompute.UserConfiguration{}
-	if s.AdminUsername != nil {
-		adminUser.Username = *s.AdminUsername
-	}
-
-	if s.AdminPassword != nil {
-		adminUser.Password = *s.AdminPassword
-	}
-
-	if s.ComputerName == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "ComputerName is missing")
-	}
-
-	osConfig.ComputerName = *s.ComputerName
-	osConfig.Administrator = adminUser
-	osConfig.PublicKeys = publicKeys
-
-	if s.LinuxConfiguration != nil {
-		osConfig.LinuxConfiguration = c.getWssdBareMetalHostLinuxConfiguration(s.LinuxConfiguration)
-	}
-
-	return &osConfig, nil
-}
-
 // Conversion functions from wssdcloudcompute to compute
 
 func (c *client) getBareMetalHost(bmh *wssdcloudcompute.BareMetalHost, location string) *compute.BareMetalHost {
@@ -249,18 +171,17 @@ func (c *client) getBareMetalHost(bmh *wssdcloudcompute.BareMetalHost, location 
 		ID:   &bmh.Id,
 		Tags: getComputeTags(bmh.GetTags()),
 		BareMetalHostProperties: &compute.BareMetalHostProperties{
-			ProvisioningState:         status.GetProvisioningState(bmh.GetStatus().GetProvisioningStatus()),
-			Statuses:                  c.getBareMetalHostStatuses(bmh),
-			StorageProfile:            c.getBareMetalHostStorageProfile(bmh.Storage),
-			HardwareProfile:           c.getBareMetalHostHardwareProfile(bmh),
-			SecurityProfile:           c.getBareMetalHostSecurityProfile(bmh),
-			OsProfile:                 c.getBareMetalHostOSProfile(bmh.Os),
-			NetworkProfile:            c.getBareMetalHostNetworkProfile(bmh.Network),
-			ClaimedByBareMetalMachine: &bmh.ClaimedByBareMetalMachine,
-			FQDN:                      &bmh.Fqdn,
-			Port:                      &bmh.Port,
-			AuthorizerPort:            &bmh.AuthorizerPort,
-			Certificate:               &bmh.Certificate,
+			ProvisioningState: status.GetProvisioningState(bmh.GetStatus().GetProvisioningStatus()),
+			Statuses:          c.getBareMetalHostStatuses(bmh),
+			StorageProfile:    c.getBareMetalHostStorageProfile(bmh.Storage),
+			HardwareProfile:   c.getBareMetalHostHardwareProfile(bmh),
+			SecurityProfile:   c.getBareMetalHostSecurityProfile(bmh),
+			NetworkProfile:    c.getBareMetalHostNetworkProfile(bmh.Network),
+			BareMetalMachine:  c.getBareMetalMachineDescription(bmh),
+			FQDN:              &bmh.Fqdn,
+			Port:              &bmh.Port,
+			AuthorizerPort:    &bmh.AuthorizerPort,
+			Certificate:       &bmh.Certificate,
 		},
 		Version:  &bmh.Status.Version.Number,
 		Location: &bmh.LocationName,
@@ -318,6 +239,12 @@ func (c *client) getBareMetalHostSecurityProfile(bmh *wssdcloudcompute.BareMetal
 	}
 }
 
+func (c *client) getBareMetalMachineDescription(bmh *wssdcloudcompute.BareMetalHost) *compute.SubResource {
+	return &compute.SubResource{
+		ID: &bmh.BareMetalMachineName,
+	}
+}
+
 func (c *client) getBareMetalHostNetworkProfile(n *wssdcloudcompute.BareMetalHostNetworkConfiguration) *compute.BareMetalHostNetworkProfile {
 	np := &compute.BareMetalHostNetworkProfile{
 		NetworkInterfaces: &[]compute.BareMetalHostNetworkInterface{},
@@ -330,31 +257,4 @@ func (c *client) getBareMetalHostNetworkProfile(n *wssdcloudcompute.BareMetalHos
 		*np.NetworkInterfaces = append(*np.NetworkInterfaces, compute.BareMetalHostNetworkInterface{Name: &((*nic).NetworkInterfaceName)})
 	}
 	return np
-}
-
-func (c *client) getBareMetalHostLinuxConfiguration(linuxConfiguration *wssdcloudcompute.LinuxConfiguration) *compute.LinuxConfiguration {
-	lc := &compute.LinuxConfiguration{}
-
-	if linuxConfiguration != nil {
-		lc.DisablePasswordAuthentication = &linuxConfiguration.DisablePasswordAuthentication
-	}
-
-	return lc
-}
-
-func (c *client) getBareMetalHostOSProfile(osConfiguration *wssdcloudcompute.BareMetalHostOperatingSystemConfiguration) *compute.BareMetalHostOSProfile {
-	op := &compute.BareMetalHostOSProfile{
-		ComputerName:       &osConfiguration.ComputerName,
-		LinuxConfiguration: c.getBareMetalHostLinuxConfiguration(osConfiguration.LinuxConfiguration),
-	}
-
-	if osConfiguration.Administrator != nil {
-		op.AdminUsername = &osConfiguration.Administrator.Username
-	}
-
-	if osConfiguration.Administrator != nil {
-		op.AdminPassword = &osConfiguration.Administrator.Password
-	}
-
-	return op
 }
