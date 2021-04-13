@@ -39,6 +39,16 @@ func GetVirtualMachineScaleSetClient(serverAddress *string, authorizer auth.Auth
 	return compute_pb.NewVirtualMachineScaleSetAgentClient(conn), nil
 }
 
+// GetBareMetalHostClient returns the bare metal machine client to communicate with the wssd agent
+func GetBareMetalHostClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.BareMetalHostAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get BareMetalHostClient. Failed to dial: %v", err)
+	}
+
+	return compute_pb.NewBareMetalHostAgentClient(conn), nil
+}
+
 // GetBareMetalMachineClient returns the bare metal machine client to communicate with the wssd agent
 func GetBareMetalMachineClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.BareMetalMachineAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
