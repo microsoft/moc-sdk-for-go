@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Azure/go-autorest/autorest v0.9.0
 	github.com/Azure/go-autorest/autorest/date v0.2.0
-	github.com/microsoft/moc v0.10.8-alpha.16
+	github.com/microsoft/moc v0.10.9-alpha.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.6.2
 	google.golang.org/grpc v1.27.1
