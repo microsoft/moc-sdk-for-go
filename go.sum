@@ -131,6 +131,8 @@ github.com/microsoft/moc v0.10.8-alpha.16 h1:uRL8OcekJ6MUjJyOIwhskJ1H2T3WuZw1y94
 github.com/microsoft/moc v0.10.8-alpha.16/go.mod h1:bY29w3GntaOpAFMT7eOQb6S/X0yOMCBOkaMhwvIPoOM=
 github.com/microsoft/moc v0.10.9-alpha.1 h1:CQF1UGCs1iJioILpvSetRqxj/KXkmmudBAispWYrx3k=
 github.com/microsoft/moc v0.10.9-alpha.1/go.mod h1:bY29w3GntaOpAFMT7eOQb6S/X0yOMCBOkaMhwvIPoOM=
+github.com/microsoft/moc v0.10.9-alpha.2 h1:12oqXm3as+kSsgGz5sNckCgjApkdfVf0+I1TyrubBvE=
+github.com/microsoft/moc v0.10.9-alpha.2/go.mod h1:bY29w3GntaOpAFMT7eOQb6S/X0yOMCBOkaMhwvIPoOM=
 github.com/microsoft/moc-pkg v0.10.7 h1:fCGP6uEfyQvb0hUM/JIeyqnXv6MxiXGQJ6zBIjHWlEY=
 github.com/microsoft/moc-pkg v0.10.7/go.mod h1:4wKBUXseNOqt5xyjmy0oB3WowiNSZFFfC+IEuguv9D8=
 github.com/microsoft/wmi v0.3.1-alpha.4/go.mod h1:dCXZgJVjwILNv4HD6VOM356/Yh5MTi393MUbYpUhrHA=
