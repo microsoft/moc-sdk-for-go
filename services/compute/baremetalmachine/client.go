@@ -52,7 +52,7 @@ func (c *BareMetalMachineClient) Query(ctx context.Context, group, query string)
 	return c.internal.Query(ctx, group, query)
 }
 
-// Get the Virtual Machine by querying for the specified computer name
+// Get the bare metal machine by querying for the specified computer name
 func (c *BareMetalMachineClient) GetByComputerName(ctx context.Context, group string, computerName string) (*[]compute.BareMetalMachine, error) {
 	query := fmt.Sprintf("[?baremetalmachineproperties.osprofile.computername=='%s']", computerName)
 
