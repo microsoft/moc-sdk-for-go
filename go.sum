@@ -97,6 +97,8 @@ github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czP
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/microsoft/moc v0.10.8-alpha.12.0.20210413063441-d8fc6838c4b1 h1:rv0fCgeGZsFFuom+x85WBuJ7uD9VpLYz/ZwLiVhwIB8=
 github.com/microsoft/moc v0.10.8-alpha.12.0.20210413063441-d8fc6838c4b1/go.mod h1:B9W3xCoqNhfCMQ5dsQ12JOcsmG0xbpXQ8ux7u/n/rco=
+github.com/microsoft/moc v0.10.8-alpha.12.0.20210428012510-664c2c722996 h1:xAkpMHUgf/uwbLwHFcihcNA9wTxhRg2r6PMf66syIlQ=
+github.com/microsoft/moc v0.10.8-alpha.12.0.20210428012510-664c2c722996/go.mod h1:B9W3xCoqNhfCMQ5dsQ12JOcsmG0xbpXQ8ux7u/n/rco=
 github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQzvN1EDeE=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=

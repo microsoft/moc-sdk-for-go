@@ -5,6 +5,7 @@ package baremetalmachine
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
@@ -49,4 +50,16 @@ func (c *BareMetalMachineClient) Delete(ctx context.Context, group string, name 
 // Query method invokes the client Get method and uses the provided query to filter the returned results
 func (c *BareMetalMachineClient) Query(ctx context.Context, group, query string) (*[]compute.BareMetalMachine, error) {
 	return c.internal.Query(ctx, group, query)
+}
+
+// Get the bare metal machine by querying for the specified computer name
+func (c *BareMetalMachineClient) GetByComputerName(ctx context.Context, group string, computerName string) (*[]compute.BareMetalMachine, error) {
+	query := fmt.Sprintf("[?baremetalmachineproperties.osprofile.computername=='%s']", computerName)
+
+	bmms, err := c.Query(ctx, group, query)
+	if err != nil {
+		return nil, err
+	}
+
+	return bmms, nil
 }
