@@ -5,8 +5,8 @@ package security
 
 import (
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/google/uuid"
 	"github.com/microsoft/moc/pkg/auth"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Reference: github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2018-02-14/keyvault/models.go
