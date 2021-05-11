@@ -13,7 +13,7 @@ import (
 )
 
 func getSecret(sec *wssdcloudsecurity.Secret, vaultName string) *keyvault.Secret {
-	value := string(sec.NewValue)
+	value := string(sec.Value)
 	return &keyvault.Secret{
 		ID:      &sec.Id,
 		Name:    &sec.Name,
@@ -27,7 +27,7 @@ func getSecret(sec *wssdcloudsecurity.Secret, vaultName string) *keyvault.Secret
 	}
 }
 
-func getWssdSecret(sec *keyvault.Secret, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Secret, error) {
+func getWssdSecret(groupName string, sec *keyvault.Secret, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Secret, error) {
 	if sec.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Keyvault Secret name is missing")
 	}
@@ -37,6 +37,7 @@ func getWssdSecret(sec *keyvault.Secret, opType wssdcloudcommon.Operation) (*wss
 	secret := &wssdcloudsecurity.Secret{
 		Name:      *sec.Name,
 		VaultName: *sec.VaultName,
+		GroupName: groupName,
 	}
 
 	if sec.Version != nil {
@@ -50,7 +51,7 @@ func getWssdSecret(sec *keyvault.Secret, opType wssdcloudcommon.Operation) (*wss
 		return nil, errors.Wrapf(errors.InvalidInput, "Secrets Value is empty")
 	}
 	if opType == wssdcloudcommon.Operation_POST {
-		secret.NewValue = *sec.Value
+		secret.Value = *sec.Value
 	}
 
 	return secret, nil

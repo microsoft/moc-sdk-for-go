@@ -5,8 +5,8 @@ package security
 
 import (
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/google/uuid"
 	"github.com/microsoft/moc/pkg/auth"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Reference: github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2018-02-14/keyvault/models.go
@@ -390,8 +390,10 @@ type Identity struct {
 	Type *string `json:"type,omitempty"`
 	// Token
 	Token *string `json:"token,omitempty"`
-	// Token Expiry
+	// Token Expiry in Days
 	TokenExpiry *int64 `json:"tokenexpiry,omitempty"`
+	// Revoked
+	Revoked bool `json:"revoked,omitempty"`
 	// AuthType
 	AuthType auth.LoginType `json:"AuthType,omitempty"`
 	// Certificate string encoded in base64

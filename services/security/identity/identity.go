@@ -21,6 +21,10 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		clitype = auth.Node
 	} else if id.ClientType == wssdcloudcommon.ClientType_ADMIN {
 		clitype = auth.Admin
+	} else if id.ClientType == wssdcloudcommon.ClientType_BAREMETAL {
+		clitype = auth.BareMetal
+	} else if id.ClientType == wssdcloudcommon.ClientType_LOADBALANCER {
+		clitype = auth.LoadBalancer
 	}
 
 	return &security.Identity{
@@ -28,6 +32,7 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		Name:        &id.Name,
 		Token:       &id.Token,
 		TokenExpiry: &id.TokenExpiry,
+		Revoked:     id.Revoked,
 		Location:    &id.LocationName,
 		Version:     &id.Status.Version.Number,
 		AuthType:    auth.AuthTypeToLoginType(id.AuthType),
@@ -73,6 +78,10 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 			clitype = wssdcloudcommon.ClientType_NODE
 		} else if id.IdentityProperties.ClientType == auth.Admin {
 			clitype = wssdcloudcommon.ClientType_ADMIN
+		} else if id.IdentityProperties.ClientType == auth.BareMetal {
+			clitype = wssdcloudcommon.ClientType_BAREMETAL
+		} else if id.IdentityProperties.ClientType == auth.LoadBalancer {
+			clitype = wssdcloudcommon.ClientType_LOADBALANCER
 		}
 
 		if id.IdentityProperties.CloudFqdn != nil {

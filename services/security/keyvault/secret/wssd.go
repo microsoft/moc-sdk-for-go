@@ -6,6 +6,7 @@ package secret
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -30,7 +31,7 @@ func newSecretClient(subID string, authorizer auth.Authorizer) (*client, error) 
 
 // Get
 func (c *client) Get(ctx context.Context, group, name, vaultName string) (*[]keyvault.Secret, error) {
-	request, err := getSecretRequest(wssdcloudcommon.Operation_GET, name, vaultName, nil)
+	request, err := getSecretRequest(wssdcloudcommon.Operation_GET, name, vaultName, group, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *key
 	if err != nil {
 		return nil, err
 	}
-	request, err := getSecretRequest(wssdcloudcommon.Operation_POST, name, *sg.VaultName, sg)
+	request, err := getSecretRequest(wssdcloudcommon.Operation_POST, name, *sg.VaultName, group, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +90,7 @@ func (c *client) Delete(ctx context.Context, group, name, vaultName string) erro
 		return fmt.Errorf("Keysecret [%s] not found", name)
 	}
 
-	request, err := getSecretRequest(wssdcloudcommon.Operation_DELETE, name, vaultName, &(*secret)[0])
+	request, err := getSecretRequest(wssdcloudcommon.Operation_DELETE, name, vaultName, group, &(*secret)[0])
 	if err != nil {
 		return err
 	}
@@ -106,13 +107,14 @@ func getSecretsFromResponse(response *wssdcloudsecurity.SecretResponse, vaultNam
 	return &Secrets
 }
 
-func getSecretRequest(opType wssdcloudcommon.Operation, name, vaultName string, sec *keyvault.Secret) (*wssdcloudsecurity.SecretRequest, error) {
+func getSecretRequest(opType wssdcloudcommon.Operation, name, vaultName, groupName string, sec *keyvault.Secret) (*wssdcloudsecurity.SecretRequest, error) {
+
 	request := &wssdcloudsecurity.SecretRequest{
 		OperationType: opType,
 		Secrets:       []*wssdcloudsecurity.Secret{},
 	}
 	if sec != nil {
-		secret, err := getWssdSecret(sec, opType)
+		secret, err := getWssdSecret(groupName, sec, opType)
 		if err != nil {
 			return nil, err
 		}
@@ -122,11 +124,13 @@ func getSecretRequest(opType wssdcloudcommon.Operation, name, vaultName string, 
 			&wssdcloudsecurity.Secret{
 				Name:      name,
 				VaultName: vaultName,
+				GroupName: groupName,
 			})
 	} else {
 		request.Secrets = append(request.Secrets,
 			&wssdcloudsecurity.Secret{
 				VaultName: vaultName,
+				GroupName: groupName,
 			})
 	}
 

@@ -50,7 +50,7 @@ func (c *client) Get(ctx context.Context, inputRa *security.RoleAssignment) (*[]
 
 // Delete - Remove role assigned to named identity that match the role assignment definitions
 func (c *client) Delete(ctx context.Context, inputRa *security.RoleAssignment) error {
-	err := c.validate(ctx, inputRa)
+	err := c.validateWithName(ctx, inputRa)
 	if err != nil {
 		return err
 	}
@@ -90,6 +90,13 @@ func (c *client) CreateOrUpdate(ctx context.Context, inputRa *security.RoleAssig
 	}
 
 	return &((*ras)[0]), err
+}
+
+func (c *client) validateWithName(ctx context.Context, ra *security.RoleAssignment) (err error) {
+	if ra == nil || ra.Name == nil {
+		return c.validate(ctx, ra)
+	}
+	return
 }
 
 func (c *client) validate(ctx context.Context, ra *security.RoleAssignment) (err error) {
