@@ -352,6 +352,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 	} else if vm.VmType == wssdcloudcompute.VMType_STACKEDCONTROLPLANE {
 		vmtype = compute.StackedControlPlane
 	}
+
 	return &compute.VirtualMachine{
 		Name: &vm.Name,
 		ID:   &vm.Id,
@@ -366,6 +367,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
+			PowerState:              compute.PowerState(vm.PowerState),
 			Host:                    c.getVirtualMachineHostDescription(vm),
 		},
 		Version:  &vm.Status.Version.Number,

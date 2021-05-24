@@ -50,6 +50,16 @@ const (
 	IPv6 IPVersion = "IPv6"
 )
 
+type PowerState int32
+
+const (
+	PowerState_Unknown  PowerState = 0
+	PowerState_Running  PowerState = 1
+	PowerState_Off      PowerState = 2
+	PowerState_Paused   PowerState = 3
+	PowerState_Critical PowerState = 4
+)
+
 // ImageReference specifies information about the image to use. You can specify information about platform
 // images, marketplace images, or virtual machine images. This element is required when you want to use a
 // platform image, marketplace image, or virtual machine image, but is not used in other creation
@@ -233,6 +243,8 @@ type VirtualMachineProperties struct {
 	VmType VMType `json:"vmType,omitempty"`
 	// Disable High Availability
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
+	// PowerState
+	PowerState PowerState `json:"powerstate,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
