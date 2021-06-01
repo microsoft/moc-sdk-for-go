@@ -169,9 +169,21 @@ type VirtualMachineCustomSize struct {
 	MemoryMB *int32 `json:"memorymb,omitempty"`
 }
 
+// DynamicMemoryConfiguration Specifies the dynamic memory configuration for a VM.
+type DynamicMemoryConfiguration struct {
+	// MaximumMemoryMB - Specifies the maximum amount of memory the VM is allowed to use.
+	MaximumMemoryMB *uint64 `json:"maximummemorymb,omitempty"`
+	// MinimumMemoryMB - Specifies the minimum amount of memory the VM is allocated.
+	MinimumMemoryMB *uint64 `json:"minimummemorymb,omitempty"`
+	// TargetMemoryBuffer - Specifies the size of the VMs memory buffer as a percentage of the current memory usage.
+	TargetMemoryBuffer *uint32 `json:"targetmemorybuffer,omitempty"`
+}
+
 type HardwareProfile struct {
 	VMSize     VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
 	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
+	// DynamicMemoryConfig - Specifies the dynamic memory configuration for a VM, dynamic memory will be enabled if this field is present.
+	DynamicMemoryConfig *DynamicMemoryConfiguration `json:"dynamicmemoryconfig,omitempty"`
 }
 
 // NetworkInterfaceReferenceProperties describes a network interface reference properties.
