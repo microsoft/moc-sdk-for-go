@@ -173,11 +173,15 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 			}
 		}
 		if vm.HardwareProfile.DynamicMemoryConfig != nil {
-			// if config is non-nil all fields must be present
-			dynMemConfig = &wssdcommon.DynamicMemoryConfiguration{
-				MaximumMemoryMB:    *vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB,
-				MinimumMemoryMB:    *vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB,
-				TargetMemoryBuffer: *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer,
+			dynMemConfig = &wssdcommon.DynamicMemoryConfiguration{}
+			if vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB != nil {
+				dynMemConfig.MaximumMemoryMB = *vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB
+			}
+			if vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB != nil {
+				dynMemConfig.MinimumMemoryMB = *vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB
+			}
+			if vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer != nil {
+				dynMemConfig.TargetMemoryBuffer = *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer
 			}
 		}
 	}
