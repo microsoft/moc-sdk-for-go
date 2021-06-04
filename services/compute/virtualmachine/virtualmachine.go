@@ -158,6 +158,7 @@ func (c *client) getWssdVirtualMachineStorageConfigurationDataDisk(s *compute.Da
 func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualMachine) (*wssdcloudcompute.HardwareConfiguration, error) {
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
+	var dynMemConfig *wssdcommon.DynamicMemoryConfiguration
 	if vm.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vm.HardwareProfile.VMSize)
 		if vm.HardwareProfile.CustomSize != nil {
@@ -171,10 +172,23 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 				customSize.MemoryMB = *vm.HardwareProfile.CustomSize.MemoryMB
 			}
 		}
+		if vm.HardwareProfile.DynamicMemoryConfig != nil {
+			dynMemConfig = &wssdcommon.DynamicMemoryConfiguration{}
+			if vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB != nil {
+				dynMemConfig.MaximumMemoryMB = *vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB
+			}
+			if vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB != nil {
+				dynMemConfig.MinimumMemoryMB = *vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB
+			}
+			if vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer != nil {
+				dynMemConfig.TargetMemoryBuffer = *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
-		VMSize:     sizeType,
-		CustomSize: customSize,
+		VMSize:                     sizeType,
+		CustomSize:                 customSize,
+		DynamicMemoryConfiguration: dynMemConfig,
 	}
 	return wssdhardware, nil
 }
@@ -420,6 +434,7 @@ func (c *client) getVirtualMachineStorageProfileDataDisks(dd []*wssdcloudcompute
 func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMachine) *compute.HardwareProfile {
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
+	var dynamicMemoryConfig *compute.DynamicMemoryConfiguration
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -428,10 +443,18 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
 			}
 		}
+		if vm.Hardware.DynamicMemoryConfiguration != nil {
+			dynamicMemoryConfig = &compute.DynamicMemoryConfiguration{
+				MaximumMemoryMB:    &vm.Hardware.DynamicMemoryConfiguration.MaximumMemoryMB,
+				MinimumMemoryMB:    &vm.Hardware.DynamicMemoryConfiguration.MinimumMemoryMB,
+				TargetMemoryBuffer: &vm.Hardware.DynamicMemoryConfiguration.TargetMemoryBuffer,
+			}
+		}
 	}
 	return &compute.HardwareProfile{
-		VMSize:     sizeType,
-		CustomSize: customSize,
+		VMSize:              sizeType,
+		CustomSize:          customSize,
+		DynamicMemoryConfig: dynamicMemoryConfig,
 	}
 }
 
