@@ -1,6 +1,6 @@
 module github.com/microsoft/moc-sdk-for-go
 
-go 1.14
+go 1.15
 
 require (
 	github.com/Azure/go-autorest/autorest v0.9.0
