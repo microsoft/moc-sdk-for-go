@@ -3,6 +3,7 @@
 package container
 
 import (
+	"code.cloudfoundry.org/bytefmt"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 
 	"github.com/microsoft/moc/pkg/errors"
@@ -13,7 +14,7 @@ import (
 // Conversion functions from storage to wssdcloudstorage
 func getWssdContainer(c *storage.Container, locationName string) (*wssdcloudstorage.Container, error) {
 	if c.Name == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Virtual Hard Disk name is missing")
+		return nil, errors.Wrapf(errors.InvalidInput, "Storage Container name is missing")
 	}
 
 	if len(locationName) == 0 {
@@ -50,12 +51,22 @@ func getVirtualharddisktype(enum string) wssdcloudstorage.ContainerType {
 
 // Conversion function from wssdcloudstorage to storage
 func getContainer(c *wssdcloudstorage.Container, location string) *storage.Container {
+	var totalSize string
+	var availSize string
+	if c.Info != nil {
+		totalSize = bytefmt.ByteSize(c.Info.Capacity.TotalBytes)
+		availSize = bytefmt.ByteSize(c.Info.Capacity.AvailableBytes)
+	}
 	return &storage.Container{
 		Name: &c.Name,
 		ID:   &c.Id,
 		ContainerProperties: &storage.ContainerProperties{
 			Statuses: status.GetStatuses(c.GetStatus()),
 			Path:     &c.Path,
+			ContainerInfo: &storage.ContainerInfo{
+				AvailableSize: availSize,
+				TotalSize:     totalSize,
+			},
 		},
 		Version: &c.Status.Version.Number,
 	}

@@ -50,12 +50,18 @@ type VirtualHardDisk struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+type ContainerInfo struct {
+	AvailableSize string `json:"AvailableSize,omitempty"`
+	TotalSize     string `json:"TotalSize,omitempty"`
+}
+
 // ContainerProperties defines the structure of a Load Balancer
 type ContainerProperties struct {
 	// Path
 	Path *string `json:"path,omitempty"`
 	// State - State
-	Statuses map[string]*string `json:"statuses"`
+	Statuses       map[string]*string `json:"statuses"`
+	*ContainerInfo `json:"info"`
 }
 
 // Container defines the structure of a VHD
