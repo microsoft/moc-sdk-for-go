@@ -206,12 +206,12 @@ func (c *client) getVirtualMachineRunCommandRequest(ctx context.Context, group, 
 func (c *client) getVirtualMachineRunCommandResponse(mocResponse *wssdcloudcompute.VirtualMachineRunCommandResponse) (*compute.VirtualMachineRunCommandResponse, error) {
 	var executionState compute.ExecutionState
 	switch mocResponse.GetInstanceView().ExecutionState {
-	case 0:
-		executionState = compute.ExecutionStateFailed
-	case 1:
-		executionState = compute.ExecutionStateSucceeded
-	case 2:
+	case wssdcloudproto.VirtualMachineRunCommandExecutionState_ExecutionState_UNKNOWN:
 		executionState = compute.ExecutionStateUnknown
+	case wssdcloudproto.VirtualMachineRunCommandExecutionState_ExecutionState_SUCCEEDED:
+		executionState = compute.ExecutionStateSucceeded
+	case wssdcloudproto.VirtualMachineRunCommandExecutionState_ExecutionState_FAILED:
+		executionState = compute.ExecutionStateFailed
 	default:
 		return nil, errors.Wrapf(errors.NotSupported, "Unknown execution state reported for virtual machine run command")
 	}
