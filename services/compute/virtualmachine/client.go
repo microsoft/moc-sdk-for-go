@@ -21,6 +21,7 @@ type Service interface {
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
+	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 }
 
 type VirtualMachineClient struct {
@@ -291,4 +292,8 @@ func (c *VirtualMachineClient) GetByComputerName(ctx context.Context, group stri
 	}
 
 	return vms, nil
+}
+
+func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
+	return c.internal.RunCommand(ctx, group, vmName, request)
 }

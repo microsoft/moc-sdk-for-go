@@ -939,3 +939,60 @@ type BareMetalMachine struct {
 	// Properties
 	*BareMetalMachineProperties `json:"baremetalmachineproperties,omitempty"`
 }
+
+type ExecutionState string
+
+const (
+	// ExecutionStateFailed ...
+	ExecutionStateFailed ExecutionState = "Failed"
+	// ExecutionStateSucceeded ...
+	ExecutionStateSucceeded ExecutionState = "Succeeded"
+	// ExecutionStateUnknown ...
+	ExecutionStateUnknown ExecutionState = "Unknown"
+)
+
+// VirtualMachineRunCommandScriptSource describes the script sources for run command.
+type VirtualMachineRunCommandScriptSource struct {
+	// Script - Specifies the script content to be executed on the VM.
+	Script *string `json:"script,omitempty"`
+	// ScriptURI - Specifies the script download location.
+	ScriptURI *string `json:"scriptUri,omitempty"`
+	// CommandID - Specifies a commandId of predefined built-in script.
+	CommandID *string `json:"commandId,omitempty"`
+}
+
+// RunCommandInputParameter describes the properties of a run command parameter.
+type RunCommandInputParameter struct {
+	// Name - The run command parameter name.
+	Name *string `json:"name,omitempty"`
+	// Value - The run command parameter value.
+	Value *string `json:"value,omitempty"`
+}
+
+// VirtualMachineRunCommandInstanceView the instance view of a virtual machine run command.
+type VirtualMachineRunCommandInstanceView struct {
+	// ExecutionState - Script execution status. Possible values include: 'ExecutionStateUnknown', 'ExecutionStateFailed', 'ExecutionStateSucceeded'
+	ExecutionState ExecutionState `json:"executionState,omitempty"`
+	// ExitCode - Exit code returned from script execution.
+	ExitCode *int32 `json:"exitCode,omitempty"`
+	// Output - Script output stream.
+	Output *string `json:"output,omitempty"`
+	// Error - Script error stream.
+	Error *string `json:"error,omitempty"`
+}
+
+// VirtualMachineRunCommandRequest describes the properties of a Virtual Machine run command.
+type VirtualMachineRunCommandRequest struct {
+	// Source - The source of the run command script.
+	Source *VirtualMachineRunCommandScriptSource `json:"source,omitempty"`
+	// Parameters - The parameters used by the script.
+	Parameters    *[]RunCommandInputParameter `json:"parameters,omitempty"`
+	RunAsUser     *string                     `json:"runasuser,omitempty"`
+	RunAsPassword *string                     `json:"runaspassword,omitempty"`
+}
+
+// VirtualMachineRunCommandResponse
+type VirtualMachineRunCommandResponse struct {
+	// InstanceView - The virtual machine run command instance view.
+	InstanceView *VirtualMachineRunCommandInstanceView `json:"instanceView,omitempty"`
+}
