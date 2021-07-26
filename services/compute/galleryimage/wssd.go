@@ -6,7 +6,6 @@ package galleryimage
 import (
 	"context"
 	"fmt"
-
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
@@ -87,6 +86,7 @@ func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePat
 	}
 
 	var err error
+
 	wssdgalleryimage := &wssdcloudcompute.GalleryImage{
 		Name:         name,
 		LocationName: location,
@@ -97,6 +97,7 @@ func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePat
 	if len(location) == 0 {
 		return nil, errors.Wrapf(errors.InvalidInput, "Location not specified")
 	}
+
 	if compute != nil {
 		wssdgalleryimage, err = getWssdGalleryImage(compute, location, imagePath)
 		if err != nil {
