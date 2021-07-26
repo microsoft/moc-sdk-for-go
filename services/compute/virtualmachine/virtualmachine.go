@@ -255,6 +255,22 @@ func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration 
 		return wc
 	}
 
+	if windowsConfiguration.WinRM != nil && windowsConfiguration.WinRM.Listeners != nil && len(*windowsConfiguration.WinRM.Listeners) >= 1 {
+		listeners := make([]*wssdcommon.WinRMListener, len(*windowsConfiguration.WinRM.Listeners))
+		for i, listener := range *windowsConfiguration.WinRM.Listeners {
+			protocol := wssdcommon.WinRMProtocolType_HTTP
+			if listener.Protocol == compute.HTTPS {
+				protocol = wssdcommon.WinRMProtocolType_HTTPS
+			}
+			listeners[i] = &wssdcommon.WinRMListener{
+				Protocol: protocol,
+			}
+		}
+		wc.WinRMConfiguration = &wssdcommon.WinRMConfiguration{
+			Listeners: listeners,
+		}
+	}
+
 	if windowsConfiguration.RDP != nil && windowsConfiguration.RDP.DisableRDP != nil {
 		wc.RDPConfiguration.DisableRDP = *windowsConfiguration.RDP.DisableRDP
 	}
@@ -513,6 +529,22 @@ func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wss
 
 	if windowsConfiguration == nil {
 		return wc
+	}
+
+	if windowsConfiguration.WinRMConfiguration != nil && len(windowsConfiguration.WinRMConfiguration.Listeners) >= 1 {
+		listeners := make([]compute.WinRMListener, len(windowsConfiguration.WinRMConfiguration.Listeners))
+		for i, listener := range windowsConfiguration.WinRMConfiguration.Listeners {
+			protocol := compute.HTTP
+			if listener.Protocol == wssdcommon.WinRMProtocolType_HTTPS {
+				protocol = compute.HTTPS
+			}
+			listeners[i] = compute.WinRMListener{
+				Protocol: protocol,
+			}
+		}
+		wc.WinRM = &compute.WinRMConfiguration{
+			Listeners: &listeners,
+		}
 	}
 
 	if windowsConfiguration.RDPConfiguration != nil {
