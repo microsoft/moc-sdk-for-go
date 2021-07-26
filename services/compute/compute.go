@@ -8,6 +8,7 @@ package compute
 import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // SubResource ...
@@ -715,16 +716,6 @@ const (
 	ProvisioningState2Updating ProvisioningState2 = "Updating"
 )
 
-type downloadImage struct {
-	Type   string `json:"type"`
-	Source string `json:"source"`
-	Data   Data   `json:"data"`
-}
-
-type Data struct {
-	Options map[string]interface{}
-}
-
 //Http Image properties
 type HttpImageProperties struct {
 	HttpURL string `json:"httpURL,omitempty"`
@@ -778,7 +769,7 @@ type GalleryImageProperties struct {
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
 	//Type of source of gal image (sfs/http/local)
-	SourceType string `json:"sourceType,omitempty"`
+	SourceType common.ImageSource `json:"sourceType,omitempty"`
 }
 
 // GalleryImage specifies information about the gallery Image Definition that you want to create or update.

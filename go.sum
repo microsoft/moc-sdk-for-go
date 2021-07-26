@@ -163,8 +163,8 @@ github.com/microsoft/moc v0.10.11-alpha.2 h1:9HaKu9tfcx2TkNhfqfeiMh6aCa+ZyfqiJBt
 github.com/microsoft/moc v0.10.11-alpha.2/go.mod h1:/pDK//SuQGOcrB9Iw7V4/9D6/IPTpX/kl8663KV9raM=
 github.com/microsoft/moc v0.10.11-alpha.4 h1:lLrTBHmX0Lz6TPURhsSayQ3XcWGUQFmg+Hiuv7r60eY=
 github.com/microsoft/moc v0.10.11-alpha.4/go.mod h1:jCAZBlXWq4+uFvWV6wLUVfsZ9a/cB0hJtq3Zuii2pLA=
-github.com/microsoft/moc v0.10.12-alpha.1 h1:2JT5mB/qZZOPdV0gpSVRqWs8IjUJTLBpObGkAj3Y4zM=
-github.com/microsoft/moc v0.10.12-alpha.1/go.mod h1:Z6K8FAZifC8c3x0vMfXn0ZYDbJPVCQmWxqBZcrM8G54=
+github.com/microsoft/moc v0.10.12-alpha.2 h1:QLK8mIDohXnHg4klMK84S5v2AQ0Ms0DKcd5+/VtEc8o=
+github.com/microsoft/moc v0.10.12-alpha.2/go.mod h1:Z6K8FAZifC8c3x0vMfXn0ZYDbJPVCQmWxqBZcrM8G54=
 github.com/miekg/dns v1.1.25/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
 github.com/mitchellh/cli v1.0.0/go.mod h1:hNIlj7HEI86fIcpObd7a0FcrxTWetlwJDGcceTlRvqc=
 github.com/mitchellh/go-homedir v1.0.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
@@ -300,6 +300,8 @@ golang.org/x/net v0.0.0-20210614182718-04defd469f4e h1:XpT3nA5TvE525Ne3hInMh6+GE
 golang.org/x/net v0.0.0-20210614182718-04defd469f4e/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20210716203947-853a461950ff h1:j2EK/QoxYNBsXI4R7fQkkRUk8y6wnOBI+6hgPdP/6Ds=
 golang.org/x/net v0.0.0-20210716203947-853a461950ff/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
+golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985 h1:4CSI6oo7cOjJKajidEljs9h+uP0rRZBPPPhcCbj5mw8=
+golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAGxoOufVs8QHGRruUQn6yWY3a++T0U=
 golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
 golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45/go.mod h1:gOpvHmFTYa4IltrdGE7lF6nIHvwfUNPOp7c8zoXwtLw=
