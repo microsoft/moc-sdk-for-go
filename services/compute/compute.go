@@ -715,6 +715,40 @@ const (
 	ProvisioningState2Updating ProvisioningState2 = "Updating"
 )
 
+type downloadImage struct {
+	Type   string `json:"type"`
+	Source string `json:"source"`
+	Data   Data   `json:"data"`
+}
+
+type Data struct {
+	Options map[string]interface{}
+}
+
+//Http Image properties
+type HttpImageProperties struct {
+	HttpURL string `json:"httpURL,omitempty"`
+}
+
+// SFSImage properties
+type SFSImageProperties struct {
+	CatalogName    string `json:"catalogName,omitempty"`
+	Audience       string `json:"audience,omitempty"`
+	Version        string `json:"version,omitempty"`
+	ReleaseName    string `json:"releasename,omitempty"`
+	Parts          int32  `json:"parts,omitempty"`
+	DestinationDir string `json:"destinationDir,omitempty"`
+}
+
+//Local image properties
+type LocalImageProperties struct {
+	Path string `json:"path,omitempty"`
+}
+
+type CloneImageProperties struct {
+	CloneSource string `json:"cloneSource,omitempty"`
+}
+
 // GalleryImageProperties describes the properties of a gallery Image Definition.
 type GalleryImageProperties struct {
 	// Description - The description of this gallery Image Definition resource. This property is updatable.
@@ -743,6 +777,8 @@ type GalleryImageProperties struct {
 	Statuses map[string]*string `json:"statuses"`
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
+	//Type of source of gal image (sfs/http/local)
+	SourceType string `json:"sourceType,omitempty"`
 }
 
 // GalleryImage specifies information about the gallery Image Definition that you want to create or update.
