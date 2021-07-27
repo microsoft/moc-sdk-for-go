@@ -251,7 +251,7 @@ func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration 
 		RDPConfiguration: &wssdcloudcompute.RDPConfiguration{},
 	}
 
-	if windowsConfiguration.RDP == nil {
+	if windowsConfiguration == nil {
 		return wc
 	}
 
