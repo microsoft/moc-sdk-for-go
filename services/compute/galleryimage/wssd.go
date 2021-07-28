@@ -6,7 +6,6 @@ package galleryimage
 import (
 	"context"
 	"fmt"
-
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
@@ -92,7 +91,9 @@ func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePat
 		Name:         name,
 		LocationName: location,
 		SourcePath:   imagePath,
-		SourceType:   compute.SourceType,
+	}
+	if compute != nil {
+		wssdgalleryimage.SourceType = compute.SourceType
 	}
 
 	if len(location) == 0 {
