@@ -92,6 +92,9 @@ func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePat
 		LocationName: location,
 		SourcePath:   imagePath,
 	}
+	if compute != nil {
+		wssdgalleryimage.SourceType = compute.SourceType
+	}
 
 	if len(location) == 0 {
 		return nil, errors.Wrapf(errors.InvalidInput, "Location not specified")
