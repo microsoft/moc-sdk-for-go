@@ -23,11 +23,14 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		Name:         *c.Name,
 		LocationName: locationName,
 		SourcePath:   imagePath,
-		SourceType:   c.SourceType,
 	}
 
 	if c.GalleryImageProperties != nil && c.GalleryImageProperties.ContainerName != nil {
 		wssdgalleryimage.ContainerName = *c.GalleryImageProperties.ContainerName
+	}
+
+	if c.GalleryImageProperties != nil {
+		wssdgalleryimage.SourceType = c.SourceType
 	}
 
 	if c.Version != nil {
