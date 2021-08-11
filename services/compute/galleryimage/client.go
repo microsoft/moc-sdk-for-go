@@ -41,7 +41,9 @@ func (c *GalleryImageClient) Get(ctx context.Context, location, name string) (*[
 
 // CreateOrUpdate methods invokes create or update on the client
 func (c *GalleryImageClient) CreateOrUpdate(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
-	compute.SourceType = common.ImageSource_LOCAL_SOURCE
+	if compute != nil && compute.GalleryImageProperties != nil {
+		compute.SourceType = common.ImageSource_LOCAL_SOURCE
+	}
 	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
 }
 
@@ -52,7 +54,9 @@ func (c *GalleryImageClient) Delete(ctx context.Context, location, name string) 
 
 // UploadImageFromLocal   methods invokes  UploadImageFromLocal  on the client
 func (c *GalleryImageClient) UploadImageFromLocal(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
-	compute.SourceType = common.ImageSource_LOCAL_SOURCE
+	if compute != nil && compute.GalleryImageProperties != nil {
+		compute.SourceType = common.ImageSource_LOCAL_SOURCE
+	}
 	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
 }
 
@@ -64,6 +68,9 @@ func (c *GalleryImageClient) UploadImageFromSFS(ctx context.Context, location, n
 		return nil, err
 	}
 	// update galImage with SourceType
-	galImage.SourceType = common.ImageSource_SFS_SOURCE
+	if galImage != nil && galImage.GalleryImageProperties != nil {
+		galImage.SourceType = common.ImageSource_SFS_SOURCE
+	}
+
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
