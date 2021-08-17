@@ -30,3 +30,13 @@ func GetRecoveryClient(serverAddress *string, authorizer auth.Authorizer) (cadmi
 
 	return cadmin_pb.NewRecoveryAgentClient(conn), nil
 }
+
+// GetDebugClient returns the log client to communicate with the wssdcloud agent
+func GetDebugClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_pb.DebugAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get DebugClient. Failed to dial: %v", err)
+	}
+
+	return cadmin_pb.NewDebugAgentClient(conn), nil
+}
