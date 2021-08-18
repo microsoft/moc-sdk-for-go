@@ -723,12 +723,9 @@ type HttpImageProperties struct {
 
 // SFSImage properties
 type SFSImageProperties struct {
-	CatalogName    string `json:"catalogName,omitempty"`
-	Audience       string `json:"audience,omitempty"`
-	Version        string `json:"version,omitempty"`
-	ReleaseName    string `json:"releasename,omitempty"`
-	Parts          int32  `json:"parts,omitempty"`
-	DestinationDir string `json:"destinationDir,omitempty"`
+	Version     string `json:"version,omitempty"`
+	ReleaseName string `json:"releasename,omitempty"`
+	Parts       int32  `json:"parts,omitempty"`
 }
 
 //Local image properties
