@@ -903,7 +903,7 @@ type BareMetalHostDisk struct {
 	// Name - Name of the disk
 	Name *string `json:"name,omitempty"`
 	// DiskSizeGB - Specifies the size of the disk in gigabytes
-	DiskSizeGB *int32 `json:"diskSizeGB,omitempty"`
+	DiskSizeGB *uint32 `json:"diskSizeGB,omitempty"`
 }
 
 type BareMetalHostStorageProfile struct {
@@ -923,9 +923,9 @@ type BareMetalHostNetworkProfile struct {
 
 // BareMetalHostSize Specifies cpu/memory information for bare metal hosts.
 type BareMetalHostSize struct {
-	CpuCount *int32 `json:"cpucount,omitempty"`
-	GpuCount *int32 `json:"gpucount,omitempty"`
-	MemoryMB *int32 `json:"memorymb,omitempty"`
+	CpuCount *uint32 `json:"cpucount,omitempty"`
+	GpuCount *uint32 `json:"gpucount,omitempty"`
+	MemoryMB *uint32 `json:"memorymb,omitempty"`
 }
 
 type BareMetalHostHardwareProfile struct {
@@ -947,9 +947,9 @@ type BareMetalHostProperties struct {
 	// FQDN
 	FQDN *string `json:"fqdn,omitempty"`
 	// Port
-	Port *int32 `json:"port,omitempty"`
+	Port *uint32 `json:"port,omitempty"`
 	// AuthorizerPort
-	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
+	AuthorizerPort *uint32 `json:"authorizerPort,omitempty"`
 	// Certificate
 	Certificate *string `json:"certificate,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
