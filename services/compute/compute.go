@@ -873,7 +873,6 @@ type BareMetalHostProperties struct {
 	// SecurityProfile - Specifies the security settings for the bare metal host.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// BareMetalMachine - Specifies information about the bare metal machine.
-	BareMetalMachine *SubResource `json:"baremetalmachine,omitempty"`
 	// FQDN
 	FQDN *string `json:"fqdn,omitempty"`
 	// Port
@@ -938,8 +937,8 @@ type BareMetalMachineProperties struct {
 	OsProfile *BareMetalMachineOSProfile `json:"osprofile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the bare metal machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
-	// BareMetalHost - Specifies information about the bare metal host.
-	BareMetalHost *SubResource `json:"baremetalhost,omitempty"`
+	// FQDN - Copied from associated BareMetalHost
+	FQDN *string `json:"fqdn,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
