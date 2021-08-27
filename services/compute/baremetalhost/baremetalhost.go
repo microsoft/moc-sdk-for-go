@@ -51,10 +51,6 @@ func (c *client) getWssdBareMetalHost(bmh *compute.BareMetalHost, location strin
 		bmhOut.Security = securityConfig
 		bmhOut.Network = networkConfig
 
-		if bmh.BareMetalMachine != nil && bmh.BareMetalMachine.ID != nil {
-			bmhOut.BareMetalMachineName = *bmh.BareMetalMachine.ID
-		}
-
 		if bmh.FQDN != nil {
 			bmhOut.Fqdn = *bmh.FQDN
 		}
@@ -177,7 +173,6 @@ func (c *client) getBareMetalHost(bmh *wssdcloudcompute.BareMetalHost, location 
 			HardwareProfile:   c.getBareMetalHostHardwareProfile(bmh),
 			SecurityProfile:   c.getBareMetalHostSecurityProfile(bmh),
 			NetworkProfile:    c.getBareMetalHostNetworkProfile(bmh.Network),
-			BareMetalMachine:  c.getBareMetalMachineDescription(bmh),
 			FQDN:              &bmh.Fqdn,
 			Port:              &bmh.Port,
 			AuthorizerPort:    &bmh.AuthorizerPort,
@@ -236,12 +231,6 @@ func (c *client) getBareMetalHostSecurityProfile(bmh *wssdcloudcompute.BareMetal
 	}
 	return &compute.SecurityProfile{
 		EnableTPM: &enableTPM,
-	}
-}
-
-func (c *client) getBareMetalMachineDescription(bmh *wssdcloudcompute.BareMetalHost) *compute.SubResource {
-	return &compute.SubResource{
-		ID: &bmh.BareMetalMachineName,
 	}
 }
 
