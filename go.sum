@@ -125,6 +125,8 @@ github.com/microsoft/moc v0.10.10-0.20210510205040-161b5e608074 h1:oBj4/xtW4us72
 github.com/microsoft/moc v0.10.10-0.20210510205040-161b5e608074/go.mod h1:85uh28c+MxW6gfG8HUhOpN41LvkIkOMigteiPGI6yM4=
 github.com/microsoft/moc v0.10.10-0.20210824174649-2c488a747e6a h1:vDPIzQ5aFIKYDhKlbycjqXXr2X8zj/SvWVOG3WUfP+0=
 github.com/microsoft/moc v0.10.10-0.20210824174649-2c488a747e6a/go.mod h1:85uh28c+MxW6gfG8HUhOpN41LvkIkOMigteiPGI6yM4=
+github.com/microsoft/moc v0.10.10-0.20210827233235-c63bdf89bc34 h1:NHoN9Vbuzv+Q3L13M04JSd4FFPZhDBBqpIE9hHqQcIA=
+github.com/microsoft/moc v0.10.10-0.20210827233235-c63bdf89bc34/go.mod h1:85uh28c+MxW6gfG8HUhOpN41LvkIkOMigteiPGI6yM4=
 github.com/microsoft/moc v0.10.12 h1:ISSoAR+9CsrijZT6gXa7lTFmOewR8Ou6vVMGgmfBuHM=
 github.com/microsoft/moc v0.10.12/go.mod h1:+fc5xIm0BApL3qeJjB0Y6q/Wu17DmHoP6ml73EzWqbE=
 github.com/microsoft/moc-pkg v0.10.9-alpha.4.0.20210511211911-84d67d21f73c h1:3AiNEFQvxF5/lQAUD1HO72Z43RHfzhOAVdlz4f7J+LU=
