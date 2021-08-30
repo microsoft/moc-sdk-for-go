@@ -338,7 +338,7 @@ func (c *VirtualMachineClient) ListIPs(ctx context.Context, group, name string) 
 		}
 
 		for _, ipConfig := range *(*nics)[0].IPConfigurations {
-			if ipConfig.PrivateIPAddress != nil {
+			if ipConfig.PrivateIPAddress != nil && len(*ipConfig.PrivateIPAddress) > 0 {
 				ips = append(ips, *ipConfig.PrivateIPAddress)
 			}
 		}
