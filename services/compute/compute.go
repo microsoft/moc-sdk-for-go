@@ -121,6 +121,8 @@ type SSHConfiguration struct {
 type RDPConfiguration struct {
 	// Set to 'true' to disable Remote Desktop
 	DisableRDP *bool
+	// Specify custom port for Remote Desktop
+	Port *uint16
 }
 
 // ProtocolTypes enumerates the values for protocol types.
@@ -723,12 +725,9 @@ type HttpImageProperties struct {
 
 // SFSImage properties
 type SFSImageProperties struct {
-	CatalogName    string `json:"catalogName,omitempty"`
-	Audience       string `json:"audience,omitempty"`
-	Version        string `json:"version,omitempty"`
-	ReleaseName    string `json:"releasename,omitempty"`
-	Parts          int32  `json:"parts,omitempty"`
-	DestinationDir string `json:"destinationDir,omitempty"`
+	Version     string `json:"version,omitempty"`
+	ReleaseName string `json:"releasename,omitempty"`
+	Parts       int32  `json:"parts,omitempty"`
 }
 
 //Local image properties
