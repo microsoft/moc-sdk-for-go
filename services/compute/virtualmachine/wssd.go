@@ -10,6 +10,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/config"
+	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/marshal"
 	prototags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
@@ -136,7 +137,98 @@ func (c *client) Start(ctx context.Context, group, name string) (err error) {
 	return
 }
 
+// RunCommand
+func (c *client) RunCommand(ctx context.Context, group, name string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
+	mocRequest, err := c.getVirtualMachineRunCommandRequest(ctx, group, name, request)
+	if err != nil {
+		return
+	}
+
+	mocResponse, err := c.VirtualMachineAgentClient.RunCommand(ctx, mocRequest)
+	if err != nil {
+		return
+	}
+	response, err = c.getVirtualMachineRunCommandResponse(mocResponse)
+	return
+}
+
 // Private methods
+func (c *client) getVirtualMachineRunCommandRequest(ctx context.Context, group, name string, request *compute.VirtualMachineRunCommandRequest) (mocRequest *wssdcloudcompute.VirtualMachineRunCommandRequest, err error) {
+	vms, err := c.get(ctx, group, name)
+	if err != nil {
+		return
+	}
+
+	if len(vms) != 1 {
+		err = errors.Wrapf(errors.InvalidInput, "Multiple Virtual Machines found in group %s with name %s", group, name)
+		return
+	}
+	vm := vms[0]
+
+	var params []*wssdcloudproto.VirtualMachineRunCommandInputParameter
+	if request.Parameters != nil {
+		params = make([]*wssdcloudproto.VirtualMachineRunCommandInputParameter, len(*request.Parameters))
+		for i, param := range *request.Parameters {
+			tmp := &wssdcloudproto.VirtualMachineRunCommandInputParameter{
+				Name:  *param.Name,
+				Value: *param.Value,
+			}
+			params[i] = tmp
+		}
+	}
+
+	var scriptSource wssdcloudproto.VirtualMachineRunCommandScriptSource
+	if request.Source.Script != nil {
+		scriptSource.Script = *request.Source.Script
+	}
+	if request.Source.ScriptURI != nil {
+		scriptSource.ScriptURI = *request.Source.ScriptURI
+	}
+	if request.Source.CommandID != nil {
+		scriptSource.CommandID = *request.Source.CommandID
+	}
+
+	mocRequest = &wssdcloudcompute.VirtualMachineRunCommandRequest{
+		VirtualMachine:            vm,
+		RunCommandInputParameters: params,
+		Source:                    &scriptSource,
+	}
+
+	if request.RunAsUser != nil {
+		mocRequest.RunAsUser = *request.RunAsUser
+	}
+	if request.RunAsPassword != nil {
+		mocRequest.RunAsPassword = *request.RunAsPassword
+	}
+	return
+}
+
+func (c *client) getVirtualMachineRunCommandResponse(mocResponse *wssdcloudcompute.VirtualMachineRunCommandResponse) (*compute.VirtualMachineRunCommandResponse, error) {
+	var executionState compute.ExecutionState
+	switch mocResponse.GetInstanceView().ExecutionState {
+	case wssdcloudproto.VirtualMachineRunCommandExecutionState_ExecutionState_UNKNOWN:
+		executionState = compute.ExecutionStateUnknown
+	case wssdcloudproto.VirtualMachineRunCommandExecutionState_ExecutionState_SUCCEEDED:
+		executionState = compute.ExecutionStateSucceeded
+	case wssdcloudproto.VirtualMachineRunCommandExecutionState_ExecutionState_FAILED:
+		executionState = compute.ExecutionStateFailed
+	default:
+		return nil, errors.Wrapf(errors.NotSupported, "Unknown execution state reported for virtual machine run command")
+	}
+
+	instanceView := &compute.VirtualMachineRunCommandInstanceView{
+		ExecutionState: executionState,
+		ExitCode:       &mocResponse.GetInstanceView().ExitCode,
+		Output:         &mocResponse.GetInstanceView().Output,
+		Error:          &mocResponse.GetInstanceView().Error,
+	}
+
+	response := &compute.VirtualMachineRunCommandResponse{
+		InstanceView: instanceView,
+	}
+	return response, nil
+}
+
 func (c *client) getVirtualMachineFromResponse(response *wssdcloudcompute.VirtualMachineResponse, group string) *[]compute.VirtualMachine {
 	vms := []compute.VirtualMachine{}
 	for _, vm := range response.GetVirtualMachines() {

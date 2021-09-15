@@ -5,8 +5,10 @@ package galleryimage
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // Service interface
@@ -39,10 +41,36 @@ func (c *GalleryImageClient) Get(ctx context.Context, location, name string) (*[
 
 // CreateOrUpdate methods invokes create or update on the client
 func (c *GalleryImageClient) CreateOrUpdate(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
+	if compute != nil && compute.GalleryImageProperties != nil {
+		compute.SourceType = common.ImageSource_LOCAL_SOURCE
+	}
 	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
 }
 
 // Delete methods invokes delete of the compute resource
 func (c *GalleryImageClient) Delete(ctx context.Context, location, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// UploadImageFromLocal   methods invokes  UploadImageFromLocal  on the client
+func (c *GalleryImageClient) UploadImageFromLocal(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
+	if compute != nil && compute.GalleryImageProperties != nil {
+		compute.SourceType = common.ImageSource_LOCAL_SOURCE
+	}
+	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
+}
+
+// UploadImageFromSFS   methods invokes  UploadImageFromSFS  on the client
+func (c *GalleryImageClient) UploadImageFromSFS(ctx context.Context, location, name string, galImage *compute.GalleryImage, sfsImg *compute.SFSImageProperties) (*compute.GalleryImage, error) {
+	// convert sfsImg struct to json string and use it as image-path
+	data, err := json.Marshal(sfsImg)
+	if err != nil {
+		return nil, err
+	}
+	// update galImage with SourceType
+	if galImage != nil && galImage.GalleryImageProperties != nil {
+		galImage.SourceType = common.ImageSource_SFS_SOURCE
+	}
+
+	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }

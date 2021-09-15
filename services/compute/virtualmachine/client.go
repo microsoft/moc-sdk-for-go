@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc-sdk-for-go/services/network/networkinterface"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 )
@@ -21,11 +22,14 @@ type Service interface {
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
+	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 }
 
 type VirtualMachineClient struct {
 	compute.BaseClient
-	internal Service
+	internal   Service
+	cloudFQDN  string
+	authorizer auth.Authorizer
 }
 
 func NewVirtualMachineClient(cloudFQDN string, authorizer auth.Authorizer) (*VirtualMachineClient, error) {
@@ -34,7 +38,10 @@ func NewVirtualMachineClient(cloudFQDN string, authorizer auth.Authorizer) (*Vir
 		return nil, err
 	}
 
-	return &VirtualMachineClient{internal: c}, nil
+	return &VirtualMachineClient{internal: c,
+		cloudFQDN:  cloudFQDN,
+		authorizer: authorizer,
+	}, nil
 }
 
 // Get methods invokes the client Get method
@@ -291,4 +298,50 @@ func (c *VirtualMachineClient) GetByComputerName(ctx context.Context, group stri
 	}
 
 	return vms, nil
+}
+
+func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
+	return c.internal.RunCommand(ctx, group, vmName, request)
+}
+
+// ListIPs for specified VM
+func (c *VirtualMachineClient) ListIPs(ctx context.Context, group, name string) ([]string, error) {
+	if len(name) == 0 {
+		return nil, errors.Wrap(errors.InvalidInput, "ListIPs requires VM name input")
+	}
+	vms, err := c.Get(ctx, group, name)
+	if err != nil {
+		return nil, err
+	}
+	if len(*vms) == 0 {
+		return nil, errors.NotFound
+	}
+
+	ips := []string{}
+	if (*vms)[0].NetworkProfile == nil {
+		return ips, nil
+	}
+
+	for _, vmnic := range *(*vms)[0].NetworkProfile.NetworkInterfaces {
+		nicCli, err := networkinterface.NewInterfaceClient(c.cloudFQDN, c.authorizer)
+		if err != nil {
+			return nil, err
+		}
+
+		nics, err := nicCli.Get(ctx, group, *vmnic.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(*nics) == 0 || (*nics)[0].IPConfigurations == nil {
+			break
+		}
+
+		for _, ipConfig := range *(*nics)[0].IPConfigurations {
+			if ipConfig.PrivateIPAddress != nil {
+				ips = append(ips, *ipConfig.PrivateIPAddress)
+			}
+		}
+	}
+	return ips, nil
 }

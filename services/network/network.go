@@ -144,6 +144,13 @@ const (
 	VIPPOOL IPPoolType = "vippool"
 )
 
+type IPPoolInfo struct {
+	// used - no. of ip addresses already allocated from the pool
+	Used string `json:"used,omitempty"`
+	// available - no. of ip addresses still available in the pool
+	Available string `json:"available,omitempty"`
+}
+
 // IPPool is assoicated with a network and represents pool of IP addresses.
 type IPPool struct {
 	// Name
@@ -154,6 +161,8 @@ type IPPool struct {
 	Start string `json:"start,omitempty"`
 	// end - The ending ip address of the pool
 	End string `json:"end,omitempty"`
+	// Auxilliary info associated with an ip pool
+	Info *IPPoolInfo `json:"info,omitempty"`
 }
 
 // MACRange is associated with MACPool and respresents the start and end addresses.

@@ -1,19 +1,21 @@
 module github.com/microsoft/moc-sdk-for-go
 
-go 1.14
+go 1.15
 
 require (
+	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
 	github.com/Azure/go-autorest/autorest v0.9.0
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/google/uuid v1.2.0
-	github.com/microsoft/moc v0.10.10-0.20210827233235-c63bdf89bc34
+	github.com/microsoft/moc v0.10.12-alpha.6
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
-	github.com/spf13/viper v1.6.2
-	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
-	golang.org/x/sys v0.0.0-20210806184541-e5e7981a1069 // indirect
+	github.com/spf13/viper v1.7.1
+	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.27.1
-	google.golang.org/protobuf v1.25.0 // indirect
 	k8s.io/klog v1.0.0
 )
 
-replace github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
+replace (
+	github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
+	github.com/miekg/dns => github.com/miekg/dns v1.1.25
+)
