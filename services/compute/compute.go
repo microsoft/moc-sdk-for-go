@@ -8,6 +8,7 @@ package compute
 import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // SubResource ...
@@ -122,6 +123,28 @@ type RDPConfiguration struct {
 	DisableRDP *bool
 }
 
+// ProtocolTypes enumerates the values for protocol types.
+type ProtocolTypes string
+
+const (
+	// HTTP ...
+	HTTP ProtocolTypes = "Http"
+	// HTTPS ...
+	HTTPS ProtocolTypes = "Https"
+)
+
+// WinRMConfiguration describes Windows Remote Management configuration of the VM
+type WinRMConfiguration struct {
+	// Listeners - The list of Windows Remote Management listeners
+	Listeners *[]WinRMListener `json:"listeners,omitempty"`
+}
+
+// WinRMListener describes Protocol and thumbprint of Windows Remote Management listener
+type WinRMListener struct {
+	// Protocol - Specifies the protocol of WinRM listener. Possible values include: 'HTTP', 'HTTPS'
+	Protocol ProtocolTypes `json:"protocol,omitempty"`
+}
+
 // Based on https://godoc.org/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2015-06-15/compute
 type WindowsConfiguration struct {
 	// EnableAutomaticUpdates
@@ -134,6 +157,8 @@ type WindowsConfiguration struct {
 	SSH *SSHConfiguration `json:"ssh,omitempty"`
 	// RDP
 	RDP *RDPConfiguration `json:"rdp,omitempty"`
+	// WinRM - Specifies the Windows Remote Management listeners. This enables remote Windows PowerShell.
+	WinRM *WinRMConfiguration `json:"winRM,omitempty"`
 }
 
 // Based on https://godoc.org/github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2015-06-15/compute#LinuxConfiguration
@@ -169,9 +194,21 @@ type VirtualMachineCustomSize struct {
 	MemoryMB *int32 `json:"memorymb,omitempty"`
 }
 
+// DynamicMemoryConfiguration Specifies the dynamic memory configuration for a VM.
+type DynamicMemoryConfiguration struct {
+	// MaximumMemoryMB - Specifies the maximum amount of memory the VM is allowed to use.
+	MaximumMemoryMB *uint64 `json:"maximummemorymb,omitempty"`
+	// MinimumMemoryMB - Specifies the minimum amount of memory the VM is allocated.
+	MinimumMemoryMB *uint64 `json:"minimummemorymb,omitempty"`
+	// TargetMemoryBuffer - Specifies the size of the VMs memory buffer as a percentage of the current memory usage.
+	TargetMemoryBuffer *uint32 `json:"targetmemorybuffer,omitempty"`
+}
+
 type HardwareProfile struct {
 	VMSize     VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
 	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
+	// DynamicMemoryConfig - Specifies the dynamic memory configuration for a VM, dynamic memory will be enabled if this field is present.
+	DynamicMemoryConfig *DynamicMemoryConfiguration `json:"dynamicmemoryconfig,omitempty"`
 }
 
 // NetworkInterfaceReferenceProperties describes a network interface reference properties.
@@ -191,8 +228,15 @@ type NetworkProfile struct {
 	NetworkInterfaces *[]NetworkInterfaceReference `json:"networkinterfaces,omitempty"`
 }
 
+type UefiSettings struct {
+	// SecureBootEnabled - Specifies whether secure boot should be enabled on the virtual machine.
+	SecureBootEnabled *bool `json:"secureBootEnabled,omitempty"`
+}
+
 type SecurityProfile struct {
 	EnableTPM *bool `json:"enableTPM,omitempty"`
+	//Security related configuration used while creating the virtual machine.
+	UefiSettings *UefiSettings `json:"uefiSettings,omitempty"`
 }
 
 // Plan specifies information about the marketplace image used to create the virtual machine. This element
@@ -672,6 +716,30 @@ const (
 	ProvisioningState2Updating ProvisioningState2 = "Updating"
 )
 
+//Http Image properties
+type HttpImageProperties struct {
+	HttpURL string `json:"httpURL,omitempty"`
+}
+
+// SFSImage properties
+type SFSImageProperties struct {
+	CatalogName    string `json:"catalogName,omitempty"`
+	Audience       string `json:"audience,omitempty"`
+	Version        string `json:"version,omitempty"`
+	ReleaseName    string `json:"releasename,omitempty"`
+	Parts          int32  `json:"parts,omitempty"`
+	DestinationDir string `json:"destinationDir,omitempty"`
+}
+
+//Local image properties
+type LocalImageProperties struct {
+	Path string `json:"path,omitempty"`
+}
+
+type CloneImageProperties struct {
+	CloneSource string `json:"cloneSource,omitempty"`
+}
+
 // GalleryImageProperties describes the properties of a gallery Image Definition.
 type GalleryImageProperties struct {
 	// Description - The description of this gallery Image Definition resource. This property is updatable.
@@ -700,6 +768,8 @@ type GalleryImageProperties struct {
 	Statuses map[string]*string `json:"statuses"`
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
+	//Type of source of gal image (sfs/http/local)
+	SourceType common.ImageSource `json:"sourceType,omitempty"`
 }
 
 // GalleryImage specifies information about the gallery Image Definition that you want to create or update.
@@ -960,4 +1030,61 @@ type BareMetalMachine struct {
 	Location *string `json:"location,omitempty"`
 	// Properties
 	*BareMetalMachineProperties `json:"baremetalmachineproperties,omitempty"`
+}
+
+type ExecutionState string
+
+const (
+	// ExecutionStateFailed ...
+	ExecutionStateFailed ExecutionState = "Failed"
+	// ExecutionStateSucceeded ...
+	ExecutionStateSucceeded ExecutionState = "Succeeded"
+	// ExecutionStateUnknown ...
+	ExecutionStateUnknown ExecutionState = "Unknown"
+)
+
+// VirtualMachineRunCommandScriptSource describes the script sources for run command.
+type VirtualMachineRunCommandScriptSource struct {
+	// Script - Specifies the script content to be executed on the VM.
+	Script *string `json:"script,omitempty"`
+	// ScriptURI - Specifies the script download location.
+	ScriptURI *string `json:"scriptUri,omitempty"`
+	// CommandID - Specifies a commandId of predefined built-in script.
+	CommandID *string `json:"commandId,omitempty"`
+}
+
+// RunCommandInputParameter describes the properties of a run command parameter.
+type RunCommandInputParameter struct {
+	// Name - The run command parameter name.
+	Name *string `json:"name,omitempty"`
+	// Value - The run command parameter value.
+	Value *string `json:"value,omitempty"`
+}
+
+// VirtualMachineRunCommandInstanceView the instance view of a virtual machine run command.
+type VirtualMachineRunCommandInstanceView struct {
+	// ExecutionState - Script execution status. Possible values include: 'ExecutionStateUnknown', 'ExecutionStateFailed', 'ExecutionStateSucceeded'
+	ExecutionState ExecutionState `json:"executionState,omitempty"`
+	// ExitCode - Exit code returned from script execution.
+	ExitCode *int32 `json:"exitCode,omitempty"`
+	// Output - Script output stream.
+	Output *string `json:"output,omitempty"`
+	// Error - Script error stream.
+	Error *string `json:"error,omitempty"`
+}
+
+// VirtualMachineRunCommandRequest describes the properties of a Virtual Machine run command.
+type VirtualMachineRunCommandRequest struct {
+	// Source - The source of the run command script.
+	Source *VirtualMachineRunCommandScriptSource `json:"source,omitempty"`
+	// Parameters - The parameters used by the script.
+	Parameters    *[]RunCommandInputParameter `json:"parameters,omitempty"`
+	RunAsUser     *string                     `json:"runasuser,omitempty"`
+	RunAsPassword *string                     `json:"runaspassword,omitempty"`
+}
+
+// VirtualMachineRunCommandResponse
+type VirtualMachineRunCommandResponse struct {
+	// InstanceView - The virtual machine run command instance view.
+	InstanceView *VirtualMachineRunCommandInstanceView `json:"instanceView,omitempty"`
 }

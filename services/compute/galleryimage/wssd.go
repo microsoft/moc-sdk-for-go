@@ -102,6 +102,9 @@ func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePat
 		if err != nil {
 			return nil, err
 		}
+		if compute.GalleryImageProperties != nil {
+			wssdgalleryimage.SourceType = compute.SourceType
+		}
 	}
 	request.GalleryImages = append(request.GalleryImages, wssdgalleryimage)
 

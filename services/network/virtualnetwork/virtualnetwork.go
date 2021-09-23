@@ -91,6 +91,15 @@ func ipAllocationMethodSdkToProtobuf(allocation network.IPAllocationMethod) wssd
 	return wssdcommonproto.IPAllocationMethod_Dynamic
 }
 
+func getWssdNetworkIPPoolInfo(ippoolinfo *network.IPPoolInfo) *wssdcloudnetwork.IPPoolInfo {
+	if ippoolinfo != nil {
+		return &wssdcloudnetwork.IPPoolInfo{
+			Used:      ippoolinfo.Used,
+			Available: ippoolinfo.Available,
+		}
+	}
+	return nil
+}
 func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudnetwork.Subnet, err error) {
 	if subnets == nil {
 		return
@@ -142,6 +151,7 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 				Type:  ippoolType,
 				Start: ippool.Start,
 				End:   ippool.End,
+				Info:  getWssdNetworkIPPoolInfo(ippool.Info),
 			})
 		}
 
@@ -247,6 +257,17 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 
 	return &subnets
 }
+
+func getNetworkIPPoolInfo(wssdcloudippool *wssdcloudnetwork.IPPool) *network.IPPoolInfo {
+	if wssdcloudippool.Info != nil {
+		return &network.IPPoolInfo{
+			Used:      wssdcloudippool.Info.Used,
+			Available: wssdcloudippool.Info.Available,
+		}
+	}
+	return nil
+}
+
 func getIPPools(wssdcloudippools []*wssdcloudnetwork.IPPool) []network.IPPool {
 	ippool := []network.IPPool{}
 	for _, wssdcloudippool := range wssdcloudippools {
@@ -259,6 +280,7 @@ func getIPPools(wssdcloudippools []*wssdcloudnetwork.IPPool) []network.IPPool {
 			Type:  ippoolType,
 			Start: wssdcloudippool.Start,
 			End:   wssdcloudippool.End,
+			Info:  getNetworkIPPoolInfo(wssdcloudippool),
 		})
 	}
 	return ippool

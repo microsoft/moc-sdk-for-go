@@ -158,6 +158,7 @@ func (c *client) getWssdVirtualMachineStorageConfigurationDataDisk(s *compute.Da
 func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualMachine) (*wssdcloudcompute.HardwareConfiguration, error) {
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
+	var dynMemConfig *wssdcommon.DynamicMemoryConfiguration
 	if vm.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vm.HardwareProfile.VMSize)
 		if vm.HardwareProfile.CustomSize != nil {
@@ -171,21 +172,43 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 				customSize.MemoryMB = *vm.HardwareProfile.CustomSize.MemoryMB
 			}
 		}
+		if vm.HardwareProfile.DynamicMemoryConfig != nil {
+			dynMemConfig = &wssdcommon.DynamicMemoryConfiguration{}
+			if vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB != nil {
+				dynMemConfig.MaximumMemoryMB = *vm.HardwareProfile.DynamicMemoryConfig.MaximumMemoryMB
+			}
+			if vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB != nil {
+				dynMemConfig.MinimumMemoryMB = *vm.HardwareProfile.DynamicMemoryConfig.MinimumMemoryMB
+			}
+			if vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer != nil {
+				dynMemConfig.TargetMemoryBuffer = *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
-		VMSize:     sizeType,
-		CustomSize: customSize,
+		VMSize:                     sizeType,
+		CustomSize:                 customSize,
+		DynamicMemoryConfiguration: dynMemConfig,
 	}
 	return wssdhardware, nil
 }
 
 func (c *client) getWssdVirtualMachineSecurityConfiguration(vm *compute.VirtualMachine) (*wssdcloudcompute.SecurityConfiguration, error) {
 	enableTPM := false
+	secureBootEnabled := true
 	if vm.SecurityProfile != nil {
 		enableTPM = *vm.SecurityProfile.EnableTPM
+		if vm.SecurityProfile.UefiSettings != nil {
+			secureBootEnabled = *vm.SecurityProfile.UefiSettings.SecureBootEnabled
+		}
 	}
+	uefiSettings := &wssdcloudcompute.UefiSettings{
+		SecureBootEnabled: secureBootEnabled,
+	}
+
 	wssdsecurity := &wssdcloudcompute.SecurityConfiguration{
-		EnableTPM: enableTPM,
+		EnableTPM:    enableTPM,
+		UefiSettings: uefiSettings,
 	}
 	return wssdsecurity, nil
 }
@@ -228,8 +251,24 @@ func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration 
 		RDPConfiguration: &wssdcloudcompute.RDPConfiguration{},
 	}
 
-	if windowsConfiguration.RDP == nil {
+	if windowsConfiguration == nil {
 		return wc
+	}
+
+	if windowsConfiguration.WinRM != nil && windowsConfiguration.WinRM.Listeners != nil && len(*windowsConfiguration.WinRM.Listeners) >= 1 {
+		listeners := make([]*wssdcommon.WinRMListener, len(*windowsConfiguration.WinRM.Listeners))
+		for i, listener := range *windowsConfiguration.WinRM.Listeners {
+			protocol := wssdcommon.WinRMProtocolType_HTTP
+			if listener.Protocol == compute.HTTPS {
+				protocol = wssdcommon.WinRMProtocolType_HTTPS
+			}
+			listeners[i] = &wssdcommon.WinRMListener{
+				Protocol: protocol,
+			}
+		}
+		wc.WinRMConfiguration = &wssdcommon.WinRMConfiguration{
+			Listeners: listeners,
+		}
 	}
 
 	if windowsConfiguration.RDP != nil && windowsConfiguration.RDP.DisableRDP != nil {
@@ -420,6 +459,7 @@ func (c *client) getVirtualMachineStorageProfileDataDisks(dd []*wssdcloudcompute
 func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMachine) *compute.HardwareProfile {
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
+	var dynamicMemoryConfig *compute.DynamicMemoryConfiguration
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -428,20 +468,37 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
 			}
 		}
+		if vm.Hardware.DynamicMemoryConfiguration != nil {
+			dynamicMemoryConfig = &compute.DynamicMemoryConfiguration{
+				MaximumMemoryMB:    &vm.Hardware.DynamicMemoryConfiguration.MaximumMemoryMB,
+				MinimumMemoryMB:    &vm.Hardware.DynamicMemoryConfiguration.MinimumMemoryMB,
+				TargetMemoryBuffer: &vm.Hardware.DynamicMemoryConfiguration.TargetMemoryBuffer,
+			}
+		}
 	}
 	return &compute.HardwareProfile{
-		VMSize:     sizeType,
-		CustomSize: customSize,
+		VMSize:              sizeType,
+		CustomSize:          customSize,
+		DynamicMemoryConfig: dynamicMemoryConfig,
 	}
 }
 
 func (c *client) getVirtualMachineSecurityProfile(vm *wssdcloudcompute.VirtualMachine) *compute.SecurityProfile {
 	enableTPM := false
+	secureBootEnabled := true
 	if vm.Security != nil {
 		enableTPM = vm.Security.EnableTPM
+		if vm.Security.UefiSettings != nil {
+			secureBootEnabled = vm.Security.UefiSettings.SecureBootEnabled
+		}
 	}
+	uefiSettings := &compute.UefiSettings{
+		SecureBootEnabled: &secureBootEnabled,
+	}
+
 	return &compute.SecurityProfile{
-		EnableTPM: &enableTPM,
+		EnableTPM:    &enableTPM,
+		UefiSettings: uefiSettings,
 	}
 }
 
@@ -472,6 +529,22 @@ func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wss
 
 	if windowsConfiguration == nil {
 		return wc
+	}
+
+	if windowsConfiguration.WinRMConfiguration != nil && len(windowsConfiguration.WinRMConfiguration.Listeners) >= 1 {
+		listeners := make([]compute.WinRMListener, len(windowsConfiguration.WinRMConfiguration.Listeners))
+		for i, listener := range windowsConfiguration.WinRMConfiguration.Listeners {
+			protocol := compute.HTTP
+			if listener.Protocol == wssdcommon.WinRMProtocolType_HTTPS {
+				protocol = compute.HTTPS
+			}
+			listeners[i] = compute.WinRMListener{
+				Protocol: protocol,
+			}
+		}
+		wc.WinRM = &compute.WinRMConfiguration{
+			Listeners: &listeners,
+		}
 	}
 
 	if windowsConfiguration.RDPConfiguration != nil {
