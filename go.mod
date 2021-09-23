@@ -7,7 +7,7 @@ require (
 	github.com/Azure/go-autorest/autorest v0.9.0
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/google/uuid v1.2.0
-	github.com/microsoft/moc v0.10.12-alpha.6
+	github.com/microsoft/moc v0.10.13-0.20210923193514-4106569447ea
 	github.com/mitchellh/mapstructure v1.4.0 // indirect
 	github.com/spf13/viper v1.7.1
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
