@@ -7,6 +7,7 @@ import (
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
 
+	"github.com/microsoft/moc-sdk-for-go/services/common/taintsandtolerations"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 
 	"github.com/microsoft/moc/pkg/status"
@@ -43,6 +44,8 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get Network Configuration")
 	}
 
+	tolerations := taintsandtolerations.GetWssdTolerations(vm.NodeTolerations)
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -51,15 +54,16 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	}
 
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:      *vm.Name,
-		Storage:   storageConfig,
-		Hardware:  hardwareConfig,
-		Security:  securityConfig,
-		Os:        osconfig,
-		Network:   networkConfig,
-		GroupName: group,
-		VmType:    vmtype,
-		Tags:      getWssdTags(vm.Tags),
+		Name:            *vm.Name,
+		Storage:         storageConfig,
+		Hardware:        hardwareConfig,
+		Security:        securityConfig,
+		Os:              osconfig,
+		Network:         networkConfig,
+		GroupName:       group,
+		VmType:          vmtype,
+		Tags:            getWssdTags(vm.Tags),
+		NodeTolerations: tolerations,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -406,6 +410,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
+			NodeTolerations:         taintsandtolerations.GetTolerations(vm.NodeTolerations),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,

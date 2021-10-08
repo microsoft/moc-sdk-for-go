@@ -7,6 +7,7 @@ import (
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
 
+	"github.com/microsoft/moc-sdk-for-go/services/common/taintsandtolerations"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 
 	"github.com/microsoft/moc/pkg/status"
@@ -66,6 +67,8 @@ func (c *client) getWssdBareMetalHost(bmh *compute.BareMetalHost, location strin
 		if bmh.Certificate != nil {
 			bmhOut.Certificate = *bmh.Certificate
 		}
+
+		bmhOut.Taints = taintsandtolerations.GetWssdTaints(bmh.Taints)
 	}
 
 	if bmh.Version != nil {
@@ -177,6 +180,7 @@ func (c *client) getBareMetalHost(bmh *wssdcloudcompute.BareMetalHost, location 
 			Port:              &bmh.Port,
 			AuthorizerPort:    &bmh.AuthorizerPort,
 			Certificate:       &bmh.Certificate,
+			Taints:            taintsandtolerations.GetTaints(bmh.Taints),
 		},
 		Version:  &bmh.Status.Version.Number,
 		Location: &bmh.LocationName,
