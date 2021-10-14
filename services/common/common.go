@@ -25,5 +25,5 @@ type Toleration struct {
 	Value string `json:"value"`
 	// If true, toleration must match a taint. If false, taint may be present
 	// but is not required.
-	Required bool `json:"required,omitempty"`
+	Required bool `json:"required"`
 }

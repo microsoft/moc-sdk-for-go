@@ -5,15 +5,17 @@ import (
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
-func GetWssdTaints(taints []common.Taint) []*wssdcommon.Taint {
+func GetWssdTaints(taints *[]common.Taint) []*wssdcommon.Taint {
 	result := []*wssdcommon.Taint{}
-	for _, taint := range taints {
-		result = append(result, GetWssdTaint(taint))
+	if taints != nil {
+		for _, taint := range *taints {
+			result = append(result, GetWssdTaint(taint))
+		}
 	}
 	return result
 }
 
-func GetTaints(taints []*wssdcommon.Taint) []common.Taint {
+func GetTaints(taints []*wssdcommon.Taint) *[]common.Taint {
 	result := []common.Taint{}
 	for _, taint := range taints {
 		if taint == nil {
@@ -21,7 +23,7 @@ func GetTaints(taints []*wssdcommon.Taint) []common.Taint {
 		}
 		result = append(result, GetTaint(*taint))
 	}
-	return result
+	return &result
 }
 
 func GetWssdTaint(taint common.Taint) *wssdcommon.Taint {
@@ -38,15 +40,17 @@ func GetTaint(taint wssdcommon.Taint) common.Taint {
 	}
 }
 
-func GetWssdTolerations(tolerations []common.Toleration) []*wssdcommon.Toleration {
+func GetWssdTolerations(tolerations *[]common.Toleration) []*wssdcommon.Toleration {
 	result := []*wssdcommon.Toleration{}
-	for _, toleration := range tolerations {
-		result = append(result, GetWssdToleration(toleration))
+	if tolerations != nil {
+		for _, toleration := range *tolerations {
+			result = append(result, GetWssdToleration(toleration))
+		}
 	}
 	return result
 }
 
-func GetTolerations(tolerations []*wssdcommon.Toleration) []common.Toleration {
+func GetTolerations(tolerations []*wssdcommon.Toleration) *[]common.Toleration {
 	result := []common.Toleration{}
 	for _, toleration := range tolerations {
 		if toleration == nil {
@@ -54,7 +58,7 @@ func GetTolerations(tolerations []*wssdcommon.Toleration) []common.Toleration {
 		}
 		result = append(result, GetToleration(*toleration))
 	}
-	return result
+	return &result
 }
 
 func GetWssdToleration(toleration common.Toleration) *wssdcommon.Toleration {

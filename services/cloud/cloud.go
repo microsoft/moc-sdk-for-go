@@ -68,7 +68,7 @@ type NodeProperties struct {
 	Certificate *string `json:"certificate,omitempty"`
 
 	// Taints that restricts which VMs can run on this node.
-	Taints []common.Taint `json:"taints"`
+	Taints *[]common.Taint `json:"taints,omitempty"`
 }
 
 // Node resource group information.

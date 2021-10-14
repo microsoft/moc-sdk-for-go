@@ -279,7 +279,7 @@ type VirtualMachineProperties struct {
 	// Disable High Availability
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// Allows VM to run on nodes that have been tainted for a specific workload.
-	NodeTolerations []common.Toleration `json:"nodetolerations"`
+	NodeTolerations *[]common.Toleration `json:"nodetolerations,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
@@ -957,7 +957,7 @@ type BareMetalHostProperties struct {
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// Taints that restricts which bare-metal machines can run on this host.
-	Taints []common.Taint `json:"taints"`
+	Taints *[]common.Taint `json:"taints,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
@@ -1017,7 +1017,7 @@ type BareMetalMachineProperties struct {
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// Allows bare-metal machine to run on hosts that have been tainted for a specific workload.
-	HostTolerations []common.Toleration `json:"hosttolerations"`
+	HostTolerations *[]common.Toleration `json:"hosttolerations,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
