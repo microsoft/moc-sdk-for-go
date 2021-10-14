@@ -19,5 +19,3 @@ replace (
 	github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 )
-
-replace github.com/microsoft/moc => ../moc
