@@ -6,6 +6,7 @@ package baremetalmachine
 import (
 	"github.com/microsoft/moc/pkg/errors"
 
+	"github.com/microsoft/moc-sdk-for-go/services/common/taintsandtolerations"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 
 	"github.com/microsoft/moc/pkg/status"
@@ -47,6 +48,8 @@ func (c *client) getWssdBareMetalMachine(bmm *compute.BareMetalMachine, group st
 		if bmm.FQDN != nil {
 			bmmOut.Fqdn = *bmm.FQDN
 		}
+
+		bmmOut.HostTolerations = taintsandtolerations.GetWssdTolerations(bmm.BareMetalMachineProperties.HostTolerations)
 	}
 
 	if bmm.Version != nil {
@@ -189,6 +192,7 @@ func (c *client) getBareMetalMachine(bmm *wssdcloudcompute.BareMetalMachine, gro
 			SecurityProfile:   c.getBareMetalMachineSecurityProfile(bmm),
 			OsProfile:         c.getBareMetalMachineOSProfile(bmm.Os),
 			FQDN:              &bmm.Fqdn,
+			HostTolerations:   taintsandtolerations.GetTolerations(bmm.HostTolerations),
 		},
 		Version:  &bmm.Status.Version.Number,
 		Location: &bmm.LocationName,

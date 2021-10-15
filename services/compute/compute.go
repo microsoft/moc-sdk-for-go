@@ -8,7 +8,8 @@ package compute
 import (
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
-	"github.com/microsoft/moc/rpc/common"
+	"github.com/microsoft/moc-sdk-for-go/services/common"
+	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
 // SubResource ...
@@ -277,6 +278,8 @@ type VirtualMachineProperties struct {
 	VmType VMType `json:"vmType,omitempty"`
 	// Disable High Availability
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
+	// Allows VM to run on nodes that have been tainted for a specific workload.
+	NodeTolerations *[]common.Toleration `json:"nodetolerations,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
@@ -769,7 +772,7 @@ type GalleryImageProperties struct {
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
 	//Type of source of gal image (sfs/http/local)
-	SourceType common.ImageSource `json:"sourceType,omitempty"`
+	SourceType wssdcommon.ImageSource `json:"sourceType,omitempty"`
 }
 
 // GalleryImage specifies information about the gallery Image Definition that you want to create or update.
@@ -953,6 +956,8 @@ type BareMetalHostProperties struct {
 	Certificate *string `json:"certificate,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// Taints that restricts which bare-metal machines can run on this host.
+	Taints *[]common.Taint `json:"taints,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
@@ -1011,6 +1016,8 @@ type BareMetalMachineProperties struct {
 	FQDN *string `json:"fqdn,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// Allows bare-metal machine to run on hosts that have been tainted for a specific workload.
+	HostTolerations *[]common.Toleration `json:"hosttolerations,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }

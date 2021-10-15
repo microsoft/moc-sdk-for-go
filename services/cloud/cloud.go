@@ -5,6 +5,7 @@ package cloud
 
 import (
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/microsoft/moc-sdk-for-go/services/common"
 )
 
 // LocationProperties the resource group properties.
@@ -65,6 +66,9 @@ type NodeProperties struct {
 	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
 
 	Certificate *string `json:"certificate,omitempty"`
+
+	// Taints that restricts which VMs can run on this node.
+	Taints *[]common.Taint `json:"taints,omitempty"`
 }
 
 // Node resource group information.

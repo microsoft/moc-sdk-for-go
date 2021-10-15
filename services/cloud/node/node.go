@@ -5,6 +5,7 @@ package node
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	"github.com/microsoft/moc-sdk-for-go/services/common/taintsandtolerations"
 
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
@@ -36,6 +37,7 @@ func getWssdNode(nd *cloud.Node, location string) (*wssdcloud.Node, error) {
 		LocationName:   location,
 		Port:           *nd.Port,
 		AuthorizerPort: *nd.AuthorizerPort,
+		Taints:         taintsandtolerations.GetWssdTaints(nd.Taints),
 	}
 
 	if nd.Version != nil {
@@ -63,6 +65,7 @@ func getNode(nd *wssdcloud.Node) *cloud.Node {
 			AuthorizerPort: &nd.AuthorizerPort,
 			Certificate:    &nd.Certificate,
 			Statuses:       getNodeStatuses(nd),
+			Taints:         taintsandtolerations.GetTaints(nd.Taints),
 		},
 		Version: &nd.Status.Version.Number,
 	}
