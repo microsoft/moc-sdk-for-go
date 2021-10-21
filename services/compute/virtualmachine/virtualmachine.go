@@ -275,8 +275,14 @@ func (c *client) getWssdVirtualMachineWindowsConfiguration(windowsConfiguration 
 		}
 	}
 
-	if windowsConfiguration.RDP != nil && windowsConfiguration.RDP.DisableRDP != nil {
-		wc.RDPConfiguration.DisableRDP = *windowsConfiguration.RDP.DisableRDP
+	if windowsConfiguration.RDP != nil {
+		if windowsConfiguration.RDP.DisableRDP != nil {
+			wc.RDPConfiguration.DisableRDP = *windowsConfiguration.RDP.DisableRDP
+		}
+
+		if windowsConfiguration.RDP.Port != nil {
+			wc.RDPConfiguration.Port = uint32(*windowsConfiguration.RDP.Port)
+		}
 	}
 
 	if windowsConfiguration.EnableAutomaticUpdates != nil {
@@ -554,6 +560,8 @@ func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wss
 
 	if windowsConfiguration.RDPConfiguration != nil {
 		wc.RDP.DisableRDP = &windowsConfiguration.RDPConfiguration.DisableRDP
+		rdpPort := uint16(windowsConfiguration.RDPConfiguration.Port)
+		wc.RDP.Port = &rdpPort
 	}
 
 	wc.EnableAutomaticUpdates = &windowsConfiguration.EnableAutomaticUpdates
