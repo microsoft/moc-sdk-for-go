@@ -178,6 +178,8 @@ github.com/microsoft/moc v0.10.13-alpha.1 h1:6THHvIYw7HosnjTa+0u8kRLYgBsEVNhc9g0
 github.com/microsoft/moc v0.10.13-alpha.1/go.mod h1:6QpHAg6Y/MOxZxZ3BkyVPPHx7BSekYmz1OY2QJ6GfT8=
 github.com/microsoft/moc v0.10.14-alpha.1 h1:zo8uEhByN7qN3EPmFl8Rekrb9oysNF421LHRwqZNENw=
 github.com/microsoft/moc v0.10.14-alpha.1/go.mod h1:6QpHAg6Y/MOxZxZ3BkyVPPHx7BSekYmz1OY2QJ6GfT8=
+github.com/microsoft/moc v0.10.15-alpha.1 h1:3rxJDsMW+v0uiHDBmgzP0kA231YFcKA3N7D8/ED7z6U=
+github.com/microsoft/moc v0.10.15-alpha.1/go.mod h1:6QpHAg6Y/MOxZxZ3BkyVPPHx7BSekYmz1OY2QJ6GfT8=
 github.com/miekg/dns v1.1.25/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
 github.com/mitchellh/cli v1.0.0/go.mod h1:hNIlj7HEI86fIcpObd7a0FcrxTWetlwJDGcceTlRvqc=
 github.com/mitchellh/go-homedir v1.0.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
