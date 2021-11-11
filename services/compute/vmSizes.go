@@ -4,6 +4,9 @@
 package compute
 
 import (
+	"encoding/json"
+
+	"github.com/microsoft/moc-pkg/pkg/vmsize"
 	cloudcompute "github.com/microsoft/moc/rpc/common"
 )
 
@@ -31,6 +34,11 @@ func GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(size VirtualMachin
 
 // VirtualMachineSizeTypes enumerates the values for virtual machine size types.
 type VirtualMachineSizeTypes string
+
+type VirtualMachineSizes struct {
+	vmSize         vmsize.VmSize `json:"VMSize"`
+	vmSizeTypeName string        `json:"VMSizeTypeName"`
+}
 
 // For more information about virtual machine sizes, see 'Sizes for virtual machines':
 //  https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sizes
@@ -444,4 +452,27 @@ func GetVirtualMachineSizes() (vmsizes *[]VirtualMachineSizeTypes) {
 
 	vmsizes = &tmp
 	return
+}
+
+func GetVirtualMachineSizesFromMoc() (vMSizes string, err error) {
+	tmp := []VirtualMachineSizes{}
+	for key := range cloudcompute.VirtualMachineSizeType_name {
+		sizeInt := cloudcompute.VirtualMachineSizeType(key)
+		vmSize, err := vmsize.GetVmSize(sizeInt, nil)
+
+		if err != nil {
+			return "", err
+		}
+
+		tmp = append(tmp, VirtualMachineSizes{vmSize: vmSize,
+			vmSizeTypeName: cloudcompute.VirtualMachineSizeType_name[int32(sizeInt)]})
+	}
+
+	vmSizes, err := json.Marshal(tmp)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(vmSizes), err
 }
