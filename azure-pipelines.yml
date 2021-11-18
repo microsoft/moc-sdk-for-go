@@ -19,7 +19,7 @@ steps:
   inputs:
     knownHostsEntry: '$(KNOWN_HOST)' 
     sshPublicKey: '$(SSH_PUBLIC_KEY)'
-    sshKeySecureFile: 'azure-pipelines-ssh-key'
+    sshKeySecureFile: 'azure-pipelines-ssh-key-new'
 - script: |
     git config --global url.ssh://git@github.com/.insteadOf https://github.com/
     git config --global url."git@ssh.dev.azure.com:v3".insteadOf https://dev.azure.com
