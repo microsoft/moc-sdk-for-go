@@ -4,6 +4,7 @@
 package compute
 
 import (
+	wcommon "github.com/microsoft/moc/common"
 	cloudcompute "github.com/microsoft/moc/rpc/common"
 )
 
@@ -33,8 +34,8 @@ func GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(size VirtualMachin
 type VirtualMachineSizeTypes string
 
 type VirtualMachineSizes struct {
-	vmSize         cloudcompute.VmSize `json:"VMSize"`
-	vmSizeTypeName string              `json:"VMSizeTypeName"`
+	vmSize         wcommon.VmSize `json:"VMSize"`
+	vmSizeTypeName string         `json:"VMSizeTypeName"`
 }
 
 // For more information about virtual machine sizes, see 'Sizes for virtual machines':
@@ -454,8 +455,8 @@ func GetVirtualMachineSizes() (vmsizes *[]VirtualMachineSizeTypes) {
 func GetVirtualMachineSizeValues(vmsizes *[]VirtualMachineSizes) {
 	tmp := []VirtualMachineSizes{}
 
-	for k, v := range cloudcompute.VirtualMachineSize_value {
-		tmp = append(tmp, VirtualMachineSizes{vmSize: v, vmSizeTypeName: k})
+	for k, v := range wcommon.VirtualMachineSize_value {
+		tmp = append(tmp, VirtualMachineSizes{vmSize: v, vmSizeTypeName: cloudcompute.VirtualMachineSizeType_name[int32(k)]})
 	}
 
 	vmsizes = &tmp
