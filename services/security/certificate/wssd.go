@@ -30,7 +30,7 @@ func newCertificateClient(subID string, authorizer auth.Authorizer) (*client, er
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]security.Certificate, error) {
-	request, err := getCertificateRequest(name, group, nil)
+	request, err := getCertificateRequest(group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +43,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.Certi
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *security.Certificate) (*security.Certificate, error) {
-	request, err := getCertificateRequest(name, "", sg)
+	request, err := getCertificateRequest("", name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Certificate [%s] not found", name)
 	}
 
-	request, err := getCertificateRequest(name, group, &(*cert)[0])
+	request, err := getCertificateRequest(group, name, &(*cert)[0])
 	if err != nil {
 		return err
 	}
