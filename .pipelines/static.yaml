@@ -5,7 +5,7 @@ jobs:
     vmImage: 'windows-latest'
 
   variables:
-  - group: wssdagent-build
+  - group: moc-build
   - name: GO111MODULE
     value: 'on'
   - name: LGTM.UploadSnapshot
