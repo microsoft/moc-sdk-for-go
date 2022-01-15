@@ -71,21 +71,21 @@ type SecretPermissions string
 
 const (
 	// SecretPermissionsBackup ...
-	SecretPermissionsBackup SecretPermissions = "backup" // lgtm [SM03415] Not a secret
+	SecretPermissionsBackup SecretPermissions = "backup" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsDelete ...
-	SecretPermissionsDelete SecretPermissions = "delete" // lgtm [SM03415] Not a secret
+	SecretPermissionsDelete SecretPermissions = "delete" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsGet ...
-	SecretPermissionsGet SecretPermissions = "get" // lgtm [SM03415] Not a secret
+	SecretPermissionsGet SecretPermissions = "get" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsList ...
-	SecretPermissionsList SecretPermissions = "list" // lgtm [SM03415] Not a secret
+	SecretPermissionsList SecretPermissions = "list" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsPurge ...
-	SecretPermissionsPurge SecretPermissions = "purge" // lgtm [SM03415] Not a secret
+	SecretPermissionsPurge SecretPermissions = "purge" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsRecover ...
-	SecretPermissionsRecover SecretPermissions = "recover" // lgtm [SM03415] Not a secret
+	SecretPermissionsRecover SecretPermissions = "recover" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsRestore ...
-	SecretPermissionsRestore SecretPermissions = "restore" // lgtm [SM03415] Not a secret
+	SecretPermissionsRestore SecretPermissions = "restore" // lgtm - Semmle Suppression [SM03415] Not a secret
 	// SecretPermissionsSet ...
-	SecretPermissionsSet SecretPermissions = "set" // lgtm [SM03415] Not a secret
+	SecretPermissionsSet SecretPermissions = "set" // lgtm - Semmle Suppression [SM03415] Not a secret
 )
 
 // CertificatePermissions enumerates the values for certificate permissions.
