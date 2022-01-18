@@ -34,8 +34,8 @@ func GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(size VirtualMachin
 type VirtualMachineSizeTypes string
 
 type VirtualMachineSizes struct {
-	vmSize         wcommon.VmSize `json:"VMSize"`
-	vmSizeTypeName string         `json:"VMSizeTypeName"`
+	VmSize         wcommon.VmSize `json:"VMSize"`
+	VmSizeTypeName string         `json:"VMSizeTypeName"`
 }
 
 // For more information about virtual machine sizes, see 'Sizes for virtual machines':
@@ -456,7 +456,7 @@ func GetVirtualMachineSizeValues(vmsizes *[]VirtualMachineSizes) {
 	tmp := []VirtualMachineSizes{}
 
 	for k, v := range wcommon.VirtualMachineSize_value {
-		tmp = append(tmp, VirtualMachineSizes{vmSize: v, vmSizeTypeName: cloudcompute.VirtualMachineSizeType_name[int32(k)]})
+		tmp = append(tmp, VirtualMachineSizes{VmSize: v, VmSizeTypeName: cloudcompute.VirtualMachineSizeType_name[int32(k)]})
 	}
 
 	vmsizes = &tmp
