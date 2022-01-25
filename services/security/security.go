@@ -256,6 +256,8 @@ type Certificate struct {
 	Cer *string `json:"cer,omitempty"`
 	// Type - The content type of the certificate
 	Type *string `json:"contentType,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
 	// Attributes - The certificate attributes.
 	Attributes *CertificateAttributes `json:"attributes,omitempty"`
 	// Tags - Application-specific metadata in the form of key-value pairs

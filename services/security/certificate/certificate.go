@@ -15,10 +15,13 @@ import (
 )
 
 func GetCertificate(cert *wssdcloudsecurity.Certificate) *security.Certificate {
+	certificateType := cert.Type.String()
 	return &security.Certificate{
-		ID:   &cert.Id,
-		Name: &cert.Name,
-		Cer:  &cert.Certificate,
+		ID:      &cert.Id,
+		Name:    &cert.Name,
+		Cer:     &cert.Certificate,
+		Type:    &certificateType,
+		Version: &cert.Status.Version.Number,
 		Attributes: &security.CertificateAttributes{
 			NotBefore: &cert.NotBefore,
 			Expires:   &cert.NotAfter,
@@ -27,13 +30,31 @@ func GetCertificate(cert *wssdcloudsecurity.Certificate) *security.Certificate {
 	}
 }
 
+func GetCertificateType(certType string) (wssdcloudsecurity.CertificateType, bool) {
+	value, ok := wssdcloudsecurity.CertificateType_value[certType]
+	return wssdcloudsecurity.CertificateType(value), ok
+}
+
 func GetWssdCertificate(cert *security.Certificate) (*wssdcloudsecurity.Certificate, error) {
 	if cert.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Certificate name is missing")
 	}
-	return &wssdcloudsecurity.Certificate{
+	certType, ok := GetCertificateType(*cert.Type)
+	if !ok {
+		return nil, errors.Wrapf(errors.InvalidInput, "Invalid certificate type %s", *cert.Type)
+	}
+	certificate := &wssdcloudsecurity.Certificate{
 		Name: *cert.Name,
-	}, nil
+		Type: certType,
+	}
+
+	if cert.Version != nil {
+		if certificate.Status == nil {
+			certificate.Status = status.InitStatus()
+		}
+		certificate.Status.Version.Number = *cert.Version
+	}
+	return certificate, nil
 }
 
 func GetMocCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.CertificateSigningRequest, string, error) {
