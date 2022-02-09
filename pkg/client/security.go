@@ -4,7 +4,6 @@
 package client
 
 import (
-	"google.golang.org/grpc"
 	log "k8s.io/klog"
 
 	"github.com/microsoft/moc/pkg/auth"
@@ -83,13 +82,9 @@ func GetRoleAssignmentClient(serverAddress *string, authorizer auth.Authorizer) 
 
 // GetAuthenticationClient returns the secret client to communicate with the wssdagent
 func GetAuthenticationClient(serverAddress *string, authorizer auth.Authorizer) (security_pb.AuthenticationAgentClient, error) {
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(authorizer.WithTransportAuthorization()))
-	opts = append(opts, grpc.WithPerRPCCredentials(authorizer.WithRPCAuthorization()))
-
-	conn, err := grpc.Dial(getAuthServerEndpoint(serverAddress), opts...)
+	conn, err := getAuthConnection(serverAddress, authorizer)
 	if err != nil {
-		log.Fatalf("Unable to get AuthenticationClient. Failed to dial: %v", err)
+		log.Fatalf("Unable to get Authentication. Failed to dial: %v", err)
 	}
 
 	return security_pb.NewAuthenticationAgentClient(conn), nil

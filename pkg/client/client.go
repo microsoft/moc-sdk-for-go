@@ -101,3 +101,26 @@ func getClientConnection(serverAddress *string, authorizer auth.Authorizer) (*gr
 
 	return conn, nil
 }
+
+func getAuthConnection(serverAddress *string, authorizer auth.Authorizer) (*grpc.ClientConn, error) {
+	mux.Lock()
+	defer mux.Unlock()
+	endpoint := getAuthServerEndpoint(serverAddress)
+
+	conn, ok := connectionCache[endpoint]
+	if ok {
+		return conn, nil
+	}
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(authorizer.WithTransportAuthorization()))
+	opts = append(opts, grpc.WithPerRPCCredentials(authorizer.WithRPCAuthorization()))
+
+	conn, err := grpc.Dial(endpoint, opts...)
+	if err != nil {
+		log.Fatalf("Failed to dial: %v", err)
+	}
+
+	connectionCache[endpoint] = conn
+
+	return conn, nil
+}
