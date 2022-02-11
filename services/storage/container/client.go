@@ -5,6 +5,7 @@ package container
 
 import (
 	"context"
+
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 )
@@ -33,16 +34,16 @@ func NewContainerClient(cloudFQDN string, authorizer auth.Authorizer) (*Containe
 }
 
 // Get methods invokes the client Get method
-func (c *ContainerClient) Get(ctx context.Context, group, name string) (*[]storage.Container, error) {
-	return c.internal.Get(ctx, group, name)
+func (c *ContainerClient) Get(ctx context.Context, location, name string) (*[]storage.Container, error) {
+	return c.internal.Get(ctx, location, name)
 }
 
 // CreateOrUpdate methods invokes create or update on the client
-func (c *ContainerClient) CreateOrUpdate(ctx context.Context, group, name string, storage *storage.Container) (*storage.Container, error) {
-	return c.internal.CreateOrUpdate(ctx, group, name, storage)
+func (c *ContainerClient) CreateOrUpdate(ctx context.Context, location, name string, storage *storage.Container) (*storage.Container, error) {
+	return c.internal.CreateOrUpdate(ctx, location, name, storage)
 }
 
 // Delete methods invokes delete of the storage resource
-func (c *ContainerClient) Delete(ctx context.Context, group, name string) error {
-	return c.internal.Delete(ctx, group, name)
+func (c *ContainerClient) Delete(ctx context.Context, location, name string) error {
+	return c.internal.Delete(ctx, location, name)
 }
