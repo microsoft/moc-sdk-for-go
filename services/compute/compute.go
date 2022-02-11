@@ -17,6 +17,13 @@ type SubResource struct {
 	ID *string `json:"id,omitempty"`
 }
 
+type HyperVGenerationTypes string 
+
+const (
+	HyperVGenerationV1 HyperVGenerationTypes = "HyperVGenerationV1"
+	HyperVGenerationV2 HyperVGenerationTypes = "HyperVGenerationV2"
+)
+
 type OperatingSystemTypes string
 
 const (
@@ -872,7 +879,7 @@ type VirtualMachineImageProperties struct {
 	// ProvisioningState - READ-ONLY; The provisioning state.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values include: 'HyperVGenerationTypesV1', 'HyperVGenerationTypesV2'
-	// HyperVGeneration HyperVGenerationTypes `json:"hyperVGeneration,omitempty"`
+	HyperVGeneration HyperVGenerationTypes `json:"hyperVGeneration,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
