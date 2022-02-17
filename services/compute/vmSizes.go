@@ -452,7 +452,7 @@ func GetVirtualMachineSizes() (vmsizes *[]VirtualMachineSizeTypes) {
 	return
 }
 
-func GetVirtualMachineSizeValues(vmsizes *[]VirtualMachineSizes) {
+func GetVirtualMachineSizeValues() (vmsizes *[]VirtualMachineSizes) {
 	tmp := []VirtualMachineSizes{}
 
 	for k, v := range wcommon.VirtualMachineSize_value {
