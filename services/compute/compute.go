@@ -666,6 +666,8 @@ type GalleryImageIdentifier struct {
 	Offer *string `json:"offer,omitempty"`
 	// Sku - The name of the gallery Image Definition SKU.
 	Sku *string `json:"sku,omitempty"`
+	// Version - Specifies the version of the platform image or marketplace image used to create the virtual machine.
+	Version *string `json:"version,omitempty"`
 }
 
 // Disallowed describes the disallowed disk types.
@@ -753,8 +755,6 @@ type GalleryImageProperties struct {
 	OsType OperatingSystemTypes `json:"osType,omitempty"`
 	// OsState - This property allows the user to specify whether the virtual machines created under this image are 'Generalized' or 'Specialized'. Possible values include: 'Generalized', 'Specialized'
 	OsState OperatingSystemStateTypes `json:"osState,omitempty"`
-	// HyperVGeneration - The hypervisor generation of the Virtual Machine. Applicable to OS disks only. Possible values include: 'V1', 'V2'
-	// HyperVGeneration HyperVGeneration `json:"hyperVGeneration,omitempty"`
 	// EndOfLifeDate - The end of life date of the gallery Image Definition. This property can be used for decommissioning purposes. This property is updatable.
 	EndOfLifeDate *date.Time                       `json:"endOfLifeDate,omitempty"`
 	Identifier    *GalleryImageIdentifier          `json:"identifier,omitempty"`
@@ -769,6 +769,12 @@ type GalleryImageProperties struct {
 	ContainerName *string `json:"containername,omitempty"`
 	//Type of source of gal image (sfs/http/local)
 	SourceType common.ImageSource `json:"sourceType,omitempty"`
+	// HyperVGeneration - READ-ONLY; The hypervisor generation of the Virtual Machine [V1, V2]. Default Value – V1
+	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
+	// CloudInitDataSource - READ-ONLY; The cloud init data source to be used with the image. [NoCloud, Azure]. Default Value – NoCloud. For marketplace images it will be Azure.
+	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
+	// DownlaodStatus - Current download status of the image
+	DownloadStatus common.DownloadStatus `json:"downloadStatus,omitempty"`
 }
 
 // GalleryImage specifies information about the gallery Image Definition that you want to create or update.
