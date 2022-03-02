@@ -5,14 +5,10 @@ package storage
 
 import (
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/microsoft/moc/rpc/common"
 )
 
-type HyperVGenerationTypes string 
 
-const (
-	HyperVGenerationV1 HyperVGenerationTypes = "HyperVGenerationV1"
-	HyperVGenerationV2 HyperVGenerationTypes = "HyperVGenerationV2"
-)
 // VirtualHardDiskProperties defines the structure of a Load Balancer
 type VirtualHardDiskProperties struct {
 	// DiskSizeBytes
@@ -21,9 +17,7 @@ type VirtualHardDiskProperties struct {
 	Dynamic *bool `json:"dynamic,omitempty"`
 	// Blocksizebytes - TODO: Revisit exposing this
 	Blocksizebytes *int32 `json:"blocksizebytes,omitempty"`
-	// HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values include: 'HyperVGenerationTypesV1', 'HyperVGenerationTypesV2'
-	HyperVGeneration HyperVGenerationTypes `json:"hyperVGeneration,omitempty"`
-    //Logicalsectorbytes - TODO: Revisit exposing this
+	//Logicalsectorbytes - TODO: Revisit exposing this
 	Logicalsectorbytes *int32 `json:"logicalsectorbytes,omitempty"`
 	//Physicalsectorbytes - TODO: Revisit exposing this
 	Physicalsectorbytes *int32 `json:"physicalsectorbytes,omitempty"`
@@ -39,7 +33,8 @@ type VirtualHardDiskProperties struct {
 	Scsipath *string `json:"scsipath,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
-
+	//HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values include: 'HyperVGenerationTypesV1', 'HyperVGenerationTypesV2'
+	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD
