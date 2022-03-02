@@ -769,8 +769,6 @@ type GalleryImageProperties struct {
 	ContainerName *string `json:"containername,omitempty"`
 	//Type of source of gal image (sfs/http/local)
 	SourceType common.ImageSource `json:"sourceType,omitempty"`
-	// HyperVGeneration - READ-ONLY; The hypervisor generation of the Virtual Machine [V1, V2]. Default Value – V1
-	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
 	// CloudInitDataSource - READ-ONLY; The cloud init data source to be used with the image. [NoCloud, Azure]. Default Value – NoCloud. For marketplace images it will be Azure.
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
 	// DownlaodStatus - Current download status of the image
