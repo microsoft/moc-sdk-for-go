@@ -53,8 +53,7 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 		}
 		if c.HyperVGeneration != nil {
 			wssdvhd.HyperVGeneration = *c.HyperVGeneration
-		}
-		else{
+		} else {
 			wssdvhd.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
 		}
 	}
@@ -79,7 +78,7 @@ func getVirtualHardDisk(c *wssdcloudstorage.VirtualHardDisk, group string) *stor
 			Disknumber:          &c.Disknumber,
 			VirtualMachineName:  &c.VirtualmachineName,
 			Scsipath:            &c.Scsipath,
-			HyperVGeneration:    &vhd.HyperVGeneration,
+			HyperVGeneration:    &c.HyperVGeneration,
 		},
 	}
 }
