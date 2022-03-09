@@ -67,6 +67,13 @@ func getWssdKey(name string, sec *keyvault.Key,
 	if err != nil {
 		return nil, err
 	}
+
+	var keyRotationValue int64
+	keyRotationValue = 0
+	if sec.KeyRotationFrequencyInSeconds != nil {
+		keyRotationValue = *sec.KeyRotationFrequencyInSeconds
+	}
+
 	key := &wssdcloudsecurity.Key{
 		Name:                          name,
 		VaultName:                     vaultName,
@@ -75,7 +82,7 @@ func getWssdKey(name string, sec *keyvault.Key,
 		Size:                          keysize,
 		KeyOps:                        []wssdcloudcommon.KeyOperation{},
 		Status:                        status.InitStatus(),
-		KeyRotationFrequencyInSeconds: *sec.KeyRotationFrequencyInSeconds,
+		KeyRotationFrequencyInSeconds: keyRotationValue,
 	}
 
 	// No Update support
