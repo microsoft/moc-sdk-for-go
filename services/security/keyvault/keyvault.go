@@ -90,6 +90,8 @@ type KeyProperties struct {
 	Curve JSONWebKeyCurveName `json:"crv,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// KeyRotationFrequencyInSeconds - Configures key rotation frequency.
+	KeyRotationFrequencyInSeconds *int64 `json:"keyRotationFrequencyInSeconds,omitempty"`
 }
 
 // KeyOperationResult the key operation result.
