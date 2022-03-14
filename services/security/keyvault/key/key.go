@@ -37,9 +37,10 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string) (keyvault.Key, error) 
 		Version: &sec.Status.Version.Number,
 		Value:   &value,
 		KeyProperties: &keyvault.KeyProperties{
-			Statuses: status.GetStatuses(sec.GetStatus()),
-			KeyType:  getKeyType(sec.Type),
-			KeySize:  keysize,
+			Statuses:                      status.GetStatuses(sec.GetStatus()),
+			KeyType:                       getKeyType(sec.Type),
+			KeySize:                       keysize,
+			KeyRotationFrequencyInSeconds: &sec.KeyRotationFrequencyInSeconds,
 		},
 	}, nil
 }
@@ -66,14 +67,22 @@ func getWssdKey(name string, sec *keyvault.Key,
 	if err != nil {
 		return nil, err
 	}
+
+	var keyRotationValue int64
+	keyRotationValue = 0
+	if sec.KeyRotationFrequencyInSeconds != nil {
+		keyRotationValue = *sec.KeyRotationFrequencyInSeconds
+	}
+
 	key := &wssdcloudsecurity.Key{
-		Name:      name,
-		VaultName: vaultName,
-		GroupName: groupName,
-		Type:      getMOCKeyType(sec.KeyType),
-		Size:      keysize,
-		KeyOps:    []wssdcloudcommon.KeyOperation{},
-		Status:    status.InitStatus(),
+		Name:                          name,
+		VaultName:                     vaultName,
+		GroupName:                     groupName,
+		Type:                          getMOCKeyType(sec.KeyType),
+		Size:                          keysize,
+		KeyOps:                        []wssdcloudcommon.KeyOperation{},
+		Status:                        status.InitStatus(),
+		KeyRotationFrequencyInSeconds: keyRotationValue,
 	}
 
 	// No Update support
