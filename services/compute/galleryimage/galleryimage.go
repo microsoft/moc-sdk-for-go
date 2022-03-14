@@ -34,12 +34,6 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		if &c.GalleryImageProperties.CloudInitDataSource != nil {
 			wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
 		}
-		if c.GalleryImageProperties.Identifier != nil {
-			wssdgalleryimage.Publisher = *c.GalleryImageProperties.Identifier.Publisher
-			wssdgalleryimage.Offer = *c.GalleryImageProperties.Identifier.Offer
-			wssdgalleryimage.Sku = *c.GalleryImageProperties.Identifier.Sku
-			wssdgalleryimage.Version = *c.GalleryImageProperties.Identifier.Version
-		}
 	}
 
 	if c.Version != nil {

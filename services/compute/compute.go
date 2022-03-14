@@ -666,8 +666,6 @@ type GalleryImageIdentifier struct {
 	Offer *string `json:"offer,omitempty"`
 	// Sku - The name of the gallery Image Definition SKU.
 	Sku *string `json:"sku,omitempty"`
-	// Version - Specifies the version of the platform image or marketplace image used to create the virtual machine.
-	Version *string `json:"version,omitempty"`
 }
 
 // Disallowed describes the disallowed disk types.
@@ -739,6 +737,14 @@ type LocalImageProperties struct {
 
 type CloneImageProperties struct {
 	CloneSource string `json:"cloneSource,omitempty"`
+}
+
+//Azure GalleryImage properties
+type AzureGalleryImageProperties struct {
+	// SasURL - Specifies the SAS URI for the image
+	SasURI string `json:"sasURI,omitempty"`
+	// Version - Specifies the version of the platform image or marketplace image used to create the virtual machine.
+	Version string `json:"version,omitempty"`
 }
 
 // GalleryImageProperties describes the properties of a gallery Image Definition.

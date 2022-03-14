@@ -76,9 +76,14 @@ func (c *GalleryImageClient) UploadImageFromSFS(ctx context.Context, location, n
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
 
-func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, imagePath, name string, galImage *compute.GalleryImage) (*compute.GalleryImage, error) {
+func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, name string, galImage *compute.GalleryImage, azHttpImg *compute.AzureGalleryImageProperties) (*compute.GalleryImage, error) {
+	// convert httpImg struct to json string and use it as image-path
+	data, err := json.Marshal(azHttpImg)
+	if err != nil {
+		return nil, err
+	}
 	if galImage != nil && galImage.GalleryImageProperties != nil {
 		galImage.SourceType = common.ImageSource_HTTP_SOURCE
 	}
-	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, galImage)
+	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
