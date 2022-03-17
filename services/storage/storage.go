@@ -8,7 +8,6 @@ import (
 	"github.com/microsoft/moc/rpc/common"
 )
 
-
 // VirtualHardDiskProperties defines the structure of a Load Balancer
 type VirtualHardDiskProperties struct {
 	// DiskSizeBytes

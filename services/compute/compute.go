@@ -17,7 +17,6 @@ type SubResource struct {
 	ID *string `json:"id,omitempty"`
 }
 
-
 type OperatingSystemTypes string
 
 const (
