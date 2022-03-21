@@ -762,7 +762,7 @@ type GalleryImageProperties struct {
 	// OsState - This property allows the user to specify whether the virtual machines created under this image are 'Generalized' or 'Specialized'. Possible values include: 'Generalized', 'Specialized'
 	OsState OperatingSystemStateTypes `json:"osState,omitempty"`
 	// HyperVGeneration - The hypervisor generation of the Virtual Machine. Applicable to OS disks only. Possible values include: 'V1', 'V2'
-	// HyperVGeneration HyperVGeneration `json:"hyperVGeneration,omitempty"`
+	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
 	// EndOfLifeDate - The end of life date of the gallery Image Definition. This property can be used for decommissioning purposes. This property is updatable.
 	EndOfLifeDate *date.Time                       `json:"endOfLifeDate,omitempty"`
 	Identifier    *GalleryImageIdentifier          `json:"identifier,omitempty"`
@@ -884,7 +884,7 @@ type VirtualMachineImageProperties struct {
 	// ProvisioningState - READ-ONLY; The provisioning state.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values include: 'HyperVGenerationTypesV1', 'HyperVGenerationTypesV2'
-	// HyperVGeneration HyperVGenerationTypes `json:"hyperVGeneration,omitempty"`
+	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }

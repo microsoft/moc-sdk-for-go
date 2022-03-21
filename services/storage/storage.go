@@ -5,6 +5,7 @@ package storage
 
 import (
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // VirtualHardDiskProperties defines the structure of a Load Balancer
@@ -31,6 +32,8 @@ type VirtualHardDiskProperties struct {
 	Scsipath *string `json:"scsipath,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	//HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values include: 'HyperVGenerationTypesV1', 'HyperVGenerationTypesV2'
+	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD
