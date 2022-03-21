@@ -55,6 +55,7 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 		GalleryImageProperties: &compute.GalleryImageProperties{
 			Statuses:      status.GetStatuses(c.GetStatus()),
 			ContainerName: &c.ContainerName,
+			SizeInBytes:   &c.SizeInBytes,
 		},
 	}
 }
