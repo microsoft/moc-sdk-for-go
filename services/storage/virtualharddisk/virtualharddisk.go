@@ -86,7 +86,7 @@ func getVirtualHardDisk(c *wssdcloudstorage.VirtualHardDisk, group string) *stor
 			VirtualMachineName:  &c.VirtualmachineName,
 			Scsipath:            &c.Scsipath,
 			HyperVGeneration:    c.HyperVGeneration,
-			DiskFileFormat:      c.DiskFileFormat
+			DiskFileFormat:      c.DiskFileFormat,
 		},
 	}
 }
