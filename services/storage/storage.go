@@ -32,8 +32,10 @@ type VirtualHardDiskProperties struct {
 	Scsipath *string `json:"scsipath,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
-	//HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values include: 'HyperVGenerationTypesV1', 'HyperVGenerationTypesV2'
+	//HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image.
 	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
+	//DiskFileFormat - File format of the disk 
+	DiskFileFormat common.DiskFileFormat `json:"diskFileFormat,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD
