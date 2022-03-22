@@ -34,7 +34,7 @@ type VirtualHardDiskProperties struct {
 	Statuses map[string]*string `json:"statuses"`
 	//HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image.
 	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
-	//DiskFileFormat - File format of the disk 
+	//DiskFileFormat - File format of the disk
 	DiskFileFormat common.DiskFileFormat `json:"diskFileFormat,omitempty"`
 }
 
