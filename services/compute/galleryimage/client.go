@@ -6,6 +6,7 @@ package galleryimage
 import (
 	"context"
 	"encoding/json"
+
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/rpc/common"
@@ -72,5 +73,17 @@ func (c *GalleryImageClient) UploadImageFromSFS(ctx context.Context, location, n
 		galImage.SourceType = common.ImageSource_SFS_SOURCE
 	}
 
+	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
+}
+
+func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, name string, galImage *compute.GalleryImage, azHttpImg *compute.AzureGalleryImageProperties) (*compute.GalleryImage, error) {
+	// convert httpImg struct to json string and use it as image-path
+	data, err := json.Marshal(azHttpImg)
+	if err != nil {
+		return nil, err
+	}
+	if galImage != nil && galImage.GalleryImageProperties != nil {
+		galImage.SourceType = common.ImageSource_HTTP_SOURCE
+	}
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
