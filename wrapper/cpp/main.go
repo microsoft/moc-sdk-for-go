@@ -72,8 +72,8 @@ func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName 
     return  C.CString(*response.Result)
 }
 
-//export DoesKeyExist
-func DoesKeyExist(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) C.int {
+//export KeyvaultKeyExist
+func KeyvaultKeyExist(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) C.int {
     keyClient, err := getKeyClient(C.GoString(serverName))
     if err != nil {
         return 0
