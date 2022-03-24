@@ -18,8 +18,8 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault/key"
 )
 
-//export EncryptData
-func EncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
+//export KeyvaultKeyEncryptData
+func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
 	keyClient, err := getKeyClient(C.GoString(serverName))
 	if err != nil {
 		return C.CString(err.Error())
@@ -46,8 +46,8 @@ func EncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, ke
 	return  C.CString(*response.Result)
 }
 
-//export DecryptData
-func DecryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
+//export KeyvaultKeyDecryptData
+func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
     keyClient, err := getKeyClient(C.GoString(serverName))
 	if err != nil {
 		return C.CString(err.Error())
@@ -95,8 +95,8 @@ func DoesKeyExist(serverName *C.char, groupName *C.char, keyvaultName *C.char, k
 	return 0
 }
 
-//export CreateOrUpdateAESKey
-func CreateOrUpdateAESKey(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) *C.char {
+//export KeyvaultKeyCreateOrUpdateAESKey
+func KeyvaultKeyCreateOrUpdateAESKey(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) *C.char {
     keyClient, err := getKeyClient(C.GoString(serverName))
 	if err != nil {
 		return C.CString(err.Error())
