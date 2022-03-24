@@ -20,7 +20,7 @@ import (
 
 //export KeyvaultKeyEncryptData
 func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
-    keyClient, err := getKeyClient(C.GoString(serverName))
+    keyClient, err := getKeyvaultKeyClient(C.GoString(serverName))
     if err != nil {
         return C.CString(err.Error())
     }
@@ -48,7 +48,7 @@ func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName 
 
 //export KeyvaultKeyDecryptData
 func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
-    keyClient, err := getKeyClient(C.GoString(serverName))
+    keyClient, err := getKeyvaultKeyClient(C.GoString(serverName))
     if err != nil {
         return C.CString(err.Error())
     }
@@ -74,7 +74,7 @@ func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName 
 
 //export KeyvaultKeyExist
 func KeyvaultKeyExist(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) C.int {
-    keyClient, err := getKeyClient(C.GoString(serverName))
+    keyClient, err := getKeyvaultKeyClient(C.GoString(serverName))
     if err != nil {
         return 0
     }
@@ -95,9 +95,9 @@ func KeyvaultKeyExist(serverName *C.char, groupName *C.char, keyvaultName *C.cha
     return 0
 }
 
-//export KeyvaultKeyCreateOrUpdateAESKey
-func KeyvaultKeyCreateOrUpdateAESKey(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) *C.char {
-    keyClient, err := getKeyClient(C.GoString(serverName))
+//export KeyvaultKeyCreateOrUpdate
+func KeyvaultKeyCreateOrUpdate(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, timeoutInSeconds C.int) *C.char {
+    keyClient, err := getKeyvaultKeyClient(C.GoString(serverName))
     if err != nil {
         return C.CString(err.Error())
     }
@@ -110,7 +110,7 @@ func KeyvaultKeyCreateOrUpdateAESKey(serverName *C.char, groupName *C.char, keyv
     kvConfig.Name = &keyNameString
     kvConfig.KeyProperties = &keyvault.KeyProperties{}
 
-    kvConfig.KeyType = keyvault.JSONWebKeyType("AES")
+    kvConfig.KeyType = keyvault.JSONWebKeyType(C.GoString(keyTypeName))
     var keySize int32
     keySize =256 // hardcode for AES key
     kvConfig.KeySize = &keySize
@@ -130,7 +130,7 @@ func KeyvaultKeyCreateOrUpdateAESKey(serverName *C.char, groupName *C.char, keyv
     return nil
 }
 
-func getKeyClient(serverName string) (*key.KeyClient, error) {
+func getKeyvaultKeyClient(serverName string) (*key.KeyClient, error) {
     authorizer, err := auth.NewAuthorizerFromEnvironment(serverName)
     if err != nil {
         return nil, err
