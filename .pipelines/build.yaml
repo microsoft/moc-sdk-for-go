@@ -41,5 +41,7 @@ jobs:
     inputs:
       BuildDropPath: $(System.DefaultWorkingDirectory)/manifest
 
+  - publish: $(System.DefaultWorkingDirectory)/bin
+    artifact: binaries
   - publish: $(System.DefaultWorkingDirectory)/manifest
     artifact: manifest
