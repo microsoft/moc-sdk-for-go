@@ -21,8 +21,9 @@ import (
 //export KeyvaultKeyEncryptData
 func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
     keyClient, err := getKeyvaultKeyClient(C.GoString(serverName))
+    // if errror occurs, return an empty string so that caller can tell between error and encrypted blob
     if err != nil {
-        return C.CString(err.Error())
+        return C.CString("")
     }
 
     ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutInSeconds)*time.Second)
@@ -39,7 +40,7 @@ func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName 
 
     response, err := keyClient.Encrypt(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), parameters)
     if err != nil {
-        return C.CString(err.Error())
+        return C.CString("")
     }
 
     // retrun base64 encoded string
@@ -49,8 +50,9 @@ func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName 
 //export KeyvaultKeyDecryptData
 func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
     keyClient, err := getKeyvaultKeyClient(C.GoString(serverName))
+    // if errror occurs, return an empty string so that caller can tell between error and decrypted blob
     if err != nil {
-        return C.CString(err.Error())
+        return C.CString("")
     }
 
     ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutInSeconds)*time.Second)
@@ -66,7 +68,7 @@ func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName 
 
     response, err := keyClient.Decrypt(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), parameters)
     if err != nil {
-        return C.CString(err.Error())
+        return C.CString("")
     }
 
     return  C.CString(*response.Result)
