@@ -53,7 +53,7 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 			wssdvhd.VirtualmachineName = *c.VirtualMachineName
 		}
 		if &c.HyperVGeneration != nil {
-			wssdvhd.HyperVGeneration = c.HyperVGeneration
+			wssdvhd.HyperVGeneration = c.VirtualHardDiskProperties.HyperVGeneration
 		} else {
 			wssdvhd.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
 		}

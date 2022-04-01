@@ -4,10 +4,11 @@ package galleryimage
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
-
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	"github.com/microsoft/moc/rpc/common"
+	"log"
 )
 
 // Conversion functions from compute to wssdcloudcompute
@@ -34,6 +35,14 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		if &c.GalleryImageProperties.CloudInitDataSource != nil {
 			wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
 		}
+
+		if &c.GalleryImageProperties.HyperVGeneration != nil {
+			log.Printf("setting hypervgeneration to %d in getWssdGalleryImage", c.GalleryImageProperties.HyperVGeneration)
+			wssdgalleryimage.HyperVGeneration = c.GalleryImageProperties.HyperVGeneration
+		} else {
+			wssdgalleryimage.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
+		}
+
 	}
 
 	if c.Version != nil {
@@ -55,6 +64,7 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 		GalleryImageProperties: &compute.GalleryImageProperties{
 			Statuses:      status.GetStatuses(c.GetStatus()),
 			ContainerName: &c.ContainerName,
+			HyperVGeneration: c.HyperVGeneration,
 		},
 	}
 }

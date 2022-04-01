@@ -7,6 +7,7 @@ import (
 
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	
 )
 
 // Conversion functions from compute to wssdcloudcompute
@@ -24,6 +25,11 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 	}
 
 	if c.VirtualMachineImageProperties != nil {
+		if &c.VirtualMachineImageProperties.HyperVGeneration != nil {
+			wssdvhd.HyperVGeneration = c.VirtualMachineImageProperties.HyperVGeneration
+		} else {
+			wssdvhd.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
+		}
 	}
 	return wssdvhd, nil
 }
@@ -33,6 +39,8 @@ func getVirtualMachineImage(c *wssdcloudcompute.VirtualMachineImage, group strin
 	return &compute.VirtualMachineImage{
 		Name:                          &c.Name,
 		ID:                            &c.Id,
-		VirtualMachineImageProperties: &compute.VirtualMachineImageProperties{},
+		VirtualMachineImageProperties: &compute.VirtualMachineImageProperties{
+			HyperVGeneration: c.HyperVGeneration,
+		},
 	}
 }
