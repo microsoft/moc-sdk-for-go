@@ -60,8 +60,8 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 		ID:      &c.Id,
 		Version: &c.Status.Version.Number,
 		GalleryImageProperties: &compute.GalleryImageProperties{
-			Statuses:      status.GetStatuses(c.GetStatus()),
-			ContainerName: &c.ContainerName,
+			Statuses:         status.GetStatuses(c.GetStatus()),
+			ContainerName:    &c.ContainerName,
 			HyperVGeneration: c.HyperVGeneration,
 		},
 	}
