@@ -4,7 +4,6 @@ package virtualmachineimage
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
-
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 	
@@ -24,6 +23,7 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 		GroupName: groupName,
 	}
 
+	log.Printf("before checking if virtualmachineimageproperties are nil")
 	if c.VirtualMachineImageProperties != nil {
 		if &c.VirtualMachineImageProperties.HyperVGeneration != nil {
 			wssdvhd.HyperVGeneration = c.VirtualMachineImageProperties.HyperVGeneration

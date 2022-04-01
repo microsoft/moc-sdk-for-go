@@ -8,7 +8,6 @@ import (
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 	"github.com/microsoft/moc/rpc/common"
-	"log"
 )
 
 // Conversion functions from compute to wssdcloudcompute
@@ -37,7 +36,6 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		}
 
 		if &c.GalleryImageProperties.HyperVGeneration != nil {
-			log.Printf("setting hypervgeneration to %d in getWssdGalleryImage", c.GalleryImageProperties.HyperVGeneration)
 			wssdgalleryimage.HyperVGeneration = c.GalleryImageProperties.HyperVGeneration
 		} else {
 			wssdgalleryimage.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
