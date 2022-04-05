@@ -8,7 +8,7 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
-	"github.com/microsoft/moc/rpc/common"
+	//"github.com/microsoft/moc/rpc/common"
 )
 
 // Conversion functions from storage to wssdcloudstorage
@@ -54,13 +54,9 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 		}
 		if &c.HyperVGeneration != nil {
 			wssdvhd.HyperVGeneration = c.VirtualHardDiskProperties.HyperVGeneration
-		} else {
-			wssdvhd.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
 		}
 		if &c.DiskFileFormat != nil {
 			wssdvhd.DiskFileFormat = c.DiskFileFormat
-		} else {
-			wssdvhd.DiskFileFormat = common.DiskFileFormat_DiskFileFormatVHDX
 		}
 
 	}

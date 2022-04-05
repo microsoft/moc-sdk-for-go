@@ -6,7 +6,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
-	"github.com/microsoft/moc/rpc/common"
+	//"github.com/microsoft/moc/rpc/common"
 )
 
 // Conversion functions from compute to wssdcloudcompute
@@ -26,8 +26,6 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 	if c.VirtualMachineImageProperties != nil {
 		if &c.VirtualMachineImageProperties.HyperVGeneration != nil {
 			wssdvhd.HyperVGeneration = c.VirtualMachineImageProperties.HyperVGeneration
-		} else {
-			wssdvhd.HyperVGeneration = common.HyperVGeneration_HyperVGenerationV2
 		}
 	}
 	return wssdvhd, nil
