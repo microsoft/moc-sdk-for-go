@@ -52,12 +52,8 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 		if c.VirtualMachineName != nil {
 			wssdvhd.VirtualmachineName = *c.VirtualMachineName
 		}
-		if &c.HyperVGeneration != nil {
-			wssdvhd.HyperVGeneration = c.VirtualHardDiskProperties.HyperVGeneration
-		}
-		if &c.DiskFileFormat != nil {
-			wssdvhd.DiskFileFormat = c.DiskFileFormat
-		}
+		wssdvhd.HyperVGeneration = c.HyperVGeneration
+		wssdvhd.DiskFileFormat = c.DiskFileFormat
 
 	}
 	return wssdvhd, nil

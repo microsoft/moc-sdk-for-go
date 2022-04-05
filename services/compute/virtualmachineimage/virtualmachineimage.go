@@ -24,9 +24,7 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 	}
 
 	if c.VirtualMachineImageProperties != nil {
-		if &c.VirtualMachineImageProperties.HyperVGeneration != nil {
-			wssdvhd.HyperVGeneration = c.VirtualMachineImageProperties.HyperVGeneration
-		}
+		wssdvhd.HyperVGeneration = c.HyperVGeneration
 	}
 	return wssdvhd, nil
 }
