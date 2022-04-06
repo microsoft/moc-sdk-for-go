@@ -9,7 +9,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/google/uuid v1.2.0
-	github.com/microsoft/moc v0.10.19-alpha.7
+	github.com/microsoft/moc v0.10.19-alpha.10
 	github.com/spf13/viper v1.7.1
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.27.1
@@ -19,6 +19,5 @@ require (
 replace (
 	github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
-	github.com/microsoft/moc => github.com/hvedati/moc v0.10.20-alpha.1
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 )
