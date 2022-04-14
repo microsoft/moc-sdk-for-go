@@ -40,3 +40,13 @@ func GetDebugClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_p
 
 	return cadmin_pb.NewDebugAgentClient(conn), nil
 }
+
+// GetVersionClient returns the wssdcloudagent version
+func GetVersionClient(serverAddress *string, authorizer auth.Authorizer) (admin_pb.VersionAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get VersionClient. Failed to dial: %v", err)
+	}
+
+	return cadmin_pb.NewVersionAgentClient(conn), nil
+}
