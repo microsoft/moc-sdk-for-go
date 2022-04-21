@@ -63,6 +63,7 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 			wssdvhd.DiskFileFormat = common.DiskFileFormat_DiskFileFormatVHDX
 		}
 
+		wssdvhd.CloudInitDataSource = c.CloudInitDataSource
 	}
 	return wssdvhd, nil
 }
