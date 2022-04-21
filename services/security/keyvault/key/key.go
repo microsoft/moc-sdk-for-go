@@ -5,6 +5,7 @@ package key
 
 import (
 	"encoding/pem"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	"github.com/microsoft/moc/pkg/convert"
@@ -253,4 +254,16 @@ func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, e
 		return keyvault.A256KW, nil
 	}
 	return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+}
+
+func GetMOCKeyWrappingAlgorithm(algo keyvault.KeyWrappingAlgorithm) (wrappingAlgo wssdcloudcommon.KeyWrappingAlgorithm, err error) {
+	switch algo {
+	case keyvault.CKM_RSA_AES_KEY_WRAP:
+		wrappingAlgo = wssdcloudcommon.KeyWrappingAlgorithm_CKM_RSA_AES_KEY_WRAP
+	case keyvault.None:
+		wrappingAlgo = wssdcloudcommon.KeyWrappingAlgorithm_None
+	default:
+		err = errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+	}
+	return
 }
