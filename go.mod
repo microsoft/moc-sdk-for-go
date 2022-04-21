@@ -9,11 +9,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/google/uuid v1.2.0
-<<<<<<< HEAD
 	github.com/microsoft/moc v0.10.19-alpha.10
-=======
-	github.com/microsoft/moc v0.10.19-alpha.9
->>>>>>> main
 	github.com/spf13/viper v1.7.1
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.27.1

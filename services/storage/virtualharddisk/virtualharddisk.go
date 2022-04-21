@@ -8,7 +8,6 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
-	//"github.com/microsoft/moc/rpc/common"
 )
 
 // Conversion functions from storage to wssdcloudstorage

@@ -7,7 +7,6 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
-	
 )
 
 // Conversion functions from compute to wssdcloudcompute
