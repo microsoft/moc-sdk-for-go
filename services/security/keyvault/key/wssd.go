@@ -5,7 +5,10 @@ package key
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -82,6 +85,62 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name stri
 
 	if len(*sec) == 0 {
 		return nil, fmt.Errorf("[Key][Create] Unexpected error: Creating a key returned no result")
+	}
+	return &((*sec)[0]), err
+}
+
+func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, param *keyvault.Key) (*keyvault.Key, error) {
+	err := c.validate(ctx, group, vaultName, name, param)
+	if err != nil {
+		return nil, err
+	}
+	if param.KeySize == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Invalid KeySize - Missing")
+	}
+	request, err := getKeyRequest(wssdcloudcommon.Operation_IMPORT, group, vaultName, name, param)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set public key, private key and private key wrapping info from the input value
+	parsedImportParams := keyvault.KeyImportExportValue{}
+	err = json.Unmarshal([]byte(*param.Value), &parsedImportParams)
+	if err != nil {
+		return nil, err
+	}
+	request.Keys[0].PublicKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+	request.Keys[0].PrivateKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+	wrappingKeyPublic, err := base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKeyWrappingInfo.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+	keyWrappingAlgo, err := GetMOCKeyWrappingAlgorithm(*parsedImportParams.PrivateKeyWrappingInfo.KeyWrappingAlgorithm)
+	if err != nil {
+		return nil, err
+	}
+	request.Keys[0].PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
+		WrappingKeyName:   *parsedImportParams.PrivateKeyWrappingInfo.KeyName,
+		WrappingKeyPublic: wrappingKeyPublic,
+		WrappingAlgorithm: keyWrappingAlgo}
+
+	response, err := c.KeyAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Keys Import failed")
+	}
+
+	sec, err := getKeysFromResponse(response, vaultName)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*sec) == 0 {
+		return nil, fmt.Errorf("[Key][Import] Unexpected error: Importing a key returned no result")
 	}
 	return &((*sec)[0]), err
 }

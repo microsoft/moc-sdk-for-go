@@ -5,6 +5,7 @@ package key
 
 import (
 	"context"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 	"github.com/microsoft/moc/pkg/auth"
@@ -19,6 +20,7 @@ type Service interface {
 	Decrypt(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	WrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	UnwrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
+	ImportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
 }
 
 // Client structure
