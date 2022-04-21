@@ -7,7 +7,7 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
-	//"github.com/microsoft/moc/rpc/common"
+	
 )
 
 // Conversion functions from compute to wssdcloudcompute
@@ -31,9 +31,7 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 
 	if c.GalleryImageProperties != nil {
 		wssdgalleryimage.SourceType = c.SourceType
-		if &c.GalleryImageProperties.CloudInitDataSource != nil {
-			wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
-		}
+		wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
 		wssdgalleryimage.HyperVGeneration = c.HyperVGeneration
 	}
 
