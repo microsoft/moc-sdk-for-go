@@ -4,9 +4,9 @@ package virtualmachineimage
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
-
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	//"github.com/microsoft/moc/rpc/common"
 )
 
 // Conversion functions from compute to wssdcloudcompute
@@ -24,6 +24,7 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 	}
 
 	if c.VirtualMachineImageProperties != nil {
+		wssdvhd.HyperVGeneration = c.HyperVGeneration
 	}
 	return wssdvhd, nil
 }
@@ -31,8 +32,10 @@ func getWssdVirtualMachineImage(c *compute.VirtualMachineImage, groupName string
 // Conversion function from wssdcloudcompute to compute
 func getVirtualMachineImage(c *wssdcloudcompute.VirtualMachineImage, group string) *compute.VirtualMachineImage {
 	return &compute.VirtualMachineImage{
-		Name:                          &c.Name,
-		ID:                            &c.Id,
-		VirtualMachineImageProperties: &compute.VirtualMachineImageProperties{},
+		Name: &c.Name,
+		ID:   &c.Id,
+		VirtualMachineImageProperties: &compute.VirtualMachineImageProperties{
+			HyperVGeneration: c.HyperVGeneration,
+		},
 	}
 }
