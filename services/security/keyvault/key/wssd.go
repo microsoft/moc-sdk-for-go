@@ -108,24 +108,46 @@ func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, p
 	if err != nil {
 		return nil, err
 	}
+
+	if parsedImportParams.PublicKey == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Public key - Missing")
+	}
 	request.Keys[0].PublicKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PublicKey)
 	if err != nil {
 		return nil, err
+	}
+
+	if parsedImportParams.PrivateKey == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Private key - Missing")
 	}
 	request.Keys[0].PrivateKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKey)
 	if err != nil {
 		return nil, err
 	}
-	wrappingKeyPublic, err := base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKeyWrappingInfo.PublicKey)
-	if err != nil {
-		return nil, err
+
+	if parsedImportParams.PrivateKeyWrappingInfo == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Private key wrapping info - Missing")
 	}
+
+	var wrappingKeyPublic []byte
+	var wrappingKeyName string
+	// Wrapping public key and name is optional for Import operation
+	if parsedImportParams.PrivateKeyWrappingInfo.PublicKey != nil {
+		wrappingKeyPublic, err = base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKeyWrappingInfo.PublicKey)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if parsedImportParams.PrivateKeyWrappingInfo.KeyName != nil {
+		wrappingKeyName = *parsedImportParams.PrivateKeyWrappingInfo.KeyName
+	}
+
 	keyWrappingAlgo, err := GetMOCKeyWrappingAlgorithm(*parsedImportParams.PrivateKeyWrappingInfo.KeyWrappingAlgorithm)
 	if err != nil {
 		return nil, err
 	}
 	request.Keys[0].PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
-		WrappingKeyName:   *parsedImportParams.PrivateKeyWrappingInfo.KeyName,
+		WrappingKeyName:   wrappingKeyName,
 		WrappingKeyPublic: wrappingKeyPublic,
 		WrappingAlgorithm: keyWrappingAlgo}
 
