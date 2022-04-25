@@ -89,6 +89,99 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name stri
 	return &((*sec)[0]), err
 }
 
+// Common validation for Import and Export params
+func ParseAndValidateImportExportParams(keyValue *string) (parsedImportExportParams keyvault.KeyImportExportValue, keyWrappingAlgo wssdcloudcommon.KeyWrappingAlgorithm, err error) {
+	if keyValue == nil {
+		err = errors.Wrapf(errors.InvalidInput, "Key value - Missing")
+		return
+	}
+
+	// Unmarshal public key, private key, and private key wrapping info from the input key value JSON
+	err = json.Unmarshal([]byte(*keyValue), &parsedImportExportParams)
+	if err != nil {
+		return
+	}
+
+	// Private key wrapping info mandatory for both Import and Export
+	if parsedImportExportParams.PrivateKeyWrappingInfo == nil {
+		err = errors.Wrapf(errors.InvalidInput, "Private key wrapping info - Missing")
+		return
+	}
+
+	// Parse the key wrapping algorithm
+	keyWrappingAlgo, err = GetMOCKeyWrappingAlgorithm(*parsedImportExportParams.PrivateKeyWrappingInfo.KeyWrappingAlgorithm)
+
+	return
+}
+
+// Validate Export params
+func ParseAndValidateExportParams(keyValue *string, exportKey *wssdcloudsecurity.Key) (err error) {
+	parsedExportParams, keyWrappingAlgo, err := ParseAndValidateImportExportParams(keyValue)
+	if err != nil {
+		return err
+	}
+
+	// Validate for Export
+	var wrappingKeyPublic []byte
+	if keyWrappingAlgo == wssdcloudcommon.KeyWrappingAlgorithm_None {
+		// Key wrapping algorithm 'none' not allowed for Export operation
+		return errors.Wrapf(errors.NotSupported, "Unsupported key wrapping algorithm")
+	}
+	if parsedExportParams.PrivateKeyWrappingInfo.PublicKey == nil {
+		// Wrapping public key mandatory for Export
+		return errors.Wrapf(errors.InvalidInput, "Wrapping public key - Missing")
+	}
+	wrappingKeyPublic, err = base64.URLEncoding.DecodeString(*parsedExportParams.PrivateKeyWrappingInfo.PublicKey)
+	if err != nil {
+		return err
+	}
+
+	exportKey.PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
+		WrappingKeyPublic: wrappingKeyPublic,
+		WrappingAlgorithm: keyWrappingAlgo}
+	return
+}
+
+// Validate Import params
+func ParseAndValidateImportParams(keyValue *string, importKey *wssdcloudsecurity.Key) (err error) {
+	parsedImportParams, keyWrappingAlgo, err := ParseAndValidateImportExportParams(keyValue)
+	if err != nil {
+		return err
+	}
+
+	// Validate for Import
+	if parsedImportParams.PublicKey == nil {
+		return errors.Wrapf(errors.InvalidInput, "Public key - Missing")
+	}
+	importKey.PublicKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PublicKey)
+	if err != nil {
+		return err
+	}
+
+	if parsedImportParams.PrivateKey == nil {
+		return errors.Wrapf(errors.InvalidInput, "Private key - Missing")
+	}
+	importKey.PrivateKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKey)
+	if err != nil {
+		return err
+	}
+
+	var wrappingKeyName string
+	if keyWrappingAlgo != wssdcloudcommon.KeyWrappingAlgorithm_None {
+		if parsedImportParams.PrivateKeyWrappingInfo.KeyName == nil {
+			// Wrapping key name mandatory for Import if wrapping algorithm is not 'none'
+			return errors.Wrapf(errors.InvalidInput, "Wrapping key name - Missing")
+		}
+		wrappingKeyName = *parsedImportParams.PrivateKeyWrappingInfo.KeyName
+	}
+
+	importKey.PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
+		WrappingKeyName:   wrappingKeyName,
+		WrappingAlgorithm: keyWrappingAlgo}
+	return
+}
+
+// Import
 func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, param *keyvault.Key) (*keyvault.Key, error) {
 	err := c.validate(ctx, group, vaultName, name, param)
 	if err != nil {
@@ -102,54 +195,10 @@ func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, p
 		return nil, err
 	}
 
-	// Set public key, private key and private key wrapping info from the input value
-	parsedImportParams := keyvault.KeyImportExportValue{}
-	err = json.Unmarshal([]byte(*param.Value), &parsedImportParams)
+	err = ParseAndValidateImportParams(param.Value, request.Keys[0])
 	if err != nil {
 		return nil, err
 	}
-
-	if parsedImportParams.PublicKey == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Public key - Missing")
-	}
-	request.Keys[0].PublicKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PublicKey)
-	if err != nil {
-		return nil, err
-	}
-
-	if parsedImportParams.PrivateKey == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Private key - Missing")
-	}
-	request.Keys[0].PrivateKey, err = base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKey)
-	if err != nil {
-		return nil, err
-	}
-
-	if parsedImportParams.PrivateKeyWrappingInfo == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Private key wrapping info - Missing")
-	}
-
-	var wrappingKeyPublic []byte
-	var wrappingKeyName string
-	// Wrapping public key and name is optional for Import operation
-	if parsedImportParams.PrivateKeyWrappingInfo.PublicKey != nil {
-		wrappingKeyPublic, err = base64.URLEncoding.DecodeString(*parsedImportParams.PrivateKeyWrappingInfo.PublicKey)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if parsedImportParams.PrivateKeyWrappingInfo.KeyName != nil {
-		wrappingKeyName = *parsedImportParams.PrivateKeyWrappingInfo.KeyName
-	}
-
-	keyWrappingAlgo, err := GetMOCKeyWrappingAlgorithm(*parsedImportParams.PrivateKeyWrappingInfo.KeyWrappingAlgorithm)
-	if err != nil {
-		return nil, err
-	}
-	request.Keys[0].PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
-		WrappingKeyName:   wrappingKeyName,
-		WrappingKeyPublic: wrappingKeyPublic,
-		WrappingAlgorithm: keyWrappingAlgo}
 
 	response, err := c.KeyAgentClient.Invoke(ctx, request)
 	if err != nil {
@@ -163,6 +212,41 @@ func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, p
 
 	if len(*sec) == 0 {
 		return nil, fmt.Errorf("[Key][Import] Unexpected error: Importing a key returned no result")
+	}
+	return &((*sec)[0]), err
+}
+
+// Export
+func (c *client) ExportKey(ctx context.Context, group, vaultName, name string, param *keyvault.Key) (*keyvault.Key, error) {
+	err := c.validate(ctx, group, vaultName, name, param)
+	if err != nil {
+		return nil, err
+	}
+	if param.KeySize == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Invalid KeySize - Missing")
+	}
+	request, err := getKeyRequest(wssdcloudcommon.Operation_EXPORT, group, vaultName, name, param)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ParseAndValidateExportParams(param.Value, request.Keys[0])
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := c.KeyAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Keys Export failed")
+	}
+
+	sec, err := getKeysFromResponse(response, vaultName)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(*sec) == 0 {
+		return nil, fmt.Errorf("[Key][Export] Unexpected error: Exporting a key returned no result")
 	}
 	return &((*sec)[0]), err
 }
