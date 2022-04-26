@@ -123,7 +123,7 @@ func ParseAndValidateExportParams(keyValue *string, exportKey *wssdcloudsecurity
 
 	// Validate for Export
 	var wrappingKeyPublic []byte
-	if keyWrappingAlgo == wssdcloudcommon.KeyWrappingAlgorithm_None {
+	if keyWrappingAlgo == wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP {
 		// Key wrapping algorithm 'none' not allowed for Export operation
 		return errors.Wrapf(errors.NotSupported, "Unsupported key wrapping algorithm")
 	}
@@ -167,7 +167,7 @@ func ParseAndValidateImportParams(keyValue *string, importKey *wssdcloudsecurity
 	}
 
 	var wrappingKeyName string
-	if keyWrappingAlgo != wssdcloudcommon.KeyWrappingAlgorithm_None {
+	if keyWrappingAlgo != wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP {
 		if parsedImportParams.PrivateKeyWrappingInfo.KeyName == nil {
 			// Wrapping key name mandatory for Import if wrapping algorithm is not 'none'
 			return errors.Wrapf(errors.InvalidInput, "Wrapping key name - Missing")
