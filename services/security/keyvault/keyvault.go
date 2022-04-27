@@ -206,8 +206,8 @@ type KeyWrappingAlgorithm string
 const (
 	// CKM_RSA_AES_KEY_WRAP
 	CKM_RSA_AES_KEY_WRAP KeyWrappingAlgorithm = "CKM_RSA_AES_KEY_WRAP"
-	// None
-	None KeyWrappingAlgorithm = "none"
+	// NO_KEY_WRAP
+	NO_KEY_WRAP KeyWrappingAlgorithm = "NO_KEY_WRAP"
 )
 
 // Defines private key wrapping infor for key import/export operations
@@ -224,7 +224,7 @@ type PrivateKeyWrappingInfo struct {
 // Key import/export operations expect Json string equivalent of this struct in Key.Value field
 type KeyImportExportValue struct {
 	// Version - READ-ONLY; Version of the KeyImportExportValue JSON.
-	Version *string `json:"version,omitempty"`
+	Version string `json:"version,omitempty"`
 	// PublicKey
 	PublicKey *string `json:"public-key,omitempty"`
 	// PrivateKey
