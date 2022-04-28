@@ -41,7 +41,7 @@ func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]key
 	if err != nil {
 		return nil, err
 	}
-	return getKeysFromResponse(response, vaultName)
+	return getKeysFromResponse(response, vaultName, nil)
 }
 
 // get
@@ -78,7 +78,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name stri
 		return nil, errors.Wrapf(err, "Keys Create failed")
 	}
 
-	sec, err := getKeysFromResponse(response, vaultName)
+	sec, err := getKeysFromResponse(response, vaultName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -135,8 +135,13 @@ func ParseAndValidateExportParams(keyValue *string, exportKey *wssdcloudsecurity
 	if err != nil {
 		return err
 	}
+	wrappingKeyName := ""
+	if parsedExportParams.PrivateKeyWrappingInfo.KeyName != nil {
+		wrappingKeyName = *parsedExportParams.PrivateKeyWrappingInfo.KeyName
+	}
 
 	exportKey.PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
+		WrappingKeyName:   wrappingKeyName,
 		WrappingKeyPublic: wrappingKeyPublic,
 		WrappingAlgorithm: keyWrappingAlgo}
 	return
@@ -205,7 +210,7 @@ func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, p
 		return nil, errors.Wrapf(err, "Keys Import failed")
 	}
 
-	sec, err := getKeysFromResponse(response, vaultName)
+	sec, err := getKeysFromResponse(response, vaultName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -214,6 +219,29 @@ func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, p
 		return nil, fmt.Errorf("[Key][Import] Unexpected error: Importing a key returned no result")
 	}
 	return &((*sec)[0]), err
+}
+
+func GetExportInformationFromResponseKey(responseKey *wssdcloudsecurity.Key) (string, error) {
+	if responseKey == nil {
+		return "", fmt.Errorf("[Key][Export] Unexpected error: Nil response key returned")
+	}
+
+	privateKeyWrappingInfo := responseKey.GetPrivateKeyWrappingInfo()
+	if privateKeyWrappingInfo == nil {
+		return "", fmt.Errorf("[Key][Export] Unexpected error: No private key wrapping info returned")
+	}
+	publicKeyStr := base64.URLEncoding.EncodeToString(responseKey.PublicKey)
+	privateKeyStr := base64.URLEncoding.EncodeToString(responseKey.PrivateKey)
+	wrappingKeyPubStr := base64.URLEncoding.EncodeToString(privateKeyWrappingInfo.WrappingKeyPublic)
+	wrappingAlgo, err := GetKeyWrappingAlgorithm(privateKeyWrappingInfo.WrappingAlgorithm)
+	if err != nil {
+		return "", err
+	}
+	jsonExportValue, err := keyvault.GetKeyImportExportJsonValue(&publicKeyStr, &privateKeyStr, &privateKeyWrappingInfo.WrappingKeyName, &wrappingKeyPubStr, &wrappingAlgo)
+	if err != nil {
+		return "", err
+	}
+	return jsonExportValue, nil
 }
 
 // Export
@@ -240,7 +268,7 @@ func (c *client) ExportKey(ctx context.Context, group, vaultName, name string, p
 		return nil, errors.Wrapf(err, "Keys Export failed")
 	}
 
-	sec, err := getKeysFromResponse(response, vaultName)
+	sec, err := getKeysFromResponse(response, vaultName, GetExportInformationFromResponseKey)
 	if err != nil {
 		return nil, err
 	}
@@ -336,10 +364,10 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, p
 	return
 }
 
-func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName string) (*[]keyvault.Key, error) {
+func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName string, getCustomKeyValue func(*wssdcloudsecurity.Key) (string, error)) (*[]keyvault.Key, error) {
 	tmp := []keyvault.Key{}
 	for _, keys := range response.GetKeys() {
-		tmpKey, err1 := getKey(keys, vaultName)
+		tmpKey, err1 := getKey(keys, vaultName, getCustomKeyValue)
 		if err1 != nil {
 			return nil, err1
 		}

@@ -4,6 +4,8 @@
 package keyvault
 
 import (
+	"encoding/json"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
 
@@ -267,4 +269,18 @@ func getWssdKeyVault(vault *security.KeyVault, group string) (*wssdcloudsecurity
 	}
 
 	return keyvault, nil
+}
+
+func GetKeyImportExportJsonValue(publicKey, privateKey, wrappingKeyName, wrappingPubKey *string, keyWrappingAlgo *KeyWrappingAlgorithm) (string, error) {
+	keyImportExportValue := KeyImportExportValue{
+		PublicKey:  publicKey,
+		PrivateKey: privateKey,
+		PrivateKeyWrappingInfo: &PrivateKeyWrappingInfo{
+			KeyName:              wrappingKeyName,
+			PublicKey:            wrappingPubKey,
+			KeyWrappingAlgorithm: keyWrappingAlgo,
+		},
+	}
+	jsonBytes, err := json.Marshal(keyImportExportValue)
+	return string(jsonBytes), err
 }
