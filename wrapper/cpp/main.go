@@ -14,9 +14,37 @@ import (
     "context"
     "time"
     "github.com/microsoft/moc/pkg/auth"
+    "github.com/microsoft/moc/pkg/config"
+    "github.com/microsoft/moc-sdk-for-go/services/security/authentication"
     "github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
     "github.com/microsoft/moc-sdk-for-go/services/security/keyvault/key"
 )
+
+//export SecurityLogin
+func SecurityLogin(serverName *C.char, groupName *C.char, loginFilePath *C.char, timeoutInSeconds C.int) *C.char {
+    loginconfig := auth.LoginConfig{}
+    err := config.LoadYAMLFile(C.GoString(loginFilePath), &loginconfig)
+    if err != nil {
+        return C.CString(err.Error())
+    }
+
+    authenticationClient, err := authentication.NewAuthenticationClientAuthMode(C.GoString(serverName), loginconfig)
+    if err != nil {
+        return C.CString(err.Error())
+    }
+
+    ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutInSeconds)*time.Second)
+    defer cancel()
+
+    // Login with config stores the access file in the WSSD_CONFIG environment variable
+    // set true to auto renew
+    _, err = authenticationClient.LoginWithConfig(ctx, C.GoString(groupName), loginconfig, true)
+    if err != nil {
+        return C.CString(err.Error())
+    }
+
+    return nil
+}
 
 //export KeyvaultKeyEncryptData
 func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
