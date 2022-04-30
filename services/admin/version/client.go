@@ -26,7 +26,7 @@ func NewVersionClient(cloudFQDN string, authorizer auth.Authorizer) (*VersionCli
 	return &VersionClient{c}, err
 }
 
-// Stacktrace
-func (c *VersionClient) GetVersion(ctx context.Context) (string, error) {
+// GetVersion
+func (c *VersionClient) GetVersion(ctx context.Context) (string, string, error) {
 	return c.internal.GetVersion(ctx)
 }

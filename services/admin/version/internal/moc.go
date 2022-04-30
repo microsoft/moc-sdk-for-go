@@ -24,14 +24,14 @@ func NewVersionClient(subID string, authorizer auth.Authorizer) (*client, error)
 	return &client{c}, nil
 }
 
-// Stacktrace
-func (c *client) GetVersion(ctx context.Context) (string, error) {
+// GetVersion
+func (c *client) GetVersion(ctx context.Context) (string, string, error) {
 	request := getVersionRequest(mocadmin.VersionOperation_VERSION)
 	response, err := c.VersionAgentClient.Invoke(ctx, request)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return response.Result, nil
+	return response.version, response.mocversion, nil
 }
 
 func getVersionRequest() *mocadmin.VersionRequest {
