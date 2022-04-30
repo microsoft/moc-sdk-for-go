@@ -26,12 +26,17 @@ func NewVersionClient(subID string, authorizer auth.Authorizer) (*client, error)
 
 // GetVersion
 func (c *client) GetVersion(ctx context.Context) (string, string, error) {
-	request := getVersionRequest(mocadmin.VersionOperation_VERSION)
-	response, err := c.VersionAgentClient.Invoke(ctx, request)
+	request := getVersionRequest()
+	getClient, err := c.VersionAgentClient.Get(ctx, request)
 	if err != nil {
 		return "", "", err
 	}
-	return response.version, response.mocversion, nil
+	response, err := getClient.Recv()
+	if err != nil {
+		return "", "", err
+	}
+
+	return response.Version, response.Mocversion, nil
 }
 
 func getVersionRequest() *mocadmin.VersionRequest {

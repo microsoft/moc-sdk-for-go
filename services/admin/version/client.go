@@ -12,7 +12,7 @@ import (
 
 // Service interfacetype Service interface {
 type Service interface {
-	GetVersion(context.Context) (string, error)
+	GetVersion(context.Context) (string, string, error)
 }
 
 // Client structure
