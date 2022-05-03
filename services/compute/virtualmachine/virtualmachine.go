@@ -195,15 +195,15 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 
 func (c *client) getWssdVirtualMachineSecurityConfiguration(vm *compute.VirtualMachine) (*wssdcloudcompute.SecurityConfiguration, error) {
 	enableTPM := false
-	secureBootEnabled := true
+	var uefiSettings *wssdcloudcompute.UefiSettings
+	uefiSettings = nil
 	if vm.SecurityProfile != nil {
 		enableTPM = *vm.SecurityProfile.EnableTPM
 		if vm.SecurityProfile.UefiSettings != nil {
-			secureBootEnabled = *vm.SecurityProfile.UefiSettings.SecureBootEnabled
+			uefiSettings = &wssdcloudcompute.UefiSettings{
+				SecureBootEnabled: *vm.SecurityProfile.UefiSettings.SecureBootEnabled,
+			}
 		}
-	}
-	uefiSettings := &wssdcloudcompute.UefiSettings{
-		SecureBootEnabled: secureBootEnabled,
 	}
 
 	wssdsecurity := &wssdcloudcompute.SecurityConfiguration{
@@ -491,15 +491,15 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 
 func (c *client) getVirtualMachineSecurityProfile(vm *wssdcloudcompute.VirtualMachine) *compute.SecurityProfile {
 	enableTPM := false
-	secureBootEnabled := true
+	var uefiSettings *compute.UefiSettings
+	uefiSettings = nil
 	if vm.Security != nil {
 		enableTPM = vm.Security.EnableTPM
 		if vm.Security.UefiSettings != nil {
-			secureBootEnabled = vm.Security.UefiSettings.SecureBootEnabled
+			uefiSettings = &compute.UefiSettings{
+				SecureBootEnabled: &vm.Security.UefiSettings.SecureBootEnabled,
+			}
 		}
-	}
-	uefiSettings := &compute.UefiSettings{
-		SecureBootEnabled: &secureBootEnabled,
 	}
 
 	return &compute.SecurityProfile{
