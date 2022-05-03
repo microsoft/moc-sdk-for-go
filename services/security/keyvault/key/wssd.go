@@ -121,17 +121,11 @@ func ParseAndValidateExportParams(keyValue *string, exportKey *wssdcloudsecurity
 		return err
 	}
 
-	// Validate for Export
-	var wrappingKeyPublic []byte
-	if keyWrappingAlgo == wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP {
-		// Key wrapping algorithm 'NO_KEY_WRAP' not allowed for Export operation
-		return errors.Wrapf(errors.NotSupported, "Unsupported key wrapping algorithm")
-	}
 	if parsedExportParams.PrivateKeyWrappingInfo.PublicKey == nil {
 		// Wrapping public key mandatory for Export
 		return errors.Wrapf(errors.InvalidInput, "Wrapping public key - Missing")
 	}
-	wrappingKeyPublic, err = base64.URLEncoding.DecodeString(*parsedExportParams.PrivateKeyWrappingInfo.PublicKey)
+	wrappingKeyPublic, err := base64.URLEncoding.DecodeString(*parsedExportParams.PrivateKeyWrappingInfo.PublicKey)
 	if err != nil {
 		return err
 	}
@@ -154,7 +148,6 @@ func ParseAndValidateImportParams(keyValue *string, importKey *wssdcloudsecurity
 		return err
 	}
 
-	// Validate for Import
 	if parsedImportParams.PublicKey == nil {
 		return errors.Wrapf(errors.InvalidInput, "Public key - Missing")
 	}
@@ -171,14 +164,10 @@ func ParseAndValidateImportParams(keyValue *string, importKey *wssdcloudsecurity
 		return err
 	}
 
-	var wrappingKeyName string
-	if keyWrappingAlgo != wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP {
-		if parsedImportParams.PrivateKeyWrappingInfo.KeyName == nil {
-			// Wrapping key name mandatory for Import if wrapping algorithm is not 'none'
-			return errors.Wrapf(errors.InvalidInput, "Wrapping key name - Missing")
-		}
-		wrappingKeyName = *parsedImportParams.PrivateKeyWrappingInfo.KeyName
+	if parsedImportParams.PrivateKeyWrappingInfo.KeyName == nil {
+		return errors.Wrapf(errors.InvalidInput, "Wrapping key name - Missing")
 	}
+	wrappingKeyName := *parsedImportParams.PrivateKeyWrappingInfo.KeyName
 
 	importKey.PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
 		WrappingKeyName:   wrappingKeyName,

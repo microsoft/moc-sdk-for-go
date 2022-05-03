@@ -271,8 +271,6 @@ func GetMOCKeyWrappingAlgorithm(algo keyvault.KeyWrappingAlgorithm) (wrappingAlg
 	switch algo {
 	case keyvault.CKM_RSA_AES_KEY_WRAP:
 		wrappingAlgo = wssdcloudcommon.KeyWrappingAlgorithm_CKM_RSA_AES_KEY_WRAP
-	case keyvault.NO_KEY_WRAP:
-		wrappingAlgo = wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP
 	default:
 		err = errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 	}
@@ -283,8 +281,6 @@ func GetKeyWrappingAlgorithm(algo wssdcloudcommon.KeyWrappingAlgorithm) (wrappin
 	switch algo {
 	case wssdcloudcommon.KeyWrappingAlgorithm_CKM_RSA_AES_KEY_WRAP:
 		wrappingAlgo = keyvault.CKM_RSA_AES_KEY_WRAP
-	case wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP:
-		wrappingAlgo = keyvault.NO_KEY_WRAP
 	default:
 		err = errors.Wrapf(errors.Failed, "Invalid Algorithm [%s]", algo)
 	}
