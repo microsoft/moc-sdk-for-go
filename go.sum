@@ -160,6 +160,10 @@ github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNx
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/microsoft/moc v0.10.19-alpha.10 h1:pY5La4HS+ESku3UX9qDWzvtm9PW+yFtfNlFWzRDfX/w=
 github.com/microsoft/moc v0.10.19-alpha.10/go.mod h1:aYLN9HiWq82+lnPzPixbBhEq/gfgx1KLmpiwlnqhQ58=
+github.com/microsoft/moc v0.10.20-alpha.1 h1:a+VLZrOdWYpfX04G1VDTqMFpvuKHX5jjxTiFv5waP2E=
+github.com/microsoft/moc v0.10.20-alpha.1/go.mod h1:aYLN9HiWq82+lnPzPixbBhEq/gfgx1KLmpiwlnqhQ58=
+github.com/microsoft/moc v0.10.21-0.20220430002743-1cc9809a7950 h1:5YWarfZJu6KwHVg/64hMLEkKYrGTXzGe15JpqU/XAV0=
+github.com/microsoft/moc v0.10.21-0.20220430002743-1cc9809a7950/go.mod h1:aYLN9HiWq82+lnPzPixbBhEq/gfgx1KLmpiwlnqhQ58=
 github.com/miekg/dns v1.1.25/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
 github.com/mitchellh/cli v1.0.0/go.mod h1:hNIlj7HEI86fIcpObd7a0FcrxTWetlwJDGcceTlRvqc=
 github.com/mitchellh/go-homedir v1.0.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
