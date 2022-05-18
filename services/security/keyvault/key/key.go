@@ -5,6 +5,7 @@ package key
 
 import (
 	"encoding/pem"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	"github.com/microsoft/moc/pkg/convert"
@@ -14,35 +15,46 @@ import (
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
-func getKey(sec *wssdcloudsecurity.Key, vaultName string) (keyvault.Key, error) {
+func getKey(sec *wssdcloudsecurity.Key, vaultName string, getCustomValue func(*wssdcloudsecurity.Key) (string, error)) (keyvault.Key, error) {
 	keysize, err := getKeySize(sec.Size)
 	if err != nil {
 		return keyvault.Key{}, errors.Wrapf(err, "INVESTIAGE")
 	}
-	value := ""
-	switch sec.Type {
-	case wssdcloudcommon.JsonWebKeyType_RSA:
-		fallthrough
-	case wssdcloudcommon.JsonWebKeyType_RSA_HSM:
-		pubBlk := pem.Block{
-			Type:    "RSA PUBLIC KEY",
-			Headers: nil,
-			Bytes:   sec.PublicKey,
-		}
-		value = string(pem.EncodeToMemory(&pubBlk))
-	}
-	return keyvault.Key{
+
+	key := keyvault.Key{
 		ID:      &sec.Id,
 		Name:    &sec.Name,
 		Version: &sec.Status.Version.Number,
-		Value:   &value,
 		KeyProperties: &keyvault.KeyProperties{
 			Statuses:                      status.GetStatuses(sec.GetStatus()),
 			KeyType:                       getKeyType(sec.Type),
 			KeySize:                       keysize,
 			KeyRotationFrequencyInSeconds: &sec.KeyRotationFrequencyInSeconds,
 		},
-	}, nil
+	}
+	value := ""
+	switch sec.Type {
+	case wssdcloudcommon.JsonWebKeyType_RSA:
+		fallthrough
+	case wssdcloudcommon.JsonWebKeyType_RSA_HSM:
+		// Allow callers to this function to choose how to construct the value from the returned key
+		if getCustomValue != nil {
+			value, err = getCustomValue(sec)
+			if err != nil {
+				return keyvault.Key{}, errors.Wrapf(err, "Failed to create custom value from returned key")
+			}
+		} else { // Default value is pem public key
+			pubBlk := pem.Block{
+				Type:    "RSA PUBLIC KEY",
+				Headers: nil,
+				Bytes:   sec.PublicKey,
+			}
+			value = string(pem.EncodeToMemory(&pubBlk))
+		}
+	}
+
+	key.Value = &value
+	return key, nil
 }
 
 func getWssdKeyByVaultName(name string, groupName,
@@ -253,4 +265,24 @@ func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, e
 		return keyvault.A256KW, nil
 	}
 	return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+}
+
+func GetMOCKeyWrappingAlgorithm(algo keyvault.KeyWrappingAlgorithm) (wrappingAlgo wssdcloudcommon.KeyWrappingAlgorithm, err error) {
+	switch algo {
+	case keyvault.CKM_RSA_AES_KEY_WRAP:
+		wrappingAlgo = wssdcloudcommon.KeyWrappingAlgorithm_CKM_RSA_AES_KEY_WRAP
+	default:
+		err = errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+	}
+	return
+}
+
+func GetKeyWrappingAlgorithm(algo wssdcloudcommon.KeyWrappingAlgorithm) (wrappingAlgo keyvault.KeyWrappingAlgorithm, err error) {
+	switch algo {
+	case wssdcloudcommon.KeyWrappingAlgorithm_CKM_RSA_AES_KEY_WRAP:
+		wrappingAlgo = keyvault.CKM_RSA_AES_KEY_WRAP
+	default:
+		err = errors.Wrapf(errors.Failed, "Invalid Algorithm [%s]", algo)
+	}
+	return
 }
