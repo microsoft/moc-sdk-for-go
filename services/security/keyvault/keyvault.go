@@ -4,6 +4,8 @@
 package keyvault
 
 import (
+	"encoding/json"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
 
@@ -200,6 +202,39 @@ type Key struct {
 	*KeyProperties `json:"properties,omitempty"`
 }
 
+// KeyWrappingAlgorithm enumerates the values for private key wrapping info for key import export operations.
+type KeyWrappingAlgorithm string
+
+const (
+	// CKM_RSA_AES_KEY_WRAP
+	CKM_RSA_AES_KEY_WRAP KeyWrappingAlgorithm = "CKM_RSA_AES_KEY_WRAP"
+	// NO_KEY_WRAP
+	NO_KEY_WRAP KeyWrappingAlgorithm = "NO_KEY_WRAP"
+)
+
+// Defines private key wrapping infor for key import/export operations
+type PrivateKeyWrappingInfo struct {
+	// KeyName - READ-ONLY; Name of the wrapping key
+	KeyName *string `json:"key-name,omitempty"`
+	// PublicKey - Public key of the wrapping key
+	PublicKey *string `json:"public-key,omitempty"`
+	// KeyWrappingAlgorithm - Key wrapping algorithm
+	KeyWrappingAlgorithm *KeyWrappingAlgorithm `json:"enc,omitempty"`
+}
+
+// Defines the parameters for key import/export operations.
+// Key import/export operations expect Json string equivalent of this struct in Key.Value field
+type KeyImportExportValue struct {
+	// Version - READ-ONLY; Version of the KeyImportExportValue JSON.
+	Version string `json:"version,omitempty"`
+	// PublicKey
+	PublicKey *string `json:"public-key,omitempty"`
+	// PrivateKey
+	PrivateKey *string `json:"private-key,omitempty"`
+	// PrivateKeyWrappingInfo
+	PrivateKeyWrappingInfo *PrivateKeyWrappingInfo `json:"private-key-wrapping-info,omitempty"`
+}
+
 func getKeyVault(vault *wssdcloudsecurity.KeyVault, group string) *security.KeyVault {
 	return &security.KeyVault{
 		ID:      &vault.Id,
@@ -234,4 +269,18 @@ func getWssdKeyVault(vault *security.KeyVault, group string) (*wssdcloudsecurity
 	}
 
 	return keyvault, nil
+}
+
+func GetKeyImportExportJsonValue(publicKey, privateKey, wrappingKeyName, wrappingPubKey *string, keyWrappingAlgo *KeyWrappingAlgorithm) (string, error) {
+	keyImportExportValue := KeyImportExportValue{
+		PublicKey:  publicKey,
+		PrivateKey: privateKey,
+		PrivateKeyWrappingInfo: &PrivateKeyWrappingInfo{
+			KeyName:              wrappingKeyName,
+			PublicKey:            wrappingPubKey,
+			KeyWrappingAlgorithm: keyWrappingAlgo,
+		},
+	}
+	jsonBytes, err := json.Marshal(keyImportExportValue)
+	return string(jsonBytes), err
 }
