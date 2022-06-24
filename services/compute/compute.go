@@ -281,6 +281,8 @@ type VirtualMachineProperties struct {
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// Owner node name
+	NodeName *string `json:"nodeName,omitempty"`
 }
 
 type VirtualMachine struct {

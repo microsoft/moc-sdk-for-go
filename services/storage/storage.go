@@ -38,6 +38,8 @@ type VirtualHardDiskProperties struct {
 	DiskFileFormat common.DiskFileFormat `json:"diskFileFormat,omitempty"`
 	// CloudInitDataSource - The cloud init data source to be used with the image. [NoCloud, Azure]. Default Value – NoCloud. For marketplace images it will be Azure.
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
+	// Attached node name
+	AttachedNodeName *string `json:"attachedNodeName,omitempty`
 }
 
 // VirtualHardDisk defines the structure of a VHD
