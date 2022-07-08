@@ -5,6 +5,7 @@ package key
 
 import (
 	"context"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 	"github.com/microsoft/moc/pkg/auth"
@@ -19,6 +20,8 @@ type Service interface {
 	Decrypt(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	WrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	UnwrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
+	ImportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
+	ExportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
 }
 
 // Client structure
@@ -46,6 +49,18 @@ func (c *KeyClient) Get(ctx context.Context, group, vaultName, name string) (*[]
 func (c *KeyClient) CreateOrUpdate(ctx context.Context, group, vaultName, name string,
 	param *keyvault.Key) (*keyvault.Key, error) {
 	return c.internal.CreateOrUpdate(ctx, group, vaultName, name, param)
+}
+
+// Import methods invokes import on the client
+func (c *KeyClient) Import(ctx context.Context, group, vaultName, name string,
+	param *keyvault.Key) (*keyvault.Key, error) {
+	return c.internal.ImportKey(ctx, group, vaultName, name, param)
+}
+
+// Export methods invokes export on the client
+func (c *KeyClient) Export(ctx context.Context, group, vaultName, name string,
+	param *keyvault.Key) (*keyvault.Key, error) {
+	return c.internal.ExportKey(ctx, group, vaultName, name, param)
 }
 
 // Delete methods invokes delete of the keyvault resource

@@ -34,6 +34,10 @@ func init() {
 	connectionCache = map[string]*grpc.ClientConn{}
 }
 
+func ClearConnectionCache() {
+	connectionCache = map[string]*grpc.ClientConn{}
+}
+
 // Returns nil if debug mode is on; err if it is not
 func isDebugMode() error {
 	debugEnv := strings.ToLower(os.Getenv(debugModeTLS))
