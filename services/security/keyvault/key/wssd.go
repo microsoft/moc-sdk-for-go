@@ -6,6 +6,8 @@ package key
 import (
 	"context"
 	"fmt"
+
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -36,6 +38,8 @@ func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]key
 	}
 	response, err := c.KeyAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return getKeysFromResponse(response, vaultName)
@@ -49,6 +53,8 @@ func (c *client) get(ctx context.Context, group, vaultName, name string) ([]*wss
 	}
 	response, err := c.KeyAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 
@@ -72,6 +78,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name stri
 	}
 	response, err := c.KeyAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, errors.Wrapf(err, "Keys Create failed")
 	}
 
@@ -116,6 +124,7 @@ func (c *client) Delete(ctx context.Context, group, name, vaultName string) erro
 		return err
 	}
 	_, err = c.KeyAgentClient.Invoke(ctx, request)
+	services.HandleGRPCError(err)
 	return err
 }
 
