@@ -13,6 +13,7 @@ import (
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/compute/virtualmachine"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
@@ -46,6 +47,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.Virtua
 
 	response, err := c.VirtualMachineScaleSetAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return c.getVirtualMachineScaleSetFromResponse(response, group)
@@ -60,6 +63,8 @@ func (c *client) GetVirtualMachines(ctx context.Context, group, name string) (*[
 
 	response, err := c.VirtualMachineScaleSetAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 
@@ -90,6 +95,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 	}
 	response, err := c.VirtualMachineScaleSetAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	vmsss, err := c.getVirtualMachineScaleSetFromResponse(response, group)
@@ -119,6 +126,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.VirtualMachineScaleSetAgentClient.Invoke(ctx, request)
+	services.HandleGRPCError(err)
 	return err
 }
 

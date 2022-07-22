@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud/etcdcluster"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -37,6 +38,8 @@ func (c *client) Get(ctx context.Context, group, name, clusterName string) (*[]e
 	}
 	response, err := c.EtcdServerAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return getEtcdServersFromResponse(response, clusterName), nil
@@ -54,6 +57,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, server 
 	}
 	response, err := c.EtcdServerAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, errors.Wrapf(err, "EtcdServer Create failed")
 	}
 
@@ -101,6 +106,8 @@ func (c *client) Delete(ctx context.Context, group, name, clusterName string) er
 		return err
 	}
 	_, err = c.EtcdServerAgentClient.Invoke(ctx, request)
+	services.HandleGRPCError(err)
+
 	return err
 }
 

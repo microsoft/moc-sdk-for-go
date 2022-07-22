@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -41,6 +42,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.LoadBa
 
 	response, err := c.LoadBalancerAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	lbs, err := c.getLoadBalancersFromResponse(response)
@@ -65,6 +68,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputLB
 	}
 	response, err := c.LoadBalancerAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	lbs, err := c.getLoadBalancersFromResponse(response)
@@ -90,8 +95,9 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.LoadBalancerAgentClient.Invoke(ctx, request)
-
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return err
 	}
 
