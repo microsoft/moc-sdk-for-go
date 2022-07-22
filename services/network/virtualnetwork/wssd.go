@@ -6,6 +6,8 @@ package virtualnetwork
 import (
 	"context"
 	"fmt"
+
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/errors"
 
@@ -36,6 +38,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Virtua
 	}
 	response, err := c.VirtualNetworkAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return getVirtualNetworksFromResponse(response, group), nil
@@ -49,6 +53,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnet *n
 	}
 	response, err := c.VirtualNetworkAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	vnets := getVirtualNetworksFromResponse(response, group)
@@ -75,7 +81,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.VirtualNetworkAgentClient.Invoke(ctx, request)
-
+	services.HandleGRPCError(err)
 	return err
 }
 

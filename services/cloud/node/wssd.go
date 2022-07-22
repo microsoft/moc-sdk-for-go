@@ -6,6 +6,8 @@ package node
 import (
 	"context"
 	"fmt"
+
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
 	"github.com/microsoft/moc/pkg/auth"
@@ -38,6 +40,8 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]cloud.Node,
 
 	response, err := c.NodeAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return c.getNodeFromResponse(response), nil
@@ -59,6 +63,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, sg *
 
 	response, err := c.NodeAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return
 	}
 	gps := c.getNodeFromResponse(response)
@@ -86,7 +92,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	}
 
 	_, err = c.NodeAgentClient.Invoke(ctx, request)
-
+	services.HandleGRPCError(err)
 	return err
 }
 

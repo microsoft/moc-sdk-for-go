@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -40,6 +41,8 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]network.Vip
 
 	response, err := c.VipPoolAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	vps, err := c.getVipPoolsFromResponse(response)
@@ -64,6 +67,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, inpu
 	}
 	response, err := c.VipPoolAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	vps, err := c.getVipPoolsFromResponse(response)
@@ -89,8 +94,9 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return err
 	}
 	_, err = c.VipPoolAgentClient.Invoke(ctx, request)
-
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return err
 	}
 
