@@ -6,7 +6,9 @@ package keyvault
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -35,6 +37,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.KeyVa
 	}
 	response, err := c.KeyVaultAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return getKeyVaultsFromResponse(response, group), nil
@@ -48,6 +52,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *sec
 	}
 	response, err := c.KeyVaultAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 
@@ -75,6 +81,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.KeyVaultAgentClient.Invoke(ctx, request)
+	services.HandleGRPCError(err)
 	return err
 }
 

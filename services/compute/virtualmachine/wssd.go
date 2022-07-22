@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/config"
@@ -40,6 +41,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.Virtua
 	}
 	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return c.getVirtualMachineFromResponse(response, group), nil
@@ -53,6 +56,8 @@ func (c *client) get(ctx context.Context, group, name string) ([]*wssdcloudcompu
 	}
 	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return response.GetVirtualMachines(), nil
@@ -66,6 +71,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 	}
 	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	vms := c.getVirtualMachineFromResponse(response, group)
@@ -91,7 +98,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.VirtualMachineAgentClient.Invoke(ctx, request)
-
+	services.HandleGRPCError(err)
 	return err
 }
 

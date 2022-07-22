@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security/certificate"
 	"github.com/microsoft/moc/pkg/auth"
@@ -39,6 +40,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.Ident
 	}
 	response, err := c.IdentityAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return getIdentitysFromResponse(response), nil
@@ -51,6 +54,8 @@ func (c *client) get(ctx context.Context, name string) ([]*wssdcloudsecurity.Ide
 	}
 	response, err := c.IdentityAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return response.GetIdentitys(), nil
@@ -68,6 +73,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *sec
 	}
 	response, err := c.IdentityAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		log.Errorf("[Identity] Create failed with error %v", err)
 		return nil, err
 	}
@@ -96,6 +103,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.IdentityAgentClient.Invoke(ctx, request)
+	services.HandleGRPCError(err)
 	return err
 }
 

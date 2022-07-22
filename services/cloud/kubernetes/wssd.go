@@ -6,6 +6,8 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 
@@ -35,6 +37,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]cloud.Kubernet
 	}
 	response, err := c.KubernetesAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return c.getKubernetessFromResponse(response, group), nil
@@ -48,6 +52,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, k8s *cl
 	}
 	response, err := c.KubernetesAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	k8ss := c.getKubernetessFromResponse(response, group)
@@ -74,7 +80,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.KubernetesAgentClient.Invoke(ctx, request)
-
+	services.HandleGRPCError(err)
 	return err
 }
 

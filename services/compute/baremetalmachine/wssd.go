@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/config"
@@ -39,6 +40,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.BareMe
 	}
 	response, err := c.BareMetalMachineAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return c.getBareMetalMachineFromResponse(response, group), nil
@@ -52,6 +55,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 	}
 	response, err := c.BareMetalMachineAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	bmms := c.getBareMetalMachineFromResponse(response, group)
@@ -77,7 +82,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.BareMetalMachineAgentClient.Invoke(ctx, request)
-
+	services.HandleGRPCError(err)
 	return err
 }
 
