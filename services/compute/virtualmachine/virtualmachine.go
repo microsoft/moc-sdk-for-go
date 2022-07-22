@@ -497,7 +497,7 @@ func (c *client) getVirtualMachineSecurityProfile(vm *wssdcloudcompute.VirtualMa
 	uefiSettings = nil
 	if vm.Security != nil {
 		enableTPM = vm.Security.EnableTPM
-		if vm.Security.UefiSettings != nil{
+		if vm.Security.UefiSettings != nil {
 			uefiSettings = &compute.UefiSettings{
 				SecureBootEnabled: &vm.Security.UefiSettings.SecureBootEnabled,
 			}
