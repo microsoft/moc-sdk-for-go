@@ -6,7 +6,9 @@ package virtualharddisk
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -35,6 +37,8 @@ func (c *client) Get(ctx context.Context, group, container, name string) (*[]sto
 	}
 	response, err := c.VirtualHardDiskAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	return getVirtualHardDisksFromResponse(response, group), nil
@@ -48,6 +52,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, container, name stri
 	}
 	response, err := c.VirtualHardDiskAgentClient.Invoke(ctx, request)
 	if err != nil {
+		services.HandleGRPCError(err)
+
 		return nil, err
 	}
 	vhds := getVirtualHardDisksFromResponse(response, group)
@@ -74,7 +80,7 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 		return err
 	}
 	_, err = c.VirtualHardDiskAgentClient.Invoke(ctx, request)
-
+	services.HandleGRPCError(err)
 	return err
 
 }
