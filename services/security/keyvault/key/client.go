@@ -22,6 +22,7 @@ type Service interface {
 	UnwrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	ImportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
 	ExportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
+	Sign(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 }
 
 // Client structure
@@ -86,4 +87,9 @@ func (c *KeyClient) WrapKey(ctx context.Context, group, vaultName, name string, 
 // UnwrapKey
 func (c *KeyClient) UnwrapKey(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
 	return c.internal.UnwrapKey(ctx, group, vaultName, name, parameters)
+}
+
+// Sign
+func (c *KeyClient) Sign(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	return c.internal.Sign(ctx, group, vaultName, name, parameters)
 }

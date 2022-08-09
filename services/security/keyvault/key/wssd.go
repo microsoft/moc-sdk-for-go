@@ -361,6 +361,20 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, p
 	return
 }
 
+func (c *client) Sign(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	request, err := c.getKeySigningOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_SIGN)
+	if err != nil {
+		return
+	}
+	fmt.Println("Sign in wssd.go")
+	response, err := c.KeyAgentClient.Operate(ctx, request)
+	if err != nil {
+		return
+	}
+	result, err = getDataFromResponse(response)
+	return
+}
+
 func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName string, getCustomKeyValue func(*wssdcloudsecurity.Key) (string, error)) (*[]keyvault.Key, error) {
 	tmp := []keyvault.Key{}
 	for _, keys := range response.GetKeys() {
@@ -429,6 +443,53 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		OperationType: opType,
 		Data:          *param.Value,
 		Algorithm:     algo,
+	}
+
+	key, err := c.get(ctx, groupName, vaultName, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(key) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
+	}
+
+	request.Key = key[0]
+	return request, nil
+}
+
+func (c *client) getKeySigningOperationRequest(ctx context.Context,
+	groupName, vaultName, name string,
+	param *keyvault.KeyOperationsParameters,
+	opType wssdcloudcommon.KeyOperation,
+) (*wssdcloudsecurity.KeyOperationRequest, error) {
+
+	if param == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Missing KeyOperationsParameters")
+	}
+
+	if param.Value == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Missing Value to be operated on")
+	}
+	//Note needed
+
+	//This is where we defer from the normal operational request. lets unmarshel the value
+	//to get the true data and the Signing Opt
+	var parsedSigningParams keyvault.KeySigningOperationValue
+	// Unmarshal public key, private key, and private key wrapping info from the input key value JSON
+	err := json.Unmarshal([]byte(*param.Value), &parsedSigningParams)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedSigningInfo := wssdcloudsecurity.SigningInfo{Padding: wssdcloudcommon.SignaturePaddingAlgorithm(wssdcloudcommon.SignaturePaddingAlgorithm_value[string(parsedSigningParams.SigningInfo.SignaturePaddingAlgorithm)]),
+		Algorithm: wssdcloudcommon.CryptoSignatureAlgorithm(wssdcloudcommon.CryptoSignatureAlgorithm_value[string(parsedSigningParams.SigningInfo.CryptoSignatureAlgorithm)]),
+	}
+
+	request := &wssdcloudsecurity.KeyOperationRequest{
+		OperationType: opType,
+		Data:          *parsedSigningParams.Value,
+		SigningInfo:   &parsedSigningInfo,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name)

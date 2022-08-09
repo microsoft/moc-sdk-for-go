@@ -235,6 +235,55 @@ type KeyImportExportValue struct {
 	PrivateKeyWrappingInfo *PrivateKeyWrappingInfo `json:"private-key-wrapping-info,omitempty"`
 }
 
+// KeyWrappingAlgorithm enumerates the values for private key wrapping info for key import export operations.
+type SignaturePaddingAlgorithm string
+
+const (
+	// PKCSv1
+	PKCSv1 SignaturePaddingAlgorithm = "PKCSv1"
+	// PSS
+	PSS SignaturePaddingAlgorithm = "PSS"
+)
+
+type CryptoSignatureAlgorithm string
+
+const (
+	MD4         CryptoSignatureAlgorithm = "MD4"
+	MD5         CryptoSignatureAlgorithm = "MD5"
+	SHA1        CryptoSignatureAlgorithm = "SHA1"
+	SHA224      CryptoSignatureAlgorithm = "SHA224"
+	SHA256      CryptoSignatureAlgorithm = "SHA256"
+	SHA384      CryptoSignatureAlgorithm = "SHA384"
+	SHA512      CryptoSignatureAlgorithm = "SHA512"
+	MD5SHA1     CryptoSignatureAlgorithm = "MD5SHA1"
+	RIPEMD160   CryptoSignatureAlgorithm = "RIPEMD160"
+	SHA3_224    CryptoSignatureAlgorithm = "SHA3_224"
+	SHA3_256    CryptoSignatureAlgorithm = "SHA3_256"
+	SHA3_384    CryptoSignatureAlgorithm = "SHA3_384"
+	SHA3_512    CryptoSignatureAlgorithm = "SHA3_512"
+	SHA512_224  CryptoSignatureAlgorithm = "SHA512_224"
+	SHA512_256  CryptoSignatureAlgorithm = "SHA512_256"
+	BLAKE2s_256 CryptoSignatureAlgorithm = "BLAKE2s_256"
+	BLAKE2b_256 CryptoSignatureAlgorithm = "BLAKE2b_256"
+	BLAKE2b_384 CryptoSignatureAlgorithm = "BLAKE2b_384"
+	BLAKE2b_512 CryptoSignatureAlgorithm = "BLAKE2b_512"
+)
+
+// Defines private key wrapping infor for key import/export operations
+type SigningInfo struct {
+	SignaturePaddingAlgorithm SignaturePaddingAlgorithm `json:"padding-algorithm,omitempty"`
+	CryptoSignatureAlgorithm  CryptoSignatureAlgorithm  `json:"signature-algorithm,omitempty"`
+	PSSSaltLength             int32                     `json:"pss-salt-length,omitempty"`
+}
+
+// Defines the parameters for key import/export operations.
+// Key import/export operations expect Json string equivalent of this struct in Key.Value field
+type KeySigningOperationValue struct {
+	// Value - a URL-encoded base64 string
+	Value       *string     `json:"value,omitempty"`
+	SigningInfo SigningInfo `json:"signing-info,omitempty"`
+}
+
 func getKeyVault(vault *wssdcloudsecurity.KeyVault, group string) *security.KeyVault {
 	return &security.KeyVault{
 		ID:      &vault.Id,
