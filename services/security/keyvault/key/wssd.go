@@ -361,17 +361,31 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, p
 	return
 }
 
-func (c *client) Sign(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeySigningOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_SIGN)
+func (c *client) Sign(ctx context.Context, group, vaultName, name string, param *keyvault.KeySignParameters) (result *keyvault.KeyOperationResult, err error) {
+	request, err := c.getKeyOperationRequestSigning(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_SIGN)
 	if err != nil {
 		return
 	}
-	fmt.Println("Sign in wssd.go")
 	response, err := c.KeyAgentClient.Operate(ctx, request)
 	if err != nil {
 		return
 	}
 	result, err = getDataFromResponse(response)
+	return
+}
+
+func (c *client) Verify(ctx context.Context, group, vaultName, name string, param *keyvault.KeyVerifyParameters) (result *keyvault.KeyVerifyResult, err error) {
+	request, err := c.getKeyOperationRequestVerify(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_VERIFY)
+	if err != nil {
+		return
+	}
+	fmt.Println("Verify in wssd.go")
+	response, err := c.KeyAgentClient.Operate(ctx, request)
+	if err != nil {
+		return
+	}
+
+	result, err = getKeyVerifyResultFromResponse(response)
 	return
 }
 
@@ -421,6 +435,13 @@ func getDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (resu
 	return result, nil
 }
 
+func getKeyVerifyResultFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyVerifyResult, err error) {
+	result = &keyvault.KeyVerifyResult{
+		Value: &response.KeyVerifyResult,
+	}
+	return result, nil
+}
+
 func (c *client) getKeyOperationRequest(ctx context.Context,
 	groupName, vaultName, name string,
 	param *keyvault.KeyOperationsParameters,
@@ -439,6 +460,7 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 	if err != nil {
 		return nil, err
 	}
+
 	request := &wssdcloudsecurity.KeyOperationRequest{
 		OperationType: opType,
 		Data:          *param.Value,
@@ -458,9 +480,9 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 	return request, nil
 }
 
-func (c *client) getKeySigningOperationRequest(ctx context.Context,
+func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 	groupName, vaultName, name string,
-	param *keyvault.KeyOperationsParameters,
+	param *keyvault.KeySignParameters,
 	opType wssdcloudcommon.KeyOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 
@@ -471,25 +493,20 @@ func (c *client) getKeySigningOperationRequest(ctx context.Context,
 	if param.Value == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Missing Value to be operated on")
 	}
-	//Note needed
 
-	//This is where we defer from the normal operational request. lets unmarshel the value
-	//to get the true data and the Signing Opt
-	var parsedSigningParams keyvault.KeySigningOperationValue
-	// Unmarshal public key, private key, and private key wrapping info from the input key value JSON
-	err := json.Unmarshal([]byte(*param.Value), &parsedSigningParams)
+	algo, err := getMOCSigningAlgorithm(param.Algorithm)
 	if err != nil {
 		return nil, err
 	}
 
-	parsedSigningInfo := wssdcloudsecurity.SigningInfo{Padding: wssdcloudcommon.SignaturePaddingAlgorithm(wssdcloudcommon.SignaturePaddingAlgorithm_value[string(parsedSigningParams.SigningInfo.SignaturePaddingAlgorithm)]),
-		Algorithm: wssdcloudcommon.CryptoSignatureAlgorithm(wssdcloudcommon.CryptoSignatureAlgorithm_value[string(parsedSigningParams.SigningInfo.CryptoSignatureAlgorithm)]),
+	signVerifyPram := wssdcloudsecurity.SignVerifyParams{
+		Algorithm: algo,
 	}
 
 	request := &wssdcloudsecurity.KeyOperationRequest{
-		OperationType: opType,
-		Data:          *parsedSigningParams.Value,
-		SigningInfo:   &parsedSigningInfo,
+		OperationType:    opType,
+		Data:             *param.Value,
+		SignVerifyParams: &signVerifyPram,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name)
@@ -503,4 +520,52 @@ func (c *client) getKeySigningOperationRequest(ctx context.Context,
 
 	request.Key = key[0]
 	return request, nil
+
+}
+
+func (c *client) getKeyOperationRequestVerify(ctx context.Context,
+	groupName, vaultName, name string,
+	param *keyvault.KeyVerifyParameters,
+	opType wssdcloudcommon.KeyOperation,
+) (*wssdcloudsecurity.KeyOperationRequest, error) {
+
+	if param == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Missing KeyOperationsParameters")
+	}
+
+	if param.Digest == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Missing digest to be operated on")
+	}
+	if param.Signature == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Missing signature to be operated on")
+	}
+
+	algo, err := getMOCSigningAlgorithm(param.Algorithm)
+	if err != nil {
+		return nil, err
+	}
+
+	signVerifyPram := wssdcloudsecurity.SignVerifyParams{
+		Algorithm: algo,
+		Signature: *param.Signature,
+	}
+
+	request := &wssdcloudsecurity.KeyOperationRequest{
+		OperationType:    opType,
+		Data:             *param.Digest,
+		SignVerifyParams: &signVerifyPram,
+	}
+
+	key, err := c.get(ctx, groupName, vaultName, name)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(key) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
+	}
+
+	request.Key = key[0]
+	return request, nil
+
 }
