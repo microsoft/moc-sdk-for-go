@@ -15,6 +15,7 @@ import (
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/marshal"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -379,7 +380,7 @@ func (c *client) Verify(ctx context.Context, group, vaultName, name string, para
 	if err != nil {
 		return
 	}
-	fmt.Println("Verify in wssd.go")
+
 	response, err := c.KeyAgentClient.Operate(ctx, request)
 	if err != nil {
 		return
@@ -436,8 +437,9 @@ func getDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (resu
 }
 
 func getKeyVerifyResultFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyVerifyResult, err error) {
+
 	result = &keyvault.KeyVerifyResult{
-		Value: &response.KeyVerifyResult,
+		Value: &response.Result.Value,
 	}
 	return result, nil
 }
@@ -501,12 +503,17 @@ func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 
 	signVerifyPram := wssdcloudsecurity.SignVerifyParams{
 		Algorithm: algo,
+		Digest:    *param.Value,
+	}
+
+	data, err := marshal.ToJSON(signVerifyPram)
+	if err != nil {
+		return nil, err
 	}
 
 	request := &wssdcloudsecurity.KeyOperationRequest{
-		OperationType:    opType,
-		Data:             *param.Value,
-		SignVerifyParams: &signVerifyPram,
+		OperationType: opType,
+		Data:          data,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name)
@@ -548,12 +555,17 @@ func (c *client) getKeyOperationRequestVerify(ctx context.Context,
 	signVerifyPram := wssdcloudsecurity.SignVerifyParams{
 		Algorithm: algo,
 		Signature: *param.Signature,
+		Digest:    *param.Digest,
+	}
+
+	data, err := marshal.ToJSON(signVerifyPram)
+	if err != nil {
+		return nil, err
 	}
 
 	request := &wssdcloudsecurity.KeyOperationRequest{
-		OperationType:    opType,
-		Data:             *param.Digest,
-		SignVerifyParams: &signVerifyPram,
+		OperationType: opType,
+		Data:          data,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name)
