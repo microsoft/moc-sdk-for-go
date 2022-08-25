@@ -15,7 +15,6 @@ import (
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
-	"github.com/microsoft/moc/pkg/marshal"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -501,19 +500,14 @@ func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 		return nil, err
 	}
 
-	signVerifyPram := wssdcloudsecurity.SignVerifyParams{
+	signVerifyParam := wssdcloudsecurity.SignVerifyParams{
 		Algorithm: algo,
-		Digest:    *param.Value,
-	}
-
-	data, err := marshal.ToJSON(signVerifyPram)
-	if err != nil {
-		return nil, err
 	}
 
 	request := &wssdcloudsecurity.KeyOperationRequest{
-		OperationType: opType,
-		Data:          data,
+		OperationType:    opType,
+		Data:             *param.Value,
+		SignVerifyParams: &signVerifyParam,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name)
@@ -552,20 +546,15 @@ func (c *client) getKeyOperationRequestVerify(ctx context.Context,
 		return nil, err
 	}
 
-	signVerifyPram := wssdcloudsecurity.SignVerifyParams{
+	signVerifyParam := wssdcloudsecurity.SignVerifyParams{
 		Algorithm: algo,
 		Signature: *param.Signature,
-		Digest:    *param.Digest,
-	}
-
-	data, err := marshal.ToJSON(signVerifyPram)
-	if err != nil {
-		return nil, err
 	}
 
 	request := &wssdcloudsecurity.KeyOperationRequest{
-		OperationType: opType,
-		Data:          data,
+		OperationType:    opType,
+		Data:             *param.Digest,
+		SignVerifyParams: &signVerifyParam,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name)

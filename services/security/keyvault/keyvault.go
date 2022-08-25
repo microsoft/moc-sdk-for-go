@@ -275,8 +275,8 @@ type KeyVerifyParameters struct {
 // KeyVerifyResult the key verify operation result.
 //https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keyverifyresult?view=azure-dotnet-legacy
 type KeyVerifyResult struct {
-	autorest.Response `json:"-"` //Sethbe what is this???do we need it
-	Value             *bool      `json:"value,omitempty"`
+	autorest.Response `json:"-"`
+	Value             *bool `json:"value,omitempty"`
 }
 
 func getKeyVault(vault *wssdcloudsecurity.KeyVault, group string) *security.KeyVault {
