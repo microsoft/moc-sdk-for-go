@@ -235,6 +235,50 @@ type KeyImportExportValue struct {
 	PrivateKeyWrappingInfo *PrivateKeyWrappingInfo `json:"private-key-wrapping-info,omitempty"`
 }
 
+// JSONWebKeySignatureAlgorithm enumerates the values for json web key signature algorithm.
+//https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keysignparameters?view=azure-dotnet-legacy&viewFallbackFrom=azure-dotnet
+type JSONWebKeySignatureAlgorithm string
+
+const (
+	ES256  JSONWebKeySignatureAlgorithm = "ES256"
+	ES256K JSONWebKeySignatureAlgorithm = "ES256K"
+	ES384  JSONWebKeySignatureAlgorithm = "ES384"
+	ES512  JSONWebKeySignatureAlgorithm = "ES512"
+	PS256  JSONWebKeySignatureAlgorithm = "PS256"
+	PS384  JSONWebKeySignatureAlgorithm = "PS384"
+	PS512  JSONWebKeySignatureAlgorithm = "PS512"
+	RS256  JSONWebKeySignatureAlgorithm = "RS256"
+	RS384  JSONWebKeySignatureAlgorithm = "RS384"
+	RS512  JSONWebKeySignatureAlgorithm = "RS512"
+	RSNULL JSONWebKeySignatureAlgorithm = "RSNULL"
+)
+
+// KeySignParameters the key signing parameters.
+type KeySignParameters struct {
+	// Algorithm - Signing algorithm identifier. Possible values include: 'PS256', 'RS384', etc (see JSONWebKeySignatureAlgorithm)
+	Algorithm JSONWebKeySignatureAlgorithm `json:"alg,omitempty"`
+	// Value - a URL-encoded base64 string
+	Value *string `json:"value,omitempty"`
+}
+
+// KeyVerifyParameters the key signing parameters.
+type KeyVerifyParameters struct {
+	// Algorithm - algorithm identifier. Possible values include: 'PS256', 'RS384', etc (see JSONWebKeySignatureAlgorithm)
+	Algorithm JSONWebKeySignatureAlgorithm `json:"alg,omitempty"`
+	// Value - a URL-encoded base64 string of the digest used for signing
+	Digest *string `json:"digest,omitempty"`
+
+	// Value - a URL-encoded base64 string of the signature to be verifed
+	Signature *string `json:"value,omitempty"`
+}
+
+// KeyVerifyResult the key verify operation result.
+//https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keyverifyresult?view=azure-dotnet-legacy
+type KeyVerifyResult struct {
+	autorest.Response `json:"-"`
+	Value             *bool `json:"value,omitempty"`
+}
+
 func getKeyVault(vault *wssdcloudsecurity.KeyVault, group string) *security.KeyVault {
 	return &security.KeyVault{
 		ID:      &vault.Id,

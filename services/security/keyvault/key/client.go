@@ -22,6 +22,8 @@ type Service interface {
 	UnwrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	ImportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
 	ExportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
+	Sign(context.Context, string, string, string, *keyvault.KeySignParameters) (*keyvault.KeyOperationResult, error)
+	Verify(context.Context, string, string, string, *keyvault.KeyVerifyParameters) (*keyvault.KeyVerifyResult, error)
 }
 
 // Client structure
@@ -86,4 +88,14 @@ func (c *KeyClient) WrapKey(ctx context.Context, group, vaultName, name string, 
 // UnwrapKey
 func (c *KeyClient) UnwrapKey(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
 	return c.internal.UnwrapKey(ctx, group, vaultName, name, parameters)
+}
+
+// Sign
+func (c *KeyClient) Sign(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeySignParameters) (result *keyvault.KeyOperationResult, err error) {
+	return c.internal.Sign(ctx, group, vaultName, name, parameters)
+}
+
+// Verify
+func (c *KeyClient) Verify(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyVerifyParameters) (result *keyvault.KeyVerifyResult, err error) {
+	return c.internal.Verify(ctx, group, vaultName, name, parameters)
 }

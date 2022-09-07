@@ -253,6 +253,32 @@ func getMOCAlgorithm(algo keyvault.JSONWebKeyEncryptionAlgorithm) (wssdcloudcomm
 	return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 }
 
+func getMOCSigningAlgorithm(algo keyvault.JSONWebKeySignatureAlgorithm) (wssdcloudcommon.JSONWebKeySignatureAlgorithm, error) {
+	switch algo {
+	case keyvault.ES256:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_ES256, nil
+	case keyvault.ES256K:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_ES256K, nil
+	case keyvault.ES384:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_ES384, nil
+	case keyvault.ES512:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_ES512, nil
+	case keyvault.PS256:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_PS256, nil
+	case keyvault.PS384:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_PS384, nil
+	case keyvault.PS512:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_PS512, nil
+	case keyvault.RS256:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_RS256, nil
+	case keyvault.RS384:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_RS384, nil
+	case keyvault.RS512:
+		return wssdcloudcommon.JSONWebKeySignatureAlgorithm_RS512, nil
+	}
+	return wssdcloudcommon.JSONWebKeySignatureAlgorithm_RSNULL, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+}
+
 func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, error) {
 	switch algo {
 	case "RSA1_5":
