@@ -17,13 +17,13 @@ func getActions(mocactions []*wssdcloudsecurity.Action) ([]security.Action, erro
 	for _, mocaction := range mocactions {
 		action := security.Action{}
 		switch mocaction.Operation {
-		case wssdcloudsecurity.AccessOperation_Read:
+		case wssdcloudsecurity.GeneralAccessOperation_Read:
 			action.Operation = security.ReadAccess
-		case wssdcloudsecurity.AccessOperation_Write:
+		case wssdcloudsecurity.GeneralAccessOperation_Write:
 			action.Operation = security.WriteAccess
-		case wssdcloudsecurity.AccessOperation_Delete:
+		case wssdcloudsecurity.GeneralAccessOperation_Delete:
 			action.Operation = security.DeleteAccess
-		case wssdcloudsecurity.AccessOperation_All:
+		case wssdcloudsecurity.GeneralAccessOperation_All:
 			action.Operation = security.AllAccess
 		default:
 			return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", mocaction.Operation)
@@ -110,13 +110,13 @@ func getMocAction(action *security.Action) (*wssdcloudsecurity.Action, error) {
 
 	switch action.Operation {
 	case security.ReadAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_Read
+		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_Read
 	case security.WriteAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_Write
+		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_Write
 	case security.DeleteAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_Delete
+		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_Delete
 	case security.AllAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_All
+		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_All
 	default:
 		return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", action.Operation)
 	}

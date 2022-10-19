@@ -24,31 +24,31 @@ var (
 			{
 				Actions: []*wssdcloud.Action{
 					{
-						Operation:    wssdcloud.AccessOperation_All,
+						Operation:    wssdcloud.GeneralAccessOperation_All,
 						ProviderType: common.ProviderType_AnyProvider,
 					},
 					{
-						Operation:    wssdcloud.AccessOperation_Read,
+						Operation:    wssdcloud.GeneralAccessOperation_Read,
 						ProviderType: common.ProviderType_VirtualMachine,
 					},
 				},
 				NotActions: []*wssdcloud.Action{
 					{
-						Operation:    wssdcloud.AccessOperation_Delete,
+						Operation:    wssdcloud.GeneralAccessOperation_Delete,
 						ProviderType: common.ProviderType_AnyProvider,
 					},
 					{
-						Operation:    wssdcloud.AccessOperation_Write,
+						Operation:    wssdcloud.GeneralAccessOperation_Write,
 						ProviderType: common.ProviderType_Location,
 					},
 				},
 			}, {
 				Actions: []*wssdcloud.Action{
 					{
-						Operation: wssdcloud.AccessOperation_Read,
+						Operation: wssdcloud.GeneralAccessOperation_Read,
 					},
 					{
-						Operation: wssdcloud.AccessOperation_Write,
+						Operation: wssdcloud.GeneralAccessOperation_Write,
 					},
 				},
 			},
