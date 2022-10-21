@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -38,8 +37,6 @@ func (c *client) Get(ctx context.Context, group, name, vaultName string) (*[]key
 	}
 	response, err := c.SecretAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	return getSecretsFromResponse(response, vaultName), nil
@@ -57,8 +54,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *key
 	}
 	response, err := c.SecretAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, errors.Wrapf(err, "Secrets Create failed")
 	}
 
@@ -100,7 +95,6 @@ func (c *client) Delete(ctx context.Context, group, name, vaultName string) erro
 		return err
 	}
 	_, err = c.SecretAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
 	return err
 }
 

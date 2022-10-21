@@ -6,9 +6,7 @@ package container
 import (
 	"context"
 	"fmt"
-
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -37,8 +35,6 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]storage.Con
 	}
 	response, err := c.ContainerAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	return getContainersFromResponse(response, location), nil
@@ -52,8 +48,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, cont
 	}
 	response, err := c.ContainerAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	containers := getContainersFromResponse(response, location)
@@ -80,7 +74,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return err
 	}
 	_, err = c.ContainerAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
+
 	return err
 
 }

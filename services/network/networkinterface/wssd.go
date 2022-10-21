@@ -6,9 +6,7 @@ package networkinterface
 import (
 	"context"
 	"fmt"
-
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -39,8 +37,6 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Interf
 
 	response, err := c.NetworkInterfaceAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	vnetInt, err := c.getInterfacesFromResponse(group, response)
@@ -59,8 +55,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnetInt
 	}
 	response, err := c.NetworkInterfaceAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	vnets, err := c.getInterfacesFromResponse(group, response)
@@ -86,9 +80,8 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.NetworkInterfaceAgentClient.Invoke(ctx, request)
-	if err != nil {
-		services.HandleGRPCError(err)
 
+	if err != nil {
 		return err
 	}
 

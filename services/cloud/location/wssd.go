@@ -6,8 +6,6 @@ package location
 import (
 	"context"
 	"fmt"
-
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 
@@ -37,8 +35,6 @@ func (c *client) Get(ctx context.Context, name string) (*[]cloud.Location, error
 	}
 	response, err := c.LocationAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	return c.getLocationFromResponse(response), nil
@@ -53,8 +49,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, name string, lcn *cloud.Loc
 	}
 	response, err := c.LocationAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	lcns := c.getLocationFromResponse(response)
@@ -81,7 +75,7 @@ func (c *client) Delete(ctx context.Context, name string) error {
 	}
 
 	_, err = c.LocationAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
+
 	return err
 }
 
