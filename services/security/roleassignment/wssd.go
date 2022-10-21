@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -38,8 +37,6 @@ func (c *client) Get(ctx context.Context, inputRa *security.RoleAssignment) (*[]
 
 	response, err := c.RoleAssignmentAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 
@@ -63,7 +60,6 @@ func (c *client) Delete(ctx context.Context, inputRa *security.RoleAssignment) e
 		return err
 	}
 	_, err = c.RoleAssignmentAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
 	return err
 }
 
@@ -81,8 +77,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, inputRa *security.RoleAssig
 
 	response, err := c.RoleAssignmentAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 
