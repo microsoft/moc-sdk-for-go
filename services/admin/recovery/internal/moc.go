@@ -7,7 +7,6 @@ import (
 	"context"
 
 	mocclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc/pkg/auth"
 	mocadmin "github.com/microsoft/moc/rpc/common/admin"
 )
@@ -29,7 +28,6 @@ func NewRecoveryClient(subID string, authorizer auth.Authorizer) (*client, error
 func (c *client) Backup(ctx context.Context, path string, configFilePath string, storeType string) error {
 	request := getRecoveryRequest(mocadmin.Operation_BACKUP, path, configFilePath, storeType)
 	_, err := c.RecoveryAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
 	return err
 }
 
@@ -37,7 +35,6 @@ func (c *client) Backup(ctx context.Context, path string, configFilePath string,
 func (c *client) Restore(ctx context.Context, path string, configFilePath string, storeType string) error {
 	request := getRecoveryRequest(mocadmin.Operation_RESTORE, path, configFilePath, storeType)
 	_, err := c.RecoveryAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
 	return err
 }
 

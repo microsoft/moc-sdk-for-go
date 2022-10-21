@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -37,8 +36,6 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]cloud.EtcdClus
 	}
 	response, err := c.EtcdClusterAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 	return getEtcdClustersFromResponse(response, group), nil
@@ -52,8 +49,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, cluster
 	}
 	response, err := c.EtcdClusterAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
-
 		return nil, err
 	}
 
@@ -81,7 +76,6 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.EtcdClusterAgentClient.Invoke(ctx, request)
-	services.HandleGRPCError(err)
 	return err
 }
 
