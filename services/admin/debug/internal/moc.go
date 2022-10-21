@@ -7,7 +7,6 @@ import (
 	"context"
 
 	mocclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services"
 	"github.com/microsoft/moc/pkg/auth"
 	mocadmin "github.com/microsoft/moc/rpc/common/admin"
 )
@@ -30,7 +29,6 @@ func (c *client) Stacktrace(ctx context.Context) (string, error) {
 	request := getDebugRequest(mocadmin.DebugOperation_STACKTRACE)
 	response, err := c.DebugAgentClient.Invoke(ctx, request)
 	if err != nil {
-		services.HandleGRPCError(err)
 		return "", err
 	}
 	return response.Result, nil
