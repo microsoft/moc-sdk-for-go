@@ -163,11 +163,53 @@ const (
 type Operation string
 
 const (
-	ReadAccess   Operation = "read"
-	WriteAccess  Operation = "write"
-	DeleteAccess Operation = "delete"
-	AllAccess    Operation = "all"
+	ReadAccess     Operation = "read"
+	WriteAccess    Operation = "write"
+	DeleteAccess   Operation = "delete"
+	AllAccess      Operation = "all"
+	ProviderAction Operation = "action"
 )
+
+type ProviderAccessOperation string
+
+const (
+	UnspecifiedAccess           ProviderAccessOperation = "unspecified"
+	Authentication_LoginAccess  ProviderAccessOperation = "authentication_login"
+	Certificate_GetAccess       ProviderAccessOperation = "certificate_get"
+	Certificate_DeleteAccess    ProviderAccessOperation = "certificate_delete"
+	Certificate_SignAccess      ProviderAccessOperation = "certificate_sign"
+	Certificate_RenewAccess     ProviderAccessOperation = "certificate_renew"
+	VirtualMachine_StartAccess  ProviderAccessOperation = "virtualmachine_start"
+	VirtualMachine_StopAccess   ProviderAccessOperation = "virtualmachine_stop"
+	VirtualMachine_ResetAccess  ProviderAccessOperation = "virtualmachine_reset"
+	Cluster_LoadClusterAccess   ProviderAccessOperation = "cluster_loadcluster"
+	Cluster_UnloadClusterAccess ProviderAccessOperation = "cluster_unloadcluster"
+	Cluster_GetClusterAccess    ProviderAccessOperation = "cluster_getcluster"
+	Cluster_GetNodesAccess      ProviderAccessOperation = "cluster_getnodes"
+)
+
+// Unspecified = 0;
+// Authentication_Login = 1;
+// Certificate_Get = 2;
+// Certificate_Delete = 3;
+// Certificate_Sign = 4;
+// Certificate_Renew = 5;
+// Identity_Revoke = 6;
+// Identity_Rotate = 7;
+// Identity_OperateCertificates = 8;
+// Key_Encrypt = 9;
+// Key_Decrypt = 10;
+// Key_WrapKey = 11;
+// Key_UnwrapKey = 12;
+// Key_Sign = 13;
+// Key_Verify = 14;
+// VirtualMachine_Start = 15;
+// VirtualMachine_Stop= 16;
+// VirtualMachine_Reset = 17;
+// Cluster_LoadCluster = 18;
+// Cluster_UnloadCluster = 19;
+// Cluster_GetCluster = 20;
+// Cluster_GetNodes = 21;
 
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
 type Permissions struct {
@@ -304,7 +346,8 @@ type Scope struct {
 
 type Action struct {
 	// Provider - The provider type to which an operation is done
-	Provider ProviderType `json:"provider,omitempty"`
+	Provider          ProviderType            `json:"provider,omitempty"`
+	ProviderOperation ProviderAccessOperation `json:"operation,omitempty"`
 	// Operation - The operation that a permission is refering to
 	Operation Operation `json:"operation,omitempty"`
 }
