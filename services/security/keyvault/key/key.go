@@ -51,8 +51,16 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string, getCustomValue func(*w
 			}
 			value = string(pem.EncodeToMemory(&pubBlk))
 		}
+	case wssdcloudcommon.JsonWebKeyType_AES:
+		// The only time we should be getting a customvalue is in the export case.
+		// If we do its not actually public or private data its the wrapped key.
+		if getCustomValue != nil {
+			value, err = getCustomValue(sec)
+			if err != nil {
+				return keyvault.Key{}, errors.Wrapf(err, "Failed to create custom value from returned key")
+			}
+		}
 	}
-
 	key.Value = &value
 	return key, nil
 }
