@@ -52,6 +52,15 @@ var (
 					},
 				},
 			},
+			{
+				Actions: []*wssdcloud.Action{
+					{
+						ProviderType:      common.ProviderType_VirtualMachine,
+						Operation:         wssdcloud.GeneralAccessOperation_ProviderAction,
+						ProviderOperation: common.ProviderAccessOperation_VirtualMachine_Start,
+					},
+				},
+			},
 		},
 		Status: &common.Status{
 			Version: &common.Version{
@@ -97,6 +106,15 @@ var (
 						},
 					},
 				},
+				{
+					Actions: &[]security.Action{
+						{
+							Provider:          security.VirtualMachineType,
+							Operation:         security.ProviderAction,
+							ProviderOperation: security.VirtualMachine_StartAccess,
+						},
+					},
+				},
 			},
 		},
 	}
@@ -131,6 +149,9 @@ func Test_getMocRole(t *testing.T) {
 					}
 					if mocRole.Permissions[i].Actions[j].ProviderType != w.ProviderType {
 						t.Errorf("ProviderTypes don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].ProviderType, w.ProviderType)
+					}
+					if mocRole.Permissions[i].Actions[j].ProviderOperation != w.ProviderOperation {
+						t.Errorf("ProviderOperations don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].ProviderOperation, w.ProviderOperation)
 					}
 				}
 			}
@@ -191,6 +212,10 @@ func Test_getRole(t *testing.T) {
 						fmt.Println(actions[j].Provider)
 						if actions[j].Provider != w.Provider {
 							t.Errorf("ProviderTypes don't match post conversion %v %v", actions[j].Provider, w.Provider)
+						}
+
+						if actions[j].ProviderOperation != w.ProviderOperation {
+							t.Errorf("ProviderOperations don't match post conversion %v %v", actions[j].Provider, w.Provider)
 						}
 					}
 				}
