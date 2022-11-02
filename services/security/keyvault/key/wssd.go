@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -301,7 +302,7 @@ func (c *client) Delete(ctx context.Context, group, name, vaultName string) erro
 }
 
 func (c *client) Encrypt(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_ENCRYPT)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Encrypt)
 	if err != nil {
 		return
 	}
@@ -314,7 +315,7 @@ func (c *client) Encrypt(ctx context.Context, group, vaultName, name string, par
 }
 
 func (c *client) Decrypt(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_DECRYPT)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Decrypt)
 	if err != nil {
 		return
 	}
@@ -327,7 +328,7 @@ func (c *client) Decrypt(ctx context.Context, group, vaultName, name string, par
 }
 
 func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_WRAPKEY)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey)
 	if err != nil {
 		return
 	}
@@ -340,7 +341,7 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 }
 
 func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_UNWRAPKEY)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey)
 	if err != nil {
 		return
 	}
@@ -353,7 +354,7 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, p
 }
 
 func (c *client) Sign(ctx context.Context, group, vaultName, name string, param *keyvault.KeySignParameters) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequestSigning(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_SIGN)
+	request, err := c.getKeyOperationRequestSigning(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Sign)
 	if err != nil {
 		return
 	}
@@ -366,7 +367,7 @@ func (c *client) Sign(ctx context.Context, group, vaultName, name string, param 
 }
 
 func (c *client) Verify(ctx context.Context, group, vaultName, name string, param *keyvault.KeyVerifyParameters) (result *keyvault.KeyVerifyResult, err error) {
-	request, err := c.getKeyOperationRequestVerify(ctx, group, vaultName, name, param, wssdcloudcommon.KeyOperation_VERIFY)
+	request, err := c.getKeyOperationRequestVerify(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Verify)
 	if err != nil {
 		return
 	}
@@ -437,7 +438,7 @@ func getKeyVerifyResultFromResponse(response *wssdcloudsecurity.KeyOperationResp
 func (c *client) getKeyOperationRequest(ctx context.Context,
 	groupName, vaultName, name string,
 	param *keyvault.KeyOperationsParameters,
-	opType wssdcloudcommon.KeyOperation,
+	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 
 	if param == nil {
@@ -475,7 +476,7 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 	groupName, vaultName, name string,
 	param *keyvault.KeySignParameters,
-	opType wssdcloudcommon.KeyOperation,
+	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 
 	if param == nil {
@@ -518,7 +519,7 @@ func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 func (c *client) getKeyOperationRequestVerify(ctx context.Context,
 	groupName, vaultName, name string,
 	param *keyvault.KeyVerifyParameters,
-	opType wssdcloudcommon.KeyOperation,
+	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 
 	if param == nil {
