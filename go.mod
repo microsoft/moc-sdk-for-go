@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/google/uuid v1.2.0
-	github.com/microsoft/moc v0.10.26-0.20221114232005-fca40ce11521
+	github.com/microsoft/moc v0.10.26-0.20221122191120-077525df294d
 	github.com/spf13/viper v1.7.1
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.27.1
