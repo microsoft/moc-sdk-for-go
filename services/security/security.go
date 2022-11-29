@@ -394,6 +394,8 @@ type Identity struct {
 	Token *string `json:"token,omitempty"`
 	// Token Expiry in Days
 	TokenExpiry *int64 `json:"tokenexpiry,omitempty"`
+	// Token Expiry in Seconds
+	TokenExpiryInSeconds *int64 `json:"tokenexpiryinseconds,omitempty"`
 	// Revoked
 	Revoked bool `json:"revoked,omitempty"`
 	// AuthType
