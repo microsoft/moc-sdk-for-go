@@ -28,14 +28,15 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 	}
 
 	return &security.Identity{
-		ID:          &id.Id,
-		Name:        &id.Name,
-		Token:       &id.Token,
-		TokenExpiry: &id.TokenExpiry,
-		Revoked:     id.Revoked,
-		Location:    &id.LocationName,
-		Version:     &id.Status.Version.Number,
-		AuthType:    auth.AuthTypeToLoginType(id.AuthType),
+		ID:                   &id.Id,
+		Name:                 &id.Name,
+		Token:                &id.Token,
+		TokenExpiry:          &id.TokenExpiry,
+		TokenExpiryInSeconds: &id.TokenExpiryInSeconds,
+		Revoked:              id.Revoked,
+		Location:             &id.LocationName,
+		Version:              &id.Status.Version.Number,
+		AuthType:             auth.AuthTypeToLoginType(id.AuthType),
 		IdentityProperties: &security.IdentityProperties{
 			Statuses:      status.GetStatuses(id.GetStatus()),
 			ClientType:    clitype,
@@ -57,6 +58,10 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 
 	if id.TokenExpiry != nil {
 		wssdidentity.TokenExpiry = *id.TokenExpiry
+	}
+
+	if id.TokenExpiryInSeconds != nil {
+		wssdidentity.TokenExpiryInSeconds = *id.TokenExpiryInSeconds
 	}
 
 	if id.Location != nil {
