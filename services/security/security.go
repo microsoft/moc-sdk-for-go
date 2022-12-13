@@ -163,11 +163,10 @@ const (
 type OBSOLETE_Operation string
 
 const (
-	OBSOLETE_ReadAccess     OBSOLETE_Operation = "read"
-	OBSOLETE_WriteAccess    OBSOLETE_Operation = "write"
-	OBSOLETE_DeleteAccess   OBSOLETE_Operation = "delete"
-	OBSOLETE_AllAccess      OBSOLETE_Operation = "all"
-	OBSOLETE_ProviderAction OBSOLETE_Operation = "action"
+	OBSOLETE_ReadAccess   OBSOLETE_Operation = "read"
+	OBSOLETE_WriteAccess  OBSOLETE_Operation = "write"
+	OBSOLETE_DeleteAccess OBSOLETE_Operation = "delete"
+	OBSOLETE_AllAccess    OBSOLETE_Operation = "all"
 )
 
 type GeneralOperation string
