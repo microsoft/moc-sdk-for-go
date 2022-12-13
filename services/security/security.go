@@ -160,14 +160,24 @@ const (
 	StoragePermissionsUpdate StoragePermissions = "update"
 )
 
-type Operation string
+type OBSOLETE_Operation string
 
 const (
-	ReadAccess     Operation = "read"
-	WriteAccess    Operation = "write"
-	DeleteAccess   Operation = "delete"
-	AllAccess      Operation = "all"
-	ProviderAction Operation = "action"
+	OBSOLETE_ReadAccess     OBSOLETE_Operation = "read"
+	OBSOLETE_WriteAccess    OBSOLETE_Operation = "write"
+	OBSOLETE_DeleteAccess   OBSOLETE_Operation = "delete"
+	OBSOLETE_AllAccess      OBSOLETE_Operation = "all"
+	OBSOLETE_ProviderAction OBSOLETE_Operation = "action"
+)
+
+type GeneralOperation string
+
+const (
+	ReadAccess     GeneralOperation = "read"
+	WriteAccess    GeneralOperation = "write"
+	DeleteAccess   GeneralOperation = "delete"
+	AllAccess      GeneralOperation = "all"
+	ProviderAction GeneralOperation = "action"
 )
 
 type ProviderAccessOperation string
@@ -345,11 +355,12 @@ type Scope struct {
 }
 
 type Action struct {
+	// Operation - The operation that a permission is refering to
+	OBSOLETE_Operation OBSOLETE_Operation `json:"OBSOLETE_operation,omitempty"`
 	// Provider - The provider type to which an operation is done
 	Provider          ProviderType            `json:"provider,omitempty"`
-	ProviderOperation ProviderAccessOperation `json:"operation,omitempty"`
-	// Operation - The operation that a permission is refering to
-	Operation Operation `json:"operation,omitempty"`
+	ProviderOperation ProviderAccessOperation `json:"provideroperation,omitempty"`
+	Operation         GeneralOperation        `json:"operation,omitempty"`
 }
 
 type RolePermission struct {
