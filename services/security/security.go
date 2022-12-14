@@ -169,14 +169,14 @@ const (
 	OBSOLETE_AllAccess    OBSOLETE_Operation = "all"
 )
 
-type GeneralOperation string
+type Operation string
 
 const (
-	ReadAccess     GeneralOperation = "read"
-	WriteAccess    GeneralOperation = "write"
-	DeleteAccess   GeneralOperation = "delete"
-	AllAccess      GeneralOperation = "all"
-	ProviderAction GeneralOperation = "action"
+	ReadAccess     Operation = "read"
+	WriteAccess    Operation = "write"
+	DeleteAccess   Operation = "delete"
+	AllAccess      Operation = "all"
+	ProviderAction Operation = "action"
 )
 
 type ProviderAccessOperation string
@@ -359,7 +359,7 @@ type Action struct {
 	// Provider - The provider type to which an operation is done
 	Provider          ProviderType            `json:"provider,omitempty"`
 	ProviderOperation ProviderAccessOperation `json:"provideroperation,omitempty"`
-	Operation         GeneralOperation        `json:"operation,omitempty"`
+	Operation         Operation               `json:"operation,omitempty"`
 }
 
 type RolePermission struct {
