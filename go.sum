@@ -160,8 +160,8 @@ github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czP
 github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
 github.com/mattn/go-isatty v0.0.3/go.mod h1:M+lRXTBqGeGNdLjl/ufCoiOlB5xdOkqRJdNxMWT7Zi4=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/microsoft/moc v0.10.26-alpha.2 h1:40Tio1gXcBeKceZuckCofbX87RcsvvfC8uLN2tjUG0I=
-github.com/microsoft/moc v0.10.26-alpha.2/go.mod h1:dOkeGSUQPI+L6YB8DlwCQOgpfUzqHvkk9uzd8sdvgTs=
+github.com/microsoft/moc v0.10.27-alpha.0 h1:/BMgy++D3o1lxArYsAjr8PdCpre7erlOOFYt1RDif3k=
+github.com/microsoft/moc v0.10.27-alpha.0/go.mod h1:dOkeGSUQPI+L6YB8DlwCQOgpfUzqHvkk9uzd8sdvgTs=
 github.com/microsoft/wmi v0.5.0-alpha.11 h1:4RMeVJQgaC4Ai/JoPwvfUrpXK5F77bgav4Imp7Zgmss=
 github.com/microsoft/wmi v0.5.0-alpha.11/go.mod h1:CB4quQE5BBSQWcvI1g95npg6dmCjrAhMgc/jy8D9Jr4=
 github.com/miekg/dns v1.1.25/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=
