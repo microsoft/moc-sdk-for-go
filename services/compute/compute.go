@@ -273,6 +273,8 @@ type VirtualMachineProperties struct {
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// ValidationState - READ-ONLY; The validation status, which only appears in the response.
+	ValidationStatus []*common.ValidationState `json:"validationStatus"`
 	// VMID - READ-ONLY; Specifies the VM unique ID which is a 128-bits identifier that is encoded and stored in all Azure IaaS VMs SMBIOS and can be read using platform BIOS commands.
 	VMID *string `json:"vmId,omitempty"`
 	// VmType - The type of the VM.  Can be either tenant or loadbalancer vm

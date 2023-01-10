@@ -152,6 +152,19 @@ func (c *client) RunCommand(ctx context.Context, group, name string, request *co
 	return
 }
 
+// Get
+func (c *client) Validate(ctx context.Context, group, name string) error {
+	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_VALIDATE, group, name, nil)
+	if err != nil {
+		return err
+	}
+	_, err = c.VirtualMachineAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Private methods
 func (c *client) getVirtualMachineRunCommandRequest(ctx context.Context, group, name string, request *compute.VirtualMachineRunCommandRequest) (mocRequest *wssdcloudcompute.VirtualMachineRunCommandRequest, err error) {
 	vms, err := c.get(ctx, group, name)
