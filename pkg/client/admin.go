@@ -50,3 +50,13 @@ func GetVersionClient(serverAddress *string, authorizer auth.Authorizer) (cadmin
 
 	return cadmin_pb.NewVersionAgentClient(conn), nil
 }
+
+// GetValidationClient returns the validation client to communicate with the wssdcloud agent
+func GetValidationClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_pb.ValidationAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get ValidationClient. Failed to dial: %v", err)
+	}
+
+	return cadmin_pb.NewValidationAgentClient(conn), nil
+}

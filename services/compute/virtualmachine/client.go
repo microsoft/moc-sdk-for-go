@@ -23,6 +23,7 @@ type Service interface {
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
+	Validate(context.Context, string, string) error
 }
 
 type VirtualMachineClient struct {
@@ -344,4 +345,9 @@ func (c *VirtualMachineClient) ListIPs(ctx context.Context, group, name string) 
 		}
 	}
 	return ips, nil
+}
+
+// Validate methods invokes the validate Get method
+func (c *VirtualMachineClient) Validate(ctx context.Context, group, name string) error {
+	return c.internal.Validate(ctx, group, name)
 }
