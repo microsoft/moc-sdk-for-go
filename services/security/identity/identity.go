@@ -44,6 +44,8 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 			CloudPort:     &id.CloudPort,
 			CloudAuthPort: &id.CloudAuthPort,
 		},
+		AutoRotate:    id.AutoRotate,
+		LoginFilePath: &id.LoginFilePath,
 	}
 }
 
@@ -103,6 +105,10 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	}
 
 	wssdidentity.ClientType = clitype
+	wssdidentity.AutoRotate = id.AutoRotate
+	if id.LoginFilePath != nil {
+		wssdidentity.LoginFilePath = *id.LoginFilePath
+	}
 
 	return wssdidentity, nil
 }
