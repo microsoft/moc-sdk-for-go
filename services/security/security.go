@@ -461,4 +461,8 @@ type Identity struct {
 	Tags map[string]*string `json:"tags"`
 	// Properties
 	*IdentityProperties `json:"properties,omitempty"`
+	// Enable auto rotation
+	AutoRotate bool `json:"autorotate,omitempty"`
+	//Login file path
+	LoginFilePath *string `json:"loginfilepath,omitempty"`
 }
