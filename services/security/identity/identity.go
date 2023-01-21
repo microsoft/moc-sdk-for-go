@@ -27,6 +27,14 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		clitype = auth.LoadBalancer
 	}
 
+	tags := make(map[string]*string)
+	if id.Tags != nil {
+		for _, tag := range id.Tags.Tags {
+			tagVal := tag.GetValue()
+			tags[tag.GetKey()] = &tagVal
+		}
+	}
+
 	return &security.Identity{
 		ID:                   &id.Id,
 		Name:                 &id.Name,
@@ -46,6 +54,7 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		},
 		AutoRotate:    id.AutoRotate,
 		LoginFilePath: &id.LoginFilePath,
+		Tags:          tags,
 	}
 }
 
@@ -108,6 +117,14 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	wssdidentity.AutoRotate = id.AutoRotate
 	if id.LoginFilePath != nil {
 		wssdidentity.LoginFilePath = *id.LoginFilePath
+	}
+
+	wssdidentity.Tags = &wssdcloudcommon.Tags{}
+	for tagName, tagValue := range id.Tags {
+		wssdidentity.Tags.Tags = append(wssdidentity.Tags.Tags, &wssdcloudcommon.Tag{
+			Key:   tagName,
+			Value: *tagValue,
+		})
 	}
 
 	return wssdidentity, nil
