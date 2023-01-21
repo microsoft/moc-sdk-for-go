@@ -117,7 +117,7 @@ func (c *client) Query(ctx context.Context, group, query string) (*[]compute.Vir
 
 // Stop
 func (c *client) Stop(ctx context.Context, group, name string) (err error) {
-	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.VirtualMachineOperation_STOP, group, name)
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Stop, group, name)
 	if err != nil {
 		return
 	}
@@ -128,7 +128,7 @@ func (c *client) Stop(ctx context.Context, group, name string) (err error) {
 
 // Start
 func (c *client) Start(ctx context.Context, group, name string) (err error) {
-	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.VirtualMachineOperation_START, group, name)
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Start, group, name)
 	if err != nil {
 		return
 	}
@@ -150,6 +150,19 @@ func (c *client) RunCommand(ctx context.Context, group, name string, request *co
 	}
 	response, err = c.getVirtualMachineRunCommandResponse(mocResponse)
 	return
+}
+
+// Get
+func (c *client) Validate(ctx context.Context, group, name string) error {
+	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_VALIDATE, group, name, nil)
+	if err != nil {
+		return err
+	}
+	_, err = c.VirtualMachineAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Private methods
@@ -259,7 +272,7 @@ func (c *client) getVirtualMachineRequest(opType wssdcloudproto.Operation, group
 }
 
 func (c *client) getVirtualMachineOperationRequest(ctx context.Context,
-	opType wssdcloudproto.VirtualMachineOperation,
+	opType wssdcloudproto.ProviderAccessOperation,
 	group, name string) (request *wssdcloudcompute.VirtualMachineOperationRequest, err error) {
 
 	vms, err := c.get(ctx, group, name)
