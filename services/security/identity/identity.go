@@ -9,6 +9,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	wssdcloudtags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -46,6 +47,7 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		},
 		AutoRotate:    id.AutoRotate,
 		LoginFilePath: &id.LoginFilePath,
+		Tags:          wssdcloudtags.ProtoToMap(id.Tags),
 	}
 }
 
@@ -109,6 +111,7 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	if id.LoginFilePath != nil {
 		wssdidentity.LoginFilePath = *id.LoginFilePath
 	}
+	wssdidentity.Tags = wssdcloudtags.MapToProto(id.Tags)
 
 	return wssdidentity, nil
 }
