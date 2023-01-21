@@ -9,6 +9,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	wssdcloudtags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -25,14 +26,6 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		clitype = auth.BareMetal
 	} else if id.ClientType == wssdcloudcommon.ClientType_LOADBALANCER {
 		clitype = auth.LoadBalancer
-	}
-
-	tags := make(map[string]*string)
-	if id.Tags != nil {
-		for _, tag := range id.Tags.Tags {
-			tagVal := tag.GetValue()
-			tags[tag.GetKey()] = &tagVal
-		}
 	}
 
 	return &security.Identity{
@@ -54,7 +47,7 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		},
 		AutoRotate:    id.AutoRotate,
 		LoginFilePath: &id.LoginFilePath,
-		Tags:          tags,
+		Tags:          wssdcloudtags.ProtoToMap(id.Tags),
 	}
 }
 
@@ -118,14 +111,7 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	if id.LoginFilePath != nil {
 		wssdidentity.LoginFilePath = *id.LoginFilePath
 	}
-
-	wssdidentity.Tags = &wssdcloudcommon.Tags{}
-	for tagName, tagValue := range id.Tags {
-		wssdidentity.Tags.Tags = append(wssdidentity.Tags.Tags, &wssdcloudcommon.Tag{
-			Key:   tagName,
-			Value: *tagValue,
-		})
-	}
+	wssdidentity.Tags = wssdcloudtags.MapToProto(id.Tags)
 
 	return wssdidentity, nil
 }
