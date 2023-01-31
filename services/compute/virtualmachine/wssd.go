@@ -117,7 +117,7 @@ func (c *client) Query(ctx context.Context, group, query string) (*[]compute.Vir
 
 // Stop
 func (c *client) Stop(ctx context.Context, group, name string) (err error) {
-	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Stop, group, name)
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.VirtualMachineOperation_STOP, group, name)
 	if err != nil {
 		return
 	}
@@ -128,7 +128,7 @@ func (c *client) Stop(ctx context.Context, group, name string) (err error) {
 
 // Start
 func (c *client) Start(ctx context.Context, group, name string) (err error) {
-	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Start, group, name)
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.VirtualMachineOperation_START, group, name)
 	if err != nil {
 		return
 	}
@@ -272,7 +272,7 @@ func (c *client) getVirtualMachineRequest(opType wssdcloudproto.Operation, group
 }
 
 func (c *client) getVirtualMachineOperationRequest(ctx context.Context,
-	opType wssdcloudproto.ProviderAccessOperation,
+	opType wssdcloudproto.VirtualMachineOperation,
 	group, name string) (request *wssdcloudcompute.VirtualMachineOperationRequest, err error) {
 
 	vms, err := c.get(ctx, group, name)
