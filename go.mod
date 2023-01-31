@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/google/uuid v1.2.0
-	github.com/microsoft/moc v0.10.27-alpha.1
+	github.com/microsoft/moc v0.10.27-alpha.0
 	github.com/spf13/viper v1.7.1
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.27.1
@@ -20,6 +20,4 @@ replace (
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
-	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
-	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
 )

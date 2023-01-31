@@ -101,7 +101,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 
 // Revoke
 func (c *client) Revoke(ctx context.Context, group, name string) (*security.Identity, error) {
-	request, err := c.getIdentityOperationRequest(ctx, wssdcloudcommon.ProviderAccessOperation_Identity_Revoke, name)
+	request, err := c.getIdentityOperationRequest(ctx, wssdcloudcommon.IdentityOperation_REVOKE, name)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (c *client) Revoke(ctx context.Context, group, name string) (*security.Iden
 
 // Rotate
 func (c *client) Rotate(ctx context.Context, group, name string) (*security.Identity, error) {
-	request, err := c.getIdentityOperationRequest(ctx, wssdcloudcommon.ProviderAccessOperation_Identity_Rotate, name)
+	request, err := c.getIdentityOperationRequest(ctx, wssdcloudcommon.IdentityOperation_ROTATE, name)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func (c *client) Rotate(ctx context.Context, group, name string) (*security.Iden
 
 // CreateCertificate
 func (c *client) CreateCertificate(ctx context.Context, group, name string, csrs []*security.CertificateRequest) (certificates []*security.Certificate, key string, err error) {
-	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.ProviderAccessOperation_IdentityCertificate_Create, name, csrs)
+	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.IdentityCertificateOperation_CREATE_CERTIFICATE, name, csrs)
 	if err != nil {
 		return nil, key, err
 	}
@@ -164,7 +164,7 @@ func (c *client) CreateCertificate(ctx context.Context, group, name string, csrs
 
 // RenewCertificate
 func (c *client) RenewCertificate(ctx context.Context, group, name string, csrs []*security.CertificateRequest) (certificates []*security.Certificate, key string, err error) {
-	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.ProviderAccessOperation_IdentityCertificate_Renew, name, csrs)
+	request, key, err := c.getIdentityCertificateRequest(ctx, wssdcloudcommon.IdentityCertificateOperation_RENEW_CERTIFICATE, name, csrs)
 	if err != nil {
 		return nil, key, err
 	}
@@ -215,7 +215,7 @@ func getIdentityRequest(opType wssdcloudcommon.Operation,
 }
 
 func (c *client) getIdentityOperationRequest(ctx context.Context,
-	opType wssdcloudcommon.ProviderAccessOperation,
+	opType wssdcloudcommon.IdentityOperation,
 	name string) (request *wssdcloudsecurity.IdentityOperationRequest, err error) {
 
 	identities, err := c.get(ctx, name)
@@ -231,7 +231,7 @@ func (c *client) getIdentityOperationRequest(ctx context.Context,
 }
 
 func (c *client) getIdentityCertificateRequest(ctx context.Context,
-	opType wssdcloudcommon.ProviderAccessOperation,
+	opType wssdcloudcommon.IdentityCertificateOperation,
 	name string, csrs []*security.CertificateRequest) (request *wssdcloudsecurity.IdentityCertificateRequest, key string, err error) {
 	wssdCSRS := []*wssdcloudsecurity.CertificateSigningRequest{}
 	for _, csr := range csrs {

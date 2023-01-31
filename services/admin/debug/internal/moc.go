@@ -8,7 +8,6 @@ import (
 
 	mocclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc/pkg/auth"
-	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 	mocadmin "github.com/microsoft/moc/rpc/common/admin"
 )
 
@@ -27,7 +26,7 @@ func NewDebugClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Stacktrace
 func (c *client) Stacktrace(ctx context.Context) (string, error) {
-	request := getDebugRequest(wssdcloudcommon.ProviderAccessOperation_Debug_StackTrace)
+	request := getDebugRequest(mocadmin.DebugOperation_STACKTRACE)
 	response, err := c.DebugAgentClient.Invoke(ctx, request)
 	if err != nil {
 		return "", err
@@ -35,6 +34,6 @@ func (c *client) Stacktrace(ctx context.Context) (string, error) {
 	return response.Result, nil
 }
 
-func getDebugRequest(operation wssdcloudcommon.ProviderAccessOperation) *mocadmin.DebugRequest {
+func getDebugRequest(operation mocadmin.DebugOperation) *mocadmin.DebugRequest {
 	return &mocadmin.DebugRequest{OperationType: operation}
 }
