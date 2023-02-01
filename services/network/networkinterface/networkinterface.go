@@ -8,6 +8,7 @@ import (
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcommonproto "github.com/microsoft/moc/rpc/common"
+	"github.com/microsoft/moc/pkg/tags"
 )
 
 // Conversion functions from network interface to wssdcloud network interface
@@ -153,6 +154,7 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			EnableAcceleratedNetworking: getIovSetting(c),
 			DNSSettings:                 getWssdDNSSettings(c.Dns),
 		},
+		Tags: tags.ProtoToMap(c.Tags),
 	}
 
 	return vnetIntf, nil
