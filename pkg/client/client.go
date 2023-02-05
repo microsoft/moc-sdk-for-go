@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/keepalive"
 	log "k8s.io/klog"
 
@@ -85,6 +86,16 @@ func getDefaultDialOption(authorizer auth.Authorizer) []grpc.DialOption {
 	return opts
 }
 
+func isValidConnections(conn *grpc.ClientConn) bool {
+	if conn.GetState() == connectivity.TransientFailure {
+		return false
+	}
+	if conn.GetState() != connectivity.Shutdown {
+		return false
+	}
+	return true
+}
+
 func getClientConnection(serverAddress *string, authorizer auth.Authorizer) (*grpc.ClientConn, error) {
 	mux.Lock()
 	defer mux.Unlock()
@@ -92,7 +103,10 @@ func getClientConnection(serverAddress *string, authorizer auth.Authorizer) (*gr
 
 	conn, ok := connectionCache[endpoint]
 	if ok {
-		return conn, nil
+		if isValidConnections(conn) {
+			return conn, nil
+		}
+		conn.Close()
 	}
 
 	opts := getDefaultDialOption(authorizer)
