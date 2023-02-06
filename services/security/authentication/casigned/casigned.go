@@ -112,7 +112,7 @@ func RenewRoutine(ctx context.Context, group, server string) {
 		}
 		//reset renewalAttempt after successful renewal
 		renewalAttempt = 0
-		log.Println("Certificate renewal complete\n")
+		log.Println("Certificate renewal complete")
 	}
 }
 
