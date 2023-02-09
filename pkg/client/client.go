@@ -87,13 +87,15 @@ func getDefaultDialOption(authorizer auth.Authorizer) []grpc.DialOption {
 }
 
 func isValidConnections(conn *grpc.ClientConn) bool {
-	if conn.GetState() == connectivity.TransientFailure {
+
+	switch conn.GetState() {
+	case connectivity.TransientFailure:
+		fallthrough
+	case connectivity.Shutdown:
 		return false
+	default:
+		return true
 	}
-	if conn.GetState() == connectivity.Shutdown {
-		return false
-	}
-	return true
 }
 
 func getClientConnection(serverAddress *string, authorizer auth.Authorizer) (*grpc.ClientConn, error) {
