@@ -90,7 +90,7 @@ func isValidConnections(conn *grpc.ClientConn) bool {
 	if conn.GetState() == connectivity.TransientFailure {
 		return false
 	}
-	if conn.GetState() != connectivity.Shutdown {
+	if conn.GetState() == connectivity.Shutdown {
 		return false
 	}
 	return true
