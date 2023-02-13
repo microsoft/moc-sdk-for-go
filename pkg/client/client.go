@@ -4,6 +4,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -11,12 +12,15 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/status"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/keepalive"
 	log "k8s.io/klog"
 
+	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
 	"github.com/microsoft/moc/pkg/auth"
 )
 
@@ -30,6 +34,20 @@ var (
 	mux             sync.Mutex
 	connectionCache map[string]*grpc.ClientConn
 )
+
+func clientConnOptionsInterceptor() grpc.UnaryClientInterceptor {
+	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+		err := invoker(ctx, method, req, reply, cc, opts...)
+		if err != nil {
+			st, _ := status.FromError(err)
+			exitProcess := !constant.GetClientOpts().NoExitOnConnFailure
+			if st.Code() == codes.Unavailable && exitProcess {
+				log.Fatal("Communication with cloud agent failed. Exiting Process.")
+			}
+		}
+		return err
+	}
+}
 
 func init() {
 	connectionCache = map[string]*grpc.ClientConn{}
@@ -112,6 +130,7 @@ func getClientConnection(serverAddress *string, authorizer auth.Authorizer) (*gr
 	}
 
 	opts := getDefaultDialOption(authorizer)
+	opts = append(opts, grpc.WithUnaryInterceptor(clientConnOptionsInterceptor()))
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		log.Fatalf("Failed to dial: %v", err)
