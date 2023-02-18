@@ -6,14 +6,15 @@ package internal
 import (
 	"context"
 	"errors"
-	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc/pkg/auth"
-	loggingHelpers "github.com/microsoft/moc/pkg/logging"
-	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
 	"io"
 	"os"
 	"strconv"
 	"time"
+
+	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc/pkg/auth"
+	loggingHelpers "github.com/microsoft/moc/pkg/logging"
+	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
 )
 
 type client struct {
@@ -66,8 +67,34 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 	return nil
 }
 
+func (c *client) SetLogLevel(ctx context.Context, setloglevel uint32) error {
+	request := setLogLevelRequest(setloglevel)
+	fileStreamClient, err := c.LogAgentClient.Set(ctx, request)
+	if err != nil {
+		return err
+	}
+	getLogFileResponse, innerErr := fileStreamClient.Recv()
+
+	if innerErr != nil {
+		return innerErr
+	}
+
+	if getLogFileResponse.Done {
+		return nil
+	}
+
+	Err := errors.New("error setting tracelevel")
+	return Err
+}
+
 func getLoggingRequest(location string) *wssdadmin.LogRequest {
 	return &wssdadmin.LogRequest{
 		Location: location,
+	}
+}
+
+func setLogLevelRequest(setloglevel uint32) *wssdadmin.SetRequest {
+	return &wssdadmin.SetRequest{
+		Settracelevel: setloglevel,
 	}
 }
