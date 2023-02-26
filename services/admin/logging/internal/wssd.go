@@ -67,8 +67,8 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 	return nil
 }
 
-func (c *client) SetLogLevel(ctx context.Context, setloglevel uint32) error {
-	request := setLogLevelRequest(setloglevel)
+func (c *client) SetTraceLevel(ctx context.Context, location string, settracelevel uint32) error {
+	request := setTraceLevelRequest(settracelevel, location)
 	fileStreamClient, err := c.LogAgentClient.Set(ctx, request)
 	if err != nil {
 		return err
@@ -93,8 +93,9 @@ func getLoggingRequest(location string) *wssdadmin.LogRequest {
 	}
 }
 
-func setLogLevelRequest(setloglevel uint32) *wssdadmin.SetRequest {
+func setTraceLevelRequest(settracelevel uint32, location string) *wssdadmin.SetRequest {
 	return &wssdadmin.SetRequest{
-		Settracelevel: setloglevel,
+		Settracelevel: settracelevel,
+		Location:      location,
 	}
 }
