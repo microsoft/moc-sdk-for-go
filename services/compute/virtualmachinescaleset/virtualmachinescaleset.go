@@ -140,9 +140,12 @@ func (c *client) getVirtualMachineScaleSetSecurityProfile(vm *wssdcloudcompute.V
 }
 
 func (c *client) getVirtualMachineScaleSetGuestAgentProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.GuestAgentProfile, error) {
-	guestAgentProfile := &compute.GuestAgentProfile{}
-	if vm.GuestAgent != nil {
-		guestAgentProfile.Enabled = &vm.GuestAgent.Enabled
+	if vm.GuestAgent == nil {
+		return nil, nil
+	}
+
+	guestAgentProfile := &compute.GuestAgentProfile{
+		Enabled: &vm.GuestAgent.Enabled,
 	}
 
 	return guestAgentProfile, nil
