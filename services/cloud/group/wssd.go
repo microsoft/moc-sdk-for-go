@@ -79,7 +79,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
-///////////////////////////
+// /////////////////////////
 // Private Methods
 func (c *client) getGroupFromResponse(response *wssdcloud.GroupResponse) *[]cloud.Group {
 	gps := []cloud.Group{}
