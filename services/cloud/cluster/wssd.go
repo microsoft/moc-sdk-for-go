@@ -126,7 +126,7 @@ func (c *client) Unload(ctx context.Context, location, name string) error {
 	return err
 }
 
-///////////////////////////
+// /////////////////////////
 // Private Methods
 func (c *client) validate(ctx context.Context, sg *cloud.Cluster, location string) (err error) {
 	if sg == nil {

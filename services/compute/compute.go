@@ -720,7 +720,7 @@ const (
 	ProvisioningState2Updating ProvisioningState2 = "Updating"
 )
 
-//Http Image properties
+// Http Image properties
 type HttpImageProperties struct {
 	HttpURL string `json:"httpURL,omitempty"`
 }
@@ -732,7 +732,7 @@ type SFSImageProperties struct {
 	Parts       int32  `json:"parts,omitempty"`
 }
 
-//Local image properties
+// Local image properties
 type LocalImageProperties struct {
 	Path string `json:"path,omitempty"`
 }
@@ -741,7 +741,7 @@ type CloneImageProperties struct {
 	CloneSource string `json:"cloneSource,omitempty"`
 }
 
-//Azure GalleryImage properties
+// Azure GalleryImage properties
 type AzureGalleryImageProperties struct {
 	// SasURL - Specifies the SAS URI for the image
 	SasURI string `json:"sasURI,omitempty"`
