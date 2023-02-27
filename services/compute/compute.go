@@ -230,6 +230,11 @@ type NetworkProfile struct {
 	NetworkInterfaces *[]NetworkInterfaceReference `json:"networkinterfaces,omitempty"`
 }
 
+type GuestAgentProfile struct {
+	// Enabled - Specifies whether guest agent should be enabled on the virtual machine.
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
 type UefiSettings struct {
 	// SecureBootEnabled - Specifies whether secure boot should be enabled on the virtual machine.
 	SecureBootEnabled *bool `json:"secureBootEnabled,omitempty"`
@@ -267,6 +272,8 @@ type VirtualMachineProperties struct {
 	NetworkProfile *NetworkProfile `json:"networkprofile,omitempty"`
 	// HardwareProfile - Specifies the hardware settings for the virtual machine.
 	HardwareProfile *HardwareProfile `json:"hardwareprofile,omitempty"`
+	// GuestAgentProfile - Specifies the guest agent settings for the virtual machine.
+	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
@@ -563,6 +570,8 @@ type VirtualMachineScaleSetVMProfile struct {
 	StorageProfile *VirtualMachineScaleSetStorageProfile `json:"storageProfile,omitempty"`
 	// HardwareProfile
 	HardwareProfile *VirtualMachineScaleSetHardwareProfile `json:"hardwareProfile,omitempty"`
+	// GuestAgentProfile - Specifies the guest agent settings for the virtual machine.
+	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// OsProfile

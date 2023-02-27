@@ -43,6 +43,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get Network Configuration")
 	}
 
+	guestAgentConfig, err := c.getWssdVirtualMachineGuestAgentConfiguration(vm.GuestAgentProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -51,15 +56,16 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	}
 
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:      *vm.Name,
-		Storage:   storageConfig,
-		Hardware:  hardwareConfig,
-		Security:  securityConfig,
-		Os:        osconfig,
-		Network:   networkConfig,
-		GroupName: group,
-		VmType:    vmtype,
-		Tags:      getWssdTags(vm.Tags),
+		Name:       *vm.Name,
+		Storage:    storageConfig,
+		Hardware:   hardwareConfig,
+		Security:   securityConfig,
+		GuestAgent: guestAgentConfig,
+		Os:         osconfig,
+		Network:    networkConfig,
+		GroupName:  group,
+		VmType:     vmtype,
+		Tags:       getWssdTags(vm.Tags),
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -390,6 +396,20 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	return &osconfig, nil
 }
 
+func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAgentProfile) (*wssdcloudcompute.GuestAgentConfiguration, error) {
+	gac := &wssdcloudcompute.GuestAgentConfiguration{}
+
+	if s == nil {
+		return gac, nil
+	}
+
+	if s.Enabled != nil {
+		gac.Enabled = *s.Enabled
+	}
+
+	return gac, nil
+}
+
 // Conversion functions from wssdcloudcompute to compute
 
 func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group string) *compute.VirtualMachine {
@@ -412,6 +432,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
+			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
@@ -529,6 +550,16 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 		*np.NetworkInterfaces = append(*np.NetworkInterfaces, compute.NetworkInterfaceReference{ID: &((*nic).NetworkInterfaceName)})
 	}
 	return np
+}
+
+func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcloudcompute.GuestAgentConfiguration) *compute.GuestAgentProfile {
+	g := &compute.GuestAgentProfile{}
+
+	if ga != nil {
+		g.Enabled = &ga.Enabled
+	}
+
+	return g
 }
 
 func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
