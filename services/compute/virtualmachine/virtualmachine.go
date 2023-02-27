@@ -553,10 +553,12 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 }
 
 func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcloudcompute.GuestAgentConfiguration) *compute.GuestAgentProfile {
-	g := &compute.GuestAgentProfile{}
+	if ga == nil {
+		return nil
+	}
 
-	if ga != nil {
-		g.Enabled = &ga.Enabled
+	g := &compute.GuestAgentProfile{
+		Enabled: &ga.Enabled,
 	}
 
 	return g
