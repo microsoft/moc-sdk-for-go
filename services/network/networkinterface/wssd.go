@@ -88,7 +88,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
-/////////////// private methods  ///////////////
+// ///////////// private methods  ///////////////
 func (c *client) getNetworkInterfaceRequest(opType wssdcloudcommon.Operation, group, name string, networkInterface *network.Interface) (*wssdcloudnetwork.NetworkInterfaceRequest, error) {
 	request := &wssdcloudnetwork.NetworkInterfaceRequest{
 		OperationType:     opType,

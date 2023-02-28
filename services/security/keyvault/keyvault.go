@@ -236,7 +236,7 @@ type KeyImportExportValue struct {
 }
 
 // JSONWebKeySignatureAlgorithm enumerates the values for json web key signature algorithm.
-//https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keysignparameters?view=azure-dotnet-legacy&viewFallbackFrom=azure-dotnet
+// https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keysignparameters?view=azure-dotnet-legacy&viewFallbackFrom=azure-dotnet
 type JSONWebKeySignatureAlgorithm string
 
 const (
@@ -273,7 +273,7 @@ type KeyVerifyParameters struct {
 }
 
 // KeyVerifyResult the key verify operation result.
-//https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keyverifyresult?view=azure-dotnet-legacy
+// https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.keyvault.models.keyverifyresult?view=azure-dotnet-legacy
 type KeyVerifyResult struct {
 	autorest.Response `json:"-"`
 	Value             *bool `json:"value,omitempty"`
