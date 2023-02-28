@@ -79,7 +79,7 @@ func (c *client) Delete(ctx context.Context, name string) error {
 	return err
 }
 
-///////////////////////////
+// /////////////////////////
 // Private Methods
 func (c *client) getLocationFromResponse(response *wssdcloud.LocationResponse) *[]cloud.Location {
 	lcns := []cloud.Location{}

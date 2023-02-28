@@ -90,7 +90,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
-///////////////////////////
+// /////////////////////////
 // Private Methods
 func (c *client) validate(ctx context.Context, sg *cloud.Node, location string) (err error) {
 	if sg == nil {
