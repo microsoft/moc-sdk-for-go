@@ -1,6 +1,6 @@
 module github.com/microsoft/moc-sdk-for-go
 
-go 1.19
+go 1.20
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
