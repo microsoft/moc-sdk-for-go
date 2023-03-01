@@ -7,9 +7,9 @@
         "REDMOND\\madhanm",
         "REDMOND\\dingov"
     ],
-    "instanceUrl": "https://microsoft.visualstudio.com/",
-    "projectName": "OS",
-    "areaPath": "OS\\Core\\LIOF\\Kubernetes\\MSK8S",
-    "iterationPath": "OS\\Future",
+    "instanceUrl": "https://dev.azure.com/msazure",
+    "projectName": "msk8s",
+    "areaPath": "msk8s\\moc",
+    "iterationPath": "msk8s\\future",
     "allTools": true
 }
