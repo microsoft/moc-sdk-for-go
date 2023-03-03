@@ -57,7 +57,7 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 		return nil, errors.Wrapf(errors.InvalidInput, "Identity name is missing")
 	}
 
-	if !(filepath.IsAbs(*id.LoginFilePath)) {
+	if id.LoginFilePath != nil && !(filepath.IsAbs(*id.LoginFilePath)) {
 		return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
 	}
 	wssdidentity := &wssdcloudsecurity.Identity{
