@@ -14,6 +14,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -170,6 +171,10 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 		wssdCloudLB.LocationName = *networkLB.Location
 	}
 
+	if networkLB.Tags != nil {
+		wssdCloudLB.Tags = tags.MapToProto(networkLB.Tags)
+	}
+
 	if networkLB.LoadBalancerPropertiesFormat != nil {
 		lbp := networkLB.LoadBalancerPropertiesFormat
 		if lbp.BackendAddressPools != nil && len(*lbp.BackendAddressPools) > 0 {
@@ -294,6 +299,38 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 			})
 		}
 		networkLB.LoadBalancerPropertiesFormat.LoadBalancingRules = &networkLBRules
+	}
+
+	if len(wssdLB.InboundNatRules) > 0 {
+		networkInboundNatRules := []network.InboundNatRule{}
+
+		for _, wssdInboundNatRule := range wssdLB.InboundNatRules {
+			fePort := int32(wssdInboundNatRule.FrontendPort)
+			bePort := int32(wssdInboundNatRule.BackendPort)
+			protocol := network.TransportProtocolAll
+			if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_All {
+				protocol = network.TransportProtocolAll
+			} else if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_Tcp {
+				protocol = network.TransportProtocolTCP
+			} else if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_Udp {
+				protocol = network.TransportProtocolUDP
+			} else {
+				return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", wssdInboundNatRule.Protocol)
+			}
+
+			newNetworkInboundNatRule := network.InboundNatRule{
+				Name: &wssdInboundNatRule.Name,
+				InboundNatRulePropertiesFormat: &network.InboundNatRulePropertiesFormat{
+					FrontendPort: &fePort,
+					BackendPort:  &bePort,
+					Protocol:     protocol,
+				},
+			}
+
+			networkInboundNatRules = append(networkInboundNatRules, newNetworkInboundNatRule)
+		}
+
+		networkLB.InboundNatRules = &networkInboundNatRules
 	}
 
 	return networkLB, nil
