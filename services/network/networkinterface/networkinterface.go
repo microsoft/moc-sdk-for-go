@@ -192,6 +192,16 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 		addresspools = append(addresspools, bap)
 	}
 	ipconfig.LoadBalancerBackendAddressPools = &addresspools
+
+	var inboundNatRules []network.InboundNatRule
+	for _, inboundnat := range wssdcloudipconfig.InboundNatRules {
+		natrule := network.InboundNatRule{
+			Name: &inboundnat.Name,
+		}
+		inboundNatRules = append(inboundNatRules, natrule)
+	}
+
+	ipconfig.LoadBalancerInboundNatRules = &inboundNatRules
 	return ipconfig
 }
 
