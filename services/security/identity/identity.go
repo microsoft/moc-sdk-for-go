@@ -4,6 +4,7 @@
 package identity
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/microsoft/moc-sdk-for-go/services/security"
@@ -59,6 +60,7 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	}
 
 	if id.LoginFilePath != nil && !(filepath.IsAbs(*id.LoginFilePath)) {
+		fmt.Println(*id.LoginFilePath)
 		return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
 	}
 	wssdidentity := &wssdcloudsecurity.Identity{
