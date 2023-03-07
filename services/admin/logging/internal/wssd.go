@@ -67,23 +67,19 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 	return nil
 }
 
-func (c *client) SetTraceLevel(ctx context.Context, location string, settracelevel uint32) error {
-	request := setTraceLevelRequest(settracelevel, location)
-	fileStreamClient, err := c.LogAgentClient.Set(ctx, request)
+func (c *client) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, leveltype uint32) error {
+	request := setVerbosityLevelRequest(verbositylevel, location, leveltype)
+
+	res, err := c.LogAgentClient.Set(ctx, request)
 	if err != nil {
 		return err
 	}
-	getLogFileResponse, innerErr := fileStreamClient.Recv()
 
-	if innerErr != nil {
-		return innerErr
-	}
-
-	if getLogFileResponse.Done {
+	if res.Done {
 		return nil
 	}
 
-	Err := errors.New("error setting tracelevel")
+	Err := errors.New("error setting verbositylevel")
 	return Err
 }
 
@@ -93,9 +89,10 @@ func getLoggingRequest(location string) *wssdadmin.LogRequest {
 	}
 }
 
-func setTraceLevelRequest(settracelevel uint32, location string) *wssdadmin.SetRequest {
+func setVerbosityLevelRequest(verbositylevel string, location string, leveltype uint32) *wssdadmin.SetRequest {
 	return &wssdadmin.SetRequest{
-		Settracelevel: settracelevel,
-		Location:      location,
+		Verbositylevel: verbositylevel,
+		Location:       location,
+		Leveltype:      leveltype,
 	}
 }

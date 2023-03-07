@@ -13,7 +13,7 @@ import (
 // Service interfacetype Service interface {
 type Service interface {
 	GetLogFile(context.Context, string, string) error
-	SetTraceLevel(context.Context, uint32) error
+	SetVerbosityLevel(context.Context, string, string, uint32) error
 }
 
 // Client structure
@@ -32,6 +32,6 @@ func (c *LoggingClient) GetLogFile(ctx context.Context, location string, filenam
 	return c.internal.GetLogFile(ctx, location, filename)
 }
 
-func (c *LoggingClient) SetTraceLevel(ctx context.Context, setloglevel uint32) error {
-	return c.internal.SetTraceLevel(ctx, setloglevel)
+func (c *LoggingClient) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, leveltype uint32) error {
+	return c.internal.SetVerbosityLevel(ctx, location, verbositylevel, leveltype)
 }
