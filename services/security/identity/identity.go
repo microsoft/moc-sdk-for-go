@@ -4,7 +4,6 @@
 package identity
 
 import (
-	"fmt"
 	"path/filepath"
 
 	"github.com/microsoft/moc-sdk-for-go/services/security"
@@ -59,10 +58,6 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 		return nil, errors.Wrapf(errors.InvalidInput, "Identity name is missing")
 	}
 
-	if id.LoginFilePath != nil && !(filepath.IsAbs(*id.LoginFilePath)) {
-		fmt.Println(*id.LoginFilePath)
-		return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
-	}
 	wssdidentity := &wssdcloudsecurity.Identity{
 		Name: *id.Name,
 	}
@@ -115,6 +110,17 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 
 	wssdidentity.ClientType = clitype
 	wssdidentity.AutoRotate = id.AutoRotate
+
+	// In case auto rotate in enabled, the login file path can not be empty or relatively
+	if id.AutoRotate == true && id.LoginFilePath != nil {
+		if *id.LoginFilePath == "" {
+			return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile path cannot be empty")
+		}
+		if !(filepath.IsAbs(*id.LoginFilePath)) {
+			return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
+		}
+	}
+
 	if id.LoginFilePath != nil {
 		wssdidentity.LoginFilePath = *id.LoginFilePath
 	}
