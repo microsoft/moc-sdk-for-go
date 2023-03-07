@@ -111,8 +111,8 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 	wssdidentity.ClientType = clitype
 	wssdidentity.AutoRotate = id.AutoRotate
 
-	// In case auto rotate in enabled, the login file path can not be relative
-	if id.AutoRotate == true && id.LoginFilePath != nil {
+	// If auto rotate is enabled and login file path is not null and is an empty string
+	if id.AutoRotate == true && id.LoginFilePath != nil && *id.LoginFilePath != "" {
 		if !(filepath.IsAbs(*id.LoginFilePath)) {
 			return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
 		}
