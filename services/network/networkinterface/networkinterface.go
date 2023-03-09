@@ -124,6 +124,9 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 	if ipConfig.Gateway != nil {
 		wssdipconfig.Gateway = *ipConfig.Gateway
 	}
+	if ipConfig.Primary != nil {
+		wssdipconfig.Primary = *ipConfig.Primary
+	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
