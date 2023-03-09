@@ -21,7 +21,7 @@ export GO111MODULE=on
 
 PKG := 
 
-all: format  build
+all: format  build unittest
 
 clean:
 	rm -rf ${OUT} ${OUTEXE} 
@@ -40,5 +40,5 @@ test:
 format:
 	gofmt -s -w pkg/ services/ 
 
-test-security:
-	GOARCH=amd64 go test -v ./services/security/...
+unittest:
+	GOARCH=amd64 GOOS=windows go test -v ./services/security/...
