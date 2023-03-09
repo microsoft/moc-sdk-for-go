@@ -32,6 +32,7 @@ jobs:
   - script: |
       sudo apt-get install gcc-mingw-w64
       mkdir manifest
+      make test-security
       make all
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Build'

@@ -39,3 +39,6 @@ test:
 
 format:
 	gofmt -s -w pkg/ services/ 
+
+test-security:
+	GOARCH=amd64 go test -v ./services/security/...
