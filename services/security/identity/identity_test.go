@@ -4,7 +4,6 @@
 package identity
 
 import (
-	"fmt"
 	"runtime"
 	"testing"
 
@@ -27,9 +26,10 @@ var (
 	cloudPort            int32 = 5000
 	cloudAuthPort        int32 = 5000
 
-	LoginFilePathEmpty    = ""
-	LoginFilePathAbsolute = "C:\\AksHci\\ClusterStorage\\nodeToCloudLogin.yaml"
-	LoginFilepathRelative = ".\\nodeToCloudLogin.yaml"
+	LoginFilePathEmpty           = ""
+	LoginFilePathAbsoluteWindows = "C:\\AksHci\\ClusterStorage\\nodeToCloudLogin.yaml"
+	LoginFilePathAbsoluteLinux   = "/home/usr/AksHci/ClusterStorage/nodeToCloudLogin.yaml"
+	LoginFilepathRelative        = ".\\nodeToCloudLogin.yaml"
 
 	expectedIdenityAutoRotateDisabled = security.Identity{
 		ID:                   &id,
@@ -78,7 +78,7 @@ var (
 		Location:             &location,
 		Version:              &version,
 		AutoRotate:           true,
-		LoginFilePath:        &LoginFilePathAbsolute,
+		// LoginFilePath:        &LoginFilePathAbsoluteWindows,
 		IdentityProperties: &security.IdentityProperties{
 			ClientType:    clientType,
 			CloudFqdn:     &cloudFqdn,
@@ -134,8 +134,11 @@ func Test_getWssdIdeneityValid(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	fmt.Println("Running Absolute file path test")
-	fmt.Println(runtime.GOOS)
+	if runtime.GOOS == "windows" {
+		expectedIdenityAutoRotateEnabledAbsolutePath.LoginFilePath = &LoginFilePathAbsoluteWindows
+	} else {
+		expectedIdenityAutoRotateEnabledAbsolutePath.LoginFilePath = &LoginFilePathAbsoluteLinux
+	}
 	_, err = getWssdIdentity(&expectedIdenityAutoRotateEnabledAbsolutePath)
 	if err != nil {
 		t.Errorf(err.Error())
