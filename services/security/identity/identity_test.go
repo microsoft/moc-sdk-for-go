@@ -157,7 +157,7 @@ func Test_getWssdIdentityRelativelyPath(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		invalidLoginFilePathIdentity.LoginFilePath = &LoginFilepathRelativeWindows
 	} else {
-		invalidLoginFilePathIdentity.LoginFilePath = &LoginFilePathAbsoluteLinux
+		invalidLoginFilePathIdentity.LoginFilePath = &LoginFilePathRelativeLinux
 	}
 	_, err = getWssdIdentity(&invalidLoginFilePathIdentity)
 	if err == nil {
