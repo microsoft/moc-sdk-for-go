@@ -4,6 +4,8 @@
 package identity
 
 import (
+	"fmt"
+	"runtime"
 	"testing"
 
 	"github.com/microsoft/moc-sdk-for-go/services/security"
@@ -132,6 +134,8 @@ func Test_getWssdIdeneityValid(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	fmt.Println("Running Absolute file path test")
+	fmt.Println(runtime.GOOS)
 	_, err = getWssdIdentity(&expectedIdenityAutoRotateEnabledAbsolutePath)
 	if err != nil {
 		t.Errorf(err.Error())
