@@ -29,7 +29,8 @@ var (
 	LoginFilePathEmpty           = ""
 	LoginFilePathAbsoluteWindows = "C:\\AksHci\\ClusterStorage\\nodeToCloudLogin.yaml"
 	LoginFilePathAbsoluteLinux   = "/home/usr/AksHci/ClusterStorage/nodeToCloudLogin.yaml"
-	LoginFilepathRelative        = ".\\nodeToCloudLogin.yaml"
+	LoginFilepathRelativeWindows = ".\\nodeToCloudLogin.yaml"
+	LoginFilePathRelativeLinux   = "./nodeToCloudLogin.yaml"
 
 	expectedIdenityAutoRotateDisabled = security.Identity{
 		ID:                   &id,
@@ -78,7 +79,6 @@ var (
 		Location:             &location,
 		Version:              &version,
 		AutoRotate:           true,
-		// LoginFilePath:        &LoginFilePathAbsoluteWindows,
 		IdentityProperties: &security.IdentityProperties{
 			ClientType:    clientType,
 			CloudFqdn:     &cloudFqdn,
@@ -114,7 +114,6 @@ var (
 		Location:             &location,
 		Version:              &version,
 		AutoRotate:           true,
-		LoginFilePath:        &LoginFilepathRelative,
 		IdentityProperties: &security.IdentityProperties{
 			ClientType:    clientType,
 			CloudFqdn:     &cloudFqdn,
@@ -155,6 +154,11 @@ func Test_getWssdIdentityInvalidNoName(t *testing.T) {
 
 func Test_getWssdIdentityRelativelyPath(t *testing.T) {
 	var err error
+	if runtime.GOOS == "windows" {
+		invalidLoginFilePathIdentity.LoginFilePath = &LoginFilepathRelativeWindows
+	} else {
+		invalidLoginFilePathIdentity.LoginFilePath = &LoginFilePathAbsoluteLinux
+	}
 	_, err = getWssdIdentity(&invalidLoginFilePathIdentity)
 	if err == nil {
 		t.Errorf("ERROR: getWssdIdentity DID NOT throw Identity Loginfile must be absolute filepath error")
