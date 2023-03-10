@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/spf13/viper"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/keepalive"
@@ -60,9 +58,6 @@ func ClearConnectionCache() {
 func isDebugMode() error {
 	debugEnv := strings.ToLower(os.Getenv(debugModeTLS))
 	if debugEnv == "on" {
-		return nil
-	}
-	if viper.GetBool("Debug") {
 		return nil
 	}
 	return fmt.Errorf("Debug Mode not set")
