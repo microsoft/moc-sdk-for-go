@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the Apache v2.0 License.
 
-package casigned
+package authentication
 
 import (
 	"context"
@@ -38,7 +38,7 @@ func UpdateLoginConfig(loginconfig auth.LoginConfig) {
 }
 
 // NewAuthenticationClient creates a client session with the backend wssd agent
-func NewAuthenticationClient(subID string, authorizer auth.Authorizer) (*client, error) {
+func newAuthenticationClient(subID string, authorizer auth.Authorizer) (*client, error) {
 	c, err := wssdclient.GetAuthenticationClient(&subID, authorizer)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func NewAuthenticationClient(subID string, authorizer auth.Authorizer) (*client,
 	return &client{c, subID}, nil
 }
 
-func ReLoginOnExpiry(ctx context.Context, loginconfig auth.LoginConfig, group, cloudFQDN string) error {
+func reLoginOnExpiry(ctx context.Context, loginconfig auth.LoginConfig, group, cloudFQDN string) error {
 	authorizer, err := auth.NewAuthorizerForAuth(loginconfig.Token, loginconfig.Certificate, cloudFQDN)
 	if err != nil {
 		return err
@@ -70,7 +70,7 @@ func (c *client) Login(ctx context.Context, group string, identity *security.Ide
 	return &response.Token, nil
 }
 
-func RenewRoutine(ctx context.Context, group, server string) {
+func renewRoutine(ctx context.Context, group, server string) {
 	renewalAttempt := 0
 	// Waiting for a few seconds to avoid spamming short-lived sdk user
 	time.Sleep(time.Second * 5)
@@ -95,7 +95,7 @@ func RenewRoutine(ctx context.Context, group, server string) {
 			// If certificate is expired, we attempt to re-login with set login config
 			if errors.IsExpired(err) {
 				fmt.Fprintf(os.Stderr, "Certificate Expired, Attemptin re-login %v", err)
-				err = ReLoginOnExpiry(ctx, loginConfig, group, server)
+				err = reLoginOnExpiry(ctx, loginConfig, group, server)
 				if err == nil {
 					log.Println("Re-Login successful")
 					renewalAttempt = 0
@@ -134,7 +134,6 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 		return nil, err
 	}
 	accessFile.ClientCertificate = *clientCert
-	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
 	auth.PrintAccessFile(accessFile)
 	if err := fs.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
@@ -143,7 +142,7 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	UpdateLoginConfig(loginconfig)
 	if enableRenewRoutine {
 		once.Do(func() {
-			go RenewRoutine(ctx, group, c.cloudFQDN)
+			go renewRoutine(ctx, group, c.cloudFQDN)
 		})
 	}
 	return &accessFile, nil
