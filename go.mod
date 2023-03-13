@@ -46,6 +46,6 @@ replace (
 	github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
-	github.com/microsoft/moc => github.com/microsoft/moc v0.11.0-alpha.1.0.20230313170407-d62fcfd42ad1
+	github.com/microsoft/moc => github.com/microsoft/moc v0.11.0-alpha.1.0.20230313181153-37c35147d741
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 )

@@ -67,8 +67,8 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 	return nil
 }
 
-func (c *client) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, leveltype uint32) error {
-	request := setVerbosityLevelRequest(verbositylevel, location, wssdadmin.SetLevelType(leveltype))
+func (c *client) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, levelall bool) error {
+	request := setVerbosityLevelRequest(verbositylevel, location, levelall)
 
 	_, err := c.LogAgentClient.Set(ctx, request)
 	return err
@@ -81,10 +81,10 @@ func getLoggingRequest(location string) *wssdadmin.LogRequest {
 	}
 }
 
-func setVerbosityLevelRequest(verbositylevel string, location string, leveltype wssdadmin.SetLevelType) *wssdadmin.SetRequest {
+func setVerbosityLevelRequest(verbositylevel string, location string, levelall bool) *wssdadmin.SetRequest {
 	return &wssdadmin.SetRequest{
 		Verbositylevel: verbositylevel,
-		Leveltype:      leveltype,
+		Levelall:       levelall,
 		Location:       location,
 	}
 }
