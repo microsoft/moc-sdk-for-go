@@ -32,6 +32,6 @@ func (c *LoggingClient) GetLogFile(ctx context.Context, location string, filenam
 	return c.internal.GetLogFile(ctx, location, filename)
 }
 
-func (c *LoggingClient) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, levelall bool) error {
-	return c.internal.SetVerbosityLevel(ctx, location, verbositylevel, levelall)
+func (c *LoggingClient) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, include_nodeagents bool) error {
+	return c.internal.SetVerbosityLevel(ctx, location, verbositylevel, include_nodeagents)
 }
