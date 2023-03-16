@@ -14,6 +14,7 @@ import (
 type Service interface {
 	GetLogFile(context.Context, string, string) error
 	SetVerbosityLevel(context.Context, string, string, bool) error
+	GetVerbosityLevel(context.Context) (string, error)
 }
 
 // Client structure
@@ -34,4 +35,8 @@ func (c *LoggingClient) GetLogFile(ctx context.Context, location string, filenam
 
 func (c *LoggingClient) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, include_nodeagents bool) error {
 	return c.internal.SetVerbosityLevel(ctx, location, verbositylevel, include_nodeagents)
+}
+
+func (c *LoggingClient) GetVerbosityLevel(ctx context.Context) (string, error) {
+	return c.internal.GetVerbosityLevel(ctx)
 }
