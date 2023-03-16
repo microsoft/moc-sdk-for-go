@@ -16,6 +16,10 @@ const (
 	TransportProtocolTCP TransportProtocol = "Tcp"
 	// TransportProtocolUDP
 	TransportProtocolUDP TransportProtocol = "Udp"
+	// TransportProtocolICMPv4
+	TransportProtocolICMPv4 TransportProtocol = "Icmpv4"
+	// TransportProtocolICMPv6
+	TransportProtocolICMPv6 TransportProtocol = "Icmpv6"
 )
 
 // SubResource reference to another subresource.
@@ -796,7 +800,7 @@ type SecurityRulePropertiesFormat struct {
 	// Access - The network traffic is allowed or denied. Possible values include: 'SecurityRuleAccessAllow', 'SecurityRuleAccessDeny'
 	Access SecurityRuleAccess `json:"access,omitempty"`
 	// Priority - The priority of the rule. The value can be between 100 and 4096. The priority number must be unique for each rule in the collection. The lower the priority number, the higher the priority of the rule.
-	Priority *int32 `json:"priority,omitempty"`
+	Priority *uint32 `json:"priority,omitempty"`
 	// Direction - The direction of the rule. The direction specifies if rule will be evaluated on incoming or outgoing traffic. Possible values include: 'SecurityRuleDirectionInbound', 'SecurityRuleDirectionOutbound'
 	Direction SecurityRuleDirection `json:"direction,omitempty"`
 	// ProvisioningState - The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
