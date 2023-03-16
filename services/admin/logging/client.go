@@ -12,6 +12,8 @@ import (
 // Service interfacetype Service interface {
 type Service interface {
 	GetLogFile(context.Context, string, string) error
+	SetVerbosityLevel(context.Context, string, string, bool) error
+	GetVerbosityLevel(context.Context) (string, error)
 }
 
 // Client structure
@@ -28,4 +30,12 @@ func NewLoggingClient(cloudFQDN string, authorizer auth.Authorizer) (*LoggingCli
 // gets a file from the corresponding node agent and writes it to filename
 func (c *LoggingClient) GetLogFile(ctx context.Context, location string, filename string) error {
 	return c.internal.GetLogFile(ctx, location, filename)
+}
+
+func (c *LoggingClient) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, include_nodeagents bool) error {
+	return c.internal.SetVerbosityLevel(ctx, location, verbositylevel, include_nodeagents)
+}
+
+func (c *LoggingClient) GetVerbosityLevel(ctx context.Context) (string, error) {
+	return c.internal.GetVerbosityLevel(ctx)
 }
