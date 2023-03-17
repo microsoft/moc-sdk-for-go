@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the Apache v2.0 license.
-package casigned
+package authentication
 
 import (
 	"testing"

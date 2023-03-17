@@ -1,23 +1,18 @@
 module github.com/microsoft/moc-sdk-for-go
 
-go 1.20
+go 1.16
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
 	github.com/Azure/go-autorest/autorest v0.9.0
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/google/uuid v1.3.0
-	github.com/microsoft/moc v0.10.28-alpha.2
-	github.com/spf13/viper v1.15.0
+	github.com/microsoft/moc v0.11.0-alpha.1
 	google.golang.org/grpc v1.52.0
 	k8s.io/klog v1.0.0
 )
 
 require (
-	github.com/Azure/go-autorest/autorest/adal v0.5.0 // indirect
-	github.com/Azure/go-autorest/logger v0.1.0 // indirect
-	github.com/Azure/go-autorest/tracing v0.5.0 // indirect
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
