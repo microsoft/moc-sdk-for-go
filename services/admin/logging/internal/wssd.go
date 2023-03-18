@@ -10,6 +10,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	loggingHelpers "github.com/microsoft/moc/pkg/logging"
 	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
+	wssdcomadm "github.com/microsoft/moc/rpc/common/admin"
 	"io"
 	"os"
 	"strconv"
@@ -68,7 +69,7 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 
 func (c *client) SetVerbosityLevel(ctx context.Context, location string, verbositylevel string, include_nodeagents bool) error {
 
-	if _, ok := wssdadmin.VerbosityLevels_value[verbositylevel]; !ok {
+	if _, ok := wssdcomadm.VerbosityLevels_value[verbositylevel]; !ok {
 		return errors.New(`can not set provided verbositylevel, provided string should match one of "Verbose","Debug","Info","Warn","Error" and should be case sensitive `)
 	}
 	request := setVerbosityLevelRequest(verbositylevel, location, include_nodeagents)
@@ -81,7 +82,6 @@ func (c *client) SetVerbosityLevel(ctx context.Context, location string, verbosi
 func (c *client) GetVerbosityLevel(ctx context.Context) (string, error) {
 
 	request := getLevelRequest()
-
 	res, err := c.LogAgentClient.GetLevel(ctx, request)
 	return res.Level, err
 
@@ -95,7 +95,7 @@ func getLoggingRequest(location string) *wssdadmin.LogRequest {
 
 func setVerbosityLevelRequest(verbositylevel string, location string, include_nodeagents bool) *wssdadmin.SetRequest {
 	return &wssdadmin.SetRequest{
-		Verbositylevel:    wssdadmin.VerbosityLevels_value[verbositylevel],
+		Verbositylevel:    wssdcomadm.VerbosityLevels_value[verbositylevel],
 		IncludeNodeagents: include_nodeagents,
 		Location:          location,
 	}
