@@ -134,6 +134,7 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 		return nil, err
 	}
 	accessFile.ClientCertificate = *clientCert
+	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
 	auth.PrintAccessFile(accessFile)
 	if err := fs.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
