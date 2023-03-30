@@ -7,8 +7,6 @@ import (
 	"context"
 
 	"github.com/microsoft/moc-sdk-for-go/services/security"
-	"github.com/microsoft/moc-sdk-for-go/services/security/authentication/casigned"
-	"github.com/microsoft/moc-sdk-for-go/services/security/authentication/selfsigned"
 	"github.com/microsoft/moc/pkg/auth"
 )
 
@@ -26,7 +24,7 @@ type AuthenticationClient struct {
 
 // NewClient method returns new client
 func NewAuthenticationClient(cloudFQDN string, authorizer auth.Authorizer) (*AuthenticationClient, error) {
-	c, err := selfsigned.NewAuthenticationClient(cloudFQDN, authorizer)
+	c, err := newAuthenticationClient(cloudFQDN, authorizer)
 	if err != nil {
 		return nil, err
 	}
@@ -36,22 +34,12 @@ func NewAuthenticationClient(cloudFQDN string, authorizer auth.Authorizer) (*Aut
 
 // NewClient method returns new client based on the authentication mode
 func NewAuthenticationClientAuthMode(cloudFQDN string, loginconfig auth.LoginConfig) (*AuthenticationClient, error) {
-	var c Service
-	var err error
-
 	authorizer, err := auth.NewAuthorizerForAuth(loginconfig.Token, loginconfig.Certificate, cloudFQDN)
 	if err != nil {
 		return nil, err
 	}
 
-	switch loginconfig.Type {
-	case auth.SelfSigned:
-		c, err = selfsigned.NewAuthenticationClient(cloudFQDN, authorizer)
-	case auth.CASigned:
-		c, err = casigned.NewAuthenticationClient(cloudFQDN, authorizer)
-	default:
-		c, err = selfsigned.NewAuthenticationClient(cloudFQDN, authorizer)
-	}
+	c, err := newAuthenticationClient(cloudFQDN, authorizer)
 	if err != nil {
 		return nil, err
 	}

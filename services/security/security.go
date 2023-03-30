@@ -398,8 +398,6 @@ type Identity struct {
 	TokenExpiryInSeconds *int64 `json:"tokenexpiryinseconds,omitempty"`
 	// Revoked
 	Revoked bool `json:"revoked,omitempty"`
-	// AuthType
-	AuthType auth.LoginType `json:"AuthType,omitempty"`
 	// Certificate string encoded in base64
 	Certificate *string `json:"certificate,omitempty"`
 	// Location - Resource location

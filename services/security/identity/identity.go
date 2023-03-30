@@ -39,7 +39,6 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		Revoked:              id.Revoked,
 		Location:             &id.LocationName,
 		Version:              &id.Status.Version.Number,
-		AuthType:             auth.AuthTypeToLoginType(id.AuthType),
 		IdentityProperties: &security.IdentityProperties{
 			Statuses:      status.GetStatuses(id.GetStatus()),
 			ClientType:    clitype,
@@ -58,9 +57,6 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 		return nil, errors.Wrapf(errors.InvalidInput, "Identity name is missing")
 	}
 
-	if id.LoginFilePath != nil && !(filepath.IsAbs(*id.LoginFilePath)) {
-		return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
-	}
 	wssdidentity := &wssdcloudsecurity.Identity{
 		Name: *id.Name,
 	}
@@ -113,6 +109,14 @@ func getWssdIdentity(id *security.Identity) (*wssdcloudsecurity.Identity, error)
 
 	wssdidentity.ClientType = clitype
 	wssdidentity.AutoRotate = id.AutoRotate
+
+	// If auto rotate is enabled and login file path is not null and is an empty string
+	if id.AutoRotate == true && id.LoginFilePath != nil && *id.LoginFilePath != "" {
+		if !(filepath.IsAbs(*id.LoginFilePath)) {
+			return nil, errors.Wrapf(errors.InvalidInput, "Identity Loginfile must be absolute filepath")
+		}
+	}
+
 	if id.LoginFilePath != nil {
 		wssdidentity.LoginFilePath = *id.LoginFilePath
 	}
