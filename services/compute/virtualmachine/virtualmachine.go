@@ -433,6 +433,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
+			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
@@ -562,6 +563,33 @@ func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcloudcompute.GuestAg
 	}
 
 	return g
+}
+
+func (c *client) getVirtualMachineGuestInstanceView(g *wssdcommon.VirtualMachineAgentInstanceView) *compute.GuestAgentInstanceView {
+	if g == nil {
+		return nil
+	}
+
+	gap := &compute.GuestAgentInstanceView{
+		AgentVersion: g.GetVmAgentVersion(),
+	}
+
+	if g.Statuses != nil {
+		gap.Statuses = []*compute.InstanceViewStatus{}
+		for _, status := range g.Statuses {
+			gapStatus := compute.InstanceViewStatus{
+				Code:          status.GetCode(),
+				Level:         status.GetLevel(),
+				DisplayStatus: status.GetDisplayStatus(),
+				Message:       status.GetMessage(),
+				Time:          status.GetTime(),
+			}
+
+			gap.Statuses = append(gap.Statuses, &gapStatus)
+		}
+	}
+
+	return gap
 }
 
 func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
