@@ -235,6 +235,26 @@ type GuestAgentProfile struct {
 	Enabled *bool `json:"enabled,omitempty"`
 }
 
+type InstanceViewStatus struct {
+	// Code - READ-ONLY; The status code, which only appears in the response.
+	Code string `json:"code,omitempty"`
+	// Level - READ-ONLY; The level code, which only appears in the response.
+	Level string `json:"level,omitempty"`
+	// DisplayStatus - READ-ONLY; The short localizable label for the status, which only appears in the response.
+	DisplayStatus string `json:"displayStatus,omitempty"`
+	// Message - READ-ONLY; The detailed status message, including for alerts and error messages, which only appears in the response.
+	Message string `json:"message,omitempty"`
+	// Time - READ-ONLY; The time of the status, which only appears in the response.
+	Time string `json:"time,omitempty"`
+}
+
+type GuestAgentInstanceView struct {
+	// AgentVersion - READ-ONLY; The Guest Agent full version, which only appears in the response.
+	AgentVersion string `json:"agentVersion,omitempty"`
+	// Statuses - READ-ONLY; The resource status information, which only appears in the response.
+	Statuses []*InstanceViewStatus `json:"statuses,omitempty"`
+}
+
 type UefiSettings struct {
 	// SecureBootEnabled - Specifies whether secure boot should be enabled on the virtual machine.
 	SecureBootEnabled *bool `json:"secureBootEnabled,omitempty"`
@@ -282,6 +302,8 @@ type VirtualMachineProperties struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// ValidationState - READ-ONLY; The validation status, which only appears in the response.
 	ValidationStatus []*common.ValidationState `json:"validationStatus"`
+	// GuestAgentInstanceView - READ-ONLY; The info of the Agent running on the virtual machine, which only appears in the response.
+	GuestAgentInstanceView *GuestAgentInstanceView `json:"guestAgentInstanceView,omitempty"`
 	// VMID - READ-ONLY; Specifies the VM unique ID which is a 128-bits identifier that is encoded and stored in all Azure IaaS VMs SMBIOS and can be read using platform BIOS commands.
 	VMID *string `json:"vmId,omitempty"`
 	// VmType - The type of the VM.  Can be either tenant or loadbalancer vm
