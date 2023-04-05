@@ -39,6 +39,7 @@ func getIdentity(id *wssdcloudsecurity.Identity) *security.Identity {
 		Revoked:              id.Revoked,
 		Location:             &id.LocationName,
 		Version:              &id.Status.Version.Number,
+		AuthType:             auth.AuthTypeToLoginType(id.AuthType),
 		IdentityProperties: &security.IdentityProperties{
 			Statuses:      status.GetStatuses(id.GetStatus()),
 			ClientType:    clitype,
