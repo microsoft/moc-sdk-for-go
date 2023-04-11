@@ -8,6 +8,7 @@ import (
 
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
 )
 
@@ -23,6 +24,7 @@ func getWssdContainer(c *storage.Container, locationName string) (*wssdcloudstor
 	wssdcontainer := &wssdcloudstorage.Container{
 		Name:         *c.Name,
 		LocationName: locationName,
+		Tags:         tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -69,5 +71,6 @@ func getContainer(c *wssdcloudstorage.Container, location string) *storage.Conta
 			},
 		},
 		Version: &c.Status.Version.Number,
+		Tags:    tags.ProtoToMap(c.Tags),
 	}
 }
