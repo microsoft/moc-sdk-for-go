@@ -16,17 +16,17 @@ func getActions(mocactions []*wssdcloudsecurity.Action) ([]security.Action, erro
 	var actions []security.Action
 	for _, mocaction := range mocactions {
 		action := security.Action{}
-		switch mocaction.Operation {
+		switch mocaction.GeneralOperation {
 		case wssdcloudsecurity.GeneralAccessOperation_Read:
-			action.Operation = security.ReadAccess
+			action.GeneralOperation = security.ReadAccess
 		case wssdcloudsecurity.GeneralAccessOperation_Write:
-			action.Operation = security.WriteAccess
+			action.GeneralOperation = security.WriteAccess
 		case wssdcloudsecurity.GeneralAccessOperation_Delete:
-			action.Operation = security.DeleteAccess
+			action.GeneralOperation = security.DeleteAccess
 		case wssdcloudsecurity.GeneralAccessOperation_All:
-			action.Operation = security.AllAccess
+			action.GeneralOperation = security.AllAccess
 		case wssdcloudsecurity.GeneralAccessOperation_ProviderAction:
-			action.Operation = security.ProviderAction
+			action.GeneralOperation = security.ProviderAction
 		default:
 			return nil, errors.Wrapf(errors.InvalidInput, "[getactions] Access: [%v]", mocaction.Operation)
 		}
@@ -128,17 +128,17 @@ func getMocAction(action *security.Action) (*wssdcloudsecurity.Action, error) {
 		return mocaction, nil
 	}
 
-	switch action.Operation {
+	switch action.GeneralOperation {
 	case security.ReadAccess:
-		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_Read
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_Read
 	case security.WriteAccess:
-		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_Write
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_Write
 	case security.DeleteAccess:
-		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_Delete
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_Delete
 	case security.AllAccess:
-		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_All
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_All
 	case security.ProviderAction:
-		mocaction.Operation = wssdcloudsecurity.GeneralAccessOperation_ProviderAction
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_ProviderAction
 		mocaction.ProviderOperation, _ = getMocProviderAction(action)
 
 	default:

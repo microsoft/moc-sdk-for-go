@@ -24,31 +24,31 @@ var (
 			{
 				Actions: []*wssdcloud.Action{
 					{
-						Operation:    wssdcloud.GeneralAccessOperation_All,
-						ProviderType: common.ProviderType_AnyProvider,
+						GeneralOperation: wssdcloud.GeneralAccessOperation_All,
+						ProviderType:     common.ProviderType_AnyProvider,
 					},
 					{
-						Operation:    wssdcloud.GeneralAccessOperation_Read,
-						ProviderType: common.ProviderType_VirtualMachine,
+						GeneralOperation: wssdcloud.GeneralAccessOperation_Read,
+						ProviderType:     common.ProviderType_VirtualMachine,
 					},
 				},
 				NotActions: []*wssdcloud.Action{
 					{
-						Operation:    wssdcloud.GeneralAccessOperation_Delete,
-						ProviderType: common.ProviderType_AnyProvider,
+						GeneralOperation: wssdcloud.GeneralAccessOperation_Delete,
+						ProviderType:     common.ProviderType_AnyProvider,
 					},
 					{
-						Operation:    wssdcloud.GeneralAccessOperation_Write,
-						ProviderType: common.ProviderType_Location,
+						GeneralOperation: wssdcloud.GeneralAccessOperation_Write,
+						ProviderType:     common.ProviderType_Location,
 					},
 				},
 			}, {
 				Actions: []*wssdcloud.Action{
 					{
-						Operation: wssdcloud.GeneralAccessOperation_Read,
+						GeneralOperation: wssdcloud.GeneralAccessOperation_Read,
 					},
 					{
-						Operation: wssdcloud.GeneralAccessOperation_Write,
+						GeneralOperation: wssdcloud.GeneralAccessOperation_Write,
 					},
 				},
 			},
@@ -56,7 +56,7 @@ var (
 				Actions: []*wssdcloud.Action{
 					{
 						ProviderType:      common.ProviderType_VirtualMachine,
-						Operation:         wssdcloud.GeneralAccessOperation_ProviderAction,
+						GeneralOperation:  wssdcloud.GeneralAccessOperation_ProviderAction,
 						ProviderOperation: common.ProviderAccessOperation_VirtualMachine_Start,
 					},
 				},
@@ -77,32 +77,32 @@ var (
 				{
 					Actions: &[]security.Action{
 						{
-							Provider:  security.AnyProviderType,
-							Operation: security.AllAccess,
+							Provider:         security.AnyProviderType,
+							GeneralOperation: security.AllAccess,
 						},
 						{
-							Provider:  security.VirtualMachineType,
-							Operation: security.ReadAccess,
+							Provider:         security.VirtualMachineType,
+							GeneralOperation: security.ReadAccess,
 						},
 					},
 					NotActions: &[]security.Action{
 						{
-							Provider:  security.AnyProviderType,
-							Operation: security.DeleteAccess,
+							Provider:         security.AnyProviderType,
+							GeneralOperation: security.DeleteAccess,
 						},
 						{
-							Provider:  security.LocationType,
-							Operation: security.WriteAccess,
+							Provider:         security.LocationType,
+							GeneralOperation: security.WriteAccess,
 						},
 					},
 				},
 				{
 					Actions: &[]security.Action{
 						{
-							Operation: security.ReadAccess,
+							GeneralOperation: security.ReadAccess,
 						},
 						{
-							Operation: security.WriteAccess,
+							GeneralOperation: security.WriteAccess,
 						},
 					},
 				},
@@ -110,7 +110,7 @@ var (
 					Actions: &[]security.Action{
 						{
 							Provider:          security.VirtualMachineType,
-							Operation:         security.ProviderAction,
+							GeneralOperation:  security.ProviderAction,
 							ProviderOperation: security.VirtualMachine_StartAccess,
 						},
 					},
@@ -144,14 +144,14 @@ func Test_getMocRole(t *testing.T) {
 				t.Errorf("Role actions length don't match post conversion %v %v", len(mocRole.Permissions[i].Actions), len(v.Actions))
 			} else {
 				for j, w := range v.Actions {
-					if mocRole.Permissions[i].Actions[j].Operation != w.Operation {
-						t.Errorf("Operations don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].Operation, w.Operation)
+					if mocRole.Permissions[i].Actions[j].GeneralOperation != w.GeneralOperation {
+						t.Errorf("GeneralOperations don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].GeneralOperation, w.GeneralOperation)
 					}
 					if mocRole.Permissions[i].Actions[j].ProviderType != w.ProviderType {
 						t.Errorf("ProviderTypes don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].ProviderType, w.ProviderType)
 					}
 					if mocRole.Permissions[i].Actions[j].ProviderOperation != w.ProviderOperation {
-						t.Errorf("ProviderOperations don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].ProviderOperation, w.ProviderOperation)
+						t.Errorf("ProviderAccessOperations don't match post conversion %v %v", mocRole.Permissions[i].Actions[j].ProviderOperation, w.ProviderOperation)
 					}
 				}
 			}
@@ -159,8 +159,8 @@ func Test_getMocRole(t *testing.T) {
 				t.Errorf("Role not actions length don't match post conversion %v %v", len(mocRole.Permissions[i].NotActions), len(v.NotActions))
 			} else {
 				for j, w := range v.NotActions {
-					if mocRole.Permissions[i].NotActions[j].Operation != w.Operation {
-						t.Errorf("Operations don't match post conversion %v %v", mocRole.Permissions[i].NotActions[j].Operation, w.Operation)
+					if mocRole.Permissions[i].NotActions[j].GeneralOperation != w.GeneralOperation {
+						t.Errorf("GeneralOperations don't match post conversion %v %v", mocRole.Permissions[i].NotActions[j].GeneralOperation, w.GeneralOperation)
 					}
 					if mocRole.Permissions[i].NotActions[j].ProviderType != w.ProviderType {
 						t.Errorf("ProviderTypes don't match post conversion %v %v", mocRole.Permissions[i].NotActions[j].ProviderType, w.ProviderType)
@@ -206,8 +206,8 @@ func Test_getRole(t *testing.T) {
 					t.Errorf("Role actions length don't match post conversion %v %v", len(actions), len(*v.Actions))
 				} else {
 					for j, w := range *v.Actions {
-						if actions[j].Operation != w.Operation {
-							t.Errorf("Operations don't match post conversion %v %v", actions[j].Operation, w.Operation)
+						if actions[j].GeneralOperation != w.GeneralOperation {
+							t.Errorf("GeneralOperations don't match post conversion %v %v", actions[j].GeneralOperation, w.GeneralOperation)
 						}
 						fmt.Println(actions[j].Provider)
 						if actions[j].Provider != w.Provider {
@@ -215,7 +215,7 @@ func Test_getRole(t *testing.T) {
 						}
 
 						if actions[j].ProviderOperation != w.ProviderOperation {
-							t.Errorf("ProviderOperations don't match post conversion %v %v", actions[j].Provider, w.Provider)
+							t.Errorf("ProviderAccessOperations don't match post conversion %v %v", actions[j].Provider, w.Provider)
 						}
 					}
 				}
@@ -232,8 +232,8 @@ func Test_getRole(t *testing.T) {
 				} else {
 					for j, w := range *v.NotActions {
 
-						if notactions[j].Operation != w.Operation {
-							t.Errorf("Operations don't match post conversion %v %v", notactions[j].Operation, w.Operation)
+						if notactions[j].GeneralOperation != w.GeneralOperation {
+							t.Errorf("GeneralOperations don't match post conversion %v %v", notactions[j].GeneralOperation, w.GeneralOperation)
 						}
 						if notactions[j].Provider != w.Provider {
 							t.Errorf("ProviderTypes don't match post conversion %v %v", notactions[j].Provider, w.Provider)

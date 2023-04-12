@@ -160,29 +160,30 @@ const (
 	StoragePermissionsUpdate StoragePermissions = "update"
 )
 
-type OBSOLETE_Operation string
-
-const (
-	OBSOLETE_ReadAccess   OBSOLETE_Operation = "read"
-	OBSOLETE_WriteAccess  OBSOLETE_Operation = "write"
-	OBSOLETE_DeleteAccess OBSOLETE_Operation = "delete"
-	OBSOLETE_AllAccess    OBSOLETE_Operation = "all"
-)
-
 type Operation string
 
 const (
-	ReadAccess     Operation = "read"
-	WriteAccess    Operation = "write"
-	DeleteAccess   Operation = "delete"
-	AllAccess      Operation = "all"
-	ProviderAction Operation = "action"
+	OBSOLETE_ReadAccess   Operation = "read"
+	OBSOLETE_WriteAccess  Operation = "write"
+	OBSOLETE_DeleteAccess Operation = "delete"
+	OBSOLETE_AllAccess    Operation = "all"
+)
+
+type GeneralAccessOperation string
+
+const (
+	UnspecifiedAccess GeneralAccessOperation = "unspecified"
+	ReadAccess        GeneralAccessOperation = "read"
+	WriteAccess       GeneralAccessOperation = "write"
+	DeleteAccess      GeneralAccessOperation = "delete"
+	AllAccess         GeneralAccessOperation = "all"
+	ProviderAction    GeneralAccessOperation = "action"
 )
 
 type ProviderAccessOperation string
 
 const (
-	UnspecifiedAccess           ProviderAccessOperation = "unspecified"
+	Unspecified_Access          ProviderAccessOperation = "unspecified"
 	Authentication_LoginAccess  ProviderAccessOperation = "authentication_login"
 	Certificate_GetAccess       ProviderAccessOperation = "certificate_get"
 	Certificate_DeleteAccess    ProviderAccessOperation = "certificate_delete"
@@ -355,11 +356,11 @@ type Scope struct {
 
 type Action struct {
 	// Operation - The operation that a permission is refering to
-	OBSOLETE_Operation OBSOLETE_Operation `json:"OBSOLETE_operation,omitempty"`
+	Operation Operation `json:"operation,omitempty"`
 	// Provider - The provider type to which an operation is done
 	Provider          ProviderType            `json:"provider,omitempty"`
-	ProviderOperation ProviderAccessOperation `json:"provideroperation,omitempty"`
-	Operation         Operation               `json:"operation,omitempty"`
+	GeneralOperation  GeneralAccessOperation  `json:"generaloperation,omitempty"`
+	ProviderOperation ProviderAccessOperation `json:"provideraccessoperation,omitempty"`
 }
 
 type RolePermission struct {

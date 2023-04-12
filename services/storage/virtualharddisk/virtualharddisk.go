@@ -7,6 +7,7 @@ import (
 
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
 )
 
@@ -23,6 +24,7 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 		Name:          *c.Name,
 		GroupName:     groupName,
 		ContainerName: containerName,
+		Tags:          tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -80,5 +82,6 @@ func getVirtualHardDisk(c *wssdcloudstorage.VirtualHardDisk, group string) *stor
 			HyperVGeneration:    c.HyperVGeneration,
 			DiskFileFormat:      c.DiskFileFormat,
 		},
+		Tags: tags.ProtoToMap(c.Tags),
 	}
 }
