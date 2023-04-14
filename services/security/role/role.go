@@ -16,17 +16,19 @@ func getActions(mocactions []*wssdcloudsecurity.Action) ([]security.Action, erro
 	var actions []security.Action
 	for _, mocaction := range mocactions {
 		action := security.Action{}
-		switch mocaction.Operation {
-		case wssdcloudsecurity.AccessOperation_Read:
-			action.Operation = security.ReadAccess
-		case wssdcloudsecurity.AccessOperation_Write:
-			action.Operation = security.WriteAccess
-		case wssdcloudsecurity.AccessOperation_Delete:
-			action.Operation = security.DeleteAccess
-		case wssdcloudsecurity.AccessOperation_All:
-			action.Operation = security.AllAccess
+		switch mocaction.GeneralOperation {
+		case wssdcloudsecurity.GeneralAccessOperation_Read:
+			action.GeneralOperation = security.ReadAccess
+		case wssdcloudsecurity.GeneralAccessOperation_Write:
+			action.GeneralOperation = security.WriteAccess
+		case wssdcloudsecurity.GeneralAccessOperation_Delete:
+			action.GeneralOperation = security.DeleteAccess
+		case wssdcloudsecurity.GeneralAccessOperation_All:
+			action.GeneralOperation = security.AllAccess
+		case wssdcloudsecurity.GeneralAccessOperation_ProviderAction:
+			action.GeneralOperation = security.ProviderAction
 		default:
-			return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", mocaction.Operation)
+			return nil, errors.Wrapf(errors.InvalidInput, "[getactions] Access: [%v]", mocaction.Operation)
 		}
 
 		action.Provider = security.GetProviderType(mocaction.ProviderType)
@@ -101,6 +103,24 @@ func getRole(role *wssdcloudsecurity.Role) (*security.Role, error) {
 	}, nil
 }
 
+func getMocProviderAction(action *security.Action) (wssdcloudcommon.ProviderAccessOperation, error) {
+
+	if action == nil {
+		return wssdcloudcommon.ProviderAccessOperation_Unspecified, nil
+	}
+
+	switch action.ProviderOperation {
+	case security.VirtualMachine_StartAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Start, nil
+	case security.VirtualMachine_StopAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Stop, nil
+	case security.VirtualMachine_ResetAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Reset, nil
+	default:
+		return wssdcloudcommon.ProviderAccessOperation_Unspecified, errors.Wrapf(errors.InvalidInput, "([provideraction] Access: [%v]", action.ProviderOperation)
+	}
+}
+
 func getMocAction(action *security.Action) (*wssdcloudsecurity.Action, error) {
 	mocaction := &wssdcloudsecurity.Action{}
 
@@ -108,17 +128,21 @@ func getMocAction(action *security.Action) (*wssdcloudsecurity.Action, error) {
 		return mocaction, nil
 	}
 
-	switch action.Operation {
+	switch action.GeneralOperation {
 	case security.ReadAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_Read
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_Read
 	case security.WriteAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_Write
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_Write
 	case security.DeleteAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_Delete
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_Delete
 	case security.AllAccess:
-		mocaction.Operation = wssdcloudsecurity.AccessOperation_All
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_All
+	case security.ProviderAction:
+		mocaction.GeneralOperation = wssdcloudsecurity.GeneralAccessOperation_ProviderAction
+		mocaction.ProviderOperation, _ = getMocProviderAction(action)
+
 	default:
-		return nil, errors.Wrapf(errors.InvalidInput, "Access: [%v]", action.Operation)
+		return nil, errors.Wrapf(errors.InvalidInput, "[mocaction] Access: [%v]", action.Operation)
 	}
 
 	providerType, err := security.GetMocProviderType(action.Provider)
