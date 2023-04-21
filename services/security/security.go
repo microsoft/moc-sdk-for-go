@@ -163,11 +163,63 @@ const (
 type Operation string
 
 const (
-	ReadAccess   Operation = "read"
-	WriteAccess  Operation = "write"
-	DeleteAccess Operation = "delete"
-	AllAccess    Operation = "all"
+	OBSOLETE_ReadAccess   Operation = "read"
+	OBSOLETE_WriteAccess  Operation = "write"
+	OBSOLETE_DeleteAccess Operation = "delete"
+	OBSOLETE_AllAccess    Operation = "all"
 )
+
+type GeneralAccessOperation string
+
+const (
+	UnspecifiedAccess GeneralAccessOperation = "unspecified"
+	ReadAccess        GeneralAccessOperation = "read"
+	WriteAccess       GeneralAccessOperation = "write"
+	DeleteAccess      GeneralAccessOperation = "delete"
+	AllAccess         GeneralAccessOperation = "all"
+	ProviderAction    GeneralAccessOperation = "action"
+)
+
+type ProviderAccessOperation string
+
+const (
+	Unspecified_Access          ProviderAccessOperation = "unspecified"
+	Authentication_LoginAccess  ProviderAccessOperation = "authentication_login"
+	Certificate_GetAccess       ProviderAccessOperation = "certificate_get"
+	Certificate_DeleteAccess    ProviderAccessOperation = "certificate_delete"
+	Certificate_SignAccess      ProviderAccessOperation = "certificate_sign"
+	Certificate_RenewAccess     ProviderAccessOperation = "certificate_renew"
+	VirtualMachine_StartAccess  ProviderAccessOperation = "virtualmachine_start"
+	VirtualMachine_StopAccess   ProviderAccessOperation = "virtualmachine_stop"
+	VirtualMachine_ResetAccess  ProviderAccessOperation = "virtualmachine_reset"
+	Cluster_LoadClusterAccess   ProviderAccessOperation = "cluster_loadcluster"
+	Cluster_UnloadClusterAccess ProviderAccessOperation = "cluster_unloadcluster"
+	Cluster_GetClusterAccess    ProviderAccessOperation = "cluster_getcluster"
+	Cluster_GetNodesAccess      ProviderAccessOperation = "cluster_getnodes"
+)
+
+// Unspecified = 0;
+// Authentication_Login = 1;
+// Certificate_Get = 2;
+// Certificate_Delete = 3;
+// Certificate_Sign = 4;
+// Certificate_Renew = 5;
+// Identity_Revoke = 6;
+// Identity_Rotate = 7;
+// Identity_OperateCertificates = 8;
+// Key_Encrypt = 9;
+// Key_Decrypt = 10;
+// Key_WrapKey = 11;
+// Key_UnwrapKey = 12;
+// Key_Sign = 13;
+// Key_Verify = 14;
+// VirtualMachine_Start = 15;
+// VirtualMachine_Stop= 16;
+// VirtualMachine_Reset = 17;
+// Cluster_LoadCluster = 18;
+// Cluster_UnloadCluster = 19;
+// Cluster_GetCluster = 20;
+// Cluster_GetNodes = 21;
 
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
 type Permissions struct {
@@ -303,10 +355,12 @@ type Scope struct {
 }
 
 type Action struct {
-	// Provider - The provider type to which an operation is done
-	Provider ProviderType `json:"provider,omitempty"`
 	// Operation - The operation that a permission is refering to
 	Operation Operation `json:"operation,omitempty"`
+	// Provider - The provider type to which an operation is done
+	Provider          ProviderType            `json:"provider,omitempty"`
+	GeneralOperation  GeneralAccessOperation  `json:"generaloperation,omitempty"`
+	ProviderOperation ProviderAccessOperation `json:"provideraccessoperation,omitempty"`
 }
 
 type RolePermission struct {
@@ -398,6 +452,8 @@ type Identity struct {
 	TokenExpiryInSeconds *int64 `json:"tokenexpiryinseconds,omitempty"`
 	// Revoked
 	Revoked bool `json:"revoked,omitempty"`
+	// AuthType
+	AuthType auth.LoginType `json:"AuthType,omitempty"`
 	// Certificate string encoded in base64
 	Certificate *string `json:"certificate,omitempty"`
 	// Location - Resource location
