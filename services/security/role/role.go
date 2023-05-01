@@ -110,14 +110,76 @@ func getMocProviderAction(action *security.Action) (wssdcloudcommon.ProviderAcce
 	}
 
 	switch action.ProviderOperation {
+	case security.Authentication_LoginAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Authentication_Login, nil
+	case security.Certificate_CreateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Certificate_Create, nil
+	case security.Certificate_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Certificate_Update, nil
+	case security.Certificate_GetAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Certificate_Get, nil
+	case security.Certificate_DeleteAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Certificate_Delete, nil
+	case security.Certificate_SignAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Certificate_Sign, nil
+	case security.Certificate_RenewAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Certificate_Renew, nil
+	case security.Identity_CreateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Identity_Create, nil
+	case security.Identity_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Identity_Update, nil
+	case security.Identity_RevokeAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Identity_Revoke, nil
+	case security.Identity_RotateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Identity_Rotate, nil
+	case security.IdentityCertificate_CreateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_IdentityCertificate_Create, nil
+	case security.IdentityCertificate_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_IdentityCertificate_Update, nil
+	case security.IdentityCertificate_RenewAccess:
+		return wssdcloudcommon.ProviderAccessOperation_IdentityCertificate_Renew, nil
+	case security.Key_CreateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_Create, nil
+	case security.Key_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_Update, nil
+	case security.Key_EncryptAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_Encrypt, nil
+	case security.Key_DecryptAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_Decrypt, nil
+	case security.Key_WrapKeyAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_WrapKey, nil
+	case security.Key_UnwrapKeyAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey, nil
+	case security.Key_SignAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_Sign, nil
+	case security.Key_VerifyAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Key_Verify, nil
+	case security.VirtualMachine_CreateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Create, nil
+	case security.VirtualMachine_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Update, nil
 	case security.VirtualMachine_StartAccess:
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Start, nil
 	case security.VirtualMachine_StopAccess:
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Stop, nil
 	case security.VirtualMachine_ResetAccess:
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Reset, nil
-	case security.VirtualMachine_UpdateAccess:
-		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Update, nil
+	case security.Cluster_CreateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Cluster_Create, nil
+	case security.Cluster_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Cluster_Update, nil
+	case security.Cluster_LoadClusterAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Cluster_LoadCluster, nil
+	case security.Cluster_UnloadClusterAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Cluster_UnloadCluster, nil
+	case security.Cluster_GetClusterAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Cluster_GetCluster, nil
+	case security.Cluster_GetNodesAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Cluster_GetNodes, nil
+	case security.Debug_DebugServerAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Debug_DebugServer, nil
+	case security.Debug_StackTraceAccess:
+		return wssdcloudcommon.ProviderAccessOperation_Debug_StackTrace, nil
 	default:
 		return wssdcloudcommon.ProviderAccessOperation_Unspecified, errors.Wrapf(errors.InvalidInput, "([provideraction] Access: [%v]", action.ProviderOperation)
 	}
