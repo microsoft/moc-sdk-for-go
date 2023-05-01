@@ -116,6 +116,8 @@ func getMocProviderAction(action *security.Action) (wssdcloudcommon.ProviderAcce
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Stop, nil
 	case security.VirtualMachine_ResetAccess:
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Reset, nil
+	case security.VirtualMachine_UpdateAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Update, nil
 	default:
 		return wssdcloudcommon.ProviderAccessOperation_Unspecified, errors.Wrapf(errors.InvalidInput, "([provideraction] Access: [%v]", action.ProviderOperation)
 	}

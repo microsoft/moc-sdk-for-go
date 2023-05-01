@@ -183,43 +183,88 @@ const (
 type ProviderAccessOperation string
 
 const (
-	Unspecified_Access          ProviderAccessOperation = "unspecified"
-	Authentication_LoginAccess  ProviderAccessOperation = "authentication_login"
-	Certificate_GetAccess       ProviderAccessOperation = "certificate_get"
-	Certificate_DeleteAccess    ProviderAccessOperation = "certificate_delete"
-	Certificate_SignAccess      ProviderAccessOperation = "certificate_sign"
-	Certificate_RenewAccess     ProviderAccessOperation = "certificate_renew"
+	Unspecified_Access ProviderAccessOperation = "unspecified"
+
+	Authentication_LoginAccess ProviderAccessOperation = "authentication_login"
+
+	Certificate_CreateAccess ProviderAccessOperation = "certificate_create"
+	Certificate_UpdateAccess ProviderAccessOperation = "certificate_update"
+	Certificate_GetAccess    ProviderAccessOperation = "certificate_get"
+	Certificate_DeleteAccess ProviderAccessOperation = "certificate_delete"
+	Certificate_SignAccess   ProviderAccessOperation = "certificate_sign"
+	Certificate_RenewAccess  ProviderAccessOperation = "certificate_renew"
+
+	Identity_CreateAccess ProviderAccessOperation = "identity_create"
+	Identity_UpdateAccess ProviderAccessOperation = "identity_update"
+	Identity_RevokeAccess ProviderAccessOperation = "identity_revoke"
+	Identity_RotateAccess ProviderAccessOperation = "identity_rotate"
+
+	IdentityCertificate_CreateAccess ProviderAccessOperation = "identitycertificate_create"
+	IdentityCertificate_UpdateAccess ProviderAccessOperation = "identitycertificate_update"
+	IdentityCertificate_RenewAccess  ProviderAccessOperation = "identitycertificate_renew"
+
+	Key_CreateAccess    ProviderAccessOperation = "key_create"
+	Key_UpdateAccess    ProviderAccessOperation = "key_update"
+	Key_EncryptAccess   ProviderAccessOperation = "key_encrypt"
+	Key_DecryptAccess   ProviderAccessOperation = "key_decrypt"
+	Key_WrapKeyAccess   ProviderAccessOperation = "key_wrap"
+	Key_UnwrapKeyAccess ProviderAccessOperation = "key_unwrap"
+	Key_SignAccess      ProviderAccessOperation = "key_sign"
+	Key_VerifyAccess    ProviderAccessOperation = "key_verify"
+
+	VirtualMachine_CreateAccess ProviderAccessOperation = "virtualmachine_create"
+	VirtualMachine_UpdateAccess ProviderAccessOperation = "virtualmachine_update"
 	VirtualMachine_StartAccess  ProviderAccessOperation = "virtualmachine_start"
 	VirtualMachine_StopAccess   ProviderAccessOperation = "virtualmachine_stop"
 	VirtualMachine_ResetAccess  ProviderAccessOperation = "virtualmachine_reset"
+
+	Cluster_CreateAccess        ProviderAccessOperation = "cluster_create"
+	Cluster_UpdateAccess        ProviderAccessOperation = "cluster_update"
 	Cluster_LoadClusterAccess   ProviderAccessOperation = "cluster_loadcluster"
 	Cluster_UnloadClusterAccess ProviderAccessOperation = "cluster_unloadcluster"
 	Cluster_GetClusterAccess    ProviderAccessOperation = "cluster_getcluster"
 	Cluster_GetNodesAccess      ProviderAccessOperation = "cluster_getnodes"
+
+	Debug_DebugServerAccess ProviderAccessOperation = "debug_debugserver"
+	Debug_StackTraceAccess  ProviderAccessOperation = "debug_stacktrace"
 )
 
-// Unspecified = 0;
-// Authentication_Login = 1;
-// Certificate_Get = 2;
-// Certificate_Delete = 3;
-// Certificate_Sign = 4;
-// Certificate_Renew = 5;
-// Identity_Revoke = 6;
-// Identity_Rotate = 7;
-// Identity_OperateCertificates = 8;
-// Key_Encrypt = 9;
-// Key_Decrypt = 10;
-// Key_WrapKey = 11;
-// Key_UnwrapKey = 12;
-// Key_Sign = 13;
-// Key_Verify = 14;
-// VirtualMachine_Start = 15;
-// VirtualMachine_Stop= 16;
-// VirtualMachine_Reset = 17;
-// Cluster_LoadCluster = 18;
-// Cluster_UnloadCluster = 19;
-// Cluster_GetCluster = 20;
-// Cluster_GetNodes = 21;
+// ProviderAccessOperation_Unspecified                ProviderAccessOperation = 0
+// ProviderAccessOperation_Authentication_Login       ProviderAccessOperation = 100
+// ProviderAccessOperation_Certificate_Create         ProviderAccessOperation = 200
+// ProviderAccessOperation_Certificate_Update         ProviderAccessOperation = 201
+// ProviderAccessOperation_Certificate_Get            ProviderAccessOperation = 202
+// ProviderAccessOperation_Certificate_Delete         ProviderAccessOperation = 203
+// ProviderAccessOperation_Certificate_Sign           ProviderAccessOperation = 204
+// ProviderAccessOperation_Certificate_Renew          ProviderAccessOperation = 205
+// ProviderAccessOperation_Identity_Create            ProviderAccessOperation = 300
+// ProviderAccessOperation_Identity_Update            ProviderAccessOperation = 301
+// ProviderAccessOperation_Identity_Revoke            ProviderAccessOperation = 302
+// ProviderAccessOperation_Identity_Rotate            ProviderAccessOperation = 303
+// ProviderAccessOperation_IdentityCertificate_Create ProviderAccessOperation = 400
+// ProviderAccessOperation_IdentityCertificate_Update ProviderAccessOperation = 401
+// ProviderAccessOperation_IdentityCertificate_Renew  ProviderAccessOperation = 402
+// ProviderAccessOperation_Key_Encrypt                ProviderAccessOperation = 500
+// ProviderAccessOperation_Key_Decrypt                ProviderAccessOperation = 501
+// ProviderAccessOperation_Key_WrapKey                ProviderAccessOperation = 502
+// ProviderAccessOperation_Key_UnwrapKey              ProviderAccessOperation = 503
+// ProviderAccessOperation_Key_Sign                   ProviderAccessOperation = 504
+// ProviderAccessOperation_Key_Verify                 ProviderAccessOperation = 505
+// ProviderAccessOperation_VirtualMachine_Create      ProviderAccessOperation = 600
+// ProviderAccessOperation_VirtualMachine_Update      ProviderAccessOperation = 601
+// ProviderAccessOperation_VirtualMachine_Delete      ProviderAccessOperation = 602
+// ProviderAccessOperation_VirtualMachine_Validate    ProviderAccessOperation = 603
+// ProviderAccessOperation_VirtualMachine_Start       ProviderAccessOperation = 604
+// ProviderAccessOperation_VirtualMachine_Stop        ProviderAccessOperation = 605
+// ProviderAccessOperation_VirtualMachine_Reset       ProviderAccessOperation = 606
+// ProviderAccessOperation_Cluster_Create             ProviderAccessOperation = 700
+// ProviderAccessOperation_Cluster_Update             ProviderAccessOperation = 701
+// ProviderAccessOperation_Cluster_LoadCluster        ProviderAccessOperation = 702
+// ProviderAccessOperation_Cluster_UnloadCluster      ProviderAccessOperation = 703
+// ProviderAccessOperation_Cluster_GetCluster         ProviderAccessOperation = 704
+// ProviderAccessOperation_Cluster_GetNodes           ProviderAccessOperation = 705
+// ProviderAccessOperation_Debug_DebugServer          ProviderAccessOperation = 800
+// ProviderAccessOperation_Debug_StackTrace           ProviderAccessOperation = 801
 
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
 type Permissions struct {
