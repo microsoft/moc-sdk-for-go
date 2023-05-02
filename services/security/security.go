@@ -229,43 +229,6 @@ const (
 	Debug_StackTraceAccess  ProviderAccessOperation = "debug_stacktrace"
 )
 
-// ProviderAccessOperation_Unspecified                ProviderAccessOperation = 0
-// ProviderAccessOperation_Authentication_Login       ProviderAccessOperation = 100
-// ProviderAccessOperation_Certificate_Create         ProviderAccessOperation = 200
-// ProviderAccessOperation_Certificate_Update         ProviderAccessOperation = 201
-// ProviderAccessOperation_Certificate_Get            ProviderAccessOperation = 202
-// ProviderAccessOperation_Certificate_Delete         ProviderAccessOperation = 203
-// ProviderAccessOperation_Certificate_Sign           ProviderAccessOperation = 204
-// ProviderAccessOperation_Certificate_Renew          ProviderAccessOperation = 205
-// ProviderAccessOperation_Identity_Create            ProviderAccessOperation = 300
-// ProviderAccessOperation_Identity_Update            ProviderAccessOperation = 301
-// ProviderAccessOperation_Identity_Revoke            ProviderAccessOperation = 302
-// ProviderAccessOperation_Identity_Rotate            ProviderAccessOperation = 303
-// ProviderAccessOperation_IdentityCertificate_Create ProviderAccessOperation = 400
-// ProviderAccessOperation_IdentityCertificate_Update ProviderAccessOperation = 401
-// ProviderAccessOperation_IdentityCertificate_Renew  ProviderAccessOperation = 402
-// ProviderAccessOperation_Key_Encrypt                ProviderAccessOperation = 500
-// ProviderAccessOperation_Key_Decrypt                ProviderAccessOperation = 501
-// ProviderAccessOperation_Key_WrapKey                ProviderAccessOperation = 502
-// ProviderAccessOperation_Key_UnwrapKey              ProviderAccessOperation = 503
-// ProviderAccessOperation_Key_Sign                   ProviderAccessOperation = 504
-// ProviderAccessOperation_Key_Verify                 ProviderAccessOperation = 505
-// ProviderAccessOperation_VirtualMachine_Create      ProviderAccessOperation = 600
-// ProviderAccessOperation_VirtualMachine_Update      ProviderAccessOperation = 601
-// ProviderAccessOperation_VirtualMachine_Delete      ProviderAccessOperation = 602
-// ProviderAccessOperation_VirtualMachine_Validate    ProviderAccessOperation = 603
-// ProviderAccessOperation_VirtualMachine_Start       ProviderAccessOperation = 604
-// ProviderAccessOperation_VirtualMachine_Stop        ProviderAccessOperation = 605
-// ProviderAccessOperation_VirtualMachine_Reset       ProviderAccessOperation = 606
-// ProviderAccessOperation_Cluster_Create             ProviderAccessOperation = 700
-// ProviderAccessOperation_Cluster_Update             ProviderAccessOperation = 701
-// ProviderAccessOperation_Cluster_LoadCluster        ProviderAccessOperation = 702
-// ProviderAccessOperation_Cluster_UnloadCluster      ProviderAccessOperation = 703
-// ProviderAccessOperation_Cluster_GetCluster         ProviderAccessOperation = 704
-// ProviderAccessOperation_Cluster_GetNodes           ProviderAccessOperation = 705
-// ProviderAccessOperation_Debug_DebugServer          ProviderAccessOperation = 800
-// ProviderAccessOperation_Debug_StackTrace           ProviderAccessOperation = 801
-
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
 type Permissions struct {
 	// Keys - Permissions to keys
