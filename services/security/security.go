@@ -183,43 +183,130 @@ const (
 type ProviderAccessOperation string
 
 const (
-	Unspecified_Access          ProviderAccessOperation = "unspecified"
-	Authentication_LoginAccess  ProviderAccessOperation = "authentication_login"
-	Certificate_GetAccess       ProviderAccessOperation = "certificate_get"
-	Certificate_DeleteAccess    ProviderAccessOperation = "certificate_delete"
-	Certificate_SignAccess      ProviderAccessOperation = "certificate_sign"
-	Certificate_RenewAccess     ProviderAccessOperation = "certificate_renew"
-	VirtualMachine_StartAccess  ProviderAccessOperation = "virtualmachine_start"
-	VirtualMachine_StopAccess   ProviderAccessOperation = "virtualmachine_stop"
-	VirtualMachine_ResetAccess  ProviderAccessOperation = "virtualmachine_reset"
+	Unspecified_Access ProviderAccessOperation = "unspecified"
+
+	Authentication_LoginAccess ProviderAccessOperation = "authentication_login"
+
+	Certificate_CreateAccess ProviderAccessOperation = "certificate_create"
+	Certificate_UpdateAccess ProviderAccessOperation = "certificate_update"
+	Certificate_GetAccess    ProviderAccessOperation = "certificate_get"
+	Certificate_DeleteAccess ProviderAccessOperation = "certificate_delete"
+	Certificate_SignAccess   ProviderAccessOperation = "certificate_sign"
+	Certificate_RenewAccess  ProviderAccessOperation = "certificate_renew"
+
+	Identity_CreateAccess ProviderAccessOperation = "identity_create"
+	Identity_UpdateAccess ProviderAccessOperation = "identity_update"
+	Identity_RevokeAccess ProviderAccessOperation = "identity_revoke"
+	Identity_RotateAccess ProviderAccessOperation = "identity_rotate"
+
+	IdentityCertificate_CreateAccess ProviderAccessOperation = "identitycertificate_create"
+	IdentityCertificate_UpdateAccess ProviderAccessOperation = "identitycertificate_update"
+	IdentityCertificate_RenewAccess  ProviderAccessOperation = "identitycertificate_renew"
+
+	Key_CreateAccess    ProviderAccessOperation = "key_create"
+	Key_UpdateAccess    ProviderAccessOperation = "key_update"
+	Key_EncryptAccess   ProviderAccessOperation = "key_encrypt"
+	Key_DecryptAccess   ProviderAccessOperation = "key_decrypt"
+	Key_WrapKeyAccess   ProviderAccessOperation = "key_wrapkey"
+	Key_UnwrapKeyAccess ProviderAccessOperation = "key_unwrapkey"
+	Key_SignAccess      ProviderAccessOperation = "key_sign"
+	Key_VerifyAccess    ProviderAccessOperation = "key_verify"
+
+	VirtualMachine_CreateAccess   ProviderAccessOperation = "virtualmachine_create"
+	VirtualMachine_UpdateAccess   ProviderAccessOperation = "virtualmachine_update"
+	VirtualMachine_DeleteAccess   ProviderAccessOperation = "virtualmachine_delete"
+	VirtualMachine_ValidateAccess ProviderAccessOperation = "virtualmachine_validate"
+	VirtualMachine_StartAccess    ProviderAccessOperation = "virtualmachine_start"
+	VirtualMachine_StopAccess     ProviderAccessOperation = "virtualmachine_stop"
+	VirtualMachine_ResetAccess    ProviderAccessOperation = "virtualmachine_reset"
+
+	Cluster_CreateAccess        ProviderAccessOperation = "cluster_create"
+	Cluster_UpdateAccess        ProviderAccessOperation = "cluster_update"
 	Cluster_LoadClusterAccess   ProviderAccessOperation = "cluster_loadcluster"
 	Cluster_UnloadClusterAccess ProviderAccessOperation = "cluster_unloadcluster"
 	Cluster_GetClusterAccess    ProviderAccessOperation = "cluster_getcluster"
 	Cluster_GetNodesAccess      ProviderAccessOperation = "cluster_getnodes"
-)
 
-// Unspecified = 0;
-// Authentication_Login = 1;
-// Certificate_Get = 2;
-// Certificate_Delete = 3;
-// Certificate_Sign = 4;
-// Certificate_Renew = 5;
-// Identity_Revoke = 6;
-// Identity_Rotate = 7;
-// Identity_OperateCertificates = 8;
-// Key_Encrypt = 9;
-// Key_Decrypt = 10;
-// Key_WrapKey = 11;
-// Key_UnwrapKey = 12;
-// Key_Sign = 13;
-// Key_Verify = 14;
-// VirtualMachine_Start = 15;
-// VirtualMachine_Stop= 16;
-// VirtualMachine_Reset = 17;
-// Cluster_LoadCluster = 18;
-// Cluster_UnloadCluster = 19;
-// Cluster_GetCluster = 20;
-// Cluster_GetNodes = 21;
+	Debug_DebugServerAccess ProviderAccessOperation = "debug_debugserver"
+	Debug_StackTraceAccess  ProviderAccessOperation = "debug_stacktrace"
+
+	BaremetalHost_CreateAccess ProviderAccessOperation = "baremetalhost_create"
+	BaremetalHost_UpdateAccess ProviderAccessOperation = "baremetalhost_update"
+
+	BaremetalMachine_CreateAccess ProviderAccessOperation = "baremetalmachine_create"
+	BaremetalMachine_UpdateAccess ProviderAccessOperation = "baremetalmachine_update"
+
+	ControlPlane_CreateAccess ProviderAccessOperation = "controlplane_create"
+	ControlPlane_UpdateAccess ProviderAccessOperation = "controlplane_update"
+
+	EtcdCluster_CreateAccess ProviderAccessOperation = "etcdcluster_create"
+	EtcdCluster_UpdateAccess ProviderAccessOperation = "etcdcluster_update"
+
+	EtcdServer_CreateAccess ProviderAccessOperation = "etcdserver_create"
+	EtcdServer_UpdateAccess ProviderAccessOperation = "etcdserver_update"
+
+	GalleryImage_CreateAccess ProviderAccessOperation = "galleryimage_create"
+	GalleryImage_UpdateAccess ProviderAccessOperation = "galleryimage_update"
+
+	Group_CreateAccess ProviderAccessOperation = "group_create"
+	Group_UpdateAccess ProviderAccessOperation = "group_update"
+
+	KeyVault_CreateAccess ProviderAccessOperation = "keyvault_create"
+	KeyVault_UpdateAccess ProviderAccessOperation = "keyvault_update"
+
+	Kubernetes_CreateAccess ProviderAccessOperation = "kubernetes_create"
+	Kubernetes_UpdateAccess ProviderAccessOperation = "kubernetes_update"
+
+	LoadBalancer_CreateAccess ProviderAccessOperation = "loadbalancer_create"
+	LoadBalancer_UpdateAccess ProviderAccessOperation = "loadbalancer_update"
+
+	Location_CreateAccess ProviderAccessOperation = "location_create"
+	Location_UpdateAccess ProviderAccessOperation = "location_update"
+
+	Macpool_CreateAccess ProviderAccessOperation = "macpool_create"
+	Macpool_UpdateAccess ProviderAccessOperation = "macpool_update"
+
+	NetworkInterface_CreateAccess ProviderAccessOperation = "networkinterface_create"
+	NetworkInterface_UpdateAccess ProviderAccessOperation = "networkinterface_update"
+
+	Node_CreateAccess ProviderAccessOperation = "node_create"
+	Node_UpdateAccess ProviderAccessOperation = "node_update"
+
+	Recovery_CreateAccess ProviderAccessOperation = "recovery_create"
+	Recovery_UpdateAccess ProviderAccessOperation = "recovery_update"
+
+	Role_CreateAccess ProviderAccessOperation = "role_create"
+	Role_UpdateAccess ProviderAccessOperation = "role_update"
+
+	RoleAssignment_CreateAccess ProviderAccessOperation = "roleassignment_create"
+	RoleAssignment_UpdateAccess ProviderAccessOperation = "roleassignment_update"
+
+	Secret_CreateAccess ProviderAccessOperation = "secret_create"
+	Secret_UpdateAccess ProviderAccessOperation = "secret_update"
+
+	StorageContainer_CreateAccess ProviderAccessOperation = "storagecontainer_create"
+	StorageContainer_UpdateAccess ProviderAccessOperation = "storagecontainer_update"
+
+	Subscription_CreateAccess ProviderAccessOperation = "subscription_create"
+	Subscription_UpdateAccess ProviderAccessOperation = "subscription_update"
+
+	Validation_ValidateAccess ProviderAccessOperation = "validation_validate"
+
+	VipPool_CreateAccess ProviderAccessOperation = "vippool_create"
+	VipPool_UpdateAccess ProviderAccessOperation = "vippool_update"
+
+	VirtualHardDisk_CreateAccess ProviderAccessOperation = "virtualharddisk_create"
+	VirtualHardDisk_UpdateAccess ProviderAccessOperation = "virtualharddisk_update"
+
+	VirtualMachineImage_CreateAccess ProviderAccessOperation = "virtualmachineimage_create"
+	VirtualMachineImage_UpdateAccess ProviderAccessOperation = "virtualmachineimage_update"
+
+	VirtualMachineScaleSet_CreateAccess ProviderAccessOperation = "virtualmachinescaleset_create"
+	VirtualMachineScaleSet_UpdateAccess ProviderAccessOperation = "virtualmachinescaleset_update"
+
+	VirtualNetwork_CreateAccess ProviderAccessOperation = "virtualnetwork_create"
+	VirtualNetwork_UpdateAccess ProviderAccessOperation = "virtualnetwork_update"
+)
 
 // Permissions permissions the identity has for keys, secrets, certificates and storage.
 type Permissions struct {
