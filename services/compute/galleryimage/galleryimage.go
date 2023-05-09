@@ -6,6 +6,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
@@ -22,6 +23,7 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		Name:         *c.Name,
 		LocationName: locationName,
 		SourcePath:   imagePath,
+		Tags:         tags.MapToProto(c.Tags),
 	}
 
 	if c.GalleryImageProperties != nil && c.GalleryImageProperties.ContainerName != nil {
@@ -55,5 +57,6 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 			ContainerName:    &c.ContainerName,
 			HyperVGeneration: c.HyperVGeneration,
 		},
+		Tags: tags.ProtoToMap(c.Tags),
 	}
 }
