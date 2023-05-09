@@ -182,6 +182,7 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
 			Gateway:          &wssdcloudipconfig.Gateway,
 			PrefixLength:     &wssdcloudipconfig.Prefixlength,
+			Primary:          &wssdcloudipconfig.Primary,
 		},
 	}
 
