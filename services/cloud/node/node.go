@@ -4,6 +4,8 @@
 package node
 
 import (
+	"strconv"
+
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
 	"github.com/microsoft/moc/pkg/convert"
@@ -54,6 +56,10 @@ func getWssdNode(nd *cloud.Node, location string) (*wssdcloud.Node, error) {
 
 // Conversion functions from wssdcloud to cloud
 func getNode(nd *wssdcloud.Node) *cloud.Node {
+	tags := make(map[string]*string)
+	hci := nd.Info.IsNodeHCI
+	boolVal := strconv.FormatBool(hci)
+	tags["hci"] = &boolVal
 	return &cloud.Node{
 		Name:     &nd.Name,
 		Location: &nd.LocationName,
@@ -65,6 +71,7 @@ func getNode(nd *wssdcloud.Node) *cloud.Node {
 			Statuses:       getNodeStatuses(nd),
 		},
 		Version: &nd.Status.Version.Number,
+		Tags:    tags,
 	}
 }
 
