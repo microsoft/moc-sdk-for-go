@@ -8,6 +8,7 @@ import (
 
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
+	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
@@ -57,9 +58,11 @@ func getWssdNode(nd *cloud.Node, location string) (*wssdcloud.Node, error) {
 // Conversion functions from wssdcloud to cloud
 func getNode(nd *wssdcloud.Node) *cloud.Node {
 	tags := make(map[string]*string)
-	hci := nd.Info.IsNodeHCI
-	boolVal := strconv.FormatBool(hci)
-	tags["hci"] = &boolVal
+	if nd.Info != nil {
+		hci := nd.Info.IsNodeHCI
+		boolValueToString := strconv.FormatBool(hci)
+		tags[constant.HCINode] = &boolValueToString
+	}
 	return &cloud.Node{
 		Name:     &nd.Name,
 		Location: &nd.LocationName,
