@@ -59,7 +59,7 @@ func getWssdNode(nd *cloud.Node, location string) (*wssdcloud.Node, error) {
 func getNode(nd *wssdcloud.Node) *cloud.Node {
 	tags := make(map[string]*string)
 	if nd.Info != nil {
-		hci := nd.Info.IsNodeHCI
+		hci := nd.Info.IsHciNode
 		boolValueToString := strconv.FormatBool(hci)
 		tags[constant.HCINode] = &boolValueToString
 	}
