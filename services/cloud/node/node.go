@@ -82,8 +82,8 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 func getNodeTags(node *wssdcloud.Node) map[string]*string {
 	tags := make(map[string]*string)
 	if node.Info != nil {
-		hci := node.Info.IsHciNode
-		boolValueToString := strconv.FormatBool(hci)
+		isHciNode := node.Info.IsHciNode
+		boolValueToString := strconv.FormatBool(isHciNode)
 		tags[constant.HCINode] = &boolValueToString
 	}
 	return tags
