@@ -57,12 +57,6 @@ func getWssdNode(nd *cloud.Node, location string) (*wssdcloud.Node, error) {
 
 // Conversion functions from wssdcloud to cloud
 func getNode(nd *wssdcloud.Node) *cloud.Node {
-	tags := make(map[string]*string)
-	if nd.Info != nil {
-		hci := nd.Info.IsHciNode
-		boolValueToString := strconv.FormatBool(hci)
-		tags[constant.HCINode] = &boolValueToString
-	}
 	return &cloud.Node{
 		Name:     &nd.Name,
 		Location: &nd.LocationName,
@@ -74,7 +68,7 @@ func getNode(nd *wssdcloud.Node) *cloud.Node {
 			Statuses:       getNodeStatuses(nd),
 		},
 		Version: &nd.Status.Version.Number,
-		Tags:    tags,
+		Tags:    getNodeTags(nd),
 	}
 }
 
@@ -83,4 +77,14 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 	statuses["RunningState"] = convert.ToStringPtr(node.GetRunningState().String())
 	statuses["Info"] = convert.ToStringPtr(node.GetInfo().String())
 	return statuses
+}
+
+func getNodeTags(node *wssdcloud.Node) map[string]*string {
+	tags := make(map[string]*string)
+	if node.Info != nil {
+		hci := node.Info.IsHciNode
+		boolValueToString := strconv.FormatBool(hci)
+		tags[constant.HCINode] = &boolValueToString
+	}
+	return tags
 }
