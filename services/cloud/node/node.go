@@ -4,8 +4,6 @@
 package node
 
 import (
-	"strconv"
-
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
 	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
@@ -82,9 +80,10 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 func getNodeTags(node *wssdcloud.Node) map[string]*string {
 	tags := make(map[string]*string)
 	if node.Info != nil {
-		isHciNode := node.Info.IsHciNode
-		boolValueToString := strconv.FormatBool(isHciNode)
-		tags[constant.HCINode] = &boolValueToString
+		if node.Info.Capability != nil && node.Info.Capability.OsInfo != nil {
+			osName := node.Info.Capability.OsInfo.OsName
+			tags[constant.OsName] = &osName
+		}
 	}
 	return tags
 }
