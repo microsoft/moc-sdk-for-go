@@ -310,6 +310,10 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcloudnetwork.Route) *network.Ro
 }
 
 func getVlan(wssdvlan wssdcloudnetwork.Vlan) *network.Vlan {
+	// if vlan is nil return nil
+	if wssdvlan.Id == nil {
+		return nil
+	}
 	vlanType := vlanTypeToString(wssdvlan.Type)
 	vlan := network.Vlan{
 		Id:   &wssdvlan.Id,
