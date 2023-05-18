@@ -245,10 +245,6 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 	subnets := []network.Subnet{}
 
 	for _, subnet := range wssdsubnets {
-		mocvlan := &network.Vlan{}
-		if subnet.Vlan != nil {
-			mocvlan = getVlan(*subnet.Vlan)
-		}
 		subnets = append(subnets, network.Subnet{
 			Name: &subnet.Name,
 			ID:   &subnet.Id,
@@ -257,7 +253,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 				RouteTable:    getNetworkRoutetable(subnet.Routes),
 				// TODO: implement something for IPConfigurationReferences
 				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
-				Vlan:               mocvlan,
+				Vlan:               getVlan(subnet.Vlan),
 				IPPools:            getIPPools(subnet.Ippools),
 			},
 		})
@@ -313,9 +309,9 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcloudnetwork.Route) *network.Ro
 	}
 }
 
-func getVlan(wssdvlan wssdcloudnetwork.Vlan) *network.Vlan {
+func getVlan(wssdvlan *wssdcloudnetwork.Vlan) *network.Vlan {
 	// if vlan is nil return nil
-	if wssdvlan.Id == nil {
+	if wssdvlan == nil {
 		return nil
 	}
 	vlanType := vlanTypeToString(wssdvlan.Type)
