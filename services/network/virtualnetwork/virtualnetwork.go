@@ -125,8 +125,12 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		if subnet.TrunkVlan == nil {
 			wssdsubnet.Trunkvlan = nil
 		} else {
-			wssdsubnet.Trunkvlan.Allowedvlanidlist = *subnet.TrunkVlan.AllowedVlanIdList
-			wssdsubnet.Trunkvlan.Nativevlanid = *subnet.TrunkVlan.NativeVlanId
+			if subnet.TrunkVlan.AllowedVlanIdList != nil {
+				wssdsubnet.Trunkvlan.Allowedvlanidlist = *subnet.TrunkVlan.AllowedVlanIdList
+			}
+			if subnet.TrunkVlan.NativeVlanId != nil {
+				wssdsubnet.Trunkvlan.Nativevlanid = *subnet.TrunkVlan.NativeVlanId
+			}
 		}
 
 		wssdsubnetRoutes, err1 := getWssdNetworkRoutes(subnet.RouteTable)
