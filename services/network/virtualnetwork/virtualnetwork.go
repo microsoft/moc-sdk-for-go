@@ -118,13 +118,15 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		}
 
 		if subnet.Vlan == nil {
-			wssdsubnet.Vlan = nil
+			wssdsubnet.Vlan = 0
 		} else {
-			wssdvlantype, _ := vlanTypeFromString(string(subnet.Vlan.Type))
-			wssdsubnet.Vlan = &wssdcloudnetwork.Vlan{
-				Id:   *subnet.Vlan.Id,
-				Type: wssdvlantype,
-			}
+			wssdsubnet.Vlan = uint32(*subnet.Vlan)
+		}
+		if subnet.TrunkVlan == nil {
+			wssdsubnet.Trunkvlan = nil
+		} else {
+			wssdsubnet.Trunkvlan.Allowedvlanidlist = *subnet.TrunkVlan.AllowedVlanIdList
+			wssdsubnet.Trunkvlan.Nativevlanid = *subnet.TrunkVlan.NativeVlanId
 		}
 
 		wssdsubnetRoutes, err1 := getWssdNetworkRoutes(subnet.RouteTable)
@@ -255,6 +257,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
 				Vlan:               getVlan(subnet.Vlan),
 				IPPools:            getIPPools(subnet.Ippools),
+				TrunkVlan:          getTrunkVlan(subnet.Trunkvlan),
 			},
 		})
 	}
@@ -309,15 +312,18 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcloudnetwork.Route) *network.Ro
 	}
 }
 
-func getVlan(wssdvlan *wssdcloudnetwork.Vlan) *network.Vlan {
-	// if vlan is nil return nil
-	if wssdvlan == nil {
+func getVlan(wssdvlan uint32) *uint16 {
+	vlan := uint16(wssdvlan)
+	return &vlan
+}
+
+func getTrunkVlan(wssdtrunkvlan *wssdcloudnetwork.TrunkVlan) *network.TrunkVlan {
+	if wssdtrunkvlan == nil {
 		return nil
 	}
-	vlanType := vlanTypeToString(wssdvlan.Type)
-	vlan := network.Vlan{
-		Id:   &wssdvlan.Id,
-		Type: network.VlanType(vlanType),
+	vlan := network.TrunkVlan{
+		AllowedVlanIdList: &wssdtrunkvlan.Allowedvlanidlist,
+		NativeVlanId:      &wssdtrunkvlan.Nativevlanid,
 	}
 	return &vlan
 }
@@ -340,23 +346,4 @@ func virtualNetworkTypeFromString(vnNetworkString string) (wssdcloudnetwork.Virt
 		}
 	}
 	return typevalue, nil
-}
-
-func vlanTypeFromString(vlanTypestring string) (wssdcloudnetwork.VlanType, error) {
-	typevalue := wssdcloudnetwork.VlanType_Access
-	if len(vlanTypestring) > 0 {
-		wssdvlantype, ok := wssdcloudnetwork.VlanType_value[vlanTypestring]
-		if ok {
-			typevalue = wssdcloudnetwork.VlanType(wssdvlantype)
-		}
-	}
-	return typevalue, nil
-}
-
-func vlanTypeToString(vlanType wssdcloudnetwork.VlanType) string {
-	typename, ok := wssdcloudnetwork.VlanType_name[int32(vlanType)]
-	if !ok {
-		return "Unknown"
-	}
-	return typename
 }

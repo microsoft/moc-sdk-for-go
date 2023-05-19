@@ -133,13 +133,14 @@ type SubnetPropertiesFormat struct {
 	// IPAllocationMethod - The IP address allocation method. Possible values include: 'Static', 'Dynamic'
 	IPAllocationMethod IPAllocationMethod `json:"ipAllocationMethod,omitempty"`
 	// Vlan
-	Vlan    *Vlan    `json:"vlan,omitempty"`
-	IPPools []IPPool `json:"ippools,omitempty"`
+	Vlan      *uint16    `json:"vlan,omitempty"`
+	IPPools   []IPPool   `json:"ippools,omitempty"`
+	TrunkVlan *TrunkVlan `json:"trunkvlan,omitempty"`
 }
 
-type Vlan struct {
-	Id   *[]uint32 `json:"id,omitempty"`
-	Type VlanType  `json:"type,omitempty"`
+type TrunkVlan struct {
+	AllowedVlanIdList *[]uint32 `json:"allowedvlanidlist,omitempty"`
+	NativeVlanId      *uint32   `json:"nativevlanid,omitempty"`
 }
 
 type IPPoolType string
