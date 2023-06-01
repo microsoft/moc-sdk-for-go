@@ -23,6 +23,7 @@ type Service interface {
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
+	RepairGuestAgent(context.Context, string, string) (*compute.VirtualMachineRepairGuestAgentResponse, error)
 	Validate(context.Context, string, string) error
 }
 
@@ -303,6 +304,10 @@ func (c *VirtualMachineClient) GetByComputerName(ctx context.Context, group stri
 
 func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
 	return c.internal.RunCommand(ctx, group, vmName, request)
+}
+
+func (c *VirtualMachineClient) RepairGuestAgent(ctx context.Context, group, vmName string) (response *compute.VirtualMachineRepairGuestAgentResponse, err error) {
+	return c.internal.RepairGuestAgent(ctx, group, vmName)
 }
 
 // ListIPs for specified VM

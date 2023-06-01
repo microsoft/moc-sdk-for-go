@@ -152,6 +152,21 @@ func (c *client) RunCommand(ctx context.Context, group, name string, request *co
 	return
 }
 
+// RepairGuestAgent
+func (c *client) RepairGuestAgent(ctx context.Context, group, name string) (response *compute.VirtualMachineRepairGuestAgentResponse, err error) {
+	mocRequest, err := c.getRepairGuestAgentRequest(ctx, group, name)
+	if err != nil {
+		return
+	}
+
+	mocResponse, err := c.VirtualMachineAgentClient.RepairGuestAgent(ctx, mocRequest)
+	if err != nil {
+		return
+	}
+	response, err = c.getRepairGuestAgentResponse(mocResponse)
+	return
+}
+
 // Get
 func (c *client) Validate(ctx context.Context, group, name string) error {
 	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_VALIDATE, group, name, nil)
@@ -238,6 +253,32 @@ func (c *client) getVirtualMachineRunCommandResponse(mocResponse *wssdcloudcompu
 
 	response := &compute.VirtualMachineRunCommandResponse{
 		InstanceView: instanceView,
+	}
+	return response, nil
+}
+
+func (c *client) getRepairGuestAgentRequest(ctx context.Context, group, name string) (mocRequest *wssdcloudcompute.VirtualMachineRepairGuestAgentRequest, err error) {
+	vms, err := c.get(ctx, group, name)
+	if err != nil {
+		return
+	}
+
+	if len(vms) != 1 {
+		err = errors.Wrapf(errors.InvalidInput, "Multiple Virtual Machines found in group %s with name %s", group, name)
+		return
+	}
+	vm := vms[0]
+
+	mocRequest = &wssdcloudcompute.VirtualMachineRepairGuestAgentRequest{
+		VirtualMachine: vm,
+	}
+	return
+}
+
+func (c *client) getRepairGuestAgentResponse(mocResponse *wssdcloudcompute.VirtualMachineRepairGuestAgentResponse) (*compute.VirtualMachineRepairGuestAgentResponse, error) {
+	response := &compute.VirtualMachineRepairGuestAgentResponse{
+		Result: &mocResponse.Result.Value,
+		Error:  &mocResponse.Error,
 	}
 	return response, nil
 }
