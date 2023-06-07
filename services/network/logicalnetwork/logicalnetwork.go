@@ -135,6 +135,10 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wss
 			})
 		}
 
+		if subnet.Public != nil {
+			wssdsubnet.IsPublic = *subnet.Public
+		}
+
 		wssdsubnets = append(wssdsubnets, wssdsubnet)
 	}
 
@@ -201,6 +205,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network
 				DhcpOptions: &network.DhcpOptions{
 					DNSServers: &dnsservers,
 				},
+				Public: &subnet.IsPublic,
 			},
 		})
 	}

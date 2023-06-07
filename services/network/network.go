@@ -151,7 +151,7 @@ type IPPoolInfo struct {
 	Available string `json:"available,omitempty"`
 }
 
-// IPPool is assoicated with a network and represents pool of IP addresses.
+// IPPool is associated with a network and represents pool of IP addresses.
 type IPPool struct {
 	// Name
 	Name string `json:"name,omitempty"`
