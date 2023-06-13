@@ -81,7 +81,7 @@ func getNodeTags(node *wssdcloud.Node) map[string]*string {
 	if node.Info != nil {
 		if node.Info.Capability != nil {
 			if node.Info.Capability.OsInfo != nil {
-				registrationStatus := string(node.Info.Capability.OsInfo.OsRegistrationStatus)
+				registrationStatus := string(int32(node.Info.Capability.OsInfo.OsRegistrationStatus))
 				tags["registrationStatus"] = &registrationStatus
 			}
 		}
