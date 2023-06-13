@@ -83,8 +83,10 @@ func getNodeTags(node *wssdcloud.Node) map[string]*string {
 	if node.Info != nil {
 		if node.Info.Capability != nil {
 			if node.Info.Capability.OsInfo != nil {
-				registrationStatus := strconv.Itoa(int(node.Info.Capability.OsInfo.OsRegistrationStatus))
-				tags["registrationStatus"] = &registrationStatus
+				if node.Info.Capability.OsInfo.OsRegistrationStatus != nil {
+					registrationStatus := strconv.Itoa(int(node.Info.Capability.OsInfo.OsRegistrationStatus.Status))
+					tags["registrationStatus"] = &registrationStatus
+				}
 			}
 		}
 	}
