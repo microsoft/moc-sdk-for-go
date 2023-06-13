@@ -65,6 +65,7 @@ func getNode(nd *wssdcloud.Node) *cloud.Node {
 			Statuses:       getNodeStatuses(nd),
 		},
 		Version: &nd.Status.Version.Number,
+		Tags:    getNodeTags(nd),
 	}
 }
 
@@ -75,7 +76,15 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 	return statuses
 }
 
-func getTags(node *wssdcloud.Node) map[string]*string {
+func getNodeTags(node *wssdcloud.Node) map[string]*string {
 	tags := make(map[string]*string)
+	if node.Info != nil {
+		if node.Info.Capability != nil {
+			if node.Info.Capability.OsInfo != nil {
+				registrationStatus := string(node.Info.Capability.OsInfo.OsRegistrationStatus)
+				tags["registrationStatus"] = &registrationStatus
+			}
+		}
+	}
 	return tags
 }
