@@ -124,23 +124,11 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 
 func (c *client) getVirtualMachineScaleSetSecurityProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.SecurityProfile, error) {
 	enableTPM := false
-	var securityType compute.SecurityTypes = ""
-
 	if vm.Security != nil {
 		enableTPM = vm.Security.EnableTPM
-
-		switch vm.Security.SecurityType {
-		case wssdcloudcompute.SecurityType_TRUSTEDLAUNCH:
-			securityType = compute.TrustedLaunch
-		case wssdcloudcompute.SecurityType_CONFIDENTIALVM:
-			securityType = compute.ConfidentialVM
-
-		}
 	}
-
 	securityProfile := &compute.SecurityProfile{
-		EnableTPM:    &enableTPM,
-		SecurityType: securityType,
+		EnableTPM: &enableTPM,
 	}
 
 	return securityProfile, nil
@@ -425,20 +413,11 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 
 func (c *client) getWssdVirtualMachineScaleSetSecurityConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcloudcompute.SecurityConfiguration, error) {
 	enableTPM := false
-	securityType := wssdcloudcompute.SecurityType_NOTCONFIGURED
 	if vmp.SecurityProfile != nil {
 		enableTPM = *vmp.SecurityProfile.EnableTPM
 	}
-	switch vmp.SecurityProfile.SecurityType {
-	case compute.TrustedLaunch:
-		securityType = wssdcloudcompute.SecurityType_TRUSTEDLAUNCH
-	case compute.ConfidentialVM:
-		securityType = wssdcloudcompute.SecurityType_CONFIDENTIALVM
-	}
-
 	wssdsecurity := &wssdcloudcompute.SecurityConfiguration{
-		EnableTPM:    enableTPM,
-		SecurityType: securityType,
+		EnableTPM: enableTPM,
 	}
 	return wssdsecurity, nil
 }
