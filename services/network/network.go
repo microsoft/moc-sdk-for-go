@@ -139,8 +139,8 @@ type SubnetPropertiesFormat struct {
 }
 
 type TrunkVlan struct {
-	AllowedVlanIdList *[]uint32 `json:"allowedvlanidlist,omitempty"`
-	NativeVlanId      *uint32   `json:"nativevlanid,omitempty"`
+	AllowedVlanIdList *string `json:"allowedvlanidlist,omitempty"`
+	NativeVlanId      *uint32 `json:"nativevlanid,omitempty"`
 }
 
 type IPPoolType string

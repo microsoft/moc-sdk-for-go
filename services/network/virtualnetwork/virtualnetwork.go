@@ -127,7 +127,7 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 			wssdsubnet.Trunkvlan = nil
 		} else {
 			trunkVlan := *subnet.TrunkVlan
-			allowedVlanIdList := []uint32{}
+			allowedVlanIdList := ""
 			nativeVlanId := uint32(0)
 			if trunkVlan.AllowedVlanIdList != nil {
 				allowedVlanIdList = *trunkVlan.AllowedVlanIdList
