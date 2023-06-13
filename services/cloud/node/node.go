@@ -74,3 +74,8 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 	statuses["Info"] = convert.ToStringPtr(node.GetInfo().String())
 	return statuses
 }
+
+func getTags(node *wssdcloud.Node) map[string]*string {
+	tags := make(map[string]*string)
+	return tags
+}
