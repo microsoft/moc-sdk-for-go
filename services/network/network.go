@@ -1078,6 +1078,8 @@ type LogicalNetworkPropertiesFormat struct {
 	AddressSpace *AddressSpace `json:"addressSpace,omitempty"`
 	// Subnets - A list of subnets in a Logical Network.
 	Subnets *[]LogicalSubnet `json:"subnets,omitempty"`
+	// MACPool name - Name of the associated MAC pool (or leave empty to use the default mac pool)
+	MacPoolName *string `json:"macPoolName,omitempty"`
 	// ProvisioningState - The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
