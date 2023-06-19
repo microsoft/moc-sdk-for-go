@@ -80,21 +80,23 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 }
 
 func generateNodeTags(node *wssdcloud.Node) map[string]*string {
-	var tags map[string]*string
-	tags = getOsRegistrationStatusTag(tags, node)
-	return tags
+	tags := make(map[string]*string)
+	populateOsRegistrationStatusTag(tags, node)
+	if len(tags) > 0 {
+		return tags
+	}
+	return nil
 }
 
-func getOsRegistrationStatusTag(tags map[string]*string, node *wssdcloud.Node) map[string]*string {
+func populateOsRegistrationStatusTag(tags map[string]*string, node *wssdcloud.Node) {
 	if node.Info != nil {
 		if node.Info.Capability != nil {
 			if node.Info.Capability.OsInfo != nil {
 				if node.Info.Capability.OsInfo.OsRegistrationStatus != nil {
-					registrationStatus := strconv.Itoa(int(node.Info.Capability.OsInfo.OsRegistrationStatus.Status))
-					tags[constant.OsRegistrationStatus] = &registrationStatus
+					osRegistrationStatus := strconv.Itoa(int(node.Info.Capability.OsInfo.OsRegistrationStatus.Status))
+					tags[constant.OsRegistrationStatus] = &osRegistrationStatus
 				}
 			}
 		}
 	}
-	return tags
 }
