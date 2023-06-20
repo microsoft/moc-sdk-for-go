@@ -126,6 +126,9 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 	if ipConfig.Gateway != nil {
 		wssdipconfig.Gateway = *ipConfig.Gateway
 	}
+	if ipConfig.Primary != nil {
+		wssdipconfig.Primary = *ipConfig.Primary
+	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
@@ -182,6 +185,7 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
 			Gateway:          &wssdcloudipconfig.Gateway,
 			PrefixLength:     &wssdcloudipconfig.Prefixlength,
+			Primary:          &wssdcloudipconfig.Primary,
 		},
 	}
 
