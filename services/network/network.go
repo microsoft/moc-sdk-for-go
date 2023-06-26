@@ -1043,8 +1043,8 @@ type LogicalSubnetPropertiesFormat struct {
 	AddressPrefix *string `json:"addressPrefix,omitempty"`
 	// AddressPrefixes - List of address prefixes for the subnet.
 	AddressPrefixes *[]string `json:"addressPrefixes,omitempty"`
-	// Routes for the subnet
-	RouteTable *RouteTable `json:"routeTable,omitempty"`
+	// Routes - Collection of routes contained within a route table.
+	Routes *[]Route `json:"routes,omitempty"`
 	// IPConfiguration References
 	IPConfigurationReferences *[]IPConfigurationReference `json:"ipConfigurationReferences,omitempty"`
 	// IPAllocationMethod - The IP address allocation method. Possible values include: 'Static', 'Dynamic'
