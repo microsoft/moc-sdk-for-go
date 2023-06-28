@@ -60,3 +60,13 @@ func GetValidationClient(serverAddress *string, authorizer auth.Authorizer) (cad
 
 	return cadmin_pb.NewValidationAgentClient(conn), nil
 }
+
+// GetHealthClient returns the wssdcloudagent health information
+func GetHealthClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_pb.HealthAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get HealthClient. Failed to dial: %v", err)
+	}
+
+	return cadmin_pb.NewHealthAgentClient(conn), nil
+}
