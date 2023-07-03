@@ -36,6 +36,48 @@ jobs:
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Build'
 
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
+    displayName: 'Sign Files'
+    inputs:
+      ConnectedServiceName: 'akshci_esrp'
+      FolderPath: '$(System.DefaultWorkingDirectory)/bin'
+      Pattern: '*.dll'
+      signConfigType: inlineSignParams
+      inlineOperation: |
+        [
+          {
+            "keyCode": "CP-230012",
+            "operationSetCode": "SigntoolSign",
+            "parameters": [
+              {
+                "parameterName": "OpusName",
+                "parameterValue": "Microsoft"
+              },
+              {
+                "parameterName": "OpusInfo",
+                "parameterValue": "http://www.microsoft.com"
+              },
+              {
+                "parameterName": "PageHash",
+                "parameterValue": "/NPH"
+              },
+              {
+                "parameterName": "FileDigest",
+                "parameterValue": "/fd sha256"
+              },
+              {
+                "parameterName": "TimeStamp",
+                "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+              }
+            ],
+            "toolName": "signtool.exe",
+            "toolVersion": "6.2.9304.0"
+          }
+        ]
+      SessionTimeout: '60'
+      MaxConcurrency: '50'
+      MaxRetryAttempts: '5'
+
   - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
     displayName: 'SBOM Generation'
     inputs:
