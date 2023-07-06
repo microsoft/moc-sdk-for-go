@@ -70,13 +70,3 @@ func GetHealthClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_
 
 	return cadmin_pb.NewHealthAgentClient(conn), nil
 }
-
-// GetDeploymentIdClient returns moc deployment id from wssdcloudagent
-func GetDeploymentIdClient(serverAddress *string, authorizer auth.Authorizer) (cadmin_pb.DeploymentIdAgentClient, error) {
-	conn, err := getClientConnection(serverAddress, authorizer)
-	if err != nil {
-		log.Fatalf("Unable to get DeploymentIdClient. Failed to dial: %v", err)
-	}
-
-	return cadmin_pb.NewDeploymentIdAgentClient(conn), nil
-}
