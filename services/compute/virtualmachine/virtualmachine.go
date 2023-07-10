@@ -396,8 +396,8 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	return &osconfig, nil
 }
 
-func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAgentProfile) (*wssdcloudcompute.GuestAgentConfiguration, error) {
-	gac := &wssdcloudcompute.GuestAgentConfiguration{}
+func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAgentProfile) (*wssdcommon.GuestAgentConfiguration, error) {
+	gac := &wssdcommon.GuestAgentConfiguration{}
 
 	if s == nil {
 		return gac, nil
@@ -553,7 +553,7 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 	return np
 }
 
-func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcloudcompute.GuestAgentConfiguration) *compute.GuestAgentProfile {
+func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcommon.GuestAgentConfiguration) *compute.GuestAgentProfile {
 	if ga == nil {
 		return nil
 	}

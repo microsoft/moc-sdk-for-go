@@ -444,8 +444,8 @@ func (c *client) getWssdVirtualMachineScaleSetSecurityConfiguration(vmp *compute
 	return wssdsecurity, nil
 }
 
-func (c *client) getWssdVirtualMachineScaleSetGuestAgentConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcloudcompute.GuestAgentConfiguration, error) {
-	wssdguestagent := &wssdcloudcompute.GuestAgentConfiguration{}
+func (c *client) getWssdVirtualMachineScaleSetGuestAgentConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcommon.GuestAgentConfiguration, error) {
+	wssdguestagent := &wssdcommon.GuestAgentConfiguration{}
 	if vmp.GuestAgentProfile != nil && vmp.GuestAgentProfile.Enabled != nil {
 		wssdguestagent.Enabled = *vmp.GuestAgentProfile.Enabled
 	}
