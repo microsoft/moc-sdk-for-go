@@ -203,6 +203,7 @@ func (c *client) getWssdVirtualMachineSecurityConfiguration(vm *compute.VirtualM
 	enableTPM := false
 	var uefiSettings *wssdcloudcompute.UefiSettings
 	uefiSettings = nil
+	securityType := wssdcommon.SecurityType_NOTCONFIGURED
 	if vm.SecurityProfile != nil {
 		if vm.SecurityProfile.EnableTPM != nil {
 			enableTPM = *vm.SecurityProfile.EnableTPM
@@ -212,11 +213,18 @@ func (c *client) getWssdVirtualMachineSecurityConfiguration(vm *compute.VirtualM
 				SecureBootEnabled: *vm.SecurityProfile.UefiSettings.SecureBootEnabled,
 			}
 		}
+		switch vm.SecurityProfile.SecurityType {
+		case compute.TrustedLaunch:
+			securityType = wssdcommon.SecurityType_TRUSTEDLAUNCH
+		case compute.ConfidentialVM:
+			securityType = wssdcommon.SecurityType_CONFIDENTIALVM
+		}
 	}
 
 	wssdsecurity := &wssdcloudcompute.SecurityConfiguration{
 		EnableTPM:    enableTPM,
 		UefiSettings: uefiSettings,
+		SecurityType: securityType,
 	}
 	return wssdsecurity, nil
 }
@@ -518,6 +526,8 @@ func (c *client) getVirtualMachineSecurityProfile(vm *wssdcloudcompute.VirtualMa
 	enableTPM := false
 	var uefiSettings *compute.UefiSettings
 	uefiSettings = nil
+	var securityType compute.SecurityTypes
+
 	if vm.Security != nil {
 		enableTPM = vm.Security.EnableTPM
 		if vm.Security.UefiSettings != nil {
@@ -525,12 +535,20 @@ func (c *client) getVirtualMachineSecurityProfile(vm *wssdcloudcompute.VirtualMa
 				SecureBootEnabled: &vm.Security.UefiSettings.SecureBootEnabled,
 			}
 		}
+		switch vm.Security.SecurityType {
+		case wssdcommon.SecurityType_TRUSTEDLAUNCH:
+			securityType = compute.TrustedLaunch
+		case wssdcommon.SecurityType_CONFIDENTIALVM:
+			securityType = compute.ConfidentialVM
+		}
 	}
 
 	return &compute.SecurityProfile{
 		EnableTPM:    &enableTPM,
 		UefiSettings: uefiSettings,
+		SecurityType: securityType,
 	}
+
 }
 
 func (c *client) getVirtualMachineHostDescription(vm *wssdcloudcompute.VirtualMachine) *compute.SubResource {
