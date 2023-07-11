@@ -40,3 +40,12 @@ func (c *client) GetAgentInfo(ctx context.Context) (*common.NodeInfo, error) {
 	}
 	return response.Node, nil
 }
+
+// GetDeploymentId
+func (c *client) GetDeploymentId(ctx context.Context) (string, error) {
+	response, err := c.HealthAgentClient.GetAgentInfo(ctx, &emptypb.Empty{})
+	if err != nil {
+		return "", err
+	}
+	return response.DeploymentId, nil
+}
