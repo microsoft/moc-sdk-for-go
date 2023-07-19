@@ -239,7 +239,7 @@ type InstanceViewStatus struct {
 	// Code - READ-ONLY; The status code, which only appears in the response.
 	Code string `json:"code,omitempty"`
 	// Level - READ-ONLY; The level code, which only appears in the response.
-	Level string `json:"level,omitempty"`
+	Level common.InstanceViewStatus_StatusLevelType `json:"level,omitempty"`
 	// DisplayStatus - READ-ONLY; The short localizable label for the status, which only appears in the response.
 	DisplayStatus string `json:"displayStatus,omitempty"`
 	// Message - READ-ONLY; The detailed status message, including for alerts and error messages, which only appears in the response.
@@ -602,8 +602,6 @@ type VirtualMachineScaleSetVMProfile struct {
 	StorageProfile *VirtualMachineScaleSetStorageProfile `json:"storageProfile,omitempty"`
 	// HardwareProfile
 	HardwareProfile *VirtualMachineScaleSetHardwareProfile `json:"hardwareProfile,omitempty"`
-	// GuestAgentProfile - Specifies the guest agent settings for the virtual machine.
-	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// OsProfile

@@ -55,18 +55,13 @@ func (c *client) getVirtualMachineScaleSetVMProfile(vm *wssdcloudcompute.Virtual
 	if err != nil {
 		return nil, errors.Wrapf(err, "Virtual Machine Scale Set OS Profile is invalid")
 	}
-	guestagent, err := c.getVirtualMachineScaleSetGuestAgentProfile(vm)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Virtual Machine Scale Set GuestAgent Profile is invalid")
-	}
 
 	return &compute.VirtualMachineScaleSetVMProfile{
-		StorageProfile:    storage,
-		HardwareProfile:   hardware,
-		SecurityProfile:   security,
-		OsProfile:         os,
-		NetworkProfile:    net,
-		GuestAgentProfile: guestagent,
+		StorageProfile:  storage,
+		HardwareProfile: hardware,
+		SecurityProfile: security,
+		OsProfile:       os,
+		NetworkProfile:  net,
 	}, nil
 }
 
@@ -137,18 +132,6 @@ func (c *client) getVirtualMachineScaleSetSecurityProfile(vm *wssdcloudcompute.V
 	}
 
 	return securityProfile, nil
-}
-
-func (c *client) getVirtualMachineScaleSetGuestAgentProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.GuestAgentProfile, error) {
-	if vm.GuestAgent == nil {
-		return nil, nil
-	}
-
-	guestAgentProfile := &compute.GuestAgentProfile{
-		Enabled: &vm.GuestAgent.Enabled,
-	}
-
-	return guestAgentProfile, nil
 }
 
 func (c *client) getVirtualMachineScaleSetNetworkProfile(n *wssdcloudcompute.NetworkConfigurationScaleSet) (*compute.VirtualMachineScaleSetNetworkProfile, error) {
@@ -345,18 +328,13 @@ func (c *client) getWssdVirtualMachineScaleSetVMProfile(vmp *compute.VirtualMach
 	if err != nil {
 		return nil, errors.Wrapf(err, "Invalid VMSS VMProfile OS")
 	}
-	guestagent, err := c.getWssdVirtualMachineScaleSetGuestAgentConfiguration(vmp)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Invalid VMSS VMProfile GuestAgent")
-	}
 
 	return &wssdcloudcompute.VirtualMachineProfile{
-		Storage:    storage,
-		Hardware:   hardware,
-		Security:   security,
-		Os:         os,
-		Network:    net,
-		GuestAgent: guestagent,
+		Storage:  storage,
+		Hardware: hardware,
+		Security: security,
+		Os:       os,
+		Network:  net,
 	}, nil
 
 }
@@ -442,14 +420,6 @@ func (c *client) getWssdVirtualMachineScaleSetSecurityConfiguration(vmp *compute
 		EnableTPM: enableTPM,
 	}
 	return wssdsecurity, nil
-}
-
-func (c *client) getWssdVirtualMachineScaleSetGuestAgentConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcommon.GuestAgentConfiguration, error) {
-	wssdguestagent := &wssdcommon.GuestAgentConfiguration{}
-	if vmp.GuestAgentProfile != nil && vmp.GuestAgentProfile.Enabled != nil {
-		wssdguestagent.Enabled = *vmp.GuestAgentProfile.Enabled
-	}
-	return wssdguestagent, nil
 }
 
 func (c *client) getWssdVirtualMachineScaleSetNetworkConfiguration(s *compute.VirtualMachineScaleSetNetworkProfile) (*wssdcloudcompute.NetworkConfigurationScaleSet, error) {
