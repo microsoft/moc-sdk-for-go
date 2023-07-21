@@ -101,7 +101,7 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wss
 			wssdsubnet.Vlan = uint32(*subnet.Vlan)
 		}
 
-		wssdsubnetRoutes, err1 := getWssdNetworkRoutes(subnet.Routes)
+		wssdsubnetRoutes, err1 := getWssdNetworkRoutes(subnet.RouteTable)
 		if err1 != nil {
 			err = err1
 			return
@@ -149,12 +149,12 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wss
 	return
 }
 
-func getWssdNetworkRoutes(routes *[]network.Route) (wssdcloudroutes []*wssdcommonproto.Route, err error) {
-	if routes == nil {
+func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*wssdcommonproto.Route, err error) {
+	if routetable == nil {
 		return
 	}
 
-	for _, route := range *routes {
+	for _, route := range *routetable.Routes {
 		// RouteTable is optional
 		if route.RoutePropertiesFormat == nil {
 			continue
@@ -201,8 +201,9 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network
 			Name: &subnet.Name,
 			ID:   &subnet.Id,
 			LogicalSubnetPropertiesFormat: &network.LogicalSubnetPropertiesFormat{
-				AddressPrefix:      &subnet.AddressPrefix,
-				Routes:             getNetworkRoutes(subnet.Routes),
+				AddressPrefix: &subnet.AddressPrefix,
+				RouteTable:    getNetworkRoutetable(subnet.Routes),
+				// TODO: implement something for IPConfigurationReferences
 				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
 				Vlan:               getVlan(subnet.Vlan),
 				IPPools:            getIPPools(subnet.IpPools),
@@ -245,7 +246,7 @@ func getIPPools(wssdcloudippools []*wssdcommonproto.IPPool) []network.IPPool {
 	return ippool
 }
 
-func getNetworkRoutes(wssdcloudroutes []*wssdcommonproto.Route) *[]network.Route {
+func getNetworkRoutetable(wssdcloudroutes []*wssdcommonproto.Route) *network.RouteTable {
 	routes := []network.Route{}
 
 	for _, route := range wssdcloudroutes {
@@ -257,7 +258,11 @@ func getNetworkRoutes(wssdcloudroutes []*wssdcommonproto.Route) *[]network.Route
 		})
 	}
 
-	return &routes
+	return &network.RouteTable{
+		RouteTablePropertiesFormat: &network.RouteTablePropertiesFormat{
+			Routes: &routes,
+		},
+	}
 }
 
 func getVlan(wssdvlan uint32) *uint16 {
