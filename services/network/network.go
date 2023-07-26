@@ -1076,6 +1076,8 @@ type LogicalSubnet struct {
 type LogicalNetworkPropertiesFormat struct {
 	// AddressSpace - The AddressSpace that contains an array of IP address ranges that can be used by subnets.
 	AddressSpace *AddressSpace `json:"addressSpace,omitempty"`
+	// DhcpOptions - The dhcpOptions that contains an array of DNS servers available to VMs deployed in the Logical network.
+	DhcpOptions *DhcpOptions `json:"dhcpOptions,omitempty"`
 	// Subnets - A list of subnets in a Logical Network.
 	Subnets *[]LogicalSubnet `json:"subnets,omitempty"`
 	// MACPool name - Name of the associated MAC pool (or leave empty to use the default mac pool)
