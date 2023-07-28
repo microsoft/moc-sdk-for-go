@@ -208,6 +208,10 @@ type KeyWrappingAlgorithm string
 const (
 	// CKM_RSA_AES_KEY_WRAP
 	CKM_RSA_AES_KEY_WRAP KeyWrappingAlgorithm = "CKM_RSA_AES_KEY_WRAP"
+	//RSA_AES_KEY_WRAP_256
+	RSA_AES_KEY_WRAP_256 KeyWrappingAlgorithm = "RSA_AES_KEY_WRAP_256"
+	//RSA_AES_KEY_WRAP_384
+	RSA_AES_KEY_WRAP_384 KeyWrappingAlgorithm = "RSA_AES_KEY_WRAP_384"
 	// NO_KEY_WRAP
 	NO_KEY_WRAP KeyWrappingAlgorithm = "NO_KEY_WRAP"
 )

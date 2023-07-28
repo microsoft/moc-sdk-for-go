@@ -239,7 +239,7 @@ type InstanceViewStatus struct {
 	// Code - READ-ONLY; The status code, which only appears in the response.
 	Code string `json:"code,omitempty"`
 	// Level - READ-ONLY; The level code, which only appears in the response.
-	Level string `json:"level,omitempty"`
+	Level common.InstanceViewStatus_StatusLevelType `json:"level,omitempty"`
 	// DisplayStatus - READ-ONLY; The short localizable label for the status, which only appears in the response.
 	DisplayStatus string `json:"displayStatus,omitempty"`
 	// Message - READ-ONLY; The detailed status message, including for alerts and error messages, which only appears in the response.
@@ -259,11 +259,21 @@ type UefiSettings struct {
 	// SecureBootEnabled - Specifies whether secure boot should be enabled on the virtual machine.
 	SecureBootEnabled *bool `json:"secureBootEnabled,omitempty"`
 }
+type SecurityTypes string
+
+// possible values of security type string
+const (
+	TrustedLaunch  SecurityTypes = "TrustedLaunch"
+	ConfidentialVM SecurityTypes = "ConfidentialVM"
+)
 
 type SecurityProfile struct {
 	EnableTPM *bool `json:"enableTPM,omitempty"`
 	//Security related configuration used while creating the virtual machine.
 	UefiSettings *UefiSettings `json:"uefiSettings,omitempty"`
+	// SecurityType - Specifies the SecurityType of the virtual machine. It has to be set to any specified value to enable UefiSettings.
+	// Default: UefiSettings will not be enabled unless this property is set. Possible values include: 'TrustedLaunch', 'ConfidentialVM'
+	SecurityType SecurityTypes `json:"securityType,omitempty"`
 }
 
 // Plan specifies information about the marketplace image used to create the virtual machine. This element
