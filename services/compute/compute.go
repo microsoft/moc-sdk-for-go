@@ -602,8 +602,6 @@ type VirtualMachineScaleSetVMProfile struct {
 	StorageProfile *VirtualMachineScaleSetStorageProfile `json:"storageProfile,omitempty"`
 	// HardwareProfile
 	HardwareProfile *VirtualMachineScaleSetHardwareProfile `json:"hardwareProfile,omitempty"`
-	// GuestAgentProfile - Specifies the guest agent settings for the virtual machine.
-	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// OsProfile
