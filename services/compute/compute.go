@@ -51,6 +51,15 @@ const (
 	IPv6 IPVersion = "IPv6"
 )
 
+type StatusLevelType string
+
+const (
+	StatusLevelUnknown StatusLevelType = "Unknown"
+	StatusLevelInfo    StatusLevelType = "Info"
+	StatusLevelWarning StatusLevelType = "Warning"
+	StatusLevelError   StatusLevelType = "Error"
+)
+
 // ImageReference specifies information about the image to use. You can specify information about platform
 // images, marketplace images, or virtual machine images. This element is required when you want to use a
 // platform image, marketplace image, or virtual machine image, but is not used in other creation
@@ -239,7 +248,7 @@ type InstanceViewStatus struct {
 	// Code - READ-ONLY; The status code, which only appears in the response.
 	Code string `json:"code,omitempty"`
 	// Level - READ-ONLY; The level code, which only appears in the response.
-	Level common.InstanceViewStatus_StatusLevelType `json:"level,omitempty"`
+	Level StatusLevelType `json:"level,omitempty"`
 	// DisplayStatus - READ-ONLY; The short localizable label for the status, which only appears in the response.
 	DisplayStatus string `json:"displayStatus,omitempty"`
 	// Message - READ-ONLY; The detailed status message, including for alerts and error messages, which only appears in the response.

@@ -593,15 +593,7 @@ func (c *client) getVirtualMachineGuestInstanceView(g *wssdcommon.VirtualMachine
 	}
 
 	for _, status := range g.GetStatuses() {
-		gapStatus := compute.InstanceViewStatus{
-			Code:          status.GetCode(),
-			Level:         status.GetLevel(),
-			DisplayStatus: status.GetDisplayStatus(),
-			Message:       status.GetMessage(),
-			Time:          status.GetTime(),
-		}
-
-		gap.Statuses = append(gap.Statuses, &gapStatus)
+		gap.Statuses = append(gap.Statuses, c.getInstanceViewStatus(status))
 	}
 
 	return gap
@@ -652,6 +644,26 @@ func (c *client) getVirtualMachineLinuxConfiguration(linuxConfiguration *wssdclo
 	}
 
 	return lc
+}
+
+func (c *client) getInstanceViewStatus(status *wssdcommon.InstanceViewStatus) *compute.InstanceViewStatus {
+	level := compute.StatusLevelUnknown
+	switch status.GetLevel() {
+	case wssdcommon.InstanceViewStatus_Info:
+		level = compute.StatusLevelInfo
+	case wssdcommon.InstanceViewStatus_Warning:
+		level = compute.StatusLevelWarning
+	case wssdcommon.InstanceViewStatus_Error:
+		level = compute.StatusLevelError
+	}
+
+	return &compute.InstanceViewStatus{
+		Code:          status.GetCode(),
+		Level:         level,
+		DisplayStatus: status.GetDisplayStatus(),
+		Message:       status.GetMessage(),
+		Time:          status.GetTime(),
+	}
 }
 
 func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemConfiguration) *compute.OSProfile {
