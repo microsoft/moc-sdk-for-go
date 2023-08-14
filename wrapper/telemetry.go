@@ -50,7 +50,7 @@ func EmitWrapperTelemetry(eventName string, correlationVector string, errorStrin
 	// calling for version information is costly, only perform at login
 	mocVersion, mocAgentVersion := "", ""
 	if eventName == "SecurityLoginCV" {
-		mocVersion, mocAgentVersion = getMocVersion(serverName)
+		mocVersion, mocAgentVersion, _ = getMocVersion(serverName)
 	}
 	functionName := ""
 	var details *runtime.Func
@@ -99,20 +99,20 @@ func (eventTelemetry WrapperEventFields) emitWrapperTelemetry() {
 	}
 }
 
-func getMocVersion(serverName string) (string, string) {
+func getMocVersion(serverName string) (string, string, error) {
 	authorizer, err := auth.NewAuthorizerFromEnvironment(serverName)
 	if err != nil {
-		return "", ""
+		return "", "", err
 	}
 	client, err := version.NewVersionClient(serverName, authorizer)
 	if err != nil {
-		return "", ""
+		return "", "", err
 	}
 	mocVersion, agentVersion, err := client.GetVersion(context.Background())
 	if err != nil {
-		return "", ""
+		return "", "", err
 	}
-	return mocVersion, agentVersion
+	return mocVersion, agentVersion, nil
 }
 
 // Based on moc-pkg
