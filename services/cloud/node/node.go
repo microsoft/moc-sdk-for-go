@@ -4,6 +4,9 @@
 package node
 
 import (
+	"strconv"
+
+	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
 	"github.com/microsoft/moc/pkg/convert"
@@ -65,6 +68,7 @@ func getNode(nd *wssdcloud.Node) *cloud.Node {
 			Statuses:       getNodeStatuses(nd),
 		},
 		Version: &nd.Status.Version.Number,
+		Tags:    generateNodeTags(nd),
 	}
 }
 
@@ -73,4 +77,20 @@ func getNodeStatuses(node *wssdcloud.Node) map[string]*string {
 	statuses["RunningState"] = convert.ToStringPtr(node.GetRunningState().String())
 	statuses["Info"] = convert.ToStringPtr(node.GetInfo().String())
 	return statuses
+}
+
+func generateNodeTags(node *wssdcloud.Node) map[string]*string {
+	tags := make(map[string]*string)
+	populateOsRegistrationStatusTag(tags, node)
+	if len(tags) > 0 {
+		return tags
+	}
+	return nil
+}
+
+func populateOsRegistrationStatusTag(tags map[string]*string, node *wssdcloud.Node) {
+	if node.Info != nil && node.Info.OsInfo != nil && node.Info.OsInfo.OsRegistrationStatus != nil {
+		osRegistrationStatus := strconv.Itoa(int(node.Info.OsInfo.OsRegistrationStatus.Status))
+		tags[constant.OsRegistrationStatus] = &osRegistrationStatus
+	}
 }

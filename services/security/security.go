@@ -424,6 +424,8 @@ type CertificateRequest struct {
 	PrivateKey *string `json:"privatekey,omitempty"`
 	// OldCertificate Certificate contents of x509 certificate string to be renewed encoded in base64
 	OldCertificate *string `json:"oldcert,omitempty"`
+	// IsCA - If the certificate to be signed is CA
+	IsCA *bool `json:"isCA,omitempty"`
 	// Attributes - The certificate attributes.
 	Attributes *CertificateRequestAttributes `json:"attributes,omitempty"`
 	// Tags - Application-specific metadata in the form of key-value pairs

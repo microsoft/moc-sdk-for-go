@@ -15,6 +15,7 @@ import (
 type Service interface {
 	CheckHealth(ctx context.Context, timeoutSeconds uint32) error
 	GetAgentInfo(context.Context) (*common.NodeInfo, error)
+	GetDeploymentId(ctx context.Context) (string, error)
 }
 
 // Client structure
@@ -36,4 +37,21 @@ func (c *HealthClient) CheckHealth(ctx context.Context, timeoutSeconds uint32) e
 // GetAgentInfo
 func (c *HealthClient) GetAgentInfo(ctx context.Context) (*common.NodeInfo, error) {
 	return c.internal.GetAgentInfo(ctx)
+}
+
+var deploymentId = ""
+
+// GetDeploymentId
+func (c *HealthClient) GetDeploymentId(ctx context.Context) (string, error) {
+	//if deploymentId is cached, directly return it
+	if len(deploymentId) != 0 {
+		return deploymentId, nil
+	}
+	id, err := c.internal.GetDeploymentId(ctx)
+	if err != nil {
+		deploymentId = ""
+		return "", err
+	}
+	deploymentId = id
+	return id, err
 }
