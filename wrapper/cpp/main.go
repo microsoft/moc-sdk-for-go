@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the Apache v2.0 License.
 
+//go:build windows
+// +build windows
+
 //
 // This file contains wrapper function calls that c++ component
 // can leverage to call into MocStack

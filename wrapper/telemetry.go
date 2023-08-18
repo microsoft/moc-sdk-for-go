@@ -5,6 +5,9 @@
 // This file provides telemetry support for wrapper functions
 //
 
+//go:build windows
+// +build windows
+
 package telemetry
 
 import (
