@@ -22,8 +22,8 @@ type Service interface {
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
+	RepairGuestAgent(context.Context, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
-	RepairGuestAgent(context.Context, string, string) (*compute.VirtualMachineRepairGuestAgentResponse, error)
 	Validate(context.Context, string, string) error
 }
 
@@ -306,7 +306,7 @@ func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName str
 	return c.internal.RunCommand(ctx, group, vmName, request)
 }
 
-func (c *VirtualMachineClient) RepairGuestAgent(ctx context.Context, group, vmName string) (response *compute.VirtualMachineRepairGuestAgentResponse, err error) {
+func (c *VirtualMachineClient) RepairGuestAgent(ctx context.Context, group, vmName string) (err error) {
 	return c.internal.RepairGuestAgent(ctx, group, vmName)
 }
 

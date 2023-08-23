@@ -1147,9 +1147,3 @@ type VirtualMachineRunCommandResponse struct {
 	// InstanceView - The virtual machine run command instance view.
 	InstanceView *VirtualMachineRunCommandInstanceView `json:"instanceView,omitempty"`
 }
-
-// VirtualMachineRepairGuestAgentResponse
-type VirtualMachineRepairGuestAgentResponse struct {
-	Result *bool   `json:"result,omitempty"`
-	Error  *string `json:"error,omitempty"`
-}
