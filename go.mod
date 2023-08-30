@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/Microsoft/go-winio v0.6.1
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.3
