@@ -137,6 +137,17 @@ func (c *client) Start(ctx context.Context, group, name string) (err error) {
 	return
 }
 
+// RepairGuestAgent
+func (c *client) RepairGuestAgent(ctx context.Context, group, name string) (err error) {
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Repair_Guest_Agent, group, name)
+	if err != nil {
+		return
+	}
+
+	_, err = c.VirtualMachineAgentClient.Operate(ctx, request)
+	return
+}
+
 // RunCommand
 func (c *client) RunCommand(ctx context.Context, group, name string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
 	mocRequest, err := c.getVirtualMachineRunCommandRequest(ctx, group, name, request)
