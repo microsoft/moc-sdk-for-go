@@ -43,6 +43,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get Network Configuration")
 	}
 
+	guestAgentConfig, err := c.getWssdVirtualMachineGuestAgentConfiguration(vm.GuestAgentProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -57,6 +62,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		Storage:                storageConfig,
 		Hardware:               hardwareConfig,
 		Security:               securityConfig,
+		GuestAgent:             guestAgentConfig,
 		Os:                     osconfig,
 		Network:                networkConfig,
 		GroupName:              group,
@@ -401,6 +407,20 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	return &osconfig, nil
 }
 
+func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAgentProfile) (*wssdcommon.GuestAgentConfiguration, error) {
+	gac := &wssdcommon.GuestAgentConfiguration{}
+
+	if s == nil {
+		return gac, nil
+	}
+
+	if s.Enabled != nil {
+		gac.Enabled = *s.Enabled
+	}
+
+	return gac, nil
+}
+
 func (c *client) getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfiguration *compute.HttpProxyConfiguration) *wssdcloudcompute.HttpProxyConfiguration {
 	httpProxyConfiguration := &wssdcloudcompute.HttpProxyConfiguration{}
 
@@ -445,6 +465,8 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
+			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
+			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
@@ -575,6 +597,34 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 	return np
 }
 
+func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcommon.GuestAgentConfiguration) *compute.GuestAgentProfile {
+	if ga == nil {
+		return nil
+	}
+
+	g := &compute.GuestAgentProfile{
+		Enabled: &ga.Enabled,
+	}
+
+	return g
+}
+
+func (c *client) getVirtualMachineGuestInstanceView(g *wssdcommon.VirtualMachineAgentInstanceView) *compute.GuestAgentInstanceView {
+	if g == nil {
+		return nil
+	}
+
+	gap := &compute.GuestAgentInstanceView{
+		AgentVersion: g.GetVmAgentVersion(),
+	}
+
+	for _, status := range g.GetStatuses() {
+		gap.Statuses = append(gap.Statuses, c.getInstanceViewStatus(status))
+	}
+
+	return gap
+}
+
 func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
 	wc := &compute.WindowsConfiguration{
 		RDP: &compute.RDPConfiguration{},
@@ -620,6 +670,26 @@ func (c *client) getVirtualMachineLinuxConfiguration(linuxConfiguration *wssdclo
 	}
 
 	return lc
+}
+
+func (c *client) getInstanceViewStatus(status *wssdcommon.InstanceViewStatus) *compute.InstanceViewStatus {
+	level := compute.StatusLevelUnknown
+	switch status.GetLevel() {
+	case wssdcommon.InstanceViewStatus_Info:
+		level = compute.StatusLevelInfo
+	case wssdcommon.InstanceViewStatus_Warning:
+		level = compute.StatusLevelWarning
+	case wssdcommon.InstanceViewStatus_Error:
+		level = compute.StatusLevelError
+	}
+
+	return &compute.InstanceViewStatus{
+		Code:          status.GetCode(),
+		Level:         level,
+		DisplayStatus: status.GetDisplayStatus(),
+		Message:       status.GetMessage(),
+		Time:          status.GetTime(),
+	}
 }
 
 func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemConfiguration) *compute.OSProfile {
