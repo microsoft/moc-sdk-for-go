@@ -6,6 +6,8 @@ package certificate
 import (
 	"net"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
+
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/certs"
 	"github.com/microsoft/moc/pkg/errors"
@@ -99,6 +101,9 @@ func GetMocCSR(csr *security.CertificateRequest) (*wssdcloudsecurity.Certificate
 	}
 	if csr.CaName != nil {
 		request.CaName = *csr.CaName
+	}
+	if csr.IsCA != nil {
+		request.IsCA = &wrappers.BoolValue{Value: *csr.IsCA}
 	}
 	return request, string(key), nil
 }

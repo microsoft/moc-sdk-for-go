@@ -51,6 +51,15 @@ const (
 	IPv6 IPVersion = "IPv6"
 )
 
+type StatusLevelType string
+
+const (
+	StatusLevelUnknown StatusLevelType = "Unknown"
+	StatusLevelInfo    StatusLevelType = "Info"
+	StatusLevelWarning StatusLevelType = "Warning"
+	StatusLevelError   StatusLevelType = "Error"
+)
+
 // ImageReference specifies information about the image to use. You can specify information about platform
 // images, marketplace images, or virtual machine images. This element is required when you want to use a
 // platform image, marketplace image, or virtual machine image, but is not used in other creation
@@ -230,6 +239,31 @@ type NetworkProfile struct {
 	NetworkInterfaces *[]NetworkInterfaceReference `json:"networkinterfaces,omitempty"`
 }
 
+type GuestAgentProfile struct {
+	// Enabled - Specifies whether guest agent should be enabled on the virtual machine.
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+type InstanceViewStatus struct {
+	// Code - READ-ONLY; The status code, which only appears in the response.
+	Code string `json:"code,omitempty"`
+	// Level - READ-ONLY; The level code, which only appears in the response.
+	Level StatusLevelType `json:"level,omitempty"`
+	// DisplayStatus - READ-ONLY; The short localizable label for the status, which only appears in the response.
+	DisplayStatus string `json:"displayStatus,omitempty"`
+	// Message - READ-ONLY; The detailed status message, including for alerts and error messages, which only appears in the response.
+	Message string `json:"message,omitempty"`
+	// Time - READ-ONLY; The time of the status, which only appears in the response.
+	Time string `json:"time,omitempty"`
+}
+
+type GuestAgentInstanceView struct {
+	// AgentVersion - READ-ONLY; The Guest Agent full version, which only appears in the response.
+	AgentVersion string `json:"agentVersion,omitempty"`
+	// Statuses - READ-ONLY; The resource status information, which only appears in the response.
+	Statuses []*InstanceViewStatus `json:"statuses,omitempty"`
+}
+
 type UefiSettings struct {
 	// SecureBootEnabled - Specifies whether secure boot should be enabled on the virtual machine.
 	SecureBootEnabled *bool `json:"secureBootEnabled,omitempty"`
@@ -277,6 +311,8 @@ type VirtualMachineProperties struct {
 	NetworkProfile *NetworkProfile `json:"networkprofile,omitempty"`
 	// HardwareProfile - Specifies the hardware settings for the virtual machine.
 	HardwareProfile *HardwareProfile `json:"hardwareprofile,omitempty"`
+	// GuestAgentProfile - Specifies the guest agent settings for the virtual machine.
+	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
@@ -285,6 +321,8 @@ type VirtualMachineProperties struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// ValidationState - READ-ONLY; The validation status, which only appears in the response.
 	ValidationStatus []*common.ValidationState `json:"validationStatus"`
+	// GuestAgentInstanceView - READ-ONLY; The info of the Agent running on the virtual machine, which only appears in the response.
+	GuestAgentInstanceView *GuestAgentInstanceView `json:"guestAgentInstanceView,omitempty"`
 	// VMID - READ-ONLY; Specifies the VM unique ID which is a 128-bits identifier that is encoded and stored in all Azure IaaS VMs SMBIOS and can be read using platform BIOS commands.
 	VMID *string `json:"vmId,omitempty"`
 	// VmType - The type of the VM.  Can be either tenant or loadbalancer vm
@@ -293,6 +331,8 @@ type VirtualMachineProperties struct {
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// HttpProxyConfiguration
+	HttpProxyConfiguration *HttpProxyConfiguration `json:"httpproxyconfiguration,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1108,4 +1148,15 @@ type VirtualMachineRunCommandRequest struct {
 type VirtualMachineRunCommandResponse struct {
 	// InstanceView - The virtual machine run command instance view.
 	InstanceView *VirtualMachineRunCommandInstanceView `json:"instanceView,omitempty"`
+}
+
+type HttpProxyConfiguration struct {
+	// The HTTP proxy server endpoint
+	httpProxy *string `json:"httpproxy,omitempty"`
+	// The HTTPS proxy server endpoint
+	httpsProxy *string `json:"httpsproxy,omitempty"`
+	// The endpoints that should not go through proxy
+	noProxy *[]string `json:"noproxy,omitempty"`
+	// Alternative CA cert to use for connecting to proxy server
+	trustedCa *string `json:"trustedca,omitempty"`
 }
