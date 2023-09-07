@@ -13,6 +13,7 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -32,7 +33,7 @@ func newControlPlaneClient(subID string, authorizer auth.Authorizer) (*client, e
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]cloud.ControlPlaneInfo, error) {
-	request, err := c.getControlPlaneRequest(wssdcloudcommon.Operation_GET, location, name, nil)
+	request, err := c.getControlPlaneRequest(ctx, wssdcloudcommon.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +54,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, sg *
 	}
 	controlPlane = nil
 
-	request, err := c.getControlPlaneRequest(wssdcloudcommon.Operation_POST, location, name, sg)
+	request, err := c.getControlPlaneRequest(ctx, wssdcloudcommon.Operation_POST, location, name, sg)
 	if err != nil {
 		return
 	}
@@ -81,7 +82,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("ControlPlane [%s] not found", name)
 	}
 
-	request, err := c.getControlPlaneRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
+	request, err := c.getControlPlaneRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
 	if err != nil {
 		return err
 	}
@@ -129,10 +130,13 @@ func (c *client) getControlPlaneFromResponse(response *wssdcloud.ControlPlaneRes
 	return &gps
 }
 
-func (c *client) getControlPlaneRequest(opType wssdcloudcommon.Operation, location, name string, cpRequest *cloud.ControlPlaneInfo) (*wssdcloud.ControlPlaneRequest, error) {
+func (c *client) getControlPlaneRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, cpRequest *cloud.ControlPlaneInfo) (*wssdcloud.ControlPlaneRequest, error) {
 	request := &wssdcloud.ControlPlaneRequest{
 		OperationType: opType,
 		ControlPlanes: []*wssdcloud.ControlPlane{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	wssdControlPlane := &wssdcloud.ControlPlane{
 		Name:         name,

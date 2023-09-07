@@ -8,10 +8,12 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	"github.com/microsoft/moc/rpc/common"
 	log "k8s.io/klog"
 )
 
@@ -30,7 +32,7 @@ func newCertificateClient(subID string, authorizer auth.Authorizer) (*client, er
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]security.Certificate, error) {
-	request, err := getCertificateRequest(group, name, nil)
+	request, err := getCertificateRequest(ctx, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +45,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.Certi
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *security.Certificate) (*security.Certificate, error) {
-	request, err := getCertificateRequest("", name, sg)
+	request, err := getCertificateRequest(ctx, "", name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +67,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *sec
 // Sign
 func (c *client) Sign(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
 	csr.OldCertificate = nil
-	request, key, err := getCSRRequest(name, csr)
+	request, key, err := getCSRRequest(ctx, name, csr)
 	if err != nil {
 		return nil, "", err
 	}
@@ -90,7 +92,7 @@ func (c *client) Renew(ctx context.Context, group, name string, csr *security.Ce
 		return nil, "", errors.Wrapf(errors.NotFound, "[Certificate] Renew missing oldCert field")
 	}
 
-	request, key, err := getCSRRequest(name, csr)
+	request, key, err := getCSRRequest(ctx, name, csr)
 	if err != nil {
 		return nil, "", err
 	}
@@ -119,7 +121,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Certificate [%s] not found", name)
 	}
 
-	request, err := getCertificateRequest(group, name, &(*cert)[0])
+	request, err := getCertificateRequest(ctx, group, name, &(*cert)[0])
 	if err != nil {
 		return err
 	}
@@ -136,9 +138,12 @@ func getCertificatesFromResponse(response *wssdcloudsecurity.CertificateResponse
 	return &certs
 }
 
-func getCertificateRequest(group, name string, cert *security.Certificate) (*wssdcloudsecurity.CertificateRequest, error) {
+func getCertificateRequest(ctx context.Context, group, name string, cert *security.Certificate) (*wssdcloudsecurity.CertificateRequest, error) {
 	request := &wssdcloudsecurity.CertificateRequest{
 		Certificates: []*wssdcloudsecurity.Certificate{},
+		Context: &common.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	wssdcertificate := &wssdcloudsecurity.Certificate{
 		Name:      name,
@@ -156,9 +161,12 @@ func getCertificateRequest(group, name string, cert *security.Certificate) (*wss
 	return request, nil
 }
 
-func getCSRRequest(name string, csr *security.CertificateRequest) (*wssdcloudsecurity.CSRRequest, string, error) {
+func getCSRRequest(ctx context.Context, name string, csr *security.CertificateRequest) (*wssdcloudsecurity.CSRRequest, string, error) {
 	request := &wssdcloudsecurity.CSRRequest{
 		CSRs: []*wssdcloudsecurity.CertificateSigningRequest{},
+		Context: &common.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	wssdcsr := &wssdcloudsecurity.CertificateSigningRequest{
 		Name: name,

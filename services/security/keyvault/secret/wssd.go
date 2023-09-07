@@ -10,6 +10,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/security/keyvault"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
@@ -31,7 +32,7 @@ func newSecretClient(subID string, authorizer auth.Authorizer) (*client, error) 
 
 // Get
 func (c *client) Get(ctx context.Context, group, name, vaultName string) (*[]keyvault.Secret, error) {
-	request, err := getSecretRequest(wssdcloudcommon.Operation_GET, name, vaultName, group, nil)
+	request, err := getSecretRequest(ctx, wssdcloudcommon.Operation_GET, name, vaultName, group, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +49,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *key
 	if err != nil {
 		return nil, err
 	}
-	request, err := getSecretRequest(wssdcloudcommon.Operation_POST, name, *sg.VaultName, group, sg)
+	request, err := getSecretRequest(ctx, wssdcloudcommon.Operation_POST, name, *sg.VaultName, group, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (c *client) Delete(ctx context.Context, group, name, vaultName string) erro
 		return fmt.Errorf("Keysecret [%s] not found", name)
 	}
 
-	request, err := getSecretRequest(wssdcloudcommon.Operation_DELETE, name, vaultName, group, &(*secret)[0])
+	request, err := getSecretRequest(ctx, wssdcloudcommon.Operation_DELETE, name, vaultName, group, &(*secret)[0])
 	if err != nil {
 		return err
 	}
@@ -107,11 +108,14 @@ func getSecretsFromResponse(response *wssdcloudsecurity.SecretResponse, vaultNam
 	return &Secrets
 }
 
-func getSecretRequest(opType wssdcloudcommon.Operation, name, vaultName, groupName string, sec *keyvault.Secret) (*wssdcloudsecurity.SecretRequest, error) {
+func getSecretRequest(ctx context.Context, opType wssdcloudcommon.Operation, name, vaultName, groupName string, sec *keyvault.Secret) (*wssdcloudsecurity.SecretRequest, error) {
 
 	request := &wssdcloudsecurity.SecretRequest{
 		OperationType: opType,
 		Secrets:       []*wssdcloudsecurity.Secret{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	if sec != nil {
 		secret, err := getWssdSecret(groupName, sec, opType)

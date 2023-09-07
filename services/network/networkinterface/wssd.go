@@ -6,7 +6,9 @@ package networkinterface
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -30,7 +32,7 @@ func newInterfaceClient(subID string, authorizer auth.Authorizer) (*client, erro
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]network.Interface, error) {
-	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := c.getNetworkInterfaceRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +51,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Interf
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnetInterface *network.Interface) (*network.Interface, error) {
-	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_POST, group, name, vnetInterface)
+	request, err := c.getNetworkInterfaceRequest(ctx, wssdcloudcommon.Operation_POST, group, name, vnetInterface)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +77,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Virtual Network Interface [%s] not found", name)
 	}
 
-	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnetInterface)[0])
+	request, err := c.getNetworkInterfaceRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*vnetInterface)[0])
 	if err != nil {
 		return err
 	}
@@ -89,10 +91,13 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 }
 
 // ///////////// private methods  ///////////////
-func (c *client) getNetworkInterfaceRequest(opType wssdcloudcommon.Operation, group, name string, networkInterface *network.Interface) (*wssdcloudnetwork.NetworkInterfaceRequest, error) {
+func (c *client) getNetworkInterfaceRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, networkInterface *network.Interface) (*wssdcloudnetwork.NetworkInterfaceRequest, error) {
 	request := &wssdcloudnetwork.NetworkInterfaceRequest{
 		OperationType:     opType,
 		NetworkInterfaces: []*wssdcloudnetwork.NetworkInterface{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 

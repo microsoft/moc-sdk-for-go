@@ -6,6 +6,8 @@ package virtualmachineimage
 import (
 	"context"
 	"fmt"
+
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -24,7 +26,7 @@ func newVirtualMachineImageClient(subID string, authorizer auth.Authorizer) (*cl
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]compute.VirtualMachineImage, error) {
-	request, err := getVirtualMachineImageRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := getVirtualMachineImageRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +39,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.Virtua
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vhd *compute.VirtualMachineImage) (*compute.VirtualMachineImage, error) {
-	request, err := getVirtualMachineImageRequest(wssdcloudcommon.Operation_POST, group, name, vhd)
+	request, err := getVirtualMachineImageRequest(ctx, wssdcloudcommon.Operation_POST, group, name, vhd)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +66,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Virtual Network [%s] not found", name)
 	}
 
-	request, err := getVirtualMachineImageRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vhd)[0])
+	request, err := getVirtualMachineImageRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*vhd)[0])
 	if err != nil {
 		return err
 	}
@@ -74,10 +76,13 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 
 }
 
-func getVirtualMachineImageRequest(opType wssdcloudcommon.Operation, group, name string, compute *compute.VirtualMachineImage) (*wssdcloudcompute.VirtualMachineImageRequest, error) {
+func getVirtualMachineImageRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, compute *compute.VirtualMachineImage) (*wssdcloudcompute.VirtualMachineImageRequest, error) {
 	request := &wssdcloudcompute.VirtualMachineImageRequest{
 		OperationType:        opType,
 		VirtualMachineImages: []*wssdcloudcompute.VirtualMachineImage{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	var err error

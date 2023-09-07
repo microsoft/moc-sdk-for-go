@@ -13,6 +13,7 @@ import (
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/certs"
@@ -20,6 +21,7 @@ import (
 	"github.com/microsoft/moc/pkg/fs"
 	"github.com/microsoft/moc/pkg/marshal"
 	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	"github.com/microsoft/moc/rpc/common"
 	//log "k8s.io/klog"
 )
 
@@ -62,7 +64,7 @@ func reLoginOnExpiry(ctx context.Context, loginconfig auth.LoginConfig, group, c
 
 // Login
 func (c *client) Login(ctx context.Context, group string, identity *security.Identity) (*string, error) {
-	request := getAuthenticationRequest(identity)
+	request := getAuthenticationRequest(ctx, identity)
 	response, err := c.AuthenticationAgentClient.Login(ctx, request)
 	if err != nil {
 		return nil, err
@@ -175,12 +177,15 @@ func renewTime(certificate string) (sleepduration, renewBackoff time.Duration, e
 	return sleepduration, renewBackoff, x509Cert.NotAfter, nil
 }
 
-func getAuthenticationRequest(identity *security.Identity) *wssdsecurity.AuthenticationRequest {
+func getAuthenticationRequest(ctx context.Context, identity *security.Identity) *wssdsecurity.AuthenticationRequest {
 	certs := map[string]string{"": *identity.Certificate}
 	request := &wssdsecurity.AuthenticationRequest{
 		Identity: &wssdsecurity.Identity{
 			Name:         *identity.Name,
 			Certificates: certs,
+		},
+		Context: &common.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
 		},
 	}
 	return request

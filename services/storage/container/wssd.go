@@ -6,7 +6,9 @@ package container
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -29,7 +31,7 @@ func newContainerClient(subID string, authorizer auth.Authorizer) (*client, erro
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]storage.Container, error) {
-	request, err := getContainerRequest(wssdcloudcommon.Operation_GET, location, name, nil)
+	request, err := getContainerRequest(ctx, wssdcloudcommon.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]storage.Con
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, location, name string, container *storage.Container) (*storage.Container, error) {
-	request, err := getContainerRequest(wssdcloudcommon.Operation_POST, location, name, container)
+	request, err := getContainerRequest(ctx, wssdcloudcommon.Operation_POST, location, name, container)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("Virtual Network [%s] not found", name)
 	}
 
-	request, err := getContainerRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*container)[0])
+	request, err := getContainerRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*container)[0])
 	if err != nil {
 		return err
 	}
@@ -79,10 +81,13 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 
 }
 
-func getContainerRequest(opType wssdcloudcommon.Operation, location, name string, storage *storage.Container) (*wssdcloudstorage.ContainerRequest, error) {
+func getContainerRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, storage *storage.Container) (*wssdcloudstorage.ContainerRequest, error) {
 	request := &wssdcloudstorage.ContainerRequest{
 		OperationType: opType,
 		Containers:    []*wssdcloudstorage.Container{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	var err error

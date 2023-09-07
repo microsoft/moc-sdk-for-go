@@ -15,6 +15,7 @@ import (
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
@@ -33,7 +34,7 @@ func newBareMetalMachineClient(subID string, authorizer auth.Authorizer) (*clien
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]compute.BareMetalMachine, error) {
-	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_GET, group, name, nil)
+	request, err := c.getBareMetalMachineRequest(ctx, wssdcloudproto.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.BareMe
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *compute.BareMetalMachine) (*compute.BareMetalMachine, error) {
-	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_POST, group, name, sg)
+	request, err := c.getBareMetalMachineRequest(ctx, wssdcloudproto.Operation_POST, group, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Bare Metal Machine [%s] not found", name)
 	}
 
-	request, err := c.getBareMetalMachineRequest(wssdcloudproto.Operation_DELETE, group, name, &(*bmms)[0])
+	request, err := c.getBareMetalMachineRequest(ctx, wssdcloudproto.Operation_DELETE, group, name, &(*bmms)[0])
 	if err != nil {
 		return err
 	}
@@ -111,10 +112,13 @@ func (c *client) getBareMetalMachineFromResponse(response *wssdcloudcompute.Bare
 	return &bmms
 }
 
-func (c *client) getBareMetalMachineRequest(opType wssdcloudproto.Operation, group, name string, bmm *compute.BareMetalMachine) (*wssdcloudcompute.BareMetalMachineRequest, error) {
+func (c *client) getBareMetalMachineRequest(ctx context.Context, opType wssdcloudproto.Operation, group, name string, bmm *compute.BareMetalMachine) (*wssdcloudcompute.BareMetalMachineRequest, error) {
 	request := &wssdcloudcompute.BareMetalMachineRequest{
 		OperationType:     opType,
 		BareMetalMachines: []*wssdcloudcompute.BareMetalMachine{},
+		Context: &wssdcloudproto.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 	wssdbmm := &wssdcloudcompute.BareMetalMachine{

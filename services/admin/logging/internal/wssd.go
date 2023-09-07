@@ -12,9 +12,11 @@ import (
 	"time"
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	loggingHelpers "github.com/microsoft/moc/pkg/logging"
 	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 	wssdcomadmin "github.com/microsoft/moc/rpc/common/admin"
 )
 
@@ -33,7 +35,7 @@ func NewLoggingClient(subID string, authorizer auth.Authorizer) (*client, error)
 
 // Get
 func (c *client) GetLogFile(ctx context.Context, location, filename string) error {
-	request := getLoggingRequest(location)
+	request := getLoggingRequest(ctx, location)
 	fileStreamClient, err := c.LogAgentClient.Get(ctx, request)
 	if err != nil {
 		return err
@@ -73,7 +75,7 @@ func (c *client) SetVerbosityLevel(ctx context.Context, verbositylevel int32, in
 	if verbositylevel < int32(wssdcomadmin.VerboseLevel_Min_Level) || verbositylevel > int32(wssdcomadmin.VerboseLevel_Max_Level) {
 		return errors.New(`can not set provided verbositylevel, provided level should be within the range of 0-9 including 0 and 9`)
 	}
-	request := setVerbosityLevelRequest(verbositylevel, include_nodeagents)
+	request := setVerbosityLevelRequest(ctx, verbositylevel, include_nodeagents)
 
 	_, err := c.LogAgentClient.Set(ctx, request)
 	return err
@@ -82,25 +84,35 @@ func (c *client) SetVerbosityLevel(ctx context.Context, verbositylevel int32, in
 
 func (c *client) GetVerbosityLevel(ctx context.Context) (string, error) {
 
-	request := getLevelRequest()
+	request := getLevelRequest(ctx)
 	res, err := c.LogAgentClient.GetLevel(ctx, request)
 	return res.Level, err
 
 }
 
-func getLoggingRequest(location string) *wssdadmin.LogRequest {
+func getLoggingRequest(ctx context.Context, location string) *wssdadmin.LogRequest {
 	return &wssdadmin.LogRequest{
 		Location: location,
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 }
 
-func setVerbosityLevelRequest(verbositylevel int32, include_nodeagents bool) *wssdadmin.SetRequest {
+func setVerbosityLevelRequest(ctx context.Context, verbositylevel int32, include_nodeagents bool) *wssdadmin.SetRequest {
 	return &wssdadmin.SetRequest{
 		Verbositylevel:    verbositylevel,
 		IncludeNodeagents: include_nodeagents,
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 }
 
-func getLevelRequest() *wssdadmin.GetRequest {
-	return &wssdadmin.GetRequest{}
+func getLevelRequest(ctx context.Context) *wssdadmin.GetRequest {
+	return &wssdadmin.GetRequest{
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
+	}
 }

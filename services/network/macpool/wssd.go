@@ -10,6 +10,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
@@ -33,7 +34,7 @@ func newMacPoolClient(subID string, authorizer auth.Authorizer) (*client, error)
 // Get MAC pools by name.  If name is nil, get all MAC pools
 func (c *client) Get(ctx context.Context, location, name string) (*[]network.MACPool, error) {
 
-	request, err := c.getMacPoolRequestByName(wssdcloudcommon.Operation_GET, location, name)
+	request, err := c.getMacPoolRequestByName(ctx, wssdcloudcommon.Operation_GET, location, name)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, inpu
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing MAC pool Properties")
 	}
 
-	request, err := c.getMacPoolRequest(wssdcloudcommon.Operation_POST, location, name, inputMacPool)
+	request, err := c.getMacPoolRequest(ctx, wssdcloudcommon.Operation_POST, location, name, inputMacPool)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("MAC pool [%s] not found", name)
 	}
 
-	request, err := c.getMacPoolRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*macpools)[0])
+	request, err := c.getMacPoolRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*macpools)[0])
 	if err != nil {
 		return err
 	}
@@ -97,15 +98,15 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
-func (c *client) getMacPoolRequestByName(opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.MacPoolRequest, error) {
+func (c *client) getMacPoolRequestByName(ctx context.Context, opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.MacPoolRequest, error) {
 	networkMacPool := network.MACPool{
 		Name: &name,
 	}
-	return c.getMacPoolRequest(opType, location, name, &networkMacPool)
+	return c.getMacPoolRequest(ctx, opType, location, name, &networkMacPool)
 }
 
 // getMacPoolRequest converts our internal representation of a MAC pool (network.MACPool) into a protobuf request (wssdcloudnetwork.MacPoolRequest) that can be sent to wssdcloudagent
-func (c *client) getMacPoolRequest(opType wssdcloudcommon.Operation, location, name string, networkMacPool *network.MACPool) (*wssdcloudnetwork.MacPoolRequest, error) {
+func (c *client) getMacPoolRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, networkMacPool *network.MACPool) (*wssdcloudnetwork.MacPoolRequest, error) {
 
 	if networkMacPool == nil {
 		return nil, errors.InvalidInput
@@ -114,6 +115,9 @@ func (c *client) getMacPoolRequest(opType wssdcloudcommon.Operation, location, n
 	request := &wssdcloudnetwork.MacPoolRequest{
 		OperationType: opType,
 		MacPools:      []*wssdcloudnetwork.MacPool{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 

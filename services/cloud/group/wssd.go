@@ -6,10 +6,12 @@ package group
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -29,7 +31,7 @@ func newGroupClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]cloud.Group, error) {
-	request, err := c.getGroupRequest(wssdcloudcommon.Operation_GET, location, name, nil)
+	request, err := c.getGroupRequest(ctx, wssdcloudcommon.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +45,7 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]cloud.Group
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, location, name string, sg *cloud.Group) (*cloud.Group, error) {
-	request, err := c.getGroupRequest(wssdcloudcommon.Operation_POST, location, name, sg)
+	request, err := c.getGroupRequest(ctx, wssdcloudcommon.Operation_POST, location, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("Group [%s] not found", name)
 	}
 
-	request, err := c.getGroupRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
+	request, err := c.getGroupRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
 	if err != nil {
 		return err
 	}
@@ -90,10 +92,13 @@ func (c *client) getGroupFromResponse(response *wssdcloud.GroupResponse) *[]clou
 	return &gps
 }
 
-func (c *client) getGroupRequest(opType wssdcloudcommon.Operation, location, name string, gpss *cloud.Group) (*wssdcloud.GroupRequest, error) {
+func (c *client) getGroupRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, gpss *cloud.Group) (*wssdcloud.GroupRequest, error) {
 	request := &wssdcloud.GroupRequest{
 		OperationType: opType,
 		Groups:        []*wssdcloud.Group{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	wssdGroup := &wssdcloud.Group{

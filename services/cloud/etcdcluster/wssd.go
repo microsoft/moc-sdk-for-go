@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -30,7 +31,7 @@ func newEtcdClusterClient(subID string, authorizer auth.Authorizer) (*client, er
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]cloud.EtcdCluster, error) {
-	request, err := getEtcdClusterRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := getEtcdClusterRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +44,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]cloud.EtcdClus
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, cluster *cloud.EtcdCluster) (*cloud.EtcdCluster, error) {
-	request, err := getEtcdClusterRequest(wssdcloudcommon.Operation_POST, group, name, cluster)
+	request, err := getEtcdClusterRequest(ctx, wssdcloudcommon.Operation_POST, group, name, cluster)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("EtcdCluster [%s] not found", name)
 	}
 
-	request, err := getEtcdClusterRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vault)[0])
+	request, err := getEtcdClusterRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*vault)[0])
 	if err != nil {
 		return err
 	}
@@ -88,10 +89,13 @@ func getEtcdClustersFromResponse(response *wssdcloudcloud.EtcdClusterResponse, g
 	return &vaults
 }
 
-func getEtcdClusterRequest(opType wssdcloudcommon.Operation, group, name string, vault *cloud.EtcdCluster) (*wssdcloudcloud.EtcdClusterRequest, error) {
+func getEtcdClusterRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, vault *cloud.EtcdCluster) (*wssdcloudcloud.EtcdClusterRequest, error) {
 	request := &wssdcloudcloud.EtcdClusterRequest{
 		OperationType: opType,
 		EtcdClusters:  []*wssdcloudcloud.EtcdCluster{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	if len(group) == 0 {

@@ -6,10 +6,12 @@ package location
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -29,7 +31,7 @@ func newLocationClient(subID string, authorizer auth.Authorizer) (*client, error
 
 // Get
 func (c *client) Get(ctx context.Context, name string) (*[]cloud.Location, error) {
-	request, err := c.getLocationRequest(wssdcloudcommon.Operation_GET, name, nil)
+	request, err := c.getLocationRequest(ctx, wssdcloudcommon.Operation_GET, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +45,7 @@ func (c *client) Get(ctx context.Context, name string) (*[]cloud.Location, error
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, name string, lcn *cloud.Location) (*cloud.Location, error) {
-	request, err := c.getLocationRequest(wssdcloudcommon.Operation_POST, name, lcn)
+	request, err := c.getLocationRequest(ctx, wssdcloudcommon.Operation_POST, name, lcn)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (c *client) Delete(ctx context.Context, name string) error {
 		return fmt.Errorf("Location [%s] not found", name)
 	}
 
-	request, err := c.getLocationRequest(wssdcloudcommon.Operation_DELETE, name, &(*lcn)[0])
+	request, err := c.getLocationRequest(ctx, wssdcloudcommon.Operation_DELETE, name, &(*lcn)[0])
 	if err != nil {
 		return err
 	}
@@ -90,10 +92,13 @@ func (c *client) getLocationFromResponse(response *wssdcloud.LocationResponse) *
 	return &lcns
 }
 
-func (c *client) getLocationRequest(opType wssdcloudcommon.Operation, name string, lcnss *cloud.Location) (*wssdcloud.LocationRequest, error) {
+func (c *client) getLocationRequest(ctx context.Context, opType wssdcloudcommon.Operation, name string, lcnss *cloud.Location) (*wssdcloud.LocationRequest, error) {
 	request := &wssdcloud.LocationRequest{
 		OperationType: opType,
 		Locations:     []*wssdcloud.Location{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	if lcnss != nil {
 		wssdLocation, err := getWssdLocation(lcnss)

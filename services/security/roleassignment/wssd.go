@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -30,7 +31,7 @@ func newRoleAssignmentClient(subID string, authorizer auth.Authorizer) (*client,
 
 // Get - Retrieve roles assigned to named identity that match the role assignment definitions
 func (c *client) Get(ctx context.Context, inputRa *security.RoleAssignment) (*[]security.RoleAssignment, error) {
-	request, err := c.getRoleAssignmentRequest(wssdcloudcommon.Operation_GET, inputRa)
+	request, err := c.getRoleAssignmentRequest(ctx, wssdcloudcommon.Operation_GET, inputRa)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (c *client) Delete(ctx context.Context, inputRa *security.RoleAssignment) e
 		return err
 	}
 
-	request, err := c.getRoleAssignmentRequest(wssdcloudcommon.Operation_DELETE, inputRa)
+	request, err := c.getRoleAssignmentRequest(ctx, wssdcloudcommon.Operation_DELETE, inputRa)
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, inputRa *security.RoleAssig
 		return nil, err
 	}
 
-	request, err := c.getRoleAssignmentRequest(wssdcloudcommon.Operation_POST, inputRa)
+	request, err := c.getRoleAssignmentRequest(ctx, wssdcloudcommon.Operation_POST, inputRa)
 	if err != nil {
 		return nil, err
 	}
@@ -132,10 +133,13 @@ func (c *client) getRoleAssignmentFromResponse(response *wssdcloudsecurity.RoleA
 	return &ras, nil
 }
 
-func (c *client) getRoleAssignmentRequest(opType wssdcloudcommon.Operation, ra *security.RoleAssignment) (*wssdcloudsecurity.RoleAssignmentRequest, error) {
+func (c *client) getRoleAssignmentRequest(ctx context.Context, opType wssdcloudcommon.Operation, ra *security.RoleAssignment) (*wssdcloudsecurity.RoleAssignmentRequest, error) {
 	request := &wssdcloudsecurity.RoleAssignmentRequest{
 		OperationType:   opType,
 		RoleAssignments: []*wssdcloudsecurity.RoleAssignment{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	wssdra, err := getMocRoleAssignment(ra)

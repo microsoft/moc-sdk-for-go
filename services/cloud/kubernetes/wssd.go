@@ -6,10 +6,12 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloudk8s "github.com/microsoft/moc/rpc/cloudagent/cloud"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -29,7 +31,7 @@ func newKubernetesClient(subID string, authorizer auth.Authorizer) (*client, err
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]cloud.Kubernetes, error) {
-	request, err := c.getKubernetesRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := c.getKubernetesRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]cloud.Kubernet
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, k8s *cloud.Kubernetes) (*cloud.Kubernetes, error) {
-	request, err := c.getKubernetesRequest(wssdcloudcommon.Operation_POST, group, name, k8s)
+	request, err := c.getKubernetesRequest(ctx, wssdcloudcommon.Operation_POST, group, name, k8s)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Kubernetes Cluster [%s] not found", name)
 	}
 
-	request, err := c.getKubernetesRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*k8s)[0])
+	request, err := c.getKubernetesRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*k8s)[0])
 	if err != nil {
 		return err
 	}
@@ -78,10 +80,13 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
-func (c *client) getKubernetesRequest(opType wssdcloudcommon.Operation, group, name string, cloud *cloud.Kubernetes) (*wssdcloudk8s.KubernetesRequest, error) {
+func (c *client) getKubernetesRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, cloud *cloud.Kubernetes) (*wssdcloudk8s.KubernetesRequest, error) {
 	request := &wssdcloudk8s.KubernetesRequest{
 		OperationType: opType,
 		Kubernetess:   []*wssdcloudk8s.Kubernetes{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	var err error

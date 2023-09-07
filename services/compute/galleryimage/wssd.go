@@ -6,7 +6,9 @@ package galleryimage
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -29,7 +31,7 @@ func newGalleryImageClient(subID string, authorizer auth.Authorizer) (*client, e
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]compute.GalleryImage, error) {
-	request, err := getGalleryImageRequest(wssdcloudcommon.Operation_GET, location, "", name, nil)
+	request, err := getGalleryImageRequest(ctx, wssdcloudcommon.Operation_GET, location, "", name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]compute.Gal
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, location, imagePath, name string, galleryimage *compute.GalleryImage) (*compute.GalleryImage, error) {
-	request, err := getGalleryImageRequest(wssdcloudcommon.Operation_POST, location, imagePath, name, galleryimage)
+	request, err := getGalleryImageRequest(ctx, wssdcloudcommon.Operation_POST, location, imagePath, name, galleryimage)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("Virtual Network [%s] not found", name)
 	}
 
-	request, err := getGalleryImageRequest(wssdcloudcommon.Operation_DELETE, location, "", name, &(*galleryimage)[0])
+	request, err := getGalleryImageRequest(ctx, wssdcloudcommon.Operation_DELETE, location, "", name, &(*galleryimage)[0])
 	if err != nil {
 		return err
 	}
@@ -79,10 +81,13 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 
 }
 
-func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePath, name string, compute *compute.GalleryImage) (*wssdcloudcompute.GalleryImageRequest, error) {
+func getGalleryImageRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, imagePath, name string, compute *compute.GalleryImage) (*wssdcloudcompute.GalleryImageRequest, error) {
 	request := &wssdcloudcompute.GalleryImageRequest{
 		OperationType: opType,
 		GalleryImages: []*wssdcloudcompute.GalleryImage{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	var err error

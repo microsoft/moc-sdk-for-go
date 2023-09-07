@@ -10,6 +10,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
@@ -33,7 +34,7 @@ func newVipPoolClient(subID string, authorizer auth.Authorizer) (*client, error)
 // Get vip pools by name.  If name is nil, get all vip pools
 func (c *client) Get(ctx context.Context, location, name string) (*[]network.VipPool, error) {
 
-	request, err := c.getVipPoolRequestByName(wssdcloudcommon.Operation_GET, location, name)
+	request, err := c.getVipPoolRequestByName(ctx, wssdcloudcommon.Operation_GET, location, name)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, inpu
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing vip pool Properties")
 	}
 
-	request, err := c.getVipPoolRequest(wssdcloudcommon.Operation_POST, location, name, inputVP)
+	request, err := c.getVipPoolRequest(ctx, wssdcloudcommon.Operation_POST, location, name, inputVP)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("vip pool [%s] not found", name)
 	}
 
-	request, err := c.getVipPoolRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*vps)[0])
+	request, err := c.getVipPoolRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*vps)[0])
 	if err != nil {
 		return err
 	}
@@ -97,15 +98,15 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
-func (c *client) getVipPoolRequestByName(opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.VipPoolRequest, error) {
+func (c *client) getVipPoolRequestByName(ctx context.Context, opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.VipPoolRequest, error) {
 	networkVP := network.VipPool{
 		Name: &name,
 	}
-	return c.getVipPoolRequest(opType, location, name, &networkVP)
+	return c.getVipPoolRequest(ctx, opType, location, name, &networkVP)
 }
 
 // getVipPoolRequest converts our internal representation of a vip pool (network.VipPool) into a protobuf request (wssdcloudnetwork.VipPoolRequest) that can be sent to wssdcloudagent
-func (c *client) getVipPoolRequest(opType wssdcloudcommon.Operation, location, name string, networkVP *network.VipPool) (*wssdcloudnetwork.VipPoolRequest, error) {
+func (c *client) getVipPoolRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, networkVP *network.VipPool) (*wssdcloudnetwork.VipPoolRequest, error) {
 
 	if networkVP == nil {
 		return nil, errors.InvalidInput
@@ -114,6 +115,9 @@ func (c *client) getVipPoolRequest(opType wssdcloudcommon.Operation, location, n
 	request := &wssdcloudnetwork.VipPoolRequest{
 		OperationType: opType,
 		VipPools:      []*wssdcloudnetwork.VipPool{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 

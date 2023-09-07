@@ -16,6 +16,7 @@ import (
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
@@ -34,7 +35,7 @@ func newVirtualMachineClient(subID string, authorizer auth.Authorizer) (*client,
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]compute.VirtualMachine, error) {
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_GET, group, name, nil)
+	request, err := c.getVirtualMachineRequest(ctx, wssdcloudproto.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.Virtua
 
 // Get
 func (c *client) get(ctx context.Context, group, name string) ([]*wssdcloudcompute.VirtualMachine, error) {
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_GET, group, name, nil)
+	request, err := c.getVirtualMachineRequest(ctx, wssdcloudproto.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func (c *client) get(ctx context.Context, group, name string) ([]*wssdcloudcompu
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *compute.VirtualMachine) (*compute.VirtualMachine, error) {
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_POST, group, name, sg)
+	request, err := c.getVirtualMachineRequest(ctx, wssdcloudproto.Operation_POST, group, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Virtual Machine [%s] not found", name)
 	}
 
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DELETE, group, name, &(*vm)[0])
+	request, err := c.getVirtualMachineRequest(ctx, wssdcloudproto.Operation_DELETE, group, name, &(*vm)[0])
 	if err != nil {
 		return err
 	}
@@ -165,7 +166,7 @@ func (c *client) RunCommand(ctx context.Context, group, name string, request *co
 
 // Get
 func (c *client) Validate(ctx context.Context, group, name string) error {
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_VALIDATE, group, name, nil)
+	request, err := c.getVirtualMachineRequest(ctx, wssdcloudproto.Operation_VALIDATE, group, name, nil)
 	if err != nil {
 		return err
 	}
@@ -216,6 +217,9 @@ func (c *client) getVirtualMachineRunCommandRequest(ctx context.Context, group, 
 		VirtualMachine:            vm,
 		RunCommandInputParameters: params,
 		Source:                    &scriptSource,
+		Context: &wssdcloudproto.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	if request.RunAsUser != nil {
@@ -262,10 +266,13 @@ func (c *client) getVirtualMachineFromResponse(response *wssdcloudcompute.Virtua
 	return &vms
 }
 
-func (c *client) getVirtualMachineRequest(opType wssdcloudproto.Operation, group, name string, vmss *compute.VirtualMachine) (*wssdcloudcompute.VirtualMachineRequest, error) {
+func (c *client) getVirtualMachineRequest(ctx context.Context, opType wssdcloudproto.Operation, group, name string, vmss *compute.VirtualMachine) (*wssdcloudcompute.VirtualMachineRequest, error) {
 	request := &wssdcloudcompute.VirtualMachineRequest{
 		OperationType:   opType,
 		VirtualMachines: []*wssdcloudcompute.VirtualMachine{},
+		Context: &wssdcloudproto.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 	wssdvm := &wssdcloudcompute.VirtualMachine{
@@ -294,6 +301,9 @@ func (c *client) getVirtualMachineOperationRequest(ctx context.Context,
 	request = &wssdcloudcompute.VirtualMachineOperationRequest{
 		OperationType:   opType,
 		VirtualMachines: vms,
+		Context: &wssdcloudproto.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	return
 }

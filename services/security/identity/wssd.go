@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc-sdk-for-go/services/security/certificate"
 	"github.com/microsoft/moc/pkg/auth"
@@ -33,7 +34,7 @@ func newIdentityClient(subID string, authorizer auth.Authorizer) (*client, error
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]security.Identity, error) {
 
-	request, err := getIdentityRequest(wssdcloudcommon.Operation_GET, name, nil)
+	request, err := getIdentityRequest(ctx, wssdcloudcommon.Operation_GET, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +46,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.Ident
 }
 
 func (c *client) get(ctx context.Context, name string) ([]*wssdcloudsecurity.Identity, error) {
-	request, err := getIdentityRequest(wssdcloudcommon.Operation_GET, name, nil)
+	request, err := getIdentityRequest(ctx, wssdcloudcommon.Operation_GET, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +63,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *sec
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Name for Identity")
 	}
 
-	request, err := getIdentityRequest(wssdcloudcommon.Operation_POST, name, sg)
+	request, err := getIdentityRequest(ctx, wssdcloudcommon.Operation_POST, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Identity [%s] not found", name)
 	}
 
-	request, err := getIdentityRequest(wssdcloudcommon.Operation_DELETE, name, &(*id)[0])
+	request, err := getIdentityRequest(ctx, wssdcloudcommon.Operation_DELETE, name, &(*id)[0])
 	if err != nil {
 		return err
 	}
@@ -192,12 +193,15 @@ func getIdentitysFromResponse(response *wssdcloudsecurity.IdentityResponse) *[]s
 	return &certs
 }
 
-func getIdentityRequest(opType wssdcloudcommon.Operation,
+func getIdentityRequest(ctx context.Context, opType wssdcloudcommon.Operation,
 	name string,
 	ident *security.Identity) (*wssdcloudsecurity.IdentityRequest, error) {
 	request := &wssdcloudsecurity.IdentityRequest{
 		OperationType: opType,
 		Identitys:     []*wssdcloudsecurity.Identity{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	wssdidentity := &wssdcloudsecurity.Identity{
 		Name: name,
@@ -226,6 +230,9 @@ func (c *client) getIdentityOperationRequest(ctx context.Context,
 	request = &wssdcloudsecurity.IdentityOperationRequest{
 		OperationType: opType,
 		Identities:    identities,
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	return
 }
@@ -247,6 +254,9 @@ func (c *client) getIdentityCertificateRequest(ctx context.Context,
 		OperationType: opType,
 		IdentityName:  name,
 		CSR:           wssdCSRS,
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	return
 }

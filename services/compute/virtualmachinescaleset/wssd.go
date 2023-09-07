@@ -7,15 +7,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/microsoft/moc/pkg/auth"
-	"github.com/microsoft/moc/pkg/errors"
-
-	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
-
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/compute/virtualmachine"
+	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {
@@ -39,7 +38,7 @@ func newVirtualMachineScaleSetClient(subID string, authorizer auth.Authorizer) (
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]compute.VirtualMachineScaleSet, error) {
-	request, err := c.getVirtualMachineScaleSetRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := c.getVirtualMachineScaleSetRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +52,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.Virtua
 
 // GetVirtualMachines
 func (c *client) GetVirtualMachines(ctx context.Context, group, name string) (*[]compute.VirtualMachine, error) {
-	request, err := c.getVirtualMachineScaleSetRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := c.getVirtualMachineScaleSetRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +83,7 @@ func (c *client) GetVirtualMachines(ctx context.Context, group, name string) (*[
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *compute.VirtualMachineScaleSet) (*compute.VirtualMachineScaleSet, error) {
-	request, err := c.getVirtualMachineScaleSetRequest(wssdcloudcommon.Operation_POST, group, name, sg)
+	request, err := c.getVirtualMachineScaleSetRequest(ctx, wssdcloudcommon.Operation_POST, group, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +113,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return errors.NotFound
 	}
 
-	request, err := c.getVirtualMachineScaleSetRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vmss)[0])
+	request, err := c.getVirtualMachineScaleSetRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*vmss)[0])
 	if err != nil {
 		return err
 	}
@@ -139,10 +138,13 @@ func (c *client) getVirtualMachineScaleSetFromResponse(response *wssdcloudcomput
 
 }
 
-func (c *client) getVirtualMachineScaleSetRequest(opType wssdcloudcommon.Operation, group, name string, vmss *compute.VirtualMachineScaleSet) (*wssdcloudcompute.VirtualMachineScaleSetRequest, error) {
+func (c *client) getVirtualMachineScaleSetRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, vmss *compute.VirtualMachineScaleSet) (*wssdcloudcompute.VirtualMachineScaleSetRequest, error) {
 	request := &wssdcloudcompute.VirtualMachineScaleSetRequest{
 		OperationType:                 opType,
 		VirtualMachineScaleSetSystems: []*wssdcloudcompute.VirtualMachineScaleSet{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 	wssdvmss := &wssdcloudcompute.VirtualMachineScaleSet{

@@ -11,6 +11,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
@@ -35,7 +36,7 @@ func newLoadBalancerClient(subID string, authorizer auth.Authorizer) (*client, e
 // Get load balancers by name.  If name is nil, get all load balancers
 func (c *client) Get(ctx context.Context, group, name string) (*[]network.LoadBalancer, error) {
 
-	request, err := c.getLoadBalancerRequestByName(wssdcloudcommon.Operation_GET, group, name)
+	request, err := c.getLoadBalancerRequestByName(ctx, wssdcloudcommon.Operation_GET, group, name)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +61,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputLB
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Load Balancer Properties")
 	}
 
-	request, err := c.getLoadBalancerRequest(wssdcloudcommon.Operation_POST, group, name, inputLB)
+	request, err := c.getLoadBalancerRequest(ctx, wssdcloudcommon.Operation_POST, group, name, inputLB)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +87,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Load Balancer [%s] not found", name)
 	}
 
-	request, err := c.getLoadBalancerRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*lbs)[0])
+	request, err := c.getLoadBalancerRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*lbs)[0])
 	if err != nil {
 		return err
 	}
@@ -99,15 +100,15 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
-func (c *client) getLoadBalancerRequestByName(opType wssdcloudcommon.Operation, group, name string) (*wssdcloudnetwork.LoadBalancerRequest, error) {
+func (c *client) getLoadBalancerRequestByName(ctx context.Context, opType wssdcloudcommon.Operation, group, name string) (*wssdcloudnetwork.LoadBalancerRequest, error) {
 	networkLB := network.LoadBalancer{
 		Name: &name,
 	}
-	return c.getLoadBalancerRequest(opType, group, name, &networkLB)
+	return c.getLoadBalancerRequest(ctx, opType, group, name, &networkLB)
 }
 
 // getLoadBalancerRequest converts our internal representation of a load balancer (network.LoadBalancer) into a protobuf request (wssdcloudnetwork.LoadBalancerRequest) that can be sent to wssdcloudagent
-func (c *client) getLoadBalancerRequest(opType wssdcloudcommon.Operation, group, name string, networkLB *network.LoadBalancer) (*wssdcloudnetwork.LoadBalancerRequest, error) {
+func (c *client) getLoadBalancerRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, networkLB *network.LoadBalancer) (*wssdcloudnetwork.LoadBalancerRequest, error) {
 
 	if networkLB == nil {
 		return nil, errors.InvalidInput
@@ -116,6 +117,9 @@ func (c *client) getLoadBalancerRequest(opType wssdcloudcommon.Operation, group,
 	request := &wssdcloudnetwork.LoadBalancerRequest{
 		OperationType: opType,
 		LoadBalancers: []*wssdcloudnetwork.LoadBalancer{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 

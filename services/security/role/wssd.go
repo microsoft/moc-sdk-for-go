@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -30,7 +31,7 @@ func newRoleClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Get
 func (c *client) Get(ctx context.Context, name string) (*[]security.Role, error) {
-	request, err := c.getRoleRequestByName(wssdcloudcommon.Operation_GET, name)
+	request, err := c.getRoleRequestByName(ctx, wssdcloudcommon.Operation_GET, name)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, name string, role *security
 		return nil, err
 	}
 
-	request, err := c.getRoleRequest(wssdcloudcommon.Operation_POST, name, role)
+	request, err := c.getRoleRequest(ctx, wssdcloudcommon.Operation_POST, name, role)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +88,7 @@ func (c *client) Delete(ctx context.Context, name string) error {
 		return fmt.Errorf("Role [%s] not found", name)
 	}
 
-	request, err := c.getRoleRequest(wssdcloudcommon.Operation_DELETE, name, &(*role)[0])
+	request, err := c.getRoleRequest(ctx, wssdcloudcommon.Operation_DELETE, name, &(*role)[0])
 	if err != nil {
 		return err
 	}
@@ -131,17 +132,20 @@ func (c *client) getRolesFromResponse(response *wssdcloudsecurity.RoleResponse) 
 	return &roles, nil
 }
 
-func (c *client) getRoleRequestByName(opType wssdcloudcommon.Operation, name string) (*wssdcloudsecurity.RoleRequest, error) {
+func (c *client) getRoleRequestByName(ctx context.Context, opType wssdcloudcommon.Operation, name string) (*wssdcloudsecurity.RoleRequest, error) {
 	role := security.Role{
 		Name: &name,
 	}
-	return c.getRoleRequest(opType, name, &role)
+	return c.getRoleRequest(ctx, opType, name, &role)
 }
 
-func (c *client) getRoleRequest(opType wssdcloudcommon.Operation, name string, role *security.Role) (*wssdcloudsecurity.RoleRequest, error) {
+func (c *client) getRoleRequest(ctx context.Context, opType wssdcloudcommon.Operation, name string, role *security.Role) (*wssdcloudsecurity.RoleRequest, error) {
 	request := &wssdcloudsecurity.RoleRequest{
 		OperationType: opType,
 		Roles:         []*wssdcloudsecurity.Role{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	wssdrole := &wssdcloudsecurity.Role{

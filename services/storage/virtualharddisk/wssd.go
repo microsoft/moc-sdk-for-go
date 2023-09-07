@@ -6,7 +6,9 @@ package virtualharddisk
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -29,7 +31,7 @@ func newVirtualHardDiskClient(subID string, authorizer auth.Authorizer) (*client
 
 // Get
 func (c *client) Get(ctx context.Context, group, container, name string) (*[]storage.VirtualHardDisk, error) {
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_GET, group, container, name, nil)
+	request, err := getVirtualHardDiskRequest(ctx, wssdcloudcommon.Operation_GET, group, container, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func (c *client) Get(ctx context.Context, group, container, name string) (*[]sto
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_POST, group, container, name, vhd)
+	request, err := getVirtualHardDiskRequest(ctx, wssdcloudcommon.Operation_POST, group, container, name, vhd)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +71,7 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 		return fmt.Errorf("Virtual Network [%s] not found", name)
 	}
 
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_DELETE, group, container, name, &(*vhd)[0])
+	request, err := getVirtualHardDiskRequest(ctx, wssdcloudcommon.Operation_DELETE, group, container, name, &(*vhd)[0])
 	if err != nil {
 		return err
 	}
@@ -79,10 +81,13 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 
 }
 
-func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
+func getVirtualHardDiskRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
 	request := &wssdcloudstorage.VirtualHardDiskRequest{
 		OperationType:    opType,
 		VirtualHardDisks: []*wssdcloudstorage.VirtualHardDisk{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	var err error

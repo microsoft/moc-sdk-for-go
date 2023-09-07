@@ -6,12 +6,14 @@ package node
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -31,7 +33,7 @@ func newNodeClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]cloud.Node, error) {
-	request, err := c.getNodeRequest(wssdcloudcommon.Operation_GET, location, name, nil)
+	request, err := c.getNodeRequest(ctx, wssdcloudcommon.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +54,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location, name string, sg *
 	}
 	node = nil
 
-	request, err := c.getNodeRequest(wssdcloudcommon.Operation_POST, location, name, sg)
+	request, err := c.getNodeRequest(ctx, wssdcloudcommon.Operation_POST, location, name, sg)
 	if err != nil {
 		return
 	}
@@ -80,7 +82,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("Node [%s] not found", name)
 	}
 
-	request, err := c.getNodeRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
+	request, err := c.getNodeRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
 	if err != nil {
 		return err
 	}
@@ -132,10 +134,13 @@ func (c *client) getNodeFromResponse(response *wssdcloud.NodeResponse) *[]cloud.
 	return &gps
 }
 
-func (c *client) getNodeRequest(opType wssdcloudcommon.Operation, location, name string, gpss *cloud.Node) (*wssdcloud.NodeRequest, error) {
+func (c *client) getNodeRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, gpss *cloud.Node) (*wssdcloud.NodeRequest, error) {
 	request := &wssdcloud.NodeRequest{
 		OperationType: opType,
 		Nodes:         []*wssdcloud.Node{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	wssdNode := &wssdcloud.Node{
 		Name:         name,

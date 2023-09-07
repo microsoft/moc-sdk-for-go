@@ -6,9 +6,11 @@ package cluster
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
@@ -31,7 +33,7 @@ func newClusterClient(subID string, authorizer auth.Authorizer) (*client, error)
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]cloud.Cluster, error) {
-	request, err := c.getClusterRequest(wssdcloudcommon.Operation_GET, location, name, nil)
+	request, err := c.getClusterRequest(ctx, wssdcloudcommon.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +58,7 @@ func getNode(gp *wssdcloud.Node) *cloud.Node {
 
 // GetNodes
 func (c *client) GetNodes(ctx context.Context, location, clusterName string) (*[]cloud.Node, error) {
-	request, err := c.getClusterRequest(wssdcloudcommon.Operation_GET, location, clusterName, nil)
+	request, err := c.getClusterRequest(ctx, wssdcloudcommon.Operation_GET, location, clusterName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +92,7 @@ func (c *client) Load(ctx context.Context, location, name string, sg *cloud.Clus
 	}
 	cluster = nil
 
-	request, err := c.getClusterRequest(wssdcloudcommon.Operation_POST, location, name, sg)
+	request, err := c.getClusterRequest(ctx, wssdcloudcommon.Operation_POST, location, name, sg)
 	if err != nil {
 		return
 	}
@@ -117,7 +119,7 @@ func (c *client) Unload(ctx context.Context, location, name string) error {
 		return fmt.Errorf("Cluster [%s] not found", name)
 	}
 
-	request, err := c.getClusterRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
+	request, err := c.getClusterRequest(ctx, wssdcloudcommon.Operation_DELETE, location, name, &(*gp)[0])
 	if err != nil {
 		return err
 	}
@@ -160,7 +162,7 @@ func (c *client) getClusterFromResponse(response *wssdcloud.ClusterResponse) *[]
 	return &gps
 }
 
-func (c *client) getClusterRequest(opType wssdcloudcommon.Operation, location, name string, gpss *cloud.Cluster) (*wssdcloud.Cluster, error) {
+func (c *client) getClusterRequest(ctx context.Context, opType wssdcloudcommon.Operation, location, name string, gpss *cloud.Cluster) (*wssdcloud.Cluster, error) {
 	wssdcluster := &wssdcloud.Cluster{
 		Name:         name,
 		LocationName: location,
@@ -172,5 +174,6 @@ func (c *client) getClusterRequest(opType wssdcloudcommon.Operation, location, n
 			return nil, err
 		}
 	}
+	wssdcluster.Context = &wssdcloudcommon.CallContext{CorrelationId: diagnostics.GetCorrelationId(ctx)}
 	return wssdcluster, nil
 }

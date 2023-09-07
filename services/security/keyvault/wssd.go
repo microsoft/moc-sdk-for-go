@@ -6,7 +6,9 @@ package keyvault
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -29,7 +31,7 @@ func newKeyVaultClient(subID string, authorizer auth.Authorizer) (*client, error
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]security.KeyVault, error) {
-	request, err := getKeyVaultRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := getKeyVaultRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +44,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]security.KeyVa
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *security.KeyVault) (*security.KeyVault, error) {
-	request, err := getKeyVaultRequest(wssdcloudcommon.Operation_POST, group, name, sg)
+	request, err := getKeyVaultRequest(ctx, wssdcloudcommon.Operation_POST, group, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Keyvault [%s] not found", name)
 	}
 
-	request, err := getKeyVaultRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vault)[0])
+	request, err := getKeyVaultRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*vault)[0])
 	if err != nil {
 		return err
 	}
@@ -87,10 +89,13 @@ func getKeyVaultsFromResponse(response *wssdcloudsecurity.KeyVaultResponse, grou
 	return &vaults
 }
 
-func getKeyVaultRequest(opType wssdcloudcommon.Operation, group, name string, vault *security.KeyVault) (*wssdcloudsecurity.KeyVaultRequest, error) {
+func getKeyVaultRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, vault *security.KeyVault) (*wssdcloudsecurity.KeyVaultRequest, error) {
 	request := &wssdcloudsecurity.KeyVaultRequest{
 		OperationType: opType,
 		KeyVaults:     []*wssdcloudsecurity.KeyVault{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	if len(group) == 0 {

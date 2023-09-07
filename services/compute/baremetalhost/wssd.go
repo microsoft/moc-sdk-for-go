@@ -7,15 +7,15 @@ import (
 	"context"
 	"fmt"
 
+	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/config"
 	"github.com/microsoft/moc/pkg/marshal"
 	prototags "github.com/microsoft/moc/pkg/tags"
-	wssdcloudproto "github.com/microsoft/moc/rpc/common"
-
-	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 )
 
 type client struct {
@@ -33,7 +33,7 @@ func newBareMetalHostClient(subID string, authorizer auth.Authorizer) (*client, 
 
 // Get
 func (c *client) Get(ctx context.Context, location, name string) (*[]compute.BareMetalHost, error) {
-	request, err := c.getBareMetalHostRequest(wssdcloudproto.Operation_GET, location, name, nil)
+	request, err := c.getBareMetalHostRequest(ctx, wssdcloudproto.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]compute.Bar
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, location, name string, sg *compute.BareMetalHost) (*compute.BareMetalHost, error) {
-	request, err := c.getBareMetalHostRequest(wssdcloudproto.Operation_POST, location, name, sg)
+	request, err := c.getBareMetalHostRequest(ctx, wssdcloudproto.Operation_POST, location, name, sg)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return fmt.Errorf("Bare Metal Host [%s] not found", name)
 	}
 
-	request, err := c.getBareMetalHostRequest(wssdcloudproto.Operation_DELETE, location, name, &(*bmhs)[0])
+	request, err := c.getBareMetalHostRequest(ctx, wssdcloudproto.Operation_DELETE, location, name, &(*bmhs)[0])
 	if err != nil {
 		return err
 	}
@@ -111,10 +111,13 @@ func (c *client) getBareMetalHostFromResponse(response *wssdcloudcompute.BareMet
 	return &bmhs
 }
 
-func (c *client) getBareMetalHostRequest(opType wssdcloudproto.Operation, location, name string, bmh *compute.BareMetalHost) (*wssdcloudcompute.BareMetalHostRequest, error) {
+func (c *client) getBareMetalHostRequest(ctx context.Context, opType wssdcloudproto.Operation, location, name string, bmh *compute.BareMetalHost) (*wssdcloudcompute.BareMetalHostRequest, error) {
 	request := &wssdcloudcompute.BareMetalHostRequest{
 		OperationType:  opType,
 		BareMetalHosts: []*wssdcloudcompute.BareMetalHost{},
+		Context: &wssdcloudproto.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	var err error
 	wssdbmh := &wssdcloudcompute.BareMetalHost{

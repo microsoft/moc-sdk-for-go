@@ -10,6 +10,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/cloud/etcdcluster"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudcloud "github.com/microsoft/moc/rpc/cloudagent/cloud"
@@ -31,7 +32,7 @@ func newEtcdServerClient(subID string, authorizer auth.Authorizer) (*client, err
 
 // Get
 func (c *client) Get(ctx context.Context, group, name, clusterName string) (*[]etcdcluster.EtcdServer, error) {
-	request, err := getEtcdServerRequest(wssdcloudcommon.Operation_GET, name, clusterName, nil)
+	request, err := getEtcdServerRequest(ctx, wssdcloudcommon.Operation_GET, name, clusterName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +49,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, server 
 	if err != nil {
 		return nil, err
 	}
-	request, err := getEtcdServerRequest(wssdcloudcommon.Operation_POST, name, *server.ClusterName, server)
+	request, err := getEtcdServerRequest(ctx, wssdcloudcommon.Operation_POST, name, *server.ClusterName, server)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +97,7 @@ func (c *client) Delete(ctx context.Context, group, name, clusterName string) er
 		return fmt.Errorf("etcdserver [%s] not found", name)
 	}
 
-	request, err := getEtcdServerRequest(wssdcloudcommon.Operation_DELETE, name, clusterName, &(*etcdserver)[0])
+	request, err := getEtcdServerRequest(ctx, wssdcloudcommon.Operation_DELETE, name, clusterName, &(*etcdserver)[0])
 	if err != nil {
 		return err
 	}
@@ -113,10 +114,13 @@ func getEtcdServersFromResponse(response *wssdcloudcloud.EtcdServerResponse, clu
 	return &etcdServers
 }
 
-func getEtcdServerRequest(opType wssdcloudcommon.Operation, name, clusterName string, server *etcdcluster.EtcdServer) (*wssdcloudcloud.EtcdServerRequest, error) {
+func getEtcdServerRequest(ctx context.Context, opType wssdcloudcommon.Operation, name, clusterName string, server *etcdcluster.EtcdServer) (*wssdcloudcloud.EtcdServerRequest, error) {
 	request := &wssdcloudcloud.EtcdServerRequest{
 		OperationType: opType,
 		EtcdServers:   []*wssdcloudcloud.EtcdServer{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 	if server != nil {
 		etcdserver, err := getWssdEtcdServer(server, opType)

@@ -6,10 +6,12 @@ package virtualnetwork
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/errors"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/pkg/diagnostics"
 	"github.com/microsoft/moc/pkg/auth"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
@@ -30,7 +32,7 @@ func newVirtualNetworkClient(subID string, authorizer auth.Authorizer) (*client,
 
 // Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]network.VirtualNetwork, error) {
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := getVirtualNetworkRequest(ctx, wssdcloudcommon.Operation_GET, group, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +45,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Virtua
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnet *network.VirtualNetwork) (*network.VirtualNetwork, error) {
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_POST, group, name, vnet)
+	request, err := getVirtualNetworkRequest(ctx, wssdcloudcommon.Operation_POST, group, name, vnet)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +72,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Virtual Network [%s] not found", name)
 	}
 
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0])
+	request, err := getVirtualNetworkRequest(ctx, wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0])
 	if err != nil {
 		return err
 	}
@@ -79,10 +81,13 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
-func getVirtualNetworkRequest(opType wssdcloudcommon.Operation, group, name string, network *network.VirtualNetwork) (*wssdcloudnetwork.VirtualNetworkRequest, error) {
+func getVirtualNetworkRequest(ctx context.Context, opType wssdcloudcommon.Operation, group, name string, network *network.VirtualNetwork) (*wssdcloudnetwork.VirtualNetworkRequest, error) {
 	request := &wssdcloudnetwork.VirtualNetworkRequest{
 		OperationType:   opType,
 		VirtualNetworks: []*wssdcloudnetwork.VirtualNetwork{},
+		Context: &wssdcloudcommon.CallContext{
+			CorrelationId: diagnostics.GetCorrelationId(ctx),
+		},
 	}
 
 	var err error
