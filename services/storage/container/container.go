@@ -38,6 +38,7 @@ func getWssdContainer(c *storage.Container, locationName string) (*wssdcloudstor
 		if c.Path != nil {
 			wssdcontainer.Path = *c.Path
 		}
+		wssdcontainer.Isolated = c.Isolated
 	}
 	return wssdcontainer, nil
 }
@@ -65,6 +66,7 @@ func getContainer(c *wssdcloudstorage.Container, location string) *storage.Conta
 		ContainerProperties: &storage.ContainerProperties{
 			Statuses: status.GetStatuses(c.GetStatus()),
 			Path:     &c.Path,
+			Isolated: c.Isolated,
 			ContainerInfo: &storage.ContainerInfo{
 				AvailableSize: availSize,
 				TotalSize:     totalSize,
