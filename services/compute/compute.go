@@ -1152,11 +1152,11 @@ type VirtualMachineRunCommandResponse struct {
 
 type HttpProxyConfiguration struct {
 	// The HTTP proxy server endpoint
-	httpProxy *string `json:"httpproxy,omitempty"`
+	HttpProxy *string `json:"httpproxy,omitempty"`
 	// The HTTPS proxy server endpoint
-	httpsProxy *string `json:"httpsproxy,omitempty"`
+	HttpsProxy *string `json:"httpsproxy,omitempty"`
 	// The endpoints that should not go through proxy
-	noProxy *[]string `json:"noproxy,omitempty"`
+	NoProxy *[]string `json:"noproxy,omitempty"`
 	// Alternative CA cert to use for connecting to proxy server
-	trustedCa *string `json:"trustedca,omitempty"`
+	TrustedCa *string `json:"trustedca,omitempty"`
 }
