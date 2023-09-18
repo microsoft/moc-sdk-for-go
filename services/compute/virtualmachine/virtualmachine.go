@@ -421,26 +421,26 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
-func (c *client) getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfiguration *compute.HttpProxyConfiguration) *wssdcloudcompute.HttpProxyConfiguration {
+func (c *client) getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfig *compute.HttpProxyConfiguration) *wssdcloudcompute.HttpProxyConfiguration {
 	httpProxyConfiguration := &wssdcloudcompute.HttpProxyConfiguration{}
 
-	if httpProxyConfiguration.httpProxy != nil {
-		httpProxyConfiguration.httpProxy = *httpProxyConfiguration.httpProxy
+	if httpProxyConfig.HttpProxy != nil {
+		httpProxyConfiguration.HttpProxy = *httpProxyConfig.HttpProxy
 	}
 
-	if httpProxyConfiguration.httpsProxy != nil {
-		httpProxyConfiguration.httpsProxy = *httpProxyConfiguration.httpsProxy
+	if httpProxyConfig.HttpsProxy != nil {
+		httpProxyConfiguration.HttpsProxy = *httpProxyConfig.HttpsProxy
 	}
 
-	if httpProxyConfiguration.noProxy != nil {
-		httpProxyConfiguration.noProxy = *httpProxyConfiguration.noProxy
+	if httpProxyConfig.NoProxy != nil {
+		httpProxyConfiguration.NoProxy = *httpProxyConfig.NoProxy
 	}
 
-	if httpProxyConfiguration.trustedCa != nil {
-		httpProxyConfiguration.trustedCa = *httpProxyConfiguration.trustedCa
+	if httpProxyConfig.TrustedCa != nil {
+		httpProxyConfiguration.TrustedCa = *httpProxyConfig.TrustedCa
 	}
 
-	return &httpProxyConfiguration
+	return httpProxyConfiguration
 }
 
 // Conversion functions from wssdcloudcompute to compute
@@ -727,9 +727,9 @@ func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemC
 func (c *client) getVirtualMachineHttpProxyConfiguration(httpProxyConfiguration *wssdcloudcompute.HttpProxyConfiguration) *compute.HttpProxyConfiguration {
 
 	return &compute.HttpProxyConfiguration{
-		httpProxy:  &httpProxyConfiguration.httpProxy,
-		httpsProxy: &httpProxyConfiguration.httpsProxy,
-		noProxy:    &httpProxyConfiguration.noProxy,
-		trustedCa:  &httpProxyConfiguration.trustedCa,
+		HttpProxy:  &httpProxyConfiguration.HttpProxy,
+		HttpsProxy: &httpProxyConfiguration.HttpsProxy,
+		NoProxy:    &httpProxyConfiguration.NoProxy,
+		TrustedCa:  &httpProxyConfiguration.TrustedCa,
 	}
 }
