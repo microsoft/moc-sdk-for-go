@@ -579,13 +579,8 @@ github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
 github.com/lyft/protoc-gen-star v0.6.0/go.mod h1:TGAoBVkt8w7MPG72TrKIu85MIdXwDuzJYeZuUPFPNwA=
 github.com/lyft/protoc-gen-star v0.6.1/go.mod h1:TGAoBVkt8w7MPG72TrKIu85MIdXwDuzJYeZuUPFPNwA=
-<<<<<<< HEAD
-github.com/microsoft/moc v0.11.0-alpha.26-test h1:MSqaVYBVKzaOdsA8ZpMbOV9V4HjgcD+tgg/EJbNIywc=
-github.com/microsoft/moc v0.11.0-alpha.26-test/go.mod h1:XCARfNxCWJgQoKZGfggyj/lOF25XAxFYOuwAboxRCTc=
-=======
-github.com/microsoft/moc v0.11.0-alpha.28 h1:cdMgpkoyn937QZZMZ5NmYYAUHlonkeHw4vgeIPvZoKQ=
-github.com/microsoft/moc v0.11.0-alpha.28/go.mod h1:EuYNwYdC667rnJSYcLcLHKTuQURy9GLm7n+SMDhK6ps=
->>>>>>> main
+github.com/microsoft/moc v0.11.1-dhwani h1:KdKjyQCduDUvUILfPAN5LFokSd71WHQ4h7oLdA1ENBM=
+github.com/microsoft/moc v0.11.1-dhwani/go.mod h1:EuYNwYdC667rnJSYcLcLHKTuQURy9GLm7n+SMDhK6ps=
 github.com/nxadm/tail v1.4.4/go.mod h1:kenIhsEOeOJmVchQTgglprH7qJGnHDVpk1VPCcaMI8A=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
