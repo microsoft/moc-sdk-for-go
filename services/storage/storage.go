@@ -65,7 +65,8 @@ type ContainerInfo struct {
 // ContainerProperties defines the structure of a Load Balancer
 type ContainerProperties struct {
 	// Path
-	Path *string `json:"path,omitempty"`
+	Path     *string `json:"path,omitempty"`
+	Isolated bool    `json:"isolated,omitempty"`
 	// State - State
 	Statuses       map[string]*string `json:"statuses"`
 	*ContainerInfo `json:"info"`
