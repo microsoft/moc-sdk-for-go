@@ -422,6 +422,10 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 }
 
 func (c *client) getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfig *compute.HttpProxyConfiguration) *wssdcloudcompute.HttpProxyConfiguration {
+	if httpProxyConfig == nil {
+		return nil
+	}
+
 	httpProxyConfiguration := &wssdcloudcompute.HttpProxyConfiguration{}
 
 	if httpProxyConfig.HttpProxy != nil {
@@ -725,6 +729,9 @@ func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemC
 }
 
 func (c *client) getVirtualMachineHttpProxyConfiguration(httpProxyConfiguration *wssdcloudcompute.HttpProxyConfiguration) *compute.HttpProxyConfiguration {
+	if httpProxyConfiguration == nil {
+		return nil
+	}
 
 	return &compute.HttpProxyConfiguration{
 		HttpProxy:  &httpProxyConfiguration.HttpProxy,
