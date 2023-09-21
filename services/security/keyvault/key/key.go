@@ -257,6 +257,8 @@ func getMOCAlgorithm(algo keyvault.JSONWebKeyEncryptionAlgorithm) (wssdcloudcomm
 		return wssdcloudcommon.Algorithm_RSAOAEP256, nil
 	case keyvault.A256KW:
 		return wssdcloudcommon.Algorithm_A256KW, nil
+	case keyvault.A256CBC:
+		return wssdcloudcommon.Algorithm_A256CBC, nil
 	}
 	return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 }
