@@ -302,6 +302,10 @@ func (c *client) Delete(ctx context.Context, group, name, vaultName string) erro
 }
 
 func (c *client) Encrypt(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	err = c.isSupportedEncryptionAlgorithm(param.Algorithm)
+	if err != nil {
+		return
+	}
 	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Encrypt)
 	if err != nil {
 		return
@@ -315,6 +319,10 @@ func (c *client) Encrypt(ctx context.Context, group, vaultName, name string, par
 }
 
 func (c *client) Decrypt(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	err = c.isSupportedEncryptionAlgorithm(param.Algorithm)
+	if err != nil {
+		return
+	}
 	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Decrypt)
 	if err != nil {
 		return
@@ -328,6 +336,10 @@ func (c *client) Decrypt(ctx context.Context, group, vaultName, name string, par
 }
 
 func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	err = c.isSupportedWrapAlgorithm(param.Algorithm)
+	if err != nil {
+		return
+	}
 	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey)
 	if err != nil {
 		return
@@ -341,6 +353,10 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 }
 
 func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	err = c.isSupportedWrapAlgorithm(param.Algorithm)
+	if err != nil {
+		return
+	}
 	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey)
 	if err != nil {
 		return
@@ -561,4 +577,22 @@ func (c *client) getKeyOperationRequestVerify(ctx context.Context,
 	request.Key = key[0]
 	return request, nil
 
+}
+
+func (c *client) isSupportedEncryptionAlgorithm(algorithm keyvault.JSONWebKeyEncryptionAlgorithm) error {
+	switch algorithm {
+	case keyvault.A256CBC:
+		return nil
+	default:
+		return errors.Wrapf(errors.InvalidInput, "Invalid Algorithm")
+	}
+}
+
+func (c *client) isSupportedWrapAlgorithm(algorithm keyvault.JSONWebKeyEncryptionAlgorithm) error {
+	switch algorithm {
+	case keyvault.A256KW:
+		return nil
+	default:
+		return errors.Wrapf(errors.InvalidInput, "Invalid Algorithm")
+	}
 }
