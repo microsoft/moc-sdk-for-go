@@ -299,6 +299,8 @@ func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, e
 		return keyvault.RSAOAEP256, nil
 	case "A-256-KW":
 		return keyvault.A256KW, nil
+	case "A-256-CBC":
+		return keyvault.A256CBC, nil
 	}
 	return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 }
