@@ -27,7 +27,6 @@ replace (
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 	github.com/microsoft/moc => github.com/microsoft/moc v0.12.1-dhwani
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
-	
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
 )
