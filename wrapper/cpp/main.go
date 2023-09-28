@@ -101,7 +101,7 @@ func KeyvaultKeyEncryptDataCV(serverName *C.char, groupName *C.char, keyvaultNam
 	return C.CString(*response.Result)
 }
 
-// This function exists to maintain backwards compatability. Please use KeyvaultKeyEncryptDataCV.
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyDecryptDataCV.
 //
 //export KeyvaultKeyDecryptData
 func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
@@ -169,7 +169,7 @@ func KeyvaultKeyExistCV(serverName *C.char, groupName *C.char, keyvaultName *C.c
 	return 0
 }
 
-// This function exists to maintain backwards compatability. Please use KeyvaultKeyExistCV.
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyCreateOrUpdateCV.
 //
 //export KeyvaultKeyCreateOrUpdate
 func KeyvaultKeyCreateOrUpdate(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, keySize C.int, timeoutInSeconds C.int) *C.char {
@@ -177,10 +177,10 @@ func KeyvaultKeyCreateOrUpdate(serverName *C.char, groupName *C.char, keyvaultNa
 }
 
 //export KeyvaultKeyCreateOrUpdateCV
-func KeyvaultKeyCreateOrUpdateCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, keySize C.int, correlationVector *C.char, timeoutInSeconds C.int) *C.char {
-	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(correlationVector))
+func KeyvaultKeyCreateOrUpdateCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, keySize C.int, cv *C.char, timeoutInSeconds C.int) *C.char {
+	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
 	if err != nil {
-		telemetry.EmitWrapperTelemetry("KeyvaultKeyCreateOrUpdateCV", C.GoString(correlationVector), err.Error(), "getKeyvaultKeyClient", C.GoString(serverName))
+		telemetry.EmitWrapperTelemetry("KeyvaultKeyCreateOrUpdateCV", C.GoString(cv), err.Error(), "getKeyvaultKeyClient", C.GoString(serverName))
 		return C.CString(telemetry.FilterSensitiveData(err.Error()))
 	}
 
@@ -206,7 +206,7 @@ func KeyvaultKeyCreateOrUpdateCV(serverName *C.char, groupName *C.char, keyvault
 
 	_, err = keyClient.CreateOrUpdate(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), kvConfig)
 	if err != nil {
-		telemetry.EmitWrapperTelemetry("KeyvaultKeyCreateOrUpdateCV", C.GoString(correlationVector), err.Error(), "keyClient.CreateOrUpdate", C.GoString(serverName))
+		telemetry.EmitWrapperTelemetry("KeyvaultKeyCreateOrUpdateCV", C.GoString(cv), err.Error(), "keyClient.CreateOrUpdate", C.GoString(serverName))
 		//This return cannot be empty!
 		return C.CString(telemetry.FilterSensitiveData(err.Error()))
 	}
