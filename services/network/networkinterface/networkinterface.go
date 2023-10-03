@@ -6,6 +6,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
+	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcommonproto "github.com/microsoft/moc/rpc/common"
 )
@@ -41,6 +42,7 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 		IpConfigurations: wssdipconfigs,
 		GroupName:        group,
 		Dns:              getDns(c.DNSSettings),
+		Tags:             tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -124,6 +126,9 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 	if ipConfig.Gateway != nil {
 		wssdipconfig.Gateway = *ipConfig.Gateway
 	}
+	if ipConfig.Primary != nil {
+		wssdipconfig.Primary = *ipConfig.Primary
+	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
@@ -153,6 +158,7 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			EnableAcceleratedNetworking: getIovSetting(c),
 			DNSSettings:                 getWssdDNSSettings(c.Dns),
 		},
+		Tags: tags.ProtoToMap(c.Tags),
 	}
 
 	return vnetIntf, nil
@@ -179,6 +185,7 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
 			Gateway:          &wssdcloudipconfig.Gateway,
 			PrefixLength:     &wssdcloudipconfig.Prefixlength,
+			Primary:          &wssdcloudipconfig.Primary,
 		},
 	}
 

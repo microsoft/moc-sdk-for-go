@@ -6,14 +6,16 @@ package internal
 import (
 	"context"
 	"errors"
-	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc/pkg/auth"
-	loggingHelpers "github.com/microsoft/moc/pkg/logging"
-	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
 	"io"
 	"os"
 	"strconv"
 	"time"
+
+	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc/pkg/auth"
+	loggingHelpers "github.com/microsoft/moc/pkg/logging"
+	wssdadmin "github.com/microsoft/moc/rpc/cloudagent/admin"
+	wssdcomadmin "github.com/microsoft/moc/rpc/common/admin"
 )
 
 type client struct {
@@ -66,8 +68,39 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 	return nil
 }
 
+func (c *client) SetVerbosityLevel(ctx context.Context, verbositylevel int32, include_nodeagents bool) error {
+
+	if verbositylevel < int32(wssdcomadmin.VerboseLevel_Min_Level) || verbositylevel > int32(wssdcomadmin.VerboseLevel_Max_Level) {
+		return errors.New(`can not set provided verbositylevel, provided level should be within the range of 0-9 including 0 and 9`)
+	}
+	request := setVerbosityLevelRequest(verbositylevel, include_nodeagents)
+
+	_, err := c.LogAgentClient.Set(ctx, request)
+	return err
+
+}
+
+func (c *client) GetVerbosityLevel(ctx context.Context) (string, error) {
+
+	request := getLevelRequest()
+	res, err := c.LogAgentClient.GetLevel(ctx, request)
+	return res.Level, err
+
+}
+
 func getLoggingRequest(location string) *wssdadmin.LogRequest {
 	return &wssdadmin.LogRequest{
 		Location: location,
 	}
+}
+
+func setVerbosityLevelRequest(verbositylevel int32, include_nodeagents bool) *wssdadmin.SetRequest {
+	return &wssdadmin.SetRequest{
+		Verbositylevel:    verbositylevel,
+		IncludeNodeagents: include_nodeagents,
+	}
+}
+
+func getLevelRequest() *wssdadmin.GetRequest {
+	return &wssdadmin.GetRequest{}
 }

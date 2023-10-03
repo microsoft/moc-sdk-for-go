@@ -117,11 +117,13 @@ const (
 	RSAOAEP256 JSONWebKeyEncryptionAlgorithm = "RSA-OAEP-256"
 	// A256KW AES Key Wrap with 256 bit key-encryption key
 	A256KW JSONWebKeyEncryptionAlgorithm = "A256KW"
+	// A256CBC AES-CBC with 256 bit encryption key
+	A256CBC JSONWebKeyEncryptionAlgorithm = "A256CBC"
 )
 
 // KeyOperationsParameters the key operations parameters.
 type KeyOperationsParameters struct {
-	// Algorithm - algorithm identifier. Possible values include: 'RSAOAEP', 'RSAOAEP256', 'RSA15', 'A256KW'
+	// Algorithm - algorithm identifier. Possible values include: 'RSAOAEP', 'RSAOAEP256', 'RSA15', 'A256KW', "A256CBC"
 	Algorithm JSONWebKeyEncryptionAlgorithm `json:"alg,omitempty"`
 	// Value - a URL-encoded base64 string
 	Value *string `json:"value,omitempty"`
@@ -208,6 +210,10 @@ type KeyWrappingAlgorithm string
 const (
 	// CKM_RSA_AES_KEY_WRAP
 	CKM_RSA_AES_KEY_WRAP KeyWrappingAlgorithm = "CKM_RSA_AES_KEY_WRAP"
+	//RSA_AES_KEY_WRAP_256
+	RSA_AES_KEY_WRAP_256 KeyWrappingAlgorithm = "RSA_AES_KEY_WRAP_256"
+	//RSA_AES_KEY_WRAP_384
+	RSA_AES_KEY_WRAP_384 KeyWrappingAlgorithm = "RSA_AES_KEY_WRAP_384"
 	// NO_KEY_WRAP
 	NO_KEY_WRAP KeyWrappingAlgorithm = "NO_KEY_WRAP"
 )
