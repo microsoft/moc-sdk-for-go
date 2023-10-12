@@ -23,7 +23,7 @@ type NetworkSecurityGroupAgentClient struct {
 	internal Service
 }
 
-// NewLoadBalancerClient method returns new client
+// NeNetworkSecurityGroupClient method returns new client
 func NewSecurityGroupClient(cloudFQDN string, authorizer auth.Authorizer) (*NetworkSecurityGroupAgentClient, error) {
 	c, err := newNetworkSecurityGroupClient(cloudFQDN, authorizer)
 	if err != nil {
