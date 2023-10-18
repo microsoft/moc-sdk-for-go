@@ -4,6 +4,7 @@
 package node
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
@@ -86,6 +87,9 @@ func generateNodeTags(node *wssdcloud.Node) map[string]*string {
 
 	testStr := "test"
 	tags[constant.OsVersion] = &testStr
+
+	fmt.Println("Printing tags - ", tags)
+	fmt.Printf("Printing node object - %+v", node)
 
 	if len(tags) > 0 {
 		return tags
