@@ -83,6 +83,10 @@ func generateNodeTags(node *wssdcloud.Node) map[string]*string {
 	tags := make(map[string]*string)
 	populateOsRegistrationStatusTag(tags, node)
 	populateOsVersionTag(tags, node)
+
+	testStr := "test"
+	tags[constant.OsVersion] = &testStr
+
 	if len(tags) > 0 {
 		return tags
 	}
