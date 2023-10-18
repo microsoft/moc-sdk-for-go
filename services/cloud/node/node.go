@@ -86,7 +86,7 @@ func generateNodeTags(node *wssdcloud.Node) map[string]*string {
 	populateOsVersionTag(tags, node)
 
 	testStr := "test"
-	tags[constant.OsVersion] = &testStr
+	tags[constant.OsVersion+constant.OsVersion] = &testStr
 
 	fmt.Println("Printing tags - ", tags)
 	fmt.Printf("Printing node object - %+v", node)
