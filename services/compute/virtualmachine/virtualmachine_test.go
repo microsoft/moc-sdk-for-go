@@ -5,6 +5,7 @@ package virtualmachine
 
 import (
 	"testing"
+	"github.com/microsoft/moc-sdk-for-go/services/compute"
 )
 
 func Test_getWssdVirtualMachine(t *testing.T) {
@@ -27,4 +28,31 @@ func Test_getVirtualMachineStorageProfileOsDisk(t *testing.T)       {}
 func Test_getVirtualMachineStorageProfileDataDisks(t *testing.T)    {}
 func Test_getVirtualMachineNetworkProfile(t *testing.T)             {}
 func Test_getVirtualMachineOSProfile(t *testing.T)                  {}
-func Test_getWssdVirtualMachineHttpProxyConfiguration(t *testing.T) {}
+
+func Test_getWssdVirtualMachineHttpProxyConfiguration(t *testing.T) {
+    httpProxyConfig := compute.HttpProxyConfiguration
+
+	httpProxyConfig.HttpProxy = "http://ubuntu:ubuntu@192.168.200.40:3128"
+	httpProxyConfig.HttpsProxy = "http://ubuntu:ubuntu@192.168.200.40:3128"
+	httpProxyConfig.NoProxy = []string{"localhost", "127.0.0.1", ".svc", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.0.0.0/8", ".corp.microsoft.com", ".masd.stbtest.microsoft.com"}
+	httpProxyConfig.TrustedCa = "-----BEGIN CERTIFICATE-----\\nMIIDETCCAfkCFAjEhG/xypxPKN1URzLmLISCPuTVMA0GCSqGSIb3DQEBCwUAMEUx\\n-----END CERTIFICATE-----"
+
+	wssdcloudclient := client{}
+	config := wssdcloudclient.getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfig)
+
+	if config.HttpProxy != httpProxyConfig.HttpProxy {
+		t.Fatalf("Test_getWssdVirtualMachineHttpProxyConfiguration test case failed: HttpProxy does not match")
+	}
+
+	if config.HttpsProxy != httpProxyConfig.HttpsProxy {
+		t.Fatalf("Test_getWssdVirtualMachineHttpProxyConfiguration test case failed: HttpsProxy does not match")
+	}
+
+	if config.NoProxy != httpProxyConfig.NoProxy {
+		t.Fatalf("Test_getWssdVirtualMachineHttpProxyConfiguration test case failed: NoProxy does not match")
+	}
+
+	if config.TrustedCa != httpProxyConfig.TrustedCa {
+		t.Fatalf("Test_getWssdVirtualMachineHttpProxyConfiguration test case failed: TrustedCa does not match")
+	}
+}
