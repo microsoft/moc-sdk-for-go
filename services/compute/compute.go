@@ -197,6 +197,8 @@ type OSProfile struct {
 	LinuxConfiguration *LinuxConfiguration `json:"linuxconfiguration,omitempty"`
 	// Bootstrap engine
 	OsBootstrapEngine OperatingSystemBootstrapEngine `json:"osbootstrapengine,omitempty"`
+	// ProxyConfiguration
+	ProxyConfiguration *ProxyConfiguration `json:"proxyconfiguration,omitempty"`
 }
 
 // VirtualMachineCustomSize Specifies cpu/memory information for custom VMSize types.
@@ -331,8 +333,6 @@ type VirtualMachineProperties struct {
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
-	// HttpProxyConfiguration
-	HttpProxyConfiguration *HttpProxyConfiguration `json:"httpproxyconfiguration,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1150,7 +1150,7 @@ type VirtualMachineRunCommandResponse struct {
 	InstanceView *VirtualMachineRunCommandInstanceView `json:"instanceView,omitempty"`
 }
 
-type HttpProxyConfiguration struct {
+type ProxyConfiguration struct {
 	// The HTTP proxy server endpoint
 	HttpProxy *string `json:"httpproxy,omitempty"`
 	// The HTTPS proxy server endpoint
