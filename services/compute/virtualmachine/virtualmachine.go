@@ -452,6 +452,10 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 	}
 
 	if proxyConfig.TrustedCa != nil {
+		err := validations.ValidateCertFormatIsBase64(*proxyConfig.TrustedCa)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Certificate is not base64 encoded")
+		}
 		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
 	}
 
