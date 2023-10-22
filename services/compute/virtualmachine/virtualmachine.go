@@ -406,7 +406,7 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile, opTy
 
 	osconfig.ProxyConfiguration, err = c.getWssdVirtualMachineProxyConfiguration(s.ProxyConfiguration, opType)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Proxy Config Validation Failed")
+		return nil, errors.Wrapf(err, "Validation for Proxy Configuration Failed")
 	}
 	return &osconfig, nil
 }
