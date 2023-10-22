@@ -6,16 +6,17 @@ package virtualmachine
 import (
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/validations"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 
 	"github.com/microsoft/moc/pkg/status"
-	"github.com/microsoft/moc/pkg/validations"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
-func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string) (*wssdcloudcompute.VirtualMachine, error) {
+func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string, opType wssdcloudproto.Operation) (*wssdcloudcompute.VirtualMachine, error) {
 	if vm.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Virtual Machine name is missing")
 	}
@@ -34,7 +35,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get Security Configuration")
 	}
-	osconfig, err := c.getWssdVirtualMachineOSConfiguration(vm.OsProfile)
+	osconfig, err := c.getWssdVirtualMachineOSConfiguration(vm.OsProfile, opType)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get OS Configuration")
 	}
@@ -320,7 +321,7 @@ func (c *client) getWssdVirtualMachineLinuxConfiguration(linuxConfiguration *com
 
 }
 
-func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*wssdcloudcompute.OperatingSystemConfiguration, error) {
+func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile, opType wssdcloudproto.Operation) (*wssdcloudcompute.OperatingSystemConfiguration, error) {
 	publickeys := []*wssdcloudcompute.SSHPublicKey{}
 	osType := wssdcommon.OperatingSystemType_WINDOWS
 	var err error
@@ -403,9 +404,9 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 		osconfig.CustomData = *s.CustomData
 	}
 
-	osconfig.ProxyConfiguration, err = c.getWssdVirtualMachineProxyConfiguration(s.ProxyConfiguration)
+	osconfig.ProxyConfiguration, err = c.getWssdVirtualMachineProxyConfiguration(s.ProxyConfiguration, opType)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Proxy Configuration Validation Failed")
+		return nil, errors.Wrapf(err, "Validation for Proxy Configuration Failed")
 	}
 	return &osconfig, nil
 }
@@ -424,7 +425,7 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
-func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) (*wssdcloudcompute.ProxyConfiguration, error) {
+func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration, opType wssdcloudproto.Operation) (*wssdcloudcompute.ProxyConfiguration, error) {
 	if proxyConfig == nil {
 		return nil, nil
 	}
@@ -432,17 +433,21 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 	proxyConfiguration := &wssdcloudcompute.ProxyConfiguration{}
 
 	if proxyConfig.HttpProxy != nil {
-		err := validations.ValidateProxyURL(*proxyConfig.HttpProxy)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Invalid Http Proxy URL")
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateProxyURL(*proxyConfig.HttpProxy)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Invalid Http Proxy URL")
+			}
 		}
 		proxyConfiguration.HttpProxy = *proxyConfig.HttpProxy
 	}
 
 	if proxyConfig.HttpsProxy != nil {
-		err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Invalid Https Proxy URL")
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Invalid Https Proxy URL")
+			}
 		}
 		proxyConfiguration.HttpsProxy = *proxyConfig.HttpsProxy
 	}
@@ -452,9 +457,11 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 	}
 
 	if proxyConfig.TrustedCa != nil {
-		err := validations.ValidateCertFormatIsBase64(*proxyConfig.TrustedCa)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Certificate is not base64 encoded")
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateCertFormatIsBase64(*proxyConfig.TrustedCa)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Certificate is not base64 encoded")
+			}
 		}
 		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
 	}

@@ -273,7 +273,7 @@ func (c *client) getVirtualMachineRequest(opType wssdcloudproto.Operation, group
 		GroupName: group,
 	}
 	if vmss != nil {
-		wssdvm, err = c.getWssdVirtualMachine(vmss, group)
+		wssdvm, err = c.getWssdVirtualMachine(vmss, group, opType)
 		if err != nil {
 			return nil, err
 		}
