@@ -276,6 +276,7 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 			description := rule.Description
 			protocol := network.SecurityRuleProtocolAsterisk
 			action := network.SecurityRuleAccessDeny
+			direction := network.SecurityRuleDirectionInbound
 			priority := uint32(rule.GetPriority())
 
 			if rule.Protocol == wssdcloudcommon.Protocol_All {
@@ -296,6 +297,14 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 				return nil, errors.Wrapf(errors.InvalidInput, "Unknown Access %s specified", rule.Action)
 			}
 
+			if rule.Direction == wssdcloudnetwork.Direction_Inbound {
+				direction = network.SecurityRuleDirectionInbound
+			} else if rule.Direction == wssdcloudnetwork.Direction_Outbound {
+				direction = network.SecurityRuleDirectionOutbound
+			} else {
+				return nil, errors.Wrapf(errors.InvalidInput, "Unknown Direction %s specified", rule.Direction)
+			}
+
 			networkNSGRules = append(networkNSGRules, network.SecurityRule{
 				Name: &name,
 				SecurityRulePropertiesFormat: &network.SecurityRulePropertiesFormat{
@@ -306,6 +315,7 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 					SourcePortRange:          &rule.SourcePortRange,
 					DestinationPortRange:     &rule.DestinationPortRange,
 					Access:                   action,
+					Direction:                direction,
 					Priority:                 &priority,
 				},
 			})
