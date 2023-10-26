@@ -432,9 +432,19 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 
 	proxyConfiguration := &wssdcloudcompute.ProxyConfiguration{}
 
+	if proxyConfig.TrustedCa != nil {
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateProxyCertificate(*proxyConfig.TrustedCa)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Certificate is not base64 encoded")
+			}
+		}
+		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
+	}
+
 	if proxyConfig.HttpProxy != nil {
 		if opType == wssdcloudproto.Operation_POST {
-			err := validations.ValidateProxyURL(*proxyConfig.HttpProxy)
+			err := validations.ValidateProxyURL(*proxyConfig.HttpProxy, *proxyConfig.TrustedCa)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Http Proxy URL")
 			}
@@ -444,7 +454,7 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 
 	if proxyConfig.HttpsProxy != nil {
 		if opType == wssdcloudproto.Operation_POST {
-			err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy)
+			err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy, *proxyConfig.TrustedCa)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Https Proxy URL")
 			}
@@ -454,16 +464,6 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 
 	if proxyConfig.NoProxy != nil {
 		proxyConfiguration.NoProxy = *proxyConfig.NoProxy
-	}
-
-	if proxyConfig.TrustedCa != nil {
-		if opType == wssdcloudproto.Operation_POST {
-			err := validations.ValidateCertFormatIsBase64(*proxyConfig.TrustedCa)
-			if err != nil {
-				return nil, errors.Wrapf(err, "Certificate is not base64 encoded")
-			}
-		}
-		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
 	}
 
 	return proxyConfiguration, nil
