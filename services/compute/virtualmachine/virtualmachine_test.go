@@ -4,7 +4,9 @@
 package virtualmachine
 
 import (
+	"io/ioutil"
 	"testing"
+
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 )
 
@@ -22,20 +24,25 @@ func Test_getWssdVirtualMachineNetworkConfiguration(t *testing.T) {}
 func Test_getWssdVirtualMachineOSSSHPublicKeys(t *testing.T) {}
 func Test_getWssdVirtualMachineOSConfiguration(t *testing.T) {}
 
-func Test_getVirtualMachine(t *testing.T)                           {}
-func Test_getVirtualMachineStorageProfile(t *testing.T)             {}
-func Test_getVirtualMachineStorageProfileOsDisk(t *testing.T)       {}
-func Test_getVirtualMachineStorageProfileDataDisks(t *testing.T)    {}
-func Test_getVirtualMachineNetworkProfile(t *testing.T)             {}
-func Test_getVirtualMachineOSProfile(t *testing.T)                  {}
+func Test_getVirtualMachine(t *testing.T)                        {}
+func Test_getVirtualMachineStorageProfile(t *testing.T)          {}
+func Test_getVirtualMachineStorageProfileOsDisk(t *testing.T)    {}
+func Test_getVirtualMachineStorageProfileDataDisks(t *testing.T) {}
+func Test_getVirtualMachineNetworkProfile(t *testing.T)          {}
+func Test_getVirtualMachineOSProfile(t *testing.T)               {}
 
 func Test_getWssdVirtualMachineHttpProxyConfiguration(t *testing.T) {
-    httpProxyConfig := compute.HttpProxyConfiguration
+	httpProxyConfig := compute.OSProfile.ProxyConfiguration
 
 	httpProxyConfig.HttpProxy = "http://ubuntu:ubuntu@192.168.200.40:3128"
 	httpProxyConfig.HttpsProxy = "http://ubuntu:ubuntu@192.168.200.40:3128"
 	httpProxyConfig.NoProxy = []string{"localhost", "127.0.0.1", ".svc", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.0.0.0/8", ".corp.microsoft.com", ".masd.stbtest.microsoft.com"}
-	httpProxyConfig.TrustedCa = "-----BEGIN CERTIFICATE-----\\nMIIDETCCAfkCFAjEhG/xypxPKN1URzLmLISCPuTVMA0GCSqGSIb3DQEBCwUAMEUx\\n-----END CERTIFICATE-----"
+
+	caCert, err := ioutil.ReadFile("proxy.crt")
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	httpProxyConfig.TrustedCa = string(caCert)
 
 	wssdcloudclient := client{}
 	config := wssdcloudclient.getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfig)
