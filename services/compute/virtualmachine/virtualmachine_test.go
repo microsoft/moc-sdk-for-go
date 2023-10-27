@@ -36,7 +36,7 @@ func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 	HttpsProxy := "http://akse2e:akse2e@skyproxy.ceccloud1.selfhost.corp.microsoft.com:3128"
 	NoProxy := []string{"localhost", "127.0.0.1", ".svc", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.0.0.0/8", ".corp.microsoft.com", ".masd.stbtest.microsoft.com"}
 
-	caCert, err := ioutil.ReadFile("proxy.crt")
+	caCert, err := ioutil.ReadFile("../proxycert/proxy.crt")
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
