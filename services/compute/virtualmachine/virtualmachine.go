@@ -6,15 +6,17 @@ package virtualmachine
 import (
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/pkg/validations"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
-func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string) (*wssdcloudcompute.VirtualMachine, error) {
+func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string, opType wssdcloudproto.Operation) (*wssdcloudcompute.VirtualMachine, error) {
 	if vm.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Virtual Machine name is missing")
 	}
@@ -33,7 +35,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get Security Configuration")
 	}
-	osconfig, err := c.getWssdVirtualMachineOSConfiguration(vm.OsProfile)
+	osconfig, err := c.getWssdVirtualMachineOSConfiguration(vm.OsProfile, opType)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get OS Configuration")
 	}
@@ -55,20 +57,17 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		vmtype = wssdcloudcompute.VMType_STACKEDCONTROLPLANE
 	}
 
-	httpProxyConfig := c.getWssdVirtualMachineHttpProxyConfiguration(vm.HttpProxyConfiguration)
-
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:                   *vm.Name,
-		Storage:                storageConfig,
-		Hardware:               hardwareConfig,
-		Security:               securityConfig,
-		GuestAgent:             guestAgentConfig,
-		Os:                     osconfig,
-		Network:                networkConfig,
-		GroupName:              group,
-		VmType:                 vmtype,
-		Tags:                   getWssdTags(vm.Tags),
-		HttpProxyConfiguration: httpProxyConfig,
+		Name:       *vm.Name,
+		Storage:    storageConfig,
+		Hardware:   hardwareConfig,
+		Security:   securityConfig,
+		GuestAgent: guestAgentConfig,
+		Os:         osconfig,
+		Network:    networkConfig,
+		GroupName:  group,
+		VmType:     vmtype,
+		Tags:       getWssdTags(vm.Tags),
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -322,7 +321,7 @@ func (c *client) getWssdVirtualMachineLinuxConfiguration(linuxConfiguration *com
 
 }
 
-func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*wssdcloudcompute.OperatingSystemConfiguration, error) {
+func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile, opType wssdcloudproto.Operation) (*wssdcloudcompute.OperatingSystemConfiguration, error) {
 	publickeys := []*wssdcloudcompute.SSHPublicKey{}
 	osType := wssdcommon.OperatingSystemType_WINDOWS
 	var err error
@@ -404,6 +403,11 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	if s.CustomData != nil {
 		osconfig.CustomData = *s.CustomData
 	}
+
+	osconfig.ProxyConfiguration, err = c.getWssdVirtualMachineProxyConfiguration(s.ProxyConfiguration, opType)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Validation for Proxy Configuration Failed")
+	}
 	return &osconfig, nil
 }
 
@@ -421,30 +425,48 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
-func (c *client) getWssdVirtualMachineHttpProxyConfiguration(httpProxyConfig *compute.HttpProxyConfiguration) *wssdcloudcompute.HttpProxyConfiguration {
-	if httpProxyConfig == nil {
-		return nil
+func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration, opType wssdcloudproto.Operation) (*wssdcloudcompute.ProxyConfiguration, error) {
+	if proxyConfig == nil {
+		return nil, nil
 	}
 
-	httpProxyConfiguration := &wssdcloudcompute.HttpProxyConfiguration{}
+	proxyConfiguration := &wssdcloudcompute.ProxyConfiguration{}
 
-	if httpProxyConfig.HttpProxy != nil {
-		httpProxyConfiguration.HttpProxy = *httpProxyConfig.HttpProxy
+	if proxyConfig.TrustedCa != nil {
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateProxyCertificate(*proxyConfig.TrustedCa)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Certificate is not base64 encoded")
+			}
+		}
+		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
 	}
 
-	if httpProxyConfig.HttpsProxy != nil {
-		httpProxyConfiguration.HttpsProxy = *httpProxyConfig.HttpsProxy
+	if proxyConfig.HttpProxy != nil {
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateProxyURL(*proxyConfig.HttpProxy, *proxyConfig.TrustedCa)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Invalid Http Proxy URL")
+			}
+		}
+		proxyConfiguration.HttpProxy = *proxyConfig.HttpProxy
 	}
 
-	if httpProxyConfig.NoProxy != nil {
-		httpProxyConfiguration.NoProxy = *httpProxyConfig.NoProxy
+	if proxyConfig.HttpsProxy != nil {
+		if opType == wssdcloudproto.Operation_POST {
+			err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy, *proxyConfig.TrustedCa)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Invalid Https Proxy URL")
+			}
+		}
+		proxyConfiguration.HttpsProxy = *proxyConfig.HttpsProxy
 	}
 
-	if httpProxyConfig.TrustedCa != nil {
-		httpProxyConfiguration.TrustedCa = *httpProxyConfig.TrustedCa
+	if proxyConfig.NoProxy != nil {
+		proxyConfiguration.NoProxy = *proxyConfig.NoProxy
 	}
 
-	return httpProxyConfiguration
+	return proxyConfiguration, nil
 }
 
 // Conversion functions from wssdcloudcompute to compute
@@ -474,7 +496,6 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
-			HttpProxyConfiguration:  c.getVirtualMachineHttpProxyConfiguration(vm.HttpProxyConfiguration),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
@@ -725,18 +746,19 @@ func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemC
 		OsBootstrapEngine:    osBootstrapEngine,
 		WindowsConfiguration: c.getVirtualMachineWindowsConfiguration(o.WindowsConfiguration),
 		LinuxConfiguration:   c.getVirtualMachineLinuxConfiguration(o.LinuxConfiguration),
+		ProxyConfiguration:   c.getVirtualMachineProxyConfiguration(o.ProxyConfiguration),
 	}
 }
 
-func (c *client) getVirtualMachineHttpProxyConfiguration(httpProxyConfiguration *wssdcloudcompute.HttpProxyConfiguration) *compute.HttpProxyConfiguration {
-	if httpProxyConfiguration == nil {
+func (c *client) getVirtualMachineProxyConfiguration(proxyConfiguration *wssdcloudcompute.ProxyConfiguration) *compute.ProxyConfiguration {
+	if proxyConfiguration == nil {
 		return nil
 	}
 
-	return &compute.HttpProxyConfiguration{
-		HttpProxy:  &httpProxyConfiguration.HttpProxy,
-		HttpsProxy: &httpProxyConfiguration.HttpsProxy,
-		NoProxy:    &httpProxyConfiguration.NoProxy,
-		TrustedCa:  &httpProxyConfiguration.TrustedCa,
+	return &compute.ProxyConfiguration{
+		HttpProxy:  &proxyConfiguration.HttpProxy,
+		HttpsProxy: &proxyConfiguration.HttpsProxy,
+		NoProxy:    &proxyConfiguration.NoProxy,
+		TrustedCa:  &proxyConfiguration.TrustedCa,
 	}
 }
