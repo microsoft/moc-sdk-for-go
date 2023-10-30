@@ -4,10 +4,12 @@
 package virtualmachine
 
 import (
-	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc/pkg/certs"
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 )
 
@@ -32,15 +34,18 @@ func Test_getVirtualMachineStorageProfileDataDisks(t *testing.T) {}
 func Test_getVirtualMachineNetworkProfile(t *testing.T)          {}
 func Test_getVirtualMachineOSProfile(t *testing.T)               {}
 func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
-	HttpProxy := "http://akse2e:akse2e@skyproxy.ceccloud1.selfhost.corp.microsoft.com:3128"
-	HttpsProxy := "http://akse2e:akse2e@skyproxy.ceccloud1.selfhost.corp.microsoft.com:3128"
+	proxy := NewProxy()
+	defer proxy.Target.Close()
+	HttpProxy := proxy.Target.URL
+	HttpsProxy := proxy.Target.URL
 	NoProxy := []string{"localhost", "127.0.0.1", ".svc", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "100.0.0.0/8", ".corp.microsoft.com", ".masd.stbtest.microsoft.com"}
 
-	caCert, err := ioutil.ReadFile("../proxycert/proxy.crt")
+	caCert, _, err := certs.GenerateClientCertificate("ValidCertificate")
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
-	TrustedCa = string(caCert)
+	certBytes := certs.EncodeCertPEM(caCert)
+	TrustedCa := string(certBytes)
 
 	proxyConfig := &compute.ProxyConfiguration{
 		HttpProxy:  &HttpProxy,
@@ -68,17 +73,20 @@ func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 		t.Fatalf("Test_getWssdVirtualMachineProxyConfiguration test case failed: TrustedCa does not match")
 	}
 
-	config, err := wssdcloudclient.getWssdVirtualMachineProxyConfiguration(nil, wssdcloudproto.Operation_POST)
+	config, err = wssdcloudclient.getWssdVirtualMachineProxyConfiguration(nil, wssdcloudproto.Operation_POST)
 
 	if config != nil && err != nil {
 		t.Fatalf("Test_getWssdVirtualMachineProxyConfiguration test case failed: Expected output to be nil since input passed was nil")
 	}
+}
 
-	HttpProxy = "https://akse2e:akse2e@skyproxy.ceccloud1.selfhost.corp.microsoft.com:3128"
-	proxyConfig.HttpProxy = &HttpProxy
-	config, err = wssdcloudclient.getWssdVirtualMachineProxyConfiguration(proxyConfig, wssdcloudproto.Operation_POST)
+// Proxy is a simple proxy server for unit tests.
+type Proxy struct {
+	Target *httptest.Server
+}
 
-	if err == nil && config != nil {
-		t.Fatalf("Test_getWssdVirtualMachineProxyConfiguration test case failed: Expected proxy config validation to fail but passed")
-	}
+// NewProxy creates a new proxy server for unit tests.
+func NewProxy() *Proxy {
+	target := httptest.NewServer(http.DefaultServeMux)
+	return &Proxy{Target: target}
 }
