@@ -5,7 +5,6 @@ package virtualmachine
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
-	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/validations"
@@ -433,37 +432,22 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 	proxyConfiguration := &wssdcloudproto.ProxyConfiguration{}
 
 	if proxyConfig.TrustedCa != nil {
-		if opType == wssdcloudproto.Operation_POST {
-			err := auth.CertCheck([]byte(*proxyConfig.TrustedCa))
-			if err != nil {
-				return nil, errors.Wrapf(errors.InvalidInput, err.Error())
-			}
-		}
 		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
 	}
 
 	if proxyConfig.HttpProxy != nil {
 		if opType == wssdcloudproto.Operation_POST {
-			parsedUrl, err := validations.ValidateProxyURL(*proxyConfig.HttpProxy)
+			_, err := validations.ValidateProxyURL(*proxyConfig.HttpProxy)
 			if err != nil {
 				return nil, errors.Wrapf(errors.InvalidInput, err.Error())
 			}
-			err = validations.TestProxyUrlConnection(parsedUrl, *proxyConfig.TrustedCa, "")
-			if err != nil {
-				return nil, errors.Wrapf(errors.InvalidInput, err.Error())
-			}
-
 		}
 		proxyConfiguration.HttpProxy = *proxyConfig.HttpProxy
 	}
 
 	if proxyConfig.HttpsProxy != nil {
 		if opType == wssdcloudproto.Operation_POST {
-			parsedUrl, err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy)
-			if err != nil {
-				return nil, errors.Wrapf(errors.InvalidInput, err.Error())
-			}
-			err = validations.TestProxyUrlConnection(parsedUrl, *proxyConfig.TrustedCa, "")
+			_, err := validations.ValidateProxyURL(*proxyConfig.HttpsProxy)
 			if err != nil {
 				return nil, errors.Wrapf(errors.InvalidInput, err.Error())
 			}
