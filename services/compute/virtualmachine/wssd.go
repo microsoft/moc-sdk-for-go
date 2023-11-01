@@ -312,7 +312,7 @@ func getWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
 }
 
 func (c *client) virtualMachineValidations(opType wssdcloudproto.Operation, vmss *compute.VirtualMachine) error {
-	if vmss == nil || vmss.OsProfile == nil {
+	if vmss.OsProfile == nil {
 		return nil
 	}
 	if vmss.OsProfile.ProxyConfiguration != nil && opType == wssdcloudproto.Operation_POST {
