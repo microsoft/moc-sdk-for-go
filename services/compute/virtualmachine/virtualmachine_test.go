@@ -10,7 +10,6 @@ import (
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/certs"
-	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 )
 
 func Test_getWssdVirtualMachine(t *testing.T) {
@@ -55,7 +54,7 @@ func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 	}
 
 	wssdcloudclient := client{}
-	config, _ := wssdcloudclient.getWssdVirtualMachineProxyConfiguration(proxyConfig, wssdcloudproto.Operation_POST)
+	config := wssdcloudclient.getWssdVirtualMachineProxyConfiguration(proxyConfig)
 
 	if config.HttpProxy != HttpProxy {
 		t.Fatalf("Test_getWssdVirtualMachineProxyConfiguration test case failed: HttpProxy does not match")
@@ -73,7 +72,7 @@ func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 		t.Fatalf("Test_getWssdVirtualMachineProxyConfiguration test case failed: TrustedCa does not match")
 	}
 
-	config, err = wssdcloudclient.getWssdVirtualMachineProxyConfiguration(nil, wssdcloudproto.Operation_POST)
+	config = wssdcloudclient.getWssdVirtualMachineProxyConfiguration(nil)
 
 	if config != nil && err != nil {
 		t.Fatalf("Test_getWssdVirtualMachineProxyConfiguration test case failed: Expected output to be nil since input passed was nil")
