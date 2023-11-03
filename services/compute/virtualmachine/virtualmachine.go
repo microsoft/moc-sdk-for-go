@@ -4,13 +4,13 @@
 package virtualmachine
 
 import (
+	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
 
-	"github.com/microsoft/moc-sdk-for-go/services/compute"
-
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
@@ -401,6 +401,9 @@ func (c *client) getWssdVirtualMachineOSConfiguration(s *compute.OSProfile) (*ws
 	if s.CustomData != nil {
 		osconfig.CustomData = *s.CustomData
 	}
+
+	osconfig.ProxyConfiguration = c.getWssdVirtualMachineProxyConfiguration(s.ProxyConfiguration)
+
 	return &osconfig, nil
 }
 
@@ -416,6 +419,32 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	}
 
 	return gac, nil
+}
+
+func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
+	if proxyConfig == nil {
+		return nil
+	}
+
+	proxyConfiguration := &wssdcloudproto.ProxyConfiguration{}
+
+	if proxyConfig.TrustedCa != nil {
+		proxyConfiguration.TrustedCa = *proxyConfig.TrustedCa
+	}
+
+	if proxyConfig.HttpProxy != nil {
+		proxyConfiguration.HttpProxy = *proxyConfig.HttpProxy
+	}
+
+	if proxyConfig.HttpsProxy != nil {
+		proxyConfiguration.HttpsProxy = *proxyConfig.HttpsProxy
+	}
+
+	if proxyConfig.NoProxy != nil {
+		proxyConfiguration.NoProxy = *proxyConfig.NoProxy
+	}
+
+	return proxyConfiguration
 }
 
 // Conversion functions from wssdcloudcompute to compute
@@ -695,5 +724,19 @@ func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemC
 		OsBootstrapEngine:    osBootstrapEngine,
 		WindowsConfiguration: c.getVirtualMachineWindowsConfiguration(o.WindowsConfiguration),
 		LinuxConfiguration:   c.getVirtualMachineLinuxConfiguration(o.LinuxConfiguration),
+		ProxyConfiguration:   c.getVirtualMachineProxyConfiguration(o.ProxyConfiguration),
+	}
+}
+
+func (c *client) getVirtualMachineProxyConfiguration(proxyConfiguration *wssdcloudproto.ProxyConfiguration) *compute.ProxyConfiguration {
+	if proxyConfiguration == nil {
+		return nil
+	}
+
+	return &compute.ProxyConfiguration{
+		HttpProxy:  &proxyConfiguration.HttpProxy,
+		HttpsProxy: &proxyConfiguration.HttpsProxy,
+		NoProxy:    &proxyConfiguration.NoProxy,
+		TrustedCa:  &proxyConfiguration.TrustedCa,
 	}
 }
