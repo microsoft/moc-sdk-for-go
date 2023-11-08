@@ -34,9 +34,10 @@ func getWssdLocation(lcn *cloud.Location) (*wssdcloud.Location, error) {
 
 // Conversion functions from wssdcloud to cloud
 func getLocation(lcn *wssdcloud.Location) *cloud.Location {
+	str := "123"
 	return &cloud.Location{
 		Name:    &lcn.Name,
-		Version: &lcn.Status.Version.Number,
+		Version: &str,
 		LocationProperties: &cloud.LocationProperties{
 			Statuses: status.GetStatuses(lcn.GetStatus()),
 		},
