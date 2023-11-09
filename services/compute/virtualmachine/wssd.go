@@ -316,13 +316,13 @@ func (c *client) virtualMachineValidations(opType wssdcloudproto.Operation, vmss
 		return nil
 	}
 	if vmss.OsProfile.ProxyConfiguration != nil && opType == wssdcloudproto.Operation_POST {
-		if vmss.OsProfile.ProxyConfiguration.HttpProxy != nil {
+		if vmss.OsProfile.ProxyConfiguration.HttpProxy != nil && *vmss.OsProfile.ProxyConfiguration.HttpProxy != "" {
 			_, err := validations.ValidateProxyURL(*vmss.OsProfile.ProxyConfiguration.HttpProxy)
 			if err != nil {
 				return errors.Wrapf(errors.InvalidInput, err.Error())
 			}
 		}
-		if vmss.OsProfile.ProxyConfiguration.HttpsProxy != nil {
+		if vmss.OsProfile.ProxyConfiguration.HttpsProxy != nil && *vmss.OsProfile.ProxyConfiguration.HttpsProxy != "" {
 			_, err := validations.ValidateProxyURL(*vmss.OsProfile.ProxyConfiguration.HttpsProxy)
 			if err != nil {
 				return errors.Wrapf(errors.InvalidInput, err.Error())
