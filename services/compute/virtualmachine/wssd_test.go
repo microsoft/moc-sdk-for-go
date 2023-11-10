@@ -28,7 +28,7 @@ func Test_VirtualMachineValidations(t *testing.T) {
 	err := wssdcloudclient.virtualMachineValidations(wssdcloudproto.Operation_POST, vm)
 
 	if err != nil {
-		t.Fatalf("Test_VirtualMachineValidations failed: Error should be nil")
+		t.Fatalf("Test_VirtualMachineValidations failed: empty url test should return nil error")
 	}
 
 	// Invalid url
@@ -47,7 +47,7 @@ func Test_VirtualMachineValidations(t *testing.T) {
 	expectedErrorMsg := "Invalid proxy URL. The URL scheme should be http or https: Invalid Input"
 	assert.EqualErrorf(t, err, expectedErrorMsg, "Error should be: %v, got: %v", expectedErrorMsg, err)
 
-	//nil value
+	//nil Http and Https
 	vm = &compute.VirtualMachine{
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
 			OsProfile: &compute.OSProfile{
@@ -61,7 +61,7 @@ func Test_VirtualMachineValidations(t *testing.T) {
 
 	err = wssdcloudclient.virtualMachineValidations(wssdcloudproto.Operation_POST, vm)
 	if err != nil {
-		t.Fatalf("Test_VirtualMachineValidations failed: Error should be nil for nil value")
+		t.Fatalf("Test_VirtualMachineValidations failed: nil Http and Https test should return nil error")
 	}
 
 	// Invalid Http URI and nil Https
@@ -80,7 +80,7 @@ func Test_VirtualMachineValidations(t *testing.T) {
 	expectedErrorMsg = "parse \"https\": invalid URI for request: Invalid Input"
 	assert.EqualErrorf(t, err, expectedErrorMsg, "Error should be: %v, got: %v", expectedErrorMsg, err)
 
-	// Valid Https URI and nil Http
+	// valid Https URI and nil Http
 	httpsProxy = "http://skyproxy.ceccloud1.selfhost.corp.microsoft.com:3128"
 	vm = &compute.VirtualMachine{
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
@@ -95,6 +95,6 @@ func Test_VirtualMachineValidations(t *testing.T) {
 
 	err = wssdcloudclient.virtualMachineValidations(wssdcloudproto.Operation_POST, vm)
 	if err != nil {
-		t.Fatalf("Test_VirtualMachineValidations failed: Error should be nil")
+		t.Fatalf("Test_VirtualMachineValidations failed: valid Https URI and nil Http test should return nil error")
 	}
 }
