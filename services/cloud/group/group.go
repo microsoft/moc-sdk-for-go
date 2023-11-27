@@ -36,11 +36,18 @@ func getWssdGroup(gp *cloud.Group, location string) (*wssdcloud.Group, error) {
 
 // Conversion functions from wssdcloud to cloud
 func getGroup(gp *wssdcloud.Group) *cloud.Group {
-	str := "1234"
+	var version *string = nil
+	var locationName *string = nil
+	if gp.LocationName != "" {
+		locationName = &gp.LocationName
+	}
+	if gp.Status.Version.Number != "" {
+		version = &gp.Status.Version.Number
+	}
 	return &cloud.Group{
 		Name:     &gp.Name,
-		Location: &gp.LocationName,
-		Version:  &str,
+		Location: locationName,
+		Version:  version,
 		GroupProperties: &cloud.GroupProperties{
 			Statuses: status.GetStatuses(gp.GetStatus()),
 		},

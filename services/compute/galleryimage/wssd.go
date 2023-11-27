@@ -6,6 +6,7 @@ package galleryimage
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
@@ -42,6 +43,7 @@ func (c *client) Get(ctx context.Context, location, name string) (*[]compute.Gal
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, location, imagePath, name string, galleryimage *compute.GalleryImage) (*compute.GalleryImage, error) {
+	log.Info(galleryimage.GalleryImageProperties.Identifier.Publisher)
 	request, err := getGalleryImageRequest(wssdcloudcommon.Operation_POST, location, imagePath, name, galleryimage)
 	if err != nil {
 		return nil, err
