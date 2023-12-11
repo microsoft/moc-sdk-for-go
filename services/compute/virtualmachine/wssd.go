@@ -13,6 +13,7 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/marshal"
 	prototags "github.com/microsoft/moc/pkg/tags"
+	"github.com/microsoft/moc/pkg/validations"
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
@@ -273,6 +274,10 @@ func (c *client) getVirtualMachineRequest(opType wssdcloudproto.Operation, group
 		GroupName: group,
 	}
 	if vmss != nil {
+		err = c.virtualMachineValidations(opType, vmss)
+		if err != nil {
+			return nil, err
+		}
 		wssdvm, err = c.getWssdVirtualMachine(vmss, group)
 		if err != nil {
 			return nil, err
@@ -304,4 +309,25 @@ func getComputeTags(tags *wssdcloudproto.Tags) map[string]*string {
 
 func getWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
 	return prototags.MapToProto(tags)
+}
+
+func (c *client) virtualMachineValidations(opType wssdcloudproto.Operation, vmss *compute.VirtualMachine) error {
+	if vmss.OsProfile == nil {
+		return nil
+	}
+	if vmss.OsProfile.ProxyConfiguration != nil && opType == wssdcloudproto.Operation_POST {
+		if vmss.OsProfile.ProxyConfiguration.HttpProxy != nil && *vmss.OsProfile.ProxyConfiguration.HttpProxy != "" {
+			_, err := validations.ValidateProxyURL(*vmss.OsProfile.ProxyConfiguration.HttpProxy)
+			if err != nil {
+				return err
+			}
+		}
+		if vmss.OsProfile.ProxyConfiguration.HttpsProxy != nil && *vmss.OsProfile.ProxyConfiguration.HttpsProxy != "" {
+			_, err := validations.ValidateProxyURL(*vmss.OsProfile.ProxyConfiguration.HttpsProxy)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

@@ -139,6 +139,8 @@ type SubnetPropertiesFormat struct {
 	// Vlan
 	Vlan    *uint16  `json:"vlan,omitempty"`
 	IPPools []IPPool `json:"ippools,omitempty"`
+	// NetworkSecurityGroup - The resource reference of the subnet's applied network security group
+	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 type IPPoolType string

@@ -12,4 +12,5 @@ const (
 	CertificateValidityThreshold float64 = (30.0 / 100.0)
 	RenewalBackoff               float64 = (2.0 / 100.0)
 	OsRegistrationStatus         string  = "osRegistrationStatus"
+	OsVersion                    string  = "osVersion"
 )
