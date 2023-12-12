@@ -17,6 +17,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.3
 	github.com/spf13/viper v1.17.0
+	github.com/stretchr/testify v1.8.4
 	google.golang.org/protobuf v1.31.0
 )
 
