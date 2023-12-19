@@ -693,6 +693,8 @@ type InterfaceIPConfigurationPropertiesFormat struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
+	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 // InterfaceIPConfiguration iPConfiguration in a network interface.
@@ -897,8 +899,6 @@ type PrivateEndpoint struct {
 type InterfacePropertiesFormat struct {
 	// VirtualMachine - READ-ONLY; The reference of a virtual machine.
 	VirtualMachine *SubResource `json:"virtualMachine,omitempty"`
-	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
-	NetworkSecurityGroup *SecurityGroup `json:"networkSecurityGroup,omitempty"`
 	// PrivateEndpoint - READ-ONLY; A reference to the private endpoint to which the network interface is linked.
 	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
 	// IPConfigurations - A list of IPConfigurations of the network interface.

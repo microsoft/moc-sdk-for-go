@@ -129,6 +129,9 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 	if ipConfig.Primary != nil {
 		wssdipconfig.Primary = *ipConfig.Primary
 	}
+	if ipConfig.NetworkSecurityGroup != nil {
+		wssdipconfig.Networksecuritygroup = *ipConfig.NetworkSecurityGroup.ID
+	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
@@ -181,11 +184,12 @@ func getDns(dnssetting *network.InterfaceDNSSettings) *wssdcommonproto.Dns {
 func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *network.InterfaceIPConfiguration {
 	ipconfig := &network.InterfaceIPConfiguration{
 		InterfaceIPConfigurationPropertiesFormat: &network.InterfaceIPConfigurationPropertiesFormat{
-			PrivateIPAddress: &wssdcloudipconfig.Ipaddress,
-			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
-			Gateway:          &wssdcloudipconfig.Gateway,
-			PrefixLength:     &wssdcloudipconfig.Prefixlength,
-			Primary:          &wssdcloudipconfig.Primary,
+			PrivateIPAddress:     &wssdcloudipconfig.Ipaddress,
+			Subnet:               &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
+			Gateway:              &wssdcloudipconfig.Gateway,
+			PrefixLength:         &wssdcloudipconfig.Prefixlength,
+			Primary:              &wssdcloudipconfig.Primary,
+			NetworkSecurityGroup: &network.SubResource{ID: &wssdcloudipconfig.Networksecuritygroup},
 		},
 	}
 
