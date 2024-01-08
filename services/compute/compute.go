@@ -317,6 +317,8 @@ type VirtualMachineProperties struct {
 	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
+	// AffinitySetting
+	AffinityProfile *AffinityProfile `json:"affinityprofile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
@@ -1159,4 +1161,12 @@ type ProxyConfiguration struct {
 	NoProxy *[]string `json:"noproxy,omitempty"`
 	// Alternative CA cert to use for connecting to proxy server
 	TrustedCa *string `json:"trustedca,omitempty"`
+}
+
+// VirtualMachineAffinityProfile describes the affinity setting for a virtual machine
+type AffinityProfile struct {
+	// The affinity mode, default is 0, means no affinity setting
+	Mode uint32 `json:"mode,omitempty"`
+	// The name
+	RuleName *string `json:"rulename,omitempty"`
 }

@@ -48,6 +48,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
 	}
 
+	affinityProfile, err := c.getWssdVirtualMachineAffinityProfile(vm.AffinityProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get Affinity Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -66,6 +71,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		GroupName:  group,
 		VmType:     vmtype,
 		Tags:       getWssdTags(vm.Tags),
+		Affinity:   affinityProfile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -421,6 +427,20 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
+func (c *client) getWssdVirtualMachineAffinityProfile(s *compute.AffinityProfile) (*wssdcommon.AffinityConfiguration, error) {
+	if s == nil {
+		return nil, nil
+	}
+	if s.Mode > 1 {
+		return nil, errors.Wrapf(errors.InvalidInput, "Virtual Machine Affinity is invalid")
+	}
+
+	affinity := &wssdcommon.AffinityConfiguration{}
+	affinity.Mode = s.Mode
+	affinity.RuleName = *s.RuleName
+	return affinity, nil
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -469,6 +489,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
+			AffinityProfile:         c.getVirtualMachineAffinityProfile(vm.Affinity),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
@@ -598,6 +619,17 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 		*np.NetworkInterfaces = append(*np.NetworkInterfaces, compute.NetworkInterfaceReference{ID: &((*nic).NetworkInterfaceName)})
 	}
 	return np
+}
+
+func (c *client) getVirtualMachineAffinityProfile(a *wssdcommon.AffinityConfiguration) *compute.AffinityProfile {
+	if a == nil {
+		return nil
+	}
+	ap := &compute.AffinityProfile{
+		Mode:     a.Mode,
+		RuleName: &a.RuleName,
+	}
+	return ap
 }
 
 func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcommon.GuestAgentConfiguration) *compute.GuestAgentProfile {
