@@ -48,6 +48,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
 	}
 
+	availabilitySetProfile, err := c.getWssdAvailabilitySetReference(vm.AvailabilitySetProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -56,16 +61,17 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	}
 
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:       *vm.Name,
-		Storage:    storageConfig,
-		Hardware:   hardwareConfig,
-		Security:   securityConfig,
-		GuestAgent: guestAgentConfig,
-		Os:         osconfig,
-		Network:    networkConfig,
-		GroupName:  group,
-		VmType:     vmtype,
-		Tags:       getWssdTags(vm.Tags),
+		Name:            *vm.Name,
+		Storage:         storageConfig,
+		Hardware:        hardwareConfig,
+		Security:        securityConfig,
+		GuestAgent:      guestAgentConfig,
+		Os:              osconfig,
+		Network:         networkConfig,
+		GroupName:       group,
+		VmType:          vmtype,
+		Tags:            getWssdTags(vm.Tags),
+		AvailabilitySet: availabilitySetProfile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -421,6 +427,18 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
+func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetReference) (*wssdcloudcompute.AvailabilitySetReference, error) {
+	if s == nil {
+		return nil, nil
+	}
+
+	availabilitySet := &wssdcloudcompute.AvailabilitySetReference{
+		Name:      *s.Name,
+		GroupName: *s.GroupName,
+	}
+	return availabilitySet, nil
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -469,6 +487,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
+			AvailabilitySetProfile:  c.getAvailabilitySetReference(vm.AvailabilitySet),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
@@ -598,6 +617,17 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 		*np.NetworkInterfaces = append(*np.NetworkInterfaces, compute.NetworkInterfaceReference{ID: &((*nic).NetworkInterfaceName)})
 	}
 	return np
+}
+
+func (c *client) getAvailabilitySetReference(a *wssdcloudcompute.AvailabilitySetReference) *compute.AvailabilitySetReference {
+	if a == nil {
+		return nil
+	}
+	ap := &compute.AvailabilitySetReference{
+		Name:      &a.Name,
+		GroupName: &a.GroupName,
+	}
+	return ap
 }
 
 func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcommon.GuestAgentConfiguration) *compute.GuestAgentProfile {
