@@ -32,6 +32,10 @@ func Test_getVirtualMachineStorageProfileOsDisk(t *testing.T)    {}
 func Test_getVirtualMachineStorageProfileDataDisks(t *testing.T) {}
 func Test_getVirtualMachineNetworkProfile(t *testing.T)          {}
 func Test_getVirtualMachineOSProfile(t *testing.T)               {}
+func Test_getVirtualMachineAvailabilitySetProfile(t *testing.T) {
+	return
+}
+
 func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 	proxy := NewProxy()
 	defer proxy.Target.Close()
