@@ -7,7 +7,7 @@ require (
 	github.com/Azure/go-autorest/autorest v0.9.0
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/google/uuid v1.3.1
-	github.com/microsoft/moc v0.12.1-0.20231130182020-e04fb9ffbfd3
+	github.com/microsoft/moc v0.13.1-0.20231218211421-786409bcad4d
 	google.golang.org/grpc v1.58.3
 	k8s.io/klog v1.0.0
 )
@@ -18,6 +18,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/spf13/viper v1.17.0
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0
 )
 
