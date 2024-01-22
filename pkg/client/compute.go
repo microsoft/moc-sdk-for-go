@@ -29,6 +29,16 @@ func GetVirtualMachineClient(serverAddress *string, authorizer auth.Authorizer) 
 	return compute_pb.NewVirtualMachineAgentClient(conn), nil
 }
 
+// GetAvailabilitySet returns the virtual machine client to communicate with the wssd agent
+func GetAvailabilitySetClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.AvailabilitySetAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get VirtualMachineClient. Failed to dial: %v", err)
+	}
+
+	return compute_pb.NewAvailabilitySetAgentClient(conn), nil
+}
+
 // GetVirtualMachineScaleSetClient returns the virtual machine client to communicate with the wssd agent
 func GetVirtualMachineScaleSetClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.VirtualMachineScaleSetAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)

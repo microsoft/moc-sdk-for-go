@@ -317,8 +317,8 @@ type VirtualMachineProperties struct {
 	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
-	// AffinitySetting
-	AffinityProfile *AffinityProfile `json:"affinityprofile,omitempty"`
+	// AvailabilitySetSetting
+	AvailabilitySetProfile *CloudSubResource `json:"availabilitySetprofile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
@@ -1163,10 +1163,32 @@ type ProxyConfiguration struct {
 	TrustedCa *string `json:"trustedca,omitempty"`
 }
 
-// VirtualMachineAffinityProfile describes the affinity setting for a virtual machine
-type AffinityProfile struct {
-	// The affinity mode, default is 0, means no affinity setting
-	Mode uint32 `json:"mode,omitempty"`
-	// The name
-	RuleName *string `json:"rulename,omitempty"`
+// VirtualMachineAvailabilitySet describes the availabilitySet setting for a virtual machine
+type VirtualMachineAvailabilitySet struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	Type *string `json:"type,omitempty"`
+	// Tags - Custom resource tags
+	Tags map[string]*string `json:"tags"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+	// Statuses - Statuses
+	Statuses map[string]*string `json:"statuses"`
+	// Fault domain count
+	PlatformFaultDomainCount *int32 `json:"platformFaultDomainCount,omitempty"`
+	// VMs
+	VirtualMachines []*CloudSubResource
+}
+
+// CloudSubResource describes a resoruce reference setting for a virtual machine
+type CloudSubResource struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	GroupName *string `json:"group,omitempty"`
 }
