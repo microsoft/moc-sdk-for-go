@@ -6,11 +6,11 @@ package virtualnetwork
 import (
 	"context"
 	"fmt"
-	"github.com/microsoft/moc-sdk-for-go/services/network"
-	"github.com/microsoft/moc/pkg/errors"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
+	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
@@ -54,7 +54,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnet *n
 	vnets := getVirtualNetworksFromResponse(response, group)
 
 	if len(*vnets) == 0 {
-		return nil, fmt.Errorf("[VirtualNetwork][Create] Unexpected error: Creating a network interface returned no result")
+		return nil, fmt.Errorf("[VirtualNetwork][Create] Unexpected error: Creating a Virtual Network returned no result")
 	}
 
 	return &((*vnets)[0]), nil

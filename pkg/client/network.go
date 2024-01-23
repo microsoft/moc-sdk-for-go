@@ -20,6 +20,16 @@ func GetVirtualNetworkClient(serverAddress *string, authorizer auth.Authorizer) 
 	return network_pb.NewVirtualNetworkAgentClient(conn), nil
 }
 
+// GetLogicalNetworkClient returns the logical network client to communicate with the wssdagent
+func GetLogicalNetworkClient(serverAddress *string, authorizer auth.Authorizer) (network_pb.LogicalNetworkAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get LogicalNetworkClient. Failed to dial: %v", err)
+	}
+
+	return network_pb.NewLogicalNetworkAgentClient(conn), nil
+}
+
 // GetNetworkInterfaceClient returns the virtual network interface client to communicate with the wssd agent
 func GetNetworkInterfaceClient(serverAddress *string, authorizer auth.Authorizer) (network_pb.NetworkInterfaceAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
