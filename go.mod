@@ -7,7 +7,7 @@ require (
 	github.com/Azure/go-autorest/autorest v0.9.0
 	github.com/Azure/go-autorest/autorest/date v0.2.0
 	github.com/google/uuid v1.3.1
-	github.com/microsoft/moc v0.11.0-alpha.37
+	github.com/microsoft/moc v0.13.1
 	google.golang.org/grpc v1.58.3
 	k8s.io/klog v1.0.0
 )
@@ -25,7 +25,6 @@ replace (
 	github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
-	github.com/microsoft/moc => github.com/microsoft/moc v0.13.1-0.20240118174046-bd6b177d4ede
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
