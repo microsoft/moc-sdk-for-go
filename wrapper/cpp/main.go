@@ -149,7 +149,7 @@ func KeyvaultKeyExistCV(serverName *C.char, groupName *C.char, keyvaultName *C.c
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
 	if err != nil {
 		telemetry.EmitWrapperTelemetry("KeyvaultKeyExistCV", C.GoString(cv), err.Error(), "getKeyvaultKeyClient", C.GoString(serverName))
-		return 0
+		return -1
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutInSeconds)*time.Second)
@@ -158,10 +158,10 @@ func KeyvaultKeyExistCV(serverName *C.char, groupName *C.char, keyvaultName *C.c
 	keys, err := keyClient.Get(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName))
 	if err != nil {
 		telemetry.EmitWrapperTelemetry("KeyvaultKeyExistCV", C.GoString(cv), err.Error(), "keyClient.Get", C.GoString(serverName))
-		return 0
+		return -1
 	}
 
-	// check the length and return 1 (means key exists) if there is more than one key
+	// check the length and return 1 (means key exists) if there is at least one key
 	if keys != nil && len(*keys) > 0 {
 		return 1
 	}
