@@ -45,8 +45,8 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]compute.Availa
 	return c.getAvailabilitySetFromResponse(response, group)
 }
 
-// CreateOrUpdate
-func (c *client) CreateOrUpdate(ctx context.Context, group, name string, avset *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
+// Create
+func (c *client) Create(ctx context.Context, group, name string, avset *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
 	request, err := c.getAvailabilitySetRequest(wssdcloudcommon.Operation_POST, group, name, avset)
 	if err != nil {
 		return nil, err
