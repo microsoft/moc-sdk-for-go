@@ -48,7 +48,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
 	}
 
-	availabilitySetProfile, err := c.getWssdVirtualMachineAvailabilitySetProfile(vm.AvailabilitySetProfile)
+	availabilitySetProfile, err := c.getWssdCloudSubResource(vm.AvailabilitySetProfile)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
@@ -427,7 +427,7 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
-func (c *client) getWssdVirtualMachineAvailabilitySetProfile(s *compute.CloudSubResource) (*wssdcommon.CloudSubResource, error) {
+func (c *client) getWssdCloudSubResource(s *compute.CloudSubResource) (*wssdcommon.CloudSubResource, error) {
 	if s == nil {
 		return nil, nil
 	}
@@ -487,7 +487,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
-			AvailabilitySetProfile:  c.getVirtualMachineAvailabilitySetProfile(vm.AvailabilitySet),
+			AvailabilitySetProfile:  c.getCloudSubResource(vm.AvailabilitySet),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
@@ -619,7 +619,7 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 	return np
 }
 
-func (c *client) getVirtualMachineAvailabilitySetProfile(a *wssdcommon.CloudSubResource) *compute.CloudSubResource {
+func (c *client) getCloudSubResource(a *wssdcommon.CloudSubResource) *compute.CloudSubResource {
 	if a == nil {
 		return nil
 	}

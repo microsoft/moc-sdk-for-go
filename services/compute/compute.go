@@ -1163,8 +1163,8 @@ type ProxyConfiguration struct {
 	TrustedCa *string `json:"trustedca,omitempty"`
 }
 
-// VirtualMachineAvailabilitySet describes the availabilitySet setting for a virtual machine
-type VirtualMachineAvailabilitySet struct {
+// AvailabilitySet describes the availabilitySet setting for a virtual machine
+type AvailabilitySet struct {
 	// ID
 	ID *string `json:"ID,omitempty"`
 	// Name
