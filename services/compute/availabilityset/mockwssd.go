@@ -52,8 +52,8 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 	return nil, errors.NotFound
 }
 
-// CreateOrUpdate
-func (c *mockClient) CreateOrUpdate(ctx context.Context, group, name string, as *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
+// Create
+func (c *mockClient) Create(ctx context.Context, group, name string, as *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
 	wssdavset := getWssdAvailabilitySet(as, group)
 
 	// check if the name exists as a key in the store

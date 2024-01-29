@@ -12,7 +12,7 @@ import (
 
 type Service interface {
 	Get(context.Context, string, string) (*[]compute.AvailabilitySet, error)
-	CreateOrUpdate(ctx context.Context, group string, name string, avset *compute.AvailabilitySet) (*compute.AvailabilitySet, error)
+	Create(ctx context.Context, group string, name string, avset *compute.AvailabilitySet) (*compute.AvailabilitySet, error)
 	Delete(context.Context, string, string) error
 }
 
@@ -45,8 +45,8 @@ func (c *AvailabilitySetClient) Get(ctx context.Context, group, name string) (*[
 }
 
 // CreateOrUpdate methods invokes create or update on the client
-func (c *AvailabilitySetClient) CreateOrUpdate(ctx context.Context, group, name string, compute *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
-	return c.internal.CreateOrUpdate(ctx, group, name, compute)
+func (c *AvailabilitySetClient) Create(ctx context.Context, group, name string, compute *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
+	return c.internal.Create(ctx, group, name, compute)
 }
 
 // Delete methods invokes delete of the compute resource
