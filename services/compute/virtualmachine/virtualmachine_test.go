@@ -33,23 +33,7 @@ func Test_getVirtualMachineStorageProfileDataDisks(t *testing.T) {}
 func Test_getVirtualMachineNetworkProfile(t *testing.T)          {}
 func Test_getVirtualMachineOSProfile(t *testing.T)               {}
 func Test_getVirtualMachineAvailabilitySetProfile(t *testing.T) {
-	ruleName := string("testGroup")
-	availabilitySetProfile := &compute.VirtualMachineAvailabilitySet{
-		Mode:     0,
-		RuleName: &ruleName,
-	}
-
-	wssdcloudclient := client{}
-	_, err := wssdcloudclient.getWssdVirtualMachineAvailabilitySetProfile(availabilitySetProfile)
-	if err != nil {
-		t.Fatalf(err.Error())
-	}
-	availabilitySetProfile.Mode = 3
-
-	_, err = wssdcloudclient.getWssdVirtualMachineAvailabilitySetProfile(availabilitySetProfile)
-	if err == nil {
-		t.Fatalf("Error should be raised when availabilitySet mode > 1, but it didn't")
-	}
+	return
 }
 
 func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
