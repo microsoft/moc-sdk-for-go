@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the Apache v2.0 License.
-package virtualnetwork
+package logicalnetwork
 
 import (
 	"strings"
@@ -14,17 +14,17 @@ import (
 )
 
 // Conversion functions from network to wssdcloudnetwork
-func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcloudnetwork.VirtualNetwork, error) {
+func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.LogicalNetwork, error) {
 	if c.Name == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Virtual Network name is missing")
+		return nil, errors.Wrapf(errors.InvalidInput, "Logical Network name is missing")
 	}
-	if len(groupName) == 0 {
-		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
+	if c.Location == nil || len(*c.Location) == 0 {
+		return nil, errors.Wrapf(errors.InvalidInput, "Location is not specified")
 	}
-	wssdnetwork := &wssdcloudnetwork.VirtualNetwork{
-		Name:      *c.Name,
-		GroupName: groupName,
-		Tags:      tags.MapToProto(c.Tags),
+	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
+		Name:         *c.Name,
+		LocationName: *c.Location,
+		Tags:         tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -34,39 +34,17 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 		wssdnetwork.Status.Version.Number = *c.Version
 	}
 
-	if c.Location != nil {
-		wssdnetwork.LocationName = *c.Location
-	}
-
-	if c.VirtualNetworkPropertiesFormat != nil {
+	if c.LogicalNetworkPropertiesFormat != nil {
 		subnets, err := getWssdNetworkSubnets(c.Subnets)
 		if err != nil {
 			return nil, err
 		}
 		wssdnetwork.Subnets = subnets
 
-		if c.VirtualNetworkPropertiesFormat.MacPoolName != nil {
-			wssdnetwork.MacPoolName = *c.VirtualNetworkPropertiesFormat.MacPoolName
-		}
-
-		if c.DhcpOptions != nil && c.DhcpOptions.DNSServers != nil {
-			wssdnetwork.Dns = &wssdcommonproto.Dns{
-				Servers: *c.DhcpOptions.DNSServers,
-			}
+		if c.LogicalNetworkPropertiesFormat.MacPoolName != nil {
+			wssdnetwork.MacPoolName = *c.LogicalNetworkPropertiesFormat.MacPoolName
 		}
 	}
-
-	if c.Type == nil {
-		emptyString := ""
-		c.Type = &emptyString
-	}
-
-	networkType, err := virtualNetworkTypeFromString(*c.Type)
-	if err != nil {
-		return nil, err
-	}
-
-	wssdnetwork.Type = networkType
 
 	return wssdnetwork, nil
 }
@@ -100,20 +78,20 @@ func getWssdNetworkIPPoolInfo(ippoolinfo *network.IPPoolInfo) *wssdcommonproto.I
 	}
 	return nil
 }
-func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudnetwork.Subnet, err error) {
+func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wssdcloudnetwork.LogicalSubnet, err error) {
 	if subnets == nil {
 		return
 	}
 
 	for _, subnet := range *subnets {
-		wssdsubnet := &wssdcloudnetwork.Subnet{}
+		wssdsubnet := &wssdcloudnetwork.LogicalSubnet{}
 		if subnet.Name == nil {
-			err = errors.Wrapf(errors.InvalidInput, "Name is missing in subnet")
+			err = errors.Wrapf(errors.InvalidInput, "Subnet name is missing")
 			return
 		}
 		wssdsubnet.Name = *subnet.Name
 
-		if subnet.SubnetPropertiesFormat == nil {
+		if subnet.LogicalSubnetPropertiesFormat == nil {
 			continue
 		}
 
@@ -132,17 +110,19 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		wssdsubnet.Allocation = ipAllocationMethodSdkToProtobuf(subnet.IPAllocationMethod)
 
 		if subnet.AddressPrefix != nil {
-			wssdsubnet.Cidr = *subnet.AddressPrefix
+			wssdsubnet.AddressPrefix = *subnet.AddressPrefix
 		}
 
-		if subnet.NetworkSecurityGroup != nil {
-			wssdsubnet.NetworkSecurityGroup = *subnet.NetworkSecurityGroup.ID
-		}
-
-		//An address prefix is required if using ippools
+		// An address prefix is required if using ippools
 		if len(subnet.IPPools) > 0 && subnet.AddressPrefix == nil {
 			err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
 			return
+		}
+
+		if subnet.DhcpOptions != nil && subnet.DhcpOptions.DNSServers != nil {
+			wssdsubnet.Dns = &wssdcommonproto.Dns{
+				Servers: *subnet.DhcpOptions.DNSServers,
+			}
 		}
 
 		for _, ippool := range subnet.IPPools {
@@ -150,7 +130,7 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 			if strings.EqualFold(string(ippool.Type), string(network.VIPPOOL)) {
 				ippoolType = wssdcommonproto.IPPoolType_VIPPool
 			}
-			wssdsubnet.Ippools = append(wssdsubnet.Ippools, &wssdcommonproto.IPPool{
+			wssdsubnet.IpPools = append(wssdsubnet.IpPools, &wssdcommonproto.IPPool{
 				Name:  ippool.Name,
 				Type:  ippoolType,
 				Start: ippool.Start,
@@ -159,37 +139,14 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 			})
 		}
 
+		if subnet.Public != nil {
+			wssdsubnet.IsPublic = *subnet.Public
+		}
+
 		wssdsubnets = append(wssdsubnets, wssdsubnet)
 	}
 
 	return
-}
-
-func getWssdNetworkIpams(subnets *[]network.Subnet) []*wssdcloudnetwork.Ipam {
-	ipam := wssdcloudnetwork.Ipam{}
-	if subnets == nil {
-		return []*wssdcloudnetwork.Ipam{}
-	}
-
-	for _, subnet := range *subnets {
-		wssdsubnet := &wssdcloudnetwork.Subnet{
-			Name: *subnet.Name,
-			// TODO: implement something for IPConfigurationReferences
-		}
-
-		if subnet.AddressPrefix != nil {
-			wssdsubnet.Cidr = *subnet.AddressPrefix
-		}
-		routes, err := getWssdNetworkRoutes(subnet.RouteTable)
-		if err != nil {
-			routes = []*wssdcommonproto.Route{}
-		}
-		wssdsubnet.Routes = routes
-
-		ipam.Subnets = append(ipam.Subnets, wssdsubnet)
-	}
-
-	return []*wssdcloudnetwork.Ipam{&ipam}
 }
 
 func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*wssdcommonproto.Route, err error) {
@@ -203,7 +160,7 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 			continue
 		}
 		if route.NextHopIPAddress == nil || route.AddressPrefix == nil {
-			err = errors.Wrapf(errors.InvalidInput, "NextHopIpAddress or AddressPrefix is missing")
+			err = errors.Wrapf(errors.InvalidInput, "NextHopIpAddress or AddressPrefix is missing in Route")
 			return
 		}
 
@@ -217,45 +174,43 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 }
 
 // Conversion function from wssdcloudnetwork to network
-func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *network.VirtualNetwork {
-	stringType := virtualNetworkTypeToString(c.Type)
-	dnsservers := []string{}
-	if c.Dns != nil {
-		dnsservers = c.Dns.Servers
-	}
-	return &network.VirtualNetwork{
+func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwork {
+	return &network.LogicalNetwork{
 		Name:     &c.Name,
 		Location: &c.LocationName,
 		ID:       &c.Id,
-		Type:     &stringType,
 		Version:  &c.Status.Version.Number,
-		VirtualNetworkPropertiesFormat: &network.VirtualNetworkPropertiesFormat{
+		LogicalNetworkPropertiesFormat: &network.LogicalNetworkPropertiesFormat{
 			Subnets:     getNetworkSubnets(c.Subnets),
 			Statuses:    status.GetStatuses(c.GetStatus()),
 			MacPoolName: &c.MacPoolName,
-			DhcpOptions: &network.DhcpOptions{
-				DNSServers: &dnsservers,
-			},
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
 }
 
-func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet {
-	subnets := []network.Subnet{}
+func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network.LogicalSubnet {
+	subnets := []network.LogicalSubnet{}
 
 	for _, subnet := range wssdsubnets {
-		subnets = append(subnets, network.Subnet{
+		dnsservers := []string{}
+		if subnet.Dns != nil {
+			dnsservers = subnet.Dns.Servers
+		}
+		subnets = append(subnets, network.LogicalSubnet{
 			Name: &subnet.Name,
 			ID:   &subnet.Id,
-			SubnetPropertiesFormat: &network.SubnetPropertiesFormat{
-				AddressPrefix: &subnet.Cidr,
+			LogicalSubnetPropertiesFormat: &network.LogicalSubnetPropertiesFormat{
+				AddressPrefix: &subnet.AddressPrefix,
 				RouteTable:    getNetworkRoutetable(subnet.Routes),
 				// TODO: implement something for IPConfigurationReferences
-				IPAllocationMethod:   ipAllocationMethodProtobufToSdk(subnet.Allocation),
-				Vlan:                 getVlan(subnet.Vlan),
-				IPPools:              getIPPools(subnet.Ippools),
-				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.NetworkSecurityGroup),
+				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
+				Vlan:               getVlan(subnet.Vlan),
+				IPPools:            getIPPools(subnet.IpPools),
+				DhcpOptions: &network.DhcpOptions{
+					DNSServers: &dnsservers,
+				},
+				Public: &subnet.IsPublic,
 			},
 		})
 	}
@@ -313,33 +268,4 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcommonproto.Route) *network.Rou
 func getVlan(wssdvlan uint32) *uint16 {
 	vlan := uint16(wssdvlan)
 	return &vlan
-}
-
-func getNetworkSecurityGroup(wssdNsg string) *network.SubResource {
-	if wssdNsg == "" {
-		return nil
-	}
-
-	return &network.SubResource{
-		ID: &wssdNsg,
-	}
-}
-
-func virtualNetworkTypeToString(vnetType wssdcloudnetwork.VirtualNetworkType) string {
-	typename, ok := wssdcloudnetwork.VirtualNetworkType_name[int32(vnetType)]
-	if !ok {
-		return "Unknown"
-	}
-	return typename
-}
-
-func virtualNetworkTypeFromString(vnNetworkString string) (wssdcloudnetwork.VirtualNetworkType, error) {
-	typevalue := wssdcloudnetwork.VirtualNetworkType_ICS
-	if len(vnNetworkString) > 0 {
-		typevTmp, ok := wssdcloudnetwork.VirtualNetworkType_value[vnNetworkString]
-		if ok {
-			typevalue = wssdcloudnetwork.VirtualNetworkType(typevTmp)
-		}
-	}
-	return typevalue, nil
 }

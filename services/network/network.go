@@ -157,7 +157,7 @@ type IPPoolInfo struct {
 	Available string `json:"available,omitempty"`
 }
 
-// IPPool is assoicated with a network and represents pool of IP addresses.
+// IPPool is associated with a network and represents pool of IP addresses.
 type IPPool struct {
 	// Name
 	Name string `json:"name,omitempty"`
@@ -1041,4 +1041,71 @@ type VipPool struct {
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
 	Tags map[string]*string `json:"tags"`
+}
+
+// LogicalSubnet is associated with a Logical Network.
+type LogicalSubnetPropertiesFormat struct {
+	// CIDR for this subnet - IPv4, IPv6
+	AddressPrefix *string `json:"addressPrefix,omitempty"`
+	// AddressPrefixes - List of address prefixes for the subnet.
+	AddressPrefixes *[]string `json:"addressPrefixes,omitempty"`
+	// Routes for the subnet
+	RouteTable *RouteTable `json:"routeTable,omitempty"`
+	// IPConfiguration References
+	IPConfigurationReferences *[]IPConfigurationReference `json:"ipConfigurationReferences,omitempty"`
+	// IPAllocationMethod - The IP address allocation method. Possible values include: 'Static', 'Dynamic'
+	IPAllocationMethod IPAllocationMethod `json:"ipAllocationMethod,omitempty"`
+	// VLAN ID
+	Vlan *uint16 `json:"vlan,omitempty"`
+	// Pool of IP Addresses
+	IPPools []IPPool `json:"ippools,omitempty"`
+	// DhcpOptions - The dhcpOptions that contains an array of DNS servers available to VMs deployed in the Logical network.
+	DhcpOptions *DhcpOptions `json:"dhcpOptions,omitempty"`
+	// Public - Gets whether this is a public subnet on a virtual machine.
+	Public *bool `json:"primary,omitempty"`
+}
+
+// LogicalSubnet is a subnet in a Logical network resource.
+type LogicalSubnet struct {
+	autorest.Response `json:"-"`
+	// SubnetPropertiesFormat - Properties of the subnet.
+	*LogicalSubnetPropertiesFormat `json:"properties,omitempty"`
+	// Name - The name of the resource that is unique within a resource group. This name can be used to access the resource.
+	Name *string `json:"name,omitempty"`
+	// Etag - A unique read-only string that changes whenever the resource is updated.
+	Etag *string `json:"etag,omitempty"`
+	// ID - Resource ID.
+	ID *string `json:"id,omitempty"`
+}
+
+// LogicalNetworkPropertiesFormat properties of the Logical Network.
+type LogicalNetworkPropertiesFormat struct {
+	// AddressSpace - The AddressSpace that contains an array of IP address ranges that can be used by subnets.
+	AddressSpace *AddressSpace `json:"addressSpace,omitempty"`
+	// DhcpOptions - The dhcpOptions that contains an array of DNS servers available to VMs deployed in the Logical network.
+	DhcpOptions *DhcpOptions `json:"dhcpOptions,omitempty"`
+	// Subnets - A list of subnets in a Logical Network.
+	Subnets *[]LogicalSubnet `json:"subnets,omitempty"`
+	// MACPool name - Name of the associated MAC pool (or leave empty to use the default mac pool)
+	MacPoolName *string `json:"macPoolName,omitempty"`
+	// ProvisioningState - The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
+	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// State - State
+	Statuses map[string]*string `json:"statuses"`
+}
+
+// LogicalNetwork defines the structure of an LNET
+type LogicalNetwork struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location.
+	Location *string `json:"location,omitempty"`
+	// Tags - Custom resource tags
+	Tags map[string]*string `json:"tags"`
+	// LogicalNetworkProperties - Properties of the Logical network.
+	*LogicalNetworkPropertiesFormat `json:"properties,omitempty"`
 }
