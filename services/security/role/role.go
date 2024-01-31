@@ -168,6 +168,10 @@ func getMocProviderAction(action *security.Action) (wssdcloudcommon.ProviderAcce
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Stop, nil
 	case security.VirtualMachine_ResetAccess:
 		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Reset, nil
+	case security.VirtualMachine_PauseAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Pause, nil
+	case security.VirtualMachine_SaveAccess:
+		return wssdcloudcommon.ProviderAccessOperation_VirtualMachine_Save, nil
 	case security.Cluster_CreateAccess:
 		return wssdcloudcommon.ProviderAccessOperation_Cluster_Create, nil
 	case security.Cluster_UpdateAccess:
