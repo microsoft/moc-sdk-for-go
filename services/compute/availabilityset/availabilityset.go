@@ -19,12 +19,8 @@ func getWssdAvailabilitySet(s *compute.AvailabilitySet, group string) *wssdcloud
 
 	availabilitySet := &wssdcloudcompute.AvailabilitySet{
 		Name:                     *s.Name,
-		Id:                       *s.ID,
-		LocationName:             *s.Location,
 		GroupName:                group,
 		PlatformFaultDomainCount: *s.PlatformFaultDomainCount,
-		Tags:                     getWssdTags(s.Tags),
-		VirtualMachines:          getwssdCloudSubResources(s.VirtualMachines),
 	}
 	return availabilitySet
 }
