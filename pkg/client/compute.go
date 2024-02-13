@@ -33,7 +33,7 @@ func GetVirtualMachineClient(serverAddress *string, authorizer auth.Authorizer) 
 func GetAvailabilitySetClient(serverAddress *string, authorizer auth.Authorizer) (compute_pb.AvailabilitySetAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {
-		log.Fatalf("Unable to get VirtualMachineClient. Failed to dial: %v", err)
+		log.Fatalf("Unable to get AvailabilitySetClient. Failed to dial: %v", err)
 	}
 
 	return compute_pb.NewAvailabilitySetAgentClient(conn), nil

@@ -89,13 +89,13 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 
 // Conversion from proto to sdk
 func (c *client) getAvailabilitySetFromResponse(response *wssdcloudcompute.AvailabilitySetResponse, group string) (*[]compute.AvailabilitySet, error) {
-	vmsss := []compute.AvailabilitySet{}
+	avset := []compute.AvailabilitySet{}
 	for _, vmss := range response.GetAvailabilitySets() {
-		cvmss := getComputeAvailabilitySet(vmss)
-		vmsss = append(vmsss, *cvmss)
+		cavset := convertToWssdAvailabilitySet(vmss)
+		avset = append(avset, *cavset)
 	}
 
-	return &vmsss, nil
+	return &avset, nil
 
 }
 
@@ -109,16 +109,16 @@ func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, gro
 		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
 	}
 
-	wssdvmss := &wssdcloudcompute.AvailabilitySet{
+	avsets := &wssdcloudcompute.AvailabilitySet{
 		Name:      name,
 		GroupName: group,
 	}
 
 	if vmss != nil {
-		wssdvmss = getWssdAvailabilitySet(vmss, group)
+		avsets = convertFromWssdAvailabilitySet(vmss, group)
 	}
 
-	request.AvailabilitySets = append(request.AvailabilitySets, wssdvmss)
+	request.AvailabilitySets = append(request.AvailabilitySets, avsets)
 	return request, nil
 
 }
