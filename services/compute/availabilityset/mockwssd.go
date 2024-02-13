@@ -35,7 +35,10 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 	if name == "" {
 		ret := []compute.AvailabilitySet{}
 		for _, wssdavset := range c.avsets {
-			avset := convertToWssdAvailabilitySet(wssdavset)
+			avset, err := getWssdAvailabilitySet(wssdavset)
+			if err != nil {
+				return nil, err
+			}
 			ret = append(ret, *avset)
 		}
 		return &ret, nil
@@ -44,7 +47,10 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 	// check if the name exists as a key in the store
 	if _, ok := c.avsets[name]; ok {
 		wssdavset := c.avsets[name]
-		avset := convertToWssdAvailabilitySet(wssdavset)
+		avset, err := getWssdAvailabilitySet(wssdavset)
+		if err != nil {
+			return nil, err
+		}
 		// if it does, return the value
 		return &[]compute.AvailabilitySet{*avset}, nil
 	}
@@ -54,7 +60,10 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 
 // Create
 func (c *mockClient) Create(ctx context.Context, group, name string, as *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
-	wssdavset := convertFromWssdAvailabilitySet(as, group)
+	wssdavset, err := getRpcAvailabilitySet(as, group)
+	if err != nil {
+		return nil, err
+	}
 
 	// check if the name exists as a key in the store
 	if _, ok := c.avsets[name]; ok {

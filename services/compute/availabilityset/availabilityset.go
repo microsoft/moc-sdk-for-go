@@ -5,6 +5,7 @@ package availabilityset
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	prototags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
@@ -13,9 +14,13 @@ import (
 )
 
 // this is only used in create/update
-func convertFromWssdAvailabilitySet(s *compute.AvailabilitySet, group string) *wssdcloudcompute.AvailabilitySet {
+func getRpcAvailabilitySet(s *compute.AvailabilitySet, group string) (*wssdcloudcompute.AvailabilitySet, error) {
 	if s == nil {
-		return nil
+		return nil, errors.Wrapf(errors.InvalidInput, "Availability set object is nil")
+	}
+
+	if s.Name == nil || s.ID == nil || s.Location == nil || s.PlatformFaultDomainCount == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "AvailabilitySet object contains nil fields on Name/Id/Location/PlatformdomainCount")
 	}
 
 	availabilitySet := &wssdcloudcompute.AvailabilitySet{
@@ -23,27 +28,27 @@ func convertFromWssdAvailabilitySet(s *compute.AvailabilitySet, group string) *w
 		GroupName:                group,
 		PlatformFaultDomainCount: *s.PlatformFaultDomainCount,
 		Status:                   status.GetFromStatuses(s.Statuses),
-		VirtualMachines:          convertFromWssdSubResources(s.VirtualMachines),
-		Tags:                     convertFromWssdTags(s.Tags),
+		VirtualMachines:          getRpcSubResources(s.VirtualMachines),
+		Tags:                     getRpcWssdTags(s.Tags),
 		LocationName:             *s.Location,
 		Id:                       *s.ID,
 	}
-	return availabilitySet
+	return availabilitySet, nil
 }
 
-func convertFromWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
+func getRpcWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
 	return prototags.MapToProto(tags)
 }
 
-func convertFromWssdSubResources(resources []*compute.CloudSubResource) []*wssdcommon.CloudSubResource {
+func getRpcSubResources(resources []*compute.CloudSubResource) []*wssdcommon.CloudSubResource {
 	ret := []*wssdcommon.CloudSubResource{}
 	for _, res := range resources {
-		ret = append(ret, convertFromWssdSubResource(res))
+		ret = append(ret, getRpcSubResource(res))
 	}
 	return ret
 }
 
-func convertFromWssdSubResource(s *compute.CloudSubResource) *wssdcommon.CloudSubResource {
+func getRpcSubResource(s *compute.CloudSubResource) *wssdcommon.CloudSubResource {
 	if s == nil {
 		return nil
 	}
@@ -56,9 +61,9 @@ func convertFromWssdSubResource(s *compute.CloudSubResource) *wssdcommon.CloudSu
 }
 
 // Convert from client model (rpc) to core model (compute)
-func convertToWssdAvailabilitySet(s *wssdcloudcompute.AvailabilitySet) *compute.AvailabilitySet {
+func getWssdAvailabilitySet(s *wssdcloudcompute.AvailabilitySet) (*compute.AvailabilitySet, error) {
 	if s == nil {
-		return nil
+		return nil, errors.Wrapf(errors.InvalidInput, "Availability set object is nil")
 	}
 
 	availabilitySet := &compute.AvailabilitySet{
@@ -66,28 +71,28 @@ func convertToWssdAvailabilitySet(s *wssdcloudcompute.AvailabilitySet) *compute.
 		ID:                       &s.Id,
 		Location:                 &s.LocationName,
 		PlatformFaultDomainCount: &s.PlatformFaultDomainCount,
-		Tags:                     convertToWssdTags(s.Tags),
+		Tags:                     getWssdTags(s.Tags),
 		Version:                  &s.Status.Version.Number,
-		VirtualMachines:          convertToWssdSubResources(s.VirtualMachines),
+		VirtualMachines:          getWssdSubResources(s.VirtualMachines),
 		Statuses:                 status.GetStatuses(s.Status),
 	}
-	return availabilitySet
+	return availabilitySet, nil
 }
 
-func convertToWssdTags(tags *wssdcloudproto.Tags) map[string]*string {
+func getWssdTags(tags *wssdcloudproto.Tags) map[string]*string {
 	return prototags.ProtoToMap(tags)
 }
 
-func convertToWssdSubResources(cs []*wssdcommon.CloudSubResource) []*compute.CloudSubResource {
+func getWssdSubResources(cs []*wssdcommon.CloudSubResource) []*compute.CloudSubResource {
 	ret := []*compute.CloudSubResource{}
 	for _, wssdvm := range cs {
-		vm := convertToWssdSubResource(wssdvm)
+		vm := getWssdSubResource(wssdvm)
 		ret = append(ret, vm)
 	}
 	return ret
 }
 
-func convertToWssdSubResource(s *wssdcommon.CloudSubResource) *compute.CloudSubResource {
+func getWssdSubResource(s *wssdcommon.CloudSubResource) *compute.CloudSubResource {
 	if s == nil {
 		return nil
 	}

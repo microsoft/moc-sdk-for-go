@@ -91,7 +91,10 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 func (c *client) getAvailabilitySetFromResponse(response *wssdcloudcompute.AvailabilitySetResponse, group string) (*[]compute.AvailabilitySet, error) {
 	avset := []compute.AvailabilitySet{}
 	for _, vmss := range response.GetAvailabilitySets() {
-		cavset := convertToWssdAvailabilitySet(vmss)
+		cavset, err := getWssdAvailabilitySet(vmss)
+		if err != nil {
+			return nil, err
+		}
 		avset = append(avset, *cavset)
 	}
 
@@ -115,7 +118,11 @@ func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, gro
 	}
 
 	if vmss != nil {
-		avsets = convertFromWssdAvailabilitySet(vmss, group)
+		var err error
+		avsets, err = getRpcAvailabilitySet(vmss, group)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	request.AvailabilitySets = append(request.AvailabilitySets, avsets)
