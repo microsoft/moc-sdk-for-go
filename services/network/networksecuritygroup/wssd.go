@@ -164,6 +164,10 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 		GroupName: group,
 	}
 
+	if networkNSG.Location != nil {
+		wssdCloudNSG.LocationName = *networkNSG.Location
+	}
+
 	if networkNSG.Tags != nil {
 		wssdCloudNSG.Tags = tags.MapToProto(networkNSG.Tags)
 	}
@@ -285,8 +289,9 @@ func isValidPriority(priority uint32) bool {
 // getNetworkSecurityGroup converts the cloud network security group protobuf returned from wssdcloudagent (wssdcloudnetwork.NetworkSecurityGroup) to our internal representation of a networksecuritygroup (network.SecurityGroup)
 func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (networkNSG *network.SecurityGroup, err error) {
 	networkNSG = &network.SecurityGroup{
-		Name: &wssdNSG.Name,
-		ID:   &wssdNSG.Id,
+		Name:     &wssdNSG.Name,
+		Location: &wssdNSG.LocationName,
+		ID:       &wssdNSG.Id,
 		SecurityGroupPropertiesFormat: &network.SecurityGroupPropertiesFormat{
 			Statuses: status.GetStatuses(wssdNSG.GetStatus()),
 		},
