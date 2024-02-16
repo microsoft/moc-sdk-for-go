@@ -59,6 +59,15 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputNS
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Network Security Group Properties")
 	}
 
+	nameMap := map[string]bool{}
+	for _, item := range *inputNSG.SecurityGroupPropertiesFormat.SecurityRules {
+		_, alreadyExists := nameMap[*item.Name]
+		if alreadyExists {
+			return nil, errors.Wrapf(errors.InvalidConfiguration, "Network Security Group Rules cannot have duplicate names")
+		}
+		nameMap[name] = true
+	}
+
 	request, err := c.getNetworkSecurityGroupRequest(wssdcloudcommon.Operation_POST, group, name, inputNSG)
 	if err != nil {
 		return nil, err
@@ -90,10 +99,6 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	_, err = c.NetworkSecurityGroupAgentClient.Invoke(ctx, request)
-
-	if err != nil {
-		return err
-	}
 
 	return err
 }
@@ -159,10 +164,6 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 		GroupName: group,
 	}
 
-	if networkNSG.Location != nil {
-		wssdCloudNSG.LocationName = *networkNSG.Location
-	}
-
 	if networkNSG.Tags != nil {
 		wssdCloudNSG.Tags = tags.MapToProto(networkNSG.Tags)
 	}
@@ -212,18 +213,42 @@ func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule) (ws
 
 		if rule.SourceAddressPrefix != nil {
 			wssdCloudNSGRule.SourceAddressPrefix = *rule.SourceAddressPrefix
+		} else if rule.SourceAddressPrefixes != nil {
+			concatRule := ""
+			for _, prefix := range *rule.SourceAddressPrefixes {
+				concatRule += prefix
+			}
+			wssdCloudNSGRule.SourceAddressPrefix = concatRule
 		}
 
 		if rule.DestinationAddressPrefix != nil {
 			wssdCloudNSGRule.DestinationAddressPrefix = *rule.DestinationAddressPrefix
+		} else if rule.DestinationAddressPrefixes != nil {
+			concatRule := ""
+			for _, prefix := range *rule.DestinationAddressPrefixes {
+				concatRule += prefix
+			}
+			wssdCloudNSGRule.DestinationAddressPrefix = concatRule
 		}
 
 		if rule.SourcePortRange != nil {
 			wssdCloudNSGRule.SourcePortRange = *rule.SourcePortRange
+		} else if rule.SourcePortRanges != nil {
+			concatRule := ""
+			for _, prefix := range *rule.SourcePortRanges {
+				concatRule += prefix
+			}
+			wssdCloudNSGRule.SourcePortRange = concatRule
 		}
 
 		if rule.DestinationPortRange != nil {
 			wssdCloudNSGRule.DestinationPortRange = *rule.DestinationPortRange
+		} else if rule.DestinationPortRanges != nil {
+			concatRule := ""
+			for _, prefix := range *rule.DestinationPortRanges {
+				concatRule += prefix
+			}
+			wssdCloudNSGRule.DestinationPortRange = concatRule
 		}
 
 		if strings.EqualFold(string(rule.Access), string(network.SecurityRuleAccessAllow)) {
@@ -260,9 +285,8 @@ func isValidPriority(priority uint32) bool {
 // getNetworkSecurityGroup converts the cloud network security group protobuf returned from wssdcloudagent (wssdcloudnetwork.NetworkSecurityGroup) to our internal representation of a networksecuritygroup (network.SecurityGroup)
 func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (networkNSG *network.SecurityGroup, err error) {
 	networkNSG = &network.SecurityGroup{
-		Name:     &wssdNSG.Name,
-		Location: &wssdNSG.LocationName,
-		ID:       &wssdNSG.Id,
+		Name: &wssdNSG.Name,
+		ID:   &wssdNSG.Id,
 		SecurityGroupPropertiesFormat: &network.SecurityGroupPropertiesFormat{
 			Statuses: status.GetStatuses(wssdNSG.GetStatus()),
 		},

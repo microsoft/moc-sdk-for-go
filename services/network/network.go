@@ -16,10 +16,6 @@ const (
 	TransportProtocolTCP TransportProtocol = "Tcp"
 	// TransportProtocolUDP
 	TransportProtocolUDP TransportProtocol = "Udp"
-	// TransportProtocolICMPv4
-	TransportProtocolICMPv4 TransportProtocol = "Icmpv4"
-	// TransportProtocolICMPv6
-	TransportProtocolICMPv6 TransportProtocol = "Icmpv6"
 )
 
 // SubResource reference to another subresource.
@@ -858,8 +854,6 @@ type SecurityGroup struct {
 	Name *string `json:"name,omitempty"`
 	// Type - READ-ONLY; Resource type.
 	Type *string `json:"type,omitempty"`
-	// Location - Resource location.
-	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
 	Tags map[string]*string `json:"tags"`
 }
