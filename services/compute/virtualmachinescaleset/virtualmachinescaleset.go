@@ -111,6 +111,7 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 			customSize = &compute.VirtualMachineCustomSize{
 				CpuCount: &vm.Hardware.CustomSize.CpuCount,
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
+				GpuList:  vm.Hardware.CustomSize.GpuList,
 			}
 		}
 	}
@@ -401,6 +402,7 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 			customSize = &wssdcommon.VirtualMachineCustomSize{
 				CpuCount: *vmp.HardwareProfile.CustomSize.CpuCount,
 				MemoryMB: *vmp.HardwareProfile.CustomSize.MemoryMB,
+				GpuList:  vmp.HardwareProfile.CustomSize.GpuList,
 			}
 		}
 	}

@@ -203,8 +203,9 @@ type OSProfile struct {
 
 // VirtualMachineCustomSize Specifies cpu/memory information for custom VMSize types.
 type VirtualMachineCustomSize struct {
-	CpuCount *int32 `json:"cpucount,omitempty"`
-	MemoryMB *int32 `json:"memorymb,omitempty"`
+	CpuCount *int32        `json:"cpucount,omitempty"`
+	MemoryMB *int32        `json:"memorymb,omitempty"`
+	GpuList  []*common.Gpu `json:"gpulist,omitempty"`
 }
 
 // DynamicMemoryConfiguration Specifies the dynamic memory configuration for a VM.
