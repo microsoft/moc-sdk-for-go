@@ -19,8 +19,12 @@ func getRpcAvailabilitySet(s *compute.AvailabilitySet, group string) (*wssdcloud
 		return nil, errors.Wrapf(errors.InvalidInput, "Availability set object is nil")
 	}
 
-	if s.Name == nil || s.ID == nil || s.Location == nil || s.PlatformFaultDomainCount == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "AvailabilitySet object contains nil fields on Name/Id/Location/PlatformdomainCount")
+	if s.Name == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "AvailabilitySet object Name is empty")
+	}
+
+	if s.PlatformFaultDomainCount == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "AvailabilitySet object PlatformFaultDomainCount is empty")
 	}
 
 	availabilitySet := &wssdcloudcompute.AvailabilitySet{
@@ -30,8 +34,6 @@ func getRpcAvailabilitySet(s *compute.AvailabilitySet, group string) (*wssdcloud
 		Status:                   status.GetFromStatuses(s.Statuses),
 		VirtualMachines:          getRpcSubResources(s.VirtualMachines),
 		Tags:                     getRpcWssdTags(s.Tags),
-		LocationName:             *s.Location,
-		Id:                       *s.ID,
 	}
 	return availabilitySet, nil
 }
