@@ -177,7 +177,11 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 		if err != nil {
 			return nil, err
 		}
-		wssdCloudNSG.Networksecuritygrouprules = nsgRules
+		defaultNsgRules, err := getWssdNetworkSecurityGroupRules(networkNSG.DefaultSecurityRules)
+		if err != nil {
+			return nil, err
+		}
+		wssdCloudNSG.Networksecuritygrouprules = append(nsgRules, defaultNsgRules...)
 	}
 
 	return wssdCloudNSG, nil
