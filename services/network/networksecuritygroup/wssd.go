@@ -215,6 +215,8 @@ func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule) (ws
 			wssdCloudNSGRule.Protocol = wssdcloudcommon.Protocol_Tcp
 		} else if strings.EqualFold(string(rule.Protocol), string(network.SecurityRuleProtocolUDP)) {
 			wssdCloudNSGRule.Protocol = wssdcloudcommon.Protocol_Udp
+		} else if strings.EqualFold(string(rule.Protocol), string(network.SecurityRuleProtocolIcmp)) {
+			wssdCloudNSGRule.Protocol = wssdcloudcommon.Protocol_Icmpv4
 		} else {
 			return nil, errors.Wrapf(errors.InvalidInput, "Unknown Protocol %s specified", rule.Protocol)
 		}
@@ -278,7 +280,7 @@ func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule) (ws
 		if rule.Priority != nil && isValidPriority(*rule.Priority) {
 			wssdCloudNSGRule.Priority = uint32(*rule.Priority)
 		} else {
-			wssdCloudNSGRule.Priority = 4096 // TODO: what should be the default value?
+			wssdCloudNSGRule.Priority = 4096 // Max for Azure, which expects 100 to 4096
 		}
 
 		wssdNSGRules = append(wssdNSGRules, wssdCloudNSGRule)
@@ -287,7 +289,7 @@ func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule) (ws
 }
 
 func isValidPriority(priority uint32) bool {
-	return priority >= 100 && priority <= 4096
+	return priority >= 100 && priority <= 65500
 }
 
 // getNetworkSecurityGroup converts the cloud network security group protobuf returned from wssdcloudagent (wssdcloudnetwork.NetworkSecurityGroup) to our internal representation of a networksecuritygroup (network.SecurityGroup)

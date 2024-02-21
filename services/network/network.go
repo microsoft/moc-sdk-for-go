@@ -799,7 +799,7 @@ type SecurityRulePropertiesFormat struct {
 	DestinationPortRanges *[]string `json:"destinationPortRanges,omitempty"`
 	// Access - The network traffic is allowed or denied. Possible values include: 'SecurityRuleAccessAllow', 'SecurityRuleAccessDeny'
 	Access SecurityRuleAccess `json:"access,omitempty"`
-	// Priority - The priority of the rule. The value can be between 100 and 4096. The priority number must be unique for each rule in the collection. The lower the priority number, the higher the priority of the rule.
+	// Priority - The priority of the rule. The value can be between 100 and 65500. The priority number must be unique for each rule in the collection. The lower the priority number, the higher the priority of the rule.
 	Priority *uint32 `json:"priority,omitempty"`
 	// Direction - The direction of the rule. The direction specifies if rule will be evaluated on incoming or outgoing traffic. Possible values include: 'SecurityRuleDirectionInbound', 'SecurityRuleDirectionOutbound'
 	Direction SecurityRuleDirection `json:"direction,omitempty"`
