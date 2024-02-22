@@ -173,11 +173,11 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 	}
 
 	if networkNSG.SecurityGroupPropertiesFormat != nil {
-		nsgRules, err := getWssdNetworkSecurityGroupRules(networkNSG.SecurityRules)
+		nsgRules, err := getWssdNetworkSecurityGroupRules(networkNSG.SecurityRules, false)
 		if err != nil {
 			return nil, err
 		}
-		defaultNsgRules, err := getWssdNetworkSecurityGroupRules(networkNSG.DefaultSecurityRules)
+		defaultNsgRules, err := getWssdNetworkSecurityGroupRules(networkNSG.DefaultSecurityRules, true)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +188,7 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 }
 
 // getWssdNetworkSecurityGroupRules converts our internal representation of a networksecuritygroup rule (network.SecurityRule) to the cloud network security group rule protobuf used by wssdcloudagent (wssdnetwork.NetworkSecurityGroupRule)
-func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule) (wssdNSGRules []*wssdcloudnetwork.NetworkSecurityGroupRule, err error) {
+func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule, isDefault bool) (wssdNSGRules []*wssdcloudnetwork.NetworkSecurityGroupRule, err error) {
 	if securityRules == nil || len(*securityRules) <= 0 {
 		return
 	}
@@ -204,6 +204,7 @@ func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule) (ws
 			return nil, errors.Wrapf(errors.InvalidInput, "Network Security Rule name not specified")
 		}
 		wssdCloudNSGRule.Name = *rule.Name
+		wssdCloudNSGRule.IsDefaultRule = isDefault
 
 		if rule.Description != nil {
 			wssdCloudNSGRule.Description = *rule.Description
@@ -305,6 +306,7 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 
 	if len(wssdNSG.Networksecuritygrouprules) > 0 {
 		networkNSGRules := []network.SecurityRule{}
+		networkDefaultNSGRules := []network.SecurityRule{}
 
 		for _, rule := range wssdNSG.Networksecuritygrouprules {
 			name := rule.Name
@@ -340,7 +342,7 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 				return nil, errors.Wrapf(errors.InvalidInput, "Unknown Direction %s specified", rule.Direction)
 			}
 
-			networkNSGRules = append(networkNSGRules, network.SecurityRule{
+			securityRule := network.SecurityRule{
 				Name: &name,
 				SecurityRulePropertiesFormat: &network.SecurityRulePropertiesFormat{
 					Description:              &description,
@@ -353,9 +355,16 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 					Direction:                direction,
 					Priority:                 &priority,
 				},
-			})
+			}
+
+			if rule.IsDefaultRule {
+				networkDefaultNSGRules = append(networkDefaultNSGRules, securityRule)
+			} else {
+				networkNSGRules = append(networkNSGRules, securityRule)
+			}
 		}
 		networkNSG.SecurityGroupPropertiesFormat.SecurityRules = &networkNSGRules
+		networkNSG.SecurityGroupPropertiesFormat.DefaultSecurityRules = &networkDefaultNSGRules
 	}
 
 	return networkNSG, nil
