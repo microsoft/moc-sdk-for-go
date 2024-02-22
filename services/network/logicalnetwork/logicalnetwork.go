@@ -46,6 +46,18 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 		}
 	}
 
+	if c.Type == nil {
+		emptyString := ""
+		c.Type = &emptyString
+	}
+
+	networkType, err := logicalNetworkTypeFromString(*c.Type)
+	if err != nil {
+		return nil, err
+	}
+
+	wssdnetwork.Type = networkType
+
 	return wssdnetwork, nil
 }
 
@@ -175,10 +187,12 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 
 // Conversion function from wssdcloudnetwork to network
 func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwork {
+	stringType := logicalNetworkTypeToString(c.Type)
 	return &network.LogicalNetwork{
 		Name:     &c.Name,
 		Location: &c.LocationName,
 		ID:       &c.Id,
+		Type:     &stringType,
 		Version:  &c.Status.Version.Number,
 		LogicalNetworkPropertiesFormat: &network.LogicalNetworkPropertiesFormat{
 			Subnets:     getNetworkSubnets(c.Subnets),
@@ -268,4 +282,24 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcommonproto.Route) *network.Rou
 func getVlan(wssdvlan uint32) *uint16 {
 	vlan := uint16(wssdvlan)
 	return &vlan
+}
+
+func logicalNetworkTypeToString(lnetType wssdcommonproto.NetworkType) string {
+	typename, ok := wssdcommonproto.NetworkType_name[int32(lnetType)]
+	if !ok {
+		return "Unknown"
+	}
+	return typename
+
+}
+
+func logicalNetworkTypeFromString(lnNetworkString string) (wssdcloudnetwork.LogicalNetworkType, error) {
+	typevalue := wssdcommonproto.NetworkType_ICS
+	if len(lnNetworkString) > 0 {
+		typevTmp, ok := wssdcommonproto.NetworkType_value[lnNetworkString]
+		if ok {
+			typevalue = wssdcommonproto.NetworkType(typevTmp)
+		}
+	}
+	return typevalue, nil
 }
