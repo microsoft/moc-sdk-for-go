@@ -23,8 +23,8 @@ var a2Name = "a2"
 var a2Group = "ag2"
 var provisionoingstate = "CREATED"
 var health = "OK"
-var wssdvms = []*compute.CloudSubResource{{Name: &a1Name, GroupName: &a1Group}, {Name: &a2Name, GroupName: &a2Group}}
-var rpcvms = []*wssdcommon.CloudSubResource{{Name: a1Name, GroupName: a1Group}, {Name: a2Name, GroupName: a2Group}}
+var wssdvms = []*compute.VirtualMachineReference{{Name: &a1Name, GroupName: &a1Group}, {Name: &a2Name, GroupName: &a2Group}}
+var rpcvms = []*wssdcloudcompute.VirtualMachineReference{{Name: a1Name, GroupName: a1Group}, {Name: a2Name, GroupName: a2Group}}
 var wssdstatus = map[string]*string{
 	"ProvisionState": &provisionoingstate,
 	"HealthState":    &health,
@@ -83,23 +83,23 @@ func Test_getWssdAvailabilitySet(t *testing.T) {
 	assert.EqualValues(t, 2, len(result.VirtualMachines))
 }
 
-func Test_getRpcWssdSubResources(t *testing.T) {
+func Test_getRpcWssdVirtualMachineReference(t *testing.T) {
 	a1Name := "a1"
 	a1Group := "ag1"
 	a2Name := "a2"
 	a2Group := "ag2"
-	a := []*compute.CloudSubResource{{Name: &a1Name, GroupName: &a1Group}, {Name: &a2Name, GroupName: &a2Group}}
-	b := getRpcSubResources(a)
+	a := []*compute.VirtualMachineReference{{Name: &a1Name, GroupName: &a1Group}, {Name: &a2Name, GroupName: &a2Group}}
+	b := getRpcVirtualMachineReferences(a)
 	assert.Equal(t, 2, len(b))
 	assert.EqualValues(t, a1Name, b[0].Name)
 	assert.EqualValues(t, a1Group, b[0].GroupName)
 	assert.EqualValues(t, a2Name, b[1].Name)
 	assert.EqualValues(t, a2Group, b[1].GroupName)
 
-	b = getRpcSubResources([]*compute.CloudSubResource{})
+	b = getRpcVirtualMachineReferences([]*compute.VirtualMachineReference{})
 	assert.Equal(t, 0, len(b))
 
-	b = getRpcSubResources([]*compute.CloudSubResource{nil})
+	b = getRpcVirtualMachineReferences([]*compute.VirtualMachineReference{nil})
 	assert.Equal(t, 1, len(b))
 	assert.Nil(t, b[0])
 }

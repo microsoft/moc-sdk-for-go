@@ -96,11 +96,11 @@ func (c *VirtualMachineMockClient) attachVmToAvset(ctx context.Context, group st
 		return err
 	}
 	vmAvset := &(*avset)[0]
-	newVmCloudSubResource := &compute.CloudSubResource{
+	newVmReference := &compute.VirtualMachineReference{
 		GroupName: &group,
 		Name:      vm.Name,
 	}
-	vmAvset.VirtualMachines = append(vmAvset.VirtualMachines, newVmCloudSubResource)
+	vmAvset.VirtualMachines = append(vmAvset.VirtualMachines, newVmReference)
 	_, err = c.avsetInternal.Create(ctx, group, *vmAvset.Name, vmAvset)
 	if err != nil {
 		return err
@@ -115,7 +115,7 @@ func (c *VirtualMachineMockClient) detachVmFromAvset(ctx context.Context, group 
 	} else if err != nil {
 		return err
 	}
-	newVmSets := []*compute.CloudSubResource{}
+	newVmSets := []*compute.VirtualMachineReference{}
 	for _, vm := range vmAvset.VirtualMachines {
 		if *vm.Name != name {
 			newVmSets = append(newVmSets, vm)

@@ -318,7 +318,7 @@ type VirtualMachineProperties struct {
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// AvailabilitySetSetting
-	AvailabilitySetProfile *CloudSubResource `json:"availabilitySetprofile,omitempty"`
+	AvailabilitySetProfile *AvailabilitySetReference `json:"availabilitySetprofile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
@@ -1182,11 +1182,19 @@ type AvailabilitySet struct {
 	// Fault domain count
 	PlatformFaultDomainCount *int32 `json:"platformFaultDomainCount,omitempty"`
 	// VMs
-	VirtualMachines []*CloudSubResource
+	VirtualMachines []*VirtualMachineReference
 }
 
-// CloudSubResource describes a resoruce reference setting for a virtual machine
-type CloudSubResource struct {
+// AvailabilitySetReference describes a resoruce reference setting for an availability set
+type AvailabilitySetReference struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	GroupName *string `json:"group,omitempty"`
+}
+
+// VirtualMachineReference describes a resoruce reference setting for a virtual machine
+type VirtualMachineReference struct {
 	// Name
 	Name *string `json:"name,omitempty"`
 	// Type

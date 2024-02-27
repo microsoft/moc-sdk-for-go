@@ -48,7 +48,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
 	}
 
-	availabilitySetProfile, err := c.getWssdCloudSubResource(vm.AvailabilitySetProfile)
+	availabilitySetProfile, err := c.getWssdAvailabilitySetReference(vm.AvailabilitySetProfile)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
@@ -427,12 +427,12 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
-func (c *client) getWssdCloudSubResource(s *compute.CloudSubResource) (*wssdcommon.CloudSubResource, error) {
+func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetReference) (*wssdcloudcompute.AvailabilitySetReference, error) {
 	if s == nil {
 		return nil, nil
 	}
 
-	availabilitySet := &wssdcommon.CloudSubResource{
+	availabilitySet := &wssdcloudcompute.AvailabilitySetReference{
 		Name:      *s.Name,
 		GroupName: *s.GroupName,
 	}
@@ -487,7 +487,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
-			AvailabilitySetProfile:  c.getCloudSubResource(vm.AvailabilitySet),
+			AvailabilitySetProfile:  c.getAvailabilitySetReference(vm.AvailabilitySet),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
@@ -619,11 +619,11 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 	return np
 }
 
-func (c *client) getCloudSubResource(a *wssdcommon.CloudSubResource) *compute.CloudSubResource {
+func (c *client) getAvailabilitySetReference(a *wssdcloudcompute.AvailabilitySetReference) *compute.AvailabilitySetReference {
 	if a == nil {
 		return nil
 	}
-	ap := &compute.CloudSubResource{
+	ap := &compute.AvailabilitySetReference{
 		Name:      &a.Name,
 		GroupName: &a.GroupName,
 	}

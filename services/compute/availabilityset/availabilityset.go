@@ -10,7 +10,6 @@ import (
 	prototags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 	wssdcloudproto "github.com/microsoft/moc/rpc/common"
-	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
 // this is only used in create/update
@@ -32,7 +31,7 @@ func getRpcAvailabilitySet(s *compute.AvailabilitySet, group string) (*wssdcloud
 		GroupName:                group,
 		PlatformFaultDomainCount: *s.PlatformFaultDomainCount,
 		Status:                   status.GetFromStatuses(s.Statuses),
-		VirtualMachines:          getRpcSubResources(s.VirtualMachines),
+		VirtualMachines:          getRpcVirtualMachineReferences(s.VirtualMachines),
 		Tags:                     getRpcWssdTags(s.Tags),
 	}
 	return availabilitySet, nil
@@ -42,24 +41,24 @@ func getRpcWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
 	return prototags.MapToProto(tags)
 }
 
-func getRpcSubResources(resources []*compute.CloudSubResource) []*wssdcommon.CloudSubResource {
-	ret := []*wssdcommon.CloudSubResource{}
+func getRpcVirtualMachineReferences(resources []*compute.VirtualMachineReference) []*wssdcloudcompute.VirtualMachineReference {
+	ret := []*wssdcloudcompute.VirtualMachineReference{}
 	for _, res := range resources {
-		ret = append(ret, getRpcSubResource(res))
+		ret = append(ret, getRpcVirtualMachineReference(res))
 	}
 	return ret
 }
 
-func getRpcSubResource(s *compute.CloudSubResource) *wssdcommon.CloudSubResource {
+func getRpcVirtualMachineReference(s *compute.VirtualMachineReference) *wssdcloudcompute.VirtualMachineReference {
 	if s == nil {
 		return nil
 	}
 
-	availabilitySet := &wssdcommon.CloudSubResource{
+	vm := &wssdcloudcompute.VirtualMachineReference{
 		Name:      *s.Name,
 		GroupName: *s.GroupName,
 	}
-	return availabilitySet
+	return vm
 }
 
 // Convert from client model (rpc) to core model (compute)
@@ -75,7 +74,7 @@ func getWssdAvailabilitySet(s *wssdcloudcompute.AvailabilitySet) (*compute.Avail
 		PlatformFaultDomainCount: &s.PlatformFaultDomainCount,
 		Tags:                     getWssdTags(s.Tags),
 		Version:                  &s.Status.Version.Number,
-		VirtualMachines:          getWssdSubResources(s.VirtualMachines),
+		VirtualMachines:          getWssdVirtualMachineReferences(s.VirtualMachines),
 		Statuses:                 status.GetStatuses(s.Status),
 	}
 	return availabilitySet, nil
@@ -85,23 +84,23 @@ func getWssdTags(tags *wssdcloudproto.Tags) map[string]*string {
 	return prototags.ProtoToMap(tags)
 }
 
-func getWssdSubResources(cs []*wssdcommon.CloudSubResource) []*compute.CloudSubResource {
-	ret := []*compute.CloudSubResource{}
+func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineReference) []*compute.VirtualMachineReference {
+	ret := []*compute.VirtualMachineReference{}
 	for _, wssdvm := range cs {
-		vm := getWssdSubResource(wssdvm)
+		vm := getWssdVirtualMachineReference(wssdvm)
 		ret = append(ret, vm)
 	}
 	return ret
 }
 
-func getWssdSubResource(s *wssdcommon.CloudSubResource) *compute.CloudSubResource {
+func getWssdVirtualMachineReference(s *wssdcloudcompute.VirtualMachineReference) *compute.VirtualMachineReference {
 	if s == nil {
 		return nil
 	}
 
-	availabilitySet := &compute.CloudSubResource{
+	vm := &compute.VirtualMachineReference{
 		Name:      &s.Name,
 		GroupName: &s.GroupName,
 	}
-	return availabilitySet
+	return vm
 }
