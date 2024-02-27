@@ -89,20 +89,20 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 
 // Conversion from proto to sdk
 func (c *client) getAvailabilitySetFromResponse(response *wssdcloudcompute.AvailabilitySetResponse, group string) (*[]compute.AvailabilitySet, error) {
-	avset := []compute.AvailabilitySet{}
-	for _, vmss := range response.GetAvailabilitySets() {
-		cavset, err := getWssdAvailabilitySet(vmss)
+	avsetsRet := []compute.AvailabilitySet{}
+	for _, avset := range response.GetAvailabilitySets() {
+		cavset, err := getWssdAvailabilitySet(avset)
 		if err != nil {
 			return nil, err
 		}
-		avset = append(avset, *cavset)
+		avsetsRet = append(avsetsRet, *cavset)
 	}
 
-	return &avset, nil
+	return &avsetsRet, nil
 
 }
 
-func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, group, name string, vmss *compute.AvailabilitySet) (*wssdcloudcompute.AvailabilitySetRequest, error) {
+func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, group, name string, avset *compute.AvailabilitySet) (*wssdcloudcompute.AvailabilitySetRequest, error) {
 	request := &wssdcloudcompute.AvailabilitySetRequest{
 		OperationType:    opType,
 		AvailabilitySets: []*wssdcloudcompute.AvailabilitySet{},
@@ -112,20 +112,20 @@ func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, gro
 		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
 	}
 
-	avsets := &wssdcloudcompute.AvailabilitySet{
+	avsetRet := &wssdcloudcompute.AvailabilitySet{
 		Name:      name,
 		GroupName: group,
 	}
 
-	if vmss != nil {
+	if avset != nil {
 		var err error
-		avsets, err = getRpcAvailabilitySet(vmss, group)
+		avsetRet, err = getRpcAvailabilitySet(avset, group)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	request.AvailabilitySets = append(request.AvailabilitySets, avsets)
+	request.AvailabilitySets = append(request.AvailabilitySets, avsetRet)
 	return request, nil
 
 }

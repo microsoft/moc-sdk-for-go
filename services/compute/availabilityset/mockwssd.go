@@ -10,11 +10,10 @@ import (
 	"github.com/microsoft/moc/pkg/errors"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
-	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 )
 
 type avsetStore struct {
-	avsets map[string]*wssdcloudcompute.AvailabilitySet
+	avsets map[string]*compute.AvailabilitySet
 }
 
 type mockClient struct {
@@ -24,7 +23,7 @@ type mockClient struct {
 // newClient - creates a mockClient session with the backend wssdcloud agent
 func newAvailabilitySetMockClient(subID string, authorizer auth.Authorizer) (*mockClient, error) {
 	store := avsetStore{
-		avsets: make(map[string]*wssdcloudcompute.AvailabilitySet),
+		avsets: make(map[string]*compute.AvailabilitySet),
 	}
 	return &mockClient{store}, nil
 }
@@ -35,11 +34,7 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 	if name == "" {
 		ret := []compute.AvailabilitySet{}
 		for _, wssdavset := range c.avsets {
-			avset, err := getWssdAvailabilitySet(wssdavset)
-			if err != nil {
-				return nil, err
-			}
-			ret = append(ret, *avset)
+			ret = append(ret, *wssdavset)
 		}
 		return &ret, nil
 	}
@@ -47,12 +42,8 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 	// check if the name exists as a key in the store
 	if _, ok := c.avsets[name]; ok {
 		wssdavset := c.avsets[name]
-		avset, err := getWssdAvailabilitySet(wssdavset)
-		if err != nil {
-			return nil, err
-		}
 		// if it does, return the value
-		return &[]compute.AvailabilitySet{*avset}, nil
+		return &[]compute.AvailabilitySet{*wssdavset}, nil
 	}
 
 	return nil, errors.NotFound
@@ -60,25 +51,20 @@ func (c *mockClient) Get(ctx context.Context, group, name string) (*[]compute.Av
 
 // Create
 func (c *mockClient) Create(ctx context.Context, group, name string, as *compute.AvailabilitySet) (*compute.AvailabilitySet, error) {
-	wssdavset, err := getRpcAvailabilitySet(as, group)
-	if err != nil {
-		return nil, err
-	}
-
 	// check if the name exists as a key in the store
 	if _, ok := c.avsets[name]; ok {
 		// if it does, check that the platform fault domain count is the same
-		if c.avsets[name].PlatformFaultDomainCount != wssdavset.PlatformFaultDomainCount {
+		if c.avsets[name].PlatformFaultDomainCount != as.PlatformFaultDomainCount {
 			return nil, errors.Wrapf(errors.InvalidInput, "PlatformFaultDomainCount cannot be changed")
 		}
 
 		// if it does, update the value
-		c.avsets[name] = wssdavset
+		c.avsets[name] = as
 		return as, nil
 	}
 
 	// if it doesn't, create it
-	c.avsets[name] = wssdavset
+	c.avsets[name] = as
 	return as, nil
 }
 
