@@ -5,6 +5,7 @@ package availabilityset
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -61,7 +62,7 @@ func (c *client) Create(ctx context.Context, group, name string, avset *compute.
 	}
 
 	if len(*vmsss) == 0 {
-		return &compute.AvailabilitySet{}, nil
+		return nil, fmt.Errorf("creation of availability set failed to unknown reason")
 	}
 
 	return &(*vmsss)[0], nil
