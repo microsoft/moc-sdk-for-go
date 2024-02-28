@@ -4,6 +4,7 @@
 package constant
 
 import (
+	"sync"
 	"time"
 )
 
@@ -14,3 +15,24 @@ const (
 	OsRegistrationStatus         string  = "osRegistrationStatus"
 	OsVersion                    string  = "osVersion"
 )
+
+type ClientOpts struct {
+	NoExitOnConnFailure bool
+}
+
+var clientOptsSingleton *ClientOpts
+var once sync.Once
+
+//If GetClientOpts called before SetClientOpts, it will return a default ClientOpts
+func GetClientOpts() *ClientOpts {
+	once.Do(func() {
+		clientOptsSingleton = &ClientOpts{}
+	})
+	return clientOptsSingleton
+}
+
+func SetClientOpts(clientOpts *ClientOpts) {
+	once.Do(func() {
+		clientOptsSingleton = clientOpts
+	})
+}
