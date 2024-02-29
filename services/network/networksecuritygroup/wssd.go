@@ -59,13 +59,26 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputNS
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Network Security Group Properties")
 	}
 
-	nameMap := map[string]bool{}
-	for _, item := range *inputNSG.SecurityGroupPropertiesFormat.SecurityRules {
-		_, alreadyExists := nameMap[*item.Name]
-		if alreadyExists {
-			return nil, errors.Wrapf(errors.InvalidConfiguration, "Network Security Group Rules cannot have duplicate names")
+	if inputNSG.SecurityGroupPropertiesFormat.SecurityRules != nil {
+		nameMap := map[string]bool{}
+		for _, item := range *inputNSG.SecurityGroupPropertiesFormat.SecurityRules {
+			_, alreadyExists := nameMap[*item.Name]
+			if alreadyExists {
+				return nil, errors.Wrapf(errors.InvalidConfiguration, "Network Security Group Rules cannot have duplicate names")
+			}
+			nameMap[name] = true
 		}
-		nameMap[name] = true
+	}
+
+	if inputNSG.SecurityGroupPropertiesFormat.DefaultSecurityRules != nil {
+		nameMap := map[string]bool{}
+		for _, item := range *inputNSG.SecurityGroupPropertiesFormat.DefaultSecurityRules {
+			_, alreadyExists := nameMap[*item.Name]
+			if alreadyExists {
+				return nil, errors.Wrapf(errors.InvalidConfiguration, "Network Security Group Default Rules cannot have duplicate names")
+			}
+			nameMap[name] = true
+		}
 	}
 
 	request, err := c.getNetworkSecurityGroupRequest(wssdcloudcommon.Operation_POST, group, name, inputNSG)
