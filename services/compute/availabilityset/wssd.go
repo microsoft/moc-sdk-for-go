@@ -58,6 +58,8 @@ func (c *client) Create(ctx context.Context, group, name string, avset *compute.
 		// expect not found
 		return nil, errors.Wrapf(errors.AlreadyExists,
 			"Type[AvailabilitySet] Group[%s] Name[%s]", group, name)
+	} else if !errors.IsNotFound(err) {
+		return nil, err
 	}
 
 	response, err := c.AvailabilitySetAgentClient.Invoke(ctx, request)
