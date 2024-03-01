@@ -335,6 +335,8 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 				protocol = network.SecurityRuleProtocolTCP
 			} else if rule.Protocol == wssdcloudcommon.Protocol_Udp {
 				protocol = network.SecurityRuleProtocolUDP
+			} else if rule.Protocol == wssdcloudcommon.Protocol_Icmpv4 {
+				protocol = network.SecurityRuleProtocolIcmp
 			} else {
 				return nil, errors.Wrapf(errors.InvalidInput, "Unknown Protocol %s specified", rule.Protocol)
 			}
