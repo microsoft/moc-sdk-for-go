@@ -1061,6 +1061,8 @@ type LogicalSubnetPropertiesFormat struct {
 	DhcpOptions *DhcpOptions `json:"dhcpOptions,omitempty"`
 	// Public - Gets whether this is a public subnet on a virtual machine.
 	Public *bool `json:"primary,omitempty"`
+	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
+	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 // LogicalSubnet is a subnet in a Logical network resource.
