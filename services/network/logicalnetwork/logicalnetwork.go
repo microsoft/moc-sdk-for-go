@@ -144,7 +144,10 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wss
 		}
 
 		if subnet.NetworkSecurityGroup != nil {
-			wssdsubnet.Networksecuritygroup = *subnet.NetworkSecurityGroup.ID
+			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.NsgGroup{
+				NsgName:   *subnet.NetworkSecurityGroup.ID,
+				GroupName: *subnet.NetworkSecurityGroup.Group,
+			}
 		}
 
 		wssdsubnets = append(wssdsubnets, wssdsubnet)
@@ -214,7 +217,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network
 				DhcpOptions: &network.DhcpOptions{
 					DNSServers: &dnsservers,
 				},
-				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.Networksecuritygroup),
+				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.NetworkSecurityGroup),
 				Public:               &subnet.IsPublic,
 			},
 		})
@@ -275,12 +278,13 @@ func getVlan(wssdvlan uint32) *uint16 {
 	return &vlan
 }
 
-func getNetworkSecurityGroup(wssdNsg string) *network.SubResource {
-	if wssdNsg == "" {
+func getNetworkSecurityGroup(wssdNsg *wssdcommonproto.NsgGroup) *network.GroupSubResource {
+	if wssdNsg == nil || wssdNsg.NsgName == "" {
 		return nil
 	}
 
-	return &network.SubResource{
-		ID: &wssdNsg,
+	return &network.GroupSubResource{
+		ID:    &wssdNsg.NsgName,
+		Group: &wssdNsg.GroupName,
 	}
 }

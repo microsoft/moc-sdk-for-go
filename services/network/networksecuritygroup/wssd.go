@@ -317,6 +317,10 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 		},
 	}
 
+	if wssdNSG.Tags != nil {
+		networkNSG.Tags = tags.ProtoToMap(wssdNSG.Tags)
+	}
+
 	if len(wssdNSG.Networksecuritygrouprules) > 0 {
 		networkNSGRules := []network.SecurityRule{}
 		networkDefaultNSGRules := []network.SecurityRule{}
