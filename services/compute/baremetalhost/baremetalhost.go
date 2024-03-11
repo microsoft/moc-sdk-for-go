@@ -190,6 +190,9 @@ func (c *client) getBareMetalHostStatuses(bmh *wssdcloudcompute.BareMetalHost) m
 }
 
 func (c *client) getBareMetalHostStorageProfile(s *wssdcloudcompute.BareMetalHostStorageConfiguration) *compute.BareMetalHostStorageProfile {
+	if s == nil {
+		return nil
+	}
 	return &compute.BareMetalHostStorageProfile{
 		Disks: c.getBareMetalHostStorageProfileDisks(s.Disks),
 	}
@@ -235,6 +238,9 @@ func (c *client) getBareMetalHostSecurityProfile(bmh *wssdcloudcompute.BareMetal
 }
 
 func (c *client) getBareMetalHostNetworkProfile(n *wssdcloudcompute.BareMetalHostNetworkConfiguration) *compute.BareMetalHostNetworkProfile {
+	if n == nil {
+		return nil
+	}
 	np := &compute.BareMetalHostNetworkProfile{
 		NetworkInterfaces: &[]compute.BareMetalHostNetworkInterface{},
 	}
