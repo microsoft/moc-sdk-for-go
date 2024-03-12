@@ -135,6 +135,10 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 			wssdsubnet.Cidr = *subnet.AddressPrefix
 		}
 
+		if subnet.NetworkSecurityGroup != nil {
+			wssdsubnet.NetworkSecurityGroup = *subnet.NetworkSecurityGroup.ID
+		}
+
 		//An address prefix is required if using ippools
 		if len(subnet.IPPools) > 0 && subnet.AddressPrefix == nil {
 			err = errors.Wrapf(errors.InvalidInput, "AddressPrefix is missing")
@@ -248,9 +252,10 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 				AddressPrefix: &subnet.Cidr,
 				RouteTable:    getNetworkRoutetable(subnet.Routes),
 				// TODO: implement something for IPConfigurationReferences
-				IPAllocationMethod: ipAllocationMethodProtobufToSdk(subnet.Allocation),
-				Vlan:               getVlan(subnet.Vlan),
-				IPPools:            getIPPools(subnet.Ippools),
+				IPAllocationMethod:   ipAllocationMethodProtobufToSdk(subnet.Allocation),
+				Vlan:                 getVlan(subnet.Vlan),
+				IPPools:              getIPPools(subnet.Ippools),
+				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.NetworkSecurityGroup),
 			},
 		})
 	}
@@ -310,13 +315,22 @@ func getVlan(wssdvlan uint32) *uint16 {
 	return &vlan
 }
 
+func getNetworkSecurityGroup(wssdNsg string) *network.SubResource {
+	if wssdNsg == "" {
+		return nil
+	}
+
+	return &network.SubResource{
+		ID: &wssdNsg,
+	}
+}
+
 func virtualNetworkTypeToString(vnetType wssdcloudnetwork.VirtualNetworkType) string {
 	typename, ok := wssdcloudnetwork.VirtualNetworkType_name[int32(vnetType)]
 	if !ok {
 		return "Unknown"
 	}
 	return typename
-
 }
 
 func virtualNetworkTypeFromString(vnNetworkString string) (wssdcloudnetwork.VirtualNetworkType, error) {

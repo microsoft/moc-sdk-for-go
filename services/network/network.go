@@ -135,6 +135,8 @@ type SubnetPropertiesFormat struct {
 	// Vlan
 	Vlan    *uint16  `json:"vlan,omitempty"`
 	IPPools []IPPool `json:"ippools,omitempty"`
+	// NetworkSecurityGroup - The resource reference of the subnet's applied network security group
+	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 type IPPoolType string
@@ -687,6 +689,8 @@ type InterfaceIPConfigurationPropertiesFormat struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
+	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 // InterfaceIPConfiguration iPConfiguration in a network interface.
@@ -795,8 +799,8 @@ type SecurityRulePropertiesFormat struct {
 	DestinationPortRanges *[]string `json:"destinationPortRanges,omitempty"`
 	// Access - The network traffic is allowed or denied. Possible values include: 'SecurityRuleAccessAllow', 'SecurityRuleAccessDeny'
 	Access SecurityRuleAccess `json:"access,omitempty"`
-	// Priority - The priority of the rule. The value can be between 100 and 4096. The priority number must be unique for each rule in the collection. The lower the priority number, the higher the priority of the rule.
-	Priority *int32 `json:"priority,omitempty"`
+	// Priority - The priority of the rule. The value can be between 100 and 65500. The priority number must be unique for each rule in the collection. The lower the priority number, the higher the priority of the rule.
+	Priority *uint32 `json:"priority,omitempty"`
 	// Direction - The direction of the rule. The direction specifies if rule will be evaluated on incoming or outgoing traffic. Possible values include: 'SecurityRuleDirectionInbound', 'SecurityRuleDirectionOutbound'
 	Direction SecurityRuleDirection `json:"direction,omitempty"`
 	// ProvisioningState - The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
@@ -831,7 +835,7 @@ type SecurityGroupPropertiesFormat struct {
 	Subnets *[]Subnet `json:"subnets,omitempty"`
 	// ResourceGUID - The resource GUID property of the network security group resource.
 	ResourceGUID *string `json:"resourceGuid,omitempty"`
-	// ProvisioningState - The provisioning state of the public IP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
+	// ProvisioningState - The provisioning state of the network security group resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
@@ -850,6 +854,8 @@ type SecurityGroup struct {
 	Name *string `json:"name,omitempty"`
 	// Type - READ-ONLY; Resource type.
 	Type *string `json:"type,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
 	// Location - Resource location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
@@ -891,8 +897,6 @@ type PrivateEndpoint struct {
 type InterfacePropertiesFormat struct {
 	// VirtualMachine - READ-ONLY; The reference of a virtual machine.
 	VirtualMachine *SubResource `json:"virtualMachine,omitempty"`
-	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
-	NetworkSecurityGroup *SecurityGroup `json:"networkSecurityGroup,omitempty"`
 	// PrivateEndpoint - READ-ONLY; A reference to the private endpoint to which the network interface is linked.
 	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
 	// IPConfigurations - A list of IPConfigurations of the network interface.
