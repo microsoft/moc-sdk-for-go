@@ -17,7 +17,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 )
 
 replace (
