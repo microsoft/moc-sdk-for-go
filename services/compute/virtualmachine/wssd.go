@@ -325,6 +325,23 @@ func (c *client) getVirtualMachineOperationRequest(ctx context.Context,
 	return
 }
 
+func (c *client) getVirtualMachineCheckpointOperationRequest(ctx context.Context,
+	opType wssdcloudproto.ProviderAccessOperation,
+	group, vmname, checkpointName string) (request *wssdcloudcompute.VirtualMachineCheckpointOperationRequest, err error) {
+
+	vms, err := c.get(ctx, group, vmname)
+	if err != nil {
+		return
+	}
+
+	request = &wssdcloudcompute.VirtualMachineCheckpointOperationRequest{
+		CheckpointOperationType: opType,
+		VirtualMachines:         vms,
+		CheckpointName:          checkpointName,
+	}
+	return
+}
+
 func getComputeTags(tags *wssdcloudproto.Tags) map[string]*string {
 	return prototags.ProtoToMap(tags)
 }
@@ -352,4 +369,14 @@ func (c *client) virtualMachineValidations(opType wssdcloudproto.Operation, vmss
 		}
 	}
 	return nil
+}
+
+func (c *client) CreateCheckpoint(ctx context.Context, group, vmname, checkpointName string) (err error) {
+	request, err := c.getVirtualMachineCheckpointOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_Checkpoint_Create, group, vmname, checkpointName)
+	if err != nil {
+		return
+	}
+
+	_, err = c.VirtualMachineAgentClient.CheckpointOperate(ctx, request)
+	return
 }

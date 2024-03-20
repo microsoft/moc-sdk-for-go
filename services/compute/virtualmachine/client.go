@@ -25,6 +25,7 @@ type Service interface {
 	Pause(context.Context, string, string) error
 	Save(context.Context, string, string) error
 	RepairGuestAgent(context.Context, string, string) error
+	CreateCheckpoint(context.Context, string, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 	Validate(context.Context, string, string) error
 }
@@ -322,6 +323,10 @@ func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName str
 
 func (c *VirtualMachineClient) RepairGuestAgent(ctx context.Context, group, vmName string) (err error) {
 	return c.internal.RepairGuestAgent(ctx, group, vmName)
+}
+
+func (c *VirtualMachineClient) CreateCheckpoint(ctx context.Context, group, vmName, checkpointName string) (err error) {
+	return c.internal.CreateCheckpoint(ctx, group, vmName, checkpointName)
 }
 
 // ListIPs for specified VM
