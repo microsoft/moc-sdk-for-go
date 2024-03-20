@@ -457,13 +457,13 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 		vmtype = compute.StackedControlPlane
 	}
 	return &compute.VirtualMachine{
-		Name: &vm.Name,
-		ID:   &vm.Id,
-		Tags: getComputeTags(vm.GetTags()),
+		Name:                     &vm.Name,
+		ID:                       &vm.Id,
+		Tags:                     getComputeTags(vm.GetTags()),
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
 			ProvisioningState:       status.GetProvisioningState(vm.GetStatus().GetProvisioningStatus()),
 			ValidationStatus:        status.GetValidationStatus(vm.GetStatus()),
-			Statuses:                c.getVirtualMachineStatuses(vm),
+			// Statuses:                c.getVirtualMachineStatuses(vm),
 			StorageProfile:          c.getVirtualMachineStorageProfile(vm.Storage),
 			HardwareProfile:         c.getVirtualMachineHardwareProfile(vm),
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
@@ -475,7 +475,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
 		},
-		Version:  &vm.Status.Version.Number,
+		// Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
 	}
 }
