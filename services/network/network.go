@@ -839,8 +839,10 @@ type SecurityGroupPropertiesFormat struct {
 	DefaultSecurityRules *[]SecurityRule `json:"defaultSecurityRules,omitempty"`
 	// NetworkInterfaces - READ-ONLY; A collection of references to network interfaces.
 	NetworkInterfaces *[]Interface `json:"networkInterfaces,omitempty"`
-	// Subnets - READ-ONLY; A collection of references to subnets.
+	// Subnets - READ-ONLY; A collection of references to virtual subnets.
 	Subnets *[]Subnet `json:"subnets,omitempty"`
+	// LogicalSubnets - READ-ONLY; A collection of references to logical subnets.
+	LogicalSubnets *[]LogicalSubnet `json:"logicalSubnets,omitempty"`
 	// ResourceGUID - The resource GUID property of the network security group resource.
 	ResourceGUID *string `json:"resourceGuid,omitempty"`
 	// ProvisioningState - The provisioning state of the network security group resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.

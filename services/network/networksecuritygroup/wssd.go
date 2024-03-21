@@ -22,6 +22,11 @@ type client struct {
 	wssdcloudnetwork.NetworkSecurityGroupAgentClient
 }
 
+const (
+	VnetPrefix = "virtualnetwork/"
+	LnetPrefix = "logicalnetwork/"
+)
+
 // newClient - creates a client session with the backend wssdcloud agent
 func newNetworkSecurityGroupClient(subID string, authorizer auth.Authorizer) (*client, error) {
 	c, err := wssdcloudclient.GetNetworkSecurityGroupClient(&subID, authorizer)
@@ -195,6 +200,30 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 			return nil, err
 		}
 		wssdCloudNSG.Networksecuritygrouprules = append(nsgRules, defaultNsgRules...)
+	}
+
+	if networkNSG.Subnets != nil {
+		subnets := []string{}
+		for _, subnet := range *networkNSG.Subnets {
+			subnets = append(subnets, VnetPrefix+*subnet.Name)
+		}
+		wssdCloudNSG.SubnetRefs = subnets
+	}
+
+	if networkNSG.LogicalSubnet != nil {
+		subnets := []string{}
+		for _, subnet := range *networkNSG.Subnets {
+			subnets = append(subnets, LnetPrefix+*subnet.Name)
+		}
+		wssdCloudNSG.SubnetRefs = subnets
+	}
+
+	if networkNSG.NetworkInterfaces != nil {
+		nics := []string{}
+		for _, nic := range *networkNSG.NetworkInterfaces {
+			nics = append(nics, *nic.Name)
+		}
+		wssdCloudNSG.NicRefs = nics
 	}
 
 	return wssdCloudNSG, nil
@@ -384,6 +413,38 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 		}
 		networkNSG.SecurityGroupPropertiesFormat.SecurityRules = &networkNSGRules
 		networkNSG.SecurityGroupPropertiesFormat.DefaultSecurityRules = &networkDefaultNSGRules
+	}
+
+	if len(wssdNSG.SubnetRefs) > 0 {
+		subnets := []network.Subnet{}
+		logicalSubnets := []network.LogicalSubnet{}
+
+		for _, ref := range wssdNSG.SubnetRefs {
+			if strings.HasPrefix(ref, VnetPrefix) {
+				subnets = append(subnets, network.Subnet{
+					Name: &ref,
+				})
+			} else if strings.HasPrefix(ref, LnetPrefix) {
+				logicalSubnets = append(logicalSubnets, network.LogicalSubnet{
+					Name: &ref,
+				})
+			}
+		}
+
+		networkNSG.Subnets = &subnets
+		networkNSG.LogicalSubnet = &logicalSubnets
+	}
+
+	if len(wssdNSG.NicRefs) > 0 {
+		nics := []network.Interface{}
+
+		for _, ref := range wssdNSG.NicRefs {
+			nics = append(nics, network.Interface{
+				Name: &ref,
+			})
+		}
+
+		networkNSG.NetworkInterfaces = &nics
 	}
 
 	return networkNSG, nil
