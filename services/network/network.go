@@ -1060,7 +1060,7 @@ type LogicalSubnetPropertiesFormat struct {
 	// DhcpOptions - The dhcpOptions that contains an array of DNS servers available to VMs deployed in the Logical network.
 	DhcpOptions *DhcpOptions `json:"dhcpOptions,omitempty"`
 	// Public - Gets whether this is a public subnet on a virtual machine.
-	Public *bool `json:"primary,omitempty"`
+	Public *bool `json:"public,omitempty"`
 }
 
 // LogicalSubnet is a subnet in a Logical network resource.
