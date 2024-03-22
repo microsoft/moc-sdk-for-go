@@ -837,8 +837,8 @@ type SecurityGroupPropertiesFormat struct {
 	SecurityRules *[]SecurityRule `json:"securityRules,omitempty"`
 	// DefaultSecurityRules - The default security rules of network security group.
 	DefaultSecurityRules *[]SecurityRule `json:"defaultSecurityRules,omitempty"`
-	// NetworkInterfaces - READ-ONLY; A collection of references to network interfaces.
-	NetworkInterfaces *[]Interface `json:"networkInterfaces,omitempty"`
+	// NetworkInterfaces - READ-ONLY; A collection of references to network interface configurations.
+	IpConfigurations *[]InterfaceIPConfiguration `json:"ipConfigs,omitempty"`
 	// Subnets - READ-ONLY; A collection of references to virtual subnets.
 	Subnets *[]Subnet `json:"subnets,omitempty"`
 	// LogicalSubnets - READ-ONLY; A collection of references to logical subnets.
