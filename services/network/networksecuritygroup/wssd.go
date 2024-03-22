@@ -197,6 +197,30 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 		wssdCloudNSG.Networksecuritygrouprules = append(nsgRules, defaultNsgRules...)
 	}
 
+	if networkNSG.Subnets != nil {
+		subnets := []string{}
+		for _, subnet := range *networkNSG.Subnets {
+			subnets = append(subnets, *subnet.Name)
+		}
+		wssdCloudNSG.VnetRefs = subnets
+	}
+
+	if networkNSG.LogicalSubnets != nil {
+		subnets := []string{}
+		for _, subnet := range *networkNSG.LogicalSubnets {
+			subnets = append(subnets, *subnet.Name)
+		}
+		wssdCloudNSG.LnetRefs = subnets
+	}
+
+	if networkNSG.IpConfigurations != nil {
+		ipConfigs := []string{}
+		for _, ipConfig := range *networkNSG.IpConfigurations {
+			ipConfigs = append(ipConfigs, *ipConfig.Name)
+		}
+		wssdCloudNSG.IpRefs = ipConfigs
+	}
+
 	return wssdCloudNSG, nil
 }
 
@@ -317,6 +341,10 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 		},
 	}
 
+	if wssdNSG.Tags != nil {
+		networkNSG.Tags = tags.ProtoToMap(wssdNSG.Tags)
+	}
+
 	if len(wssdNSG.Networksecuritygrouprules) > 0 {
 		networkNSGRules := []network.SecurityRule{}
 		networkDefaultNSGRules := []network.SecurityRule{}
@@ -380,6 +408,42 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 		}
 		networkNSG.SecurityGroupPropertiesFormat.SecurityRules = &networkNSGRules
 		networkNSG.SecurityGroupPropertiesFormat.DefaultSecurityRules = &networkDefaultNSGRules
+	}
+
+	if len(wssdNSG.VnetRefs) > 0 {
+		subnets := []network.Subnet{}
+
+		for _, ref := range wssdNSG.VnetRefs {
+			subnets = append(subnets, network.Subnet{
+				Name: &ref,
+			})
+		}
+
+		networkNSG.Subnets = &subnets
+	}
+
+	if len(wssdNSG.LnetRefs) > 0 {
+		subnets := []network.LogicalSubnet{}
+
+		for _, ref := range wssdNSG.LnetRefs {
+			subnets = append(subnets, network.LogicalSubnet{
+				Name: &ref,
+			})
+		}
+
+		networkNSG.LogicalSubnets = &subnets
+	}
+
+	if len(wssdNSG.IpRefs) > 0 {
+		ipConfigs := []network.InterfaceIPConfiguration{}
+
+		for _, ref := range wssdNSG.IpRefs {
+			ipConfigs = append(ipConfigs, network.InterfaceIPConfiguration{
+				Name: &ref,
+			})
+		}
+
+		networkNSG.IpConfigurations = &ipConfigs
 	}
 
 	return networkNSG, nil
