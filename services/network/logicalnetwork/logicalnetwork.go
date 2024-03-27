@@ -143,6 +143,13 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wss
 			wssdsubnet.IsPublic = *subnet.Public
 		}
 
+		if subnet.NetworkSecurityGroup != nil {
+			wssdsubnet.NetworkSecurityGroup = &wssdcloudnetwork.NetworkSecurityGroup{
+				Name:      *subnet.NetworkSecurityGroup.ID,
+				GroupName: *subnet.NetworkSecurityGroup.Group,
+			}
+		}
+
 		wssdsubnets = append(wssdsubnets, wssdsubnet)
 	}
 
@@ -210,7 +217,8 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network
 				DhcpOptions: &network.DhcpOptions{
 					DNSServers: &dnsservers,
 				},
-				Public: &subnet.IsPublic,
+				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.NetworkSecurityGroup),
+				Public:               &subnet.IsPublic,
 			},
 		})
 	}
@@ -268,4 +276,15 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcommonproto.Route) *network.Rou
 func getVlan(wssdvlan uint32) *uint16 {
 	vlan := uint16(wssdvlan)
 	return &vlan
+}
+
+func getNetworkSecurityGroup(wssdNsg *wssdcloudnetwork.NetworkSecurityGroup) *network.GroupSubResource {
+	if wssdNsg == nil || wssdNsg.Name == "" {
+		return nil
+	}
+
+	return &network.GroupSubResource{
+		ID:    &wssdNsg.Name,
+		Group: &wssdNsg.GroupName,
+	}
 }

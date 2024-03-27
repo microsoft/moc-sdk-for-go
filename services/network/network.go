@@ -24,6 +24,14 @@ type SubResource struct {
 	ID *string `json:"id,omitempty"`
 }
 
+// GroupSubResource referes to another subresource, and the group that subresource belongs to
+type GroupSubResource struct {
+	// ID - Resource ID.
+	ID *string `json:"id,omitempty"`
+	// Group name
+	Group *string `json:"group,omitempty"`
+}
+
 // APIEntityReference the API entity reference.
 type APIEntityReference struct {
 	// ID - The ARM resource id in the form of /subscriptions/{SubscriptionId}/resourceGroups/{ResourceGroupName}/...
@@ -1061,6 +1069,8 @@ type LogicalSubnetPropertiesFormat struct {
 	DhcpOptions *DhcpOptions `json:"dhcpOptions,omitempty"`
 	// Public - Gets whether this is a public subnet on a virtual machine.
 	Public *bool `json:"primary,omitempty"`
+	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
+	NetworkSecurityGroup *GroupSubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 // LogicalSubnet is a subnet in a Logical network resource.
