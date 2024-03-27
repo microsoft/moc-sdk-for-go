@@ -144,8 +144,8 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet) (wssdsubnets []*wss
 		}
 
 		if subnet.NetworkSecurityGroup != nil {
-			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.NsgGroup{
-				NsgName:   *subnet.NetworkSecurityGroup.ID,
+			wssdsubnet.NetworkSecurityGroup = &wssdcloudnetwork.NetworkSecurityGroup{
+				Name:      *subnet.NetworkSecurityGroup.ID,
 				GroupName: *subnet.NetworkSecurityGroup.Group,
 			}
 		}
@@ -278,13 +278,13 @@ func getVlan(wssdvlan uint32) *uint16 {
 	return &vlan
 }
 
-func getNetworkSecurityGroup(wssdNsg *wssdcommonproto.NsgGroup) *network.GroupSubResource {
-	if wssdNsg == nil || wssdNsg.NsgName == "" {
+func getNetworkSecurityGroup(wssdNsg *wssdcloudnetwork.NetworkSecurityGroup) *network.GroupSubResource {
+	if wssdNsg == nil || wssdNsg.Name == "" {
 		return nil
 	}
 
 	return &network.GroupSubResource{
-		ID:    &wssdNsg.NsgName,
+		ID:    &wssdNsg.Name,
 		Group: &wssdNsg.GroupName,
 	}
 }
