@@ -9,6 +9,7 @@ import (
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	"github.com/microsoft/moc/rpc/common"
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
@@ -105,19 +106,21 @@ func (c *client) getVirtualMachineScaleSetStorageProfileDataDisk(dd *wssdcloudco
 func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.VirtualMachineScaleSetHardwareProfile, error) {
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
+	var gpuList []*common.Gpu
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
 			customSize = &compute.VirtualMachineCustomSize{
 				CpuCount: &vm.Hardware.CustomSize.CpuCount,
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
-				GpuList:  vm.Hardware.CustomSize.GpuList,
 			}
 		}
+		gpuList = vm.GetHardware().GetGpuList()
 	}
 	hardwareProfile := &compute.VirtualMachineScaleSetHardwareProfile{
 		VMSize:     sizeType,
 		CustomSize: customSize,
+		GpuList:    gpuList,
 	}
 
 	return hardwareProfile, nil
@@ -396,19 +399,21 @@ func (c *client) getWssdVirtualMachineScaleSetStorageConfigurationDataDisk(d *co
 func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcloudcompute.HardwareConfiguration, error) {
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
+	var gpuList []*wssdcommon.Gpu
 	if vmp.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vmp.HardwareProfile.VMSize)
 		if vmp.HardwareProfile.CustomSize != nil {
 			customSize = &wssdcommon.VirtualMachineCustomSize{
 				CpuCount: *vmp.HardwareProfile.CustomSize.CpuCount,
 				MemoryMB: *vmp.HardwareProfile.CustomSize.MemoryMB,
-				GpuList:  vmp.HardwareProfile.CustomSize.GpuList,
 			}
 		}
+		gpuList = vmp.HardwareProfile.GpuList
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
 		VMSize:     sizeType,
 		CustomSize: customSize,
+		GpuList:    gpuList,
 	}
 	return wssdhardware, nil
 }
