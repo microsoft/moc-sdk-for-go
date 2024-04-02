@@ -32,9 +32,9 @@ func newNetworkSecurityGroupClient(subID string, authorizer auth.Authorizer) (*c
 }
 
 // Get network security groups by name.  If name is nil, get all network security groups
-func (c *client) Get(ctx context.Context, group, name string) (*[]network.SecurityGroup, error) {
+func (c *client) Get(ctx context.Context, location, name string) (*[]network.SecurityGroup, error) {
 
-	request, err := c.getNetworkSecurityGroupRequestByName(wssdcloudcommon.Operation_GET, group, name)
+	request, err := c.getNetworkSecurityGroupRequestByName(wssdcloudcommon.Operation_GET, location, name)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Securi
 }
 
 // CreateOrUpdate creates a network security group if it does not exist, or updates an existing network security group
-func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputNSG *network.SecurityGroup) (*network.SecurityGroup, error) {
+func (c *client) CreateOrUpdate(ctx context.Context, location, name string, inputNSG *network.SecurityGroup) (*network.SecurityGroup, error) {
 
 	if inputNSG == nil || inputNSG.SecurityGroupPropertiesFormat == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Network Security Group Properties")
@@ -81,7 +81,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputNS
 		}
 	}
 
-	request, err := c.getNetworkSecurityGroupRequest(wssdcloudcommon.Operation_POST, group, name, inputNSG)
+	request, err := c.getNetworkSecurityGroupRequest(wssdcloudcommon.Operation_POST, location, name, inputNSG)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +98,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputNS
 }
 
 // Delete a network security group
-func (c *client) Delete(ctx context.Context, group, name string) error {
-	nsgs, err := c.Get(ctx, group, name)
+func (c *client) Delete(ctx context.Context, location, name string) error {
+	nsgs, err := c.Get(ctx, location, name)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Network Security Group [%s] not found", name)
 	}
 
-	request, err := c.getNetworkSecurityGroupRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*nsgs)[0])
+	request, err := c.getNetworkSecurityGroupRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*nsgs)[0])
 	if err != nil {
 		return err
 	}
@@ -116,15 +116,15 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
-func (c *client) getNetworkSecurityGroupRequestByName(opType wssdcloudcommon.Operation, group, name string) (*wssdcloudnetwork.NetworkSecurityGroupRequest, error) {
+func (c *client) getNetworkSecurityGroupRequestByName(opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.NetworkSecurityGroupRequest, error) {
 	networkNSG := network.SecurityGroup{
 		Name: &name,
 	}
-	return c.getNetworkSecurityGroupRequest(opType, group, name, &networkNSG)
+	return c.getNetworkSecurityGroupRequest(opType, location, name, &networkNSG)
 }
 
 // getNetworkSecurityGroupRequest converts our internal representation of a network security group (network.SecurityGroup) into a protobuf request (wssdcloudnetwork.NetworkSecurityGroupRequest) that can be sent to wssdcloudagent
-func (c *client) getNetworkSecurityGroupRequest(opType wssdcloudcommon.Operation, group, name string, networkNSG *network.SecurityGroup) (*wssdcloudnetwork.NetworkSecurityGroupRequest, error) {
+func (c *client) getNetworkSecurityGroupRequest(opType wssdcloudcommon.Operation, location, name string, networkNSG *network.SecurityGroup) (*wssdcloudnetwork.NetworkSecurityGroupRequest, error) {
 
 	if networkNSG == nil {
 		return nil, errors.InvalidInput
@@ -136,7 +136,7 @@ func (c *client) getNetworkSecurityGroupRequest(opType wssdcloudcommon.Operation
 	}
 	var err error
 
-	wssdCloudNSG, err := getWssdNetworkSecurityGroup(networkNSG, group)
+	wssdCloudNSG, err := getWssdNetworkSecurityGroup(networkNSG, location)
 	if err != nil {
 		return nil, err
 	}
@@ -162,10 +162,10 @@ func (c *client) getNetworkSecurityGroupsFromResponse(response *wssdcloudnetwork
 }
 
 // getWssdNetworkSecurityGroup converts our internal representation of a networksecuritygroup (network.SecurityGroup) to the cloud network security group protobuf used by wssdcloudagent (wssdnetwork.NetworkSecurityGroup)
-func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string) (wssdCloudNSG *wssdcloudnetwork.NetworkSecurityGroup, err error) {
+func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, location string) (wssdCloudNSG *wssdcloudnetwork.NetworkSecurityGroup, err error) {
 
-	if len(group) == 0 {
-		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
+	if len(location) == 0 {
+		return nil, errors.Wrapf(errors.InvalidInput, "Location not specified")
 	}
 
 	if networkNSG.Name == nil {
@@ -173,12 +173,8 @@ func getWssdNetworkSecurityGroup(networkNSG *network.SecurityGroup, group string
 	}
 
 	wssdCloudNSG = &wssdcloudnetwork.NetworkSecurityGroup{
-		Name:      *networkNSG.Name,
-		GroupName: group,
-	}
-
-	if networkNSG.Location != nil {
-		wssdCloudNSG.LocationName = *networkNSG.Location
+		Name:         *networkNSG.Name,
+		LocationName: location,
 	}
 
 	if networkNSG.Tags != nil {
