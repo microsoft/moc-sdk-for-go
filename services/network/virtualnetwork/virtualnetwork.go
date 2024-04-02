@@ -39,7 +39,7 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 	}
 
 	if c.VirtualNetworkPropertiesFormat != nil {
-		subnets, err := getWssdNetworkSubnets(c.Subnets, *c.Location)
+		subnets, err := getWssdNetworkSubnets(c.Subnets, c.Location)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +100,7 @@ func getWssdNetworkIPPoolInfo(ippoolinfo *network.IPPoolInfo) *wssdcommonproto.I
 	}
 	return nil
 }
-func getWssdNetworkSubnets(subnets *[]network.Subnet, location string) (wssdsubnets []*wssdcloudnetwork.Subnet, err error) {
+func getWssdNetworkSubnets(subnets *[]network.Subnet, location *string) (wssdsubnets []*wssdcloudnetwork.Subnet, err error) {
 	if subnets == nil {
 		return
 	}
@@ -137,8 +137,11 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet, location string) (wssdsubn
 
 		if subnet.NetworkSecurityGroup != nil {
 			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.ResourceReference{
-				Name:     *subnet.NetworkSecurityGroup.ID,
-				Location: location,
+				Name: *subnet.NetworkSecurityGroup.ID,
+			}
+
+			if location != nil {
+				wssdsubnet.NetworkSecurityGroup.Location = *location
 			}
 		}
 
