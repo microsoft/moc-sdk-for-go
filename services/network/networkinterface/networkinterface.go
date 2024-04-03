@@ -64,6 +64,10 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 		}
 	}
 
+	if c.NetworkSecurityGroup != nil {
+		vnic.NetworkSecurityGroup = getNsg(c.NetworkSecurityGroup, c.Location)
+	}
+
 	return vnic, nil
 }
 
@@ -74,6 +78,16 @@ func getWssdDNSSettings(dnssetting *wssdcommonproto.Dns) *network.InterfaceDNSSe
 	return &network.InterfaceDNSSettings{
 		DNSServers:               &dnssetting.Servers,
 		InternalDomainNameSuffix: &dnssetting.Domain,
+	}
+}
+
+func getWssdNetworkSecurityGroup(nsg *wssdcommonproto.ResourceReference) *network.SubResource {
+	if nsg == nil {
+		return nil
+	}
+
+	return &network.SubResource{
+		ID: &nsg.Name,
 	}
 }
 
@@ -129,9 +143,7 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 	if ipConfig.Primary != nil {
 		wssdipconfig.Primary = *ipConfig.Primary
 	}
-	if ipConfig.NetworkSecurityGroup != nil {
-		wssdipconfig.Networksecuritygroup = *ipConfig.NetworkSecurityGroup.ID
-	}
+
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
@@ -149,7 +161,7 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 		ipConfigs = append(ipConfigs, *(getNetworkIpConfig(wssdipconfig)))
 	}
 
-	vnetIntf := &network.Interface{
+	networkInterface := &network.Interface{
 		Name:    &c.Name,
 		ID:      &c.Id,
 		Version: &c.Status.Version.Number,
@@ -160,11 +172,12 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			Statuses:                    status.GetStatuses(c.GetStatus()),
 			EnableAcceleratedNetworking: getIovSetting(c),
 			DNSSettings:                 getWssdDNSSettings(c.Dns),
+			NetworkSecurityGroup:        getWssdNetworkSecurityGroup(c.NetworkSecurityGroup),
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
 
-	return vnetIntf, nil
+	return networkInterface, nil
 }
 
 func getDns(dnssetting *network.InterfaceDNSSettings) *wssdcommonproto.Dns {
@@ -181,15 +194,30 @@ func getDns(dnssetting *network.InterfaceDNSSettings) *wssdcommonproto.Dns {
 	return &dns
 }
 
+func getNsg(nsg *network.SubResource, location *string) *wssdcommonproto.ResourceReference {
+	if nsg == nil || nsg.ID == nil {
+		return nil
+	}
+
+	wssdNsg := wssdcommonproto.ResourceReference{
+		Name: *nsg.ID,
+	}
+
+	if location != nil {
+		wssdNsg.Location = *location
+	}
+
+	return &wssdNsg
+}
+
 func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *network.InterfaceIPConfiguration {
 	ipconfig := &network.InterfaceIPConfiguration{
 		InterfaceIPConfigurationPropertiesFormat: &network.InterfaceIPConfigurationPropertiesFormat{
-			PrivateIPAddress:     &wssdcloudipconfig.Ipaddress,
-			Subnet:               &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
-			Gateway:              &wssdcloudipconfig.Gateway,
-			PrefixLength:         &wssdcloudipconfig.Prefixlength,
-			Primary:              &wssdcloudipconfig.Primary,
-			NetworkSecurityGroup: &network.SubResource{ID: &wssdcloudipconfig.Networksecuritygroup},
+			PrivateIPAddress: &wssdcloudipconfig.Ipaddress,
+			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
+			Gateway:          &wssdcloudipconfig.Gateway,
+			PrefixLength:     &wssdcloudipconfig.Prefixlength,
+			Primary:          &wssdcloudipconfig.Primary,
 		},
 	}
 
