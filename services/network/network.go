@@ -689,8 +689,6 @@ type InterfaceIPConfigurationPropertiesFormat struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
-	// NetworkSecurityGroup - The reference of the NetworkSecurityGroup resource.
-	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 // InterfaceIPConfiguration iPConfiguration in a network interface.
@@ -921,6 +919,8 @@ type InterfacePropertiesFormat struct {
 	EnableDHCPGuard *bool `json:"enableDHCPGuard,omitempty"`
 	// EnableRouterAdvertisementGuard
 	EnableRouterAdvertisementGuard *bool `json:"enableRouterAdvertisementGuard,omitempty"`
+	// NetworkSecurityGroup - the NSG to apply to traffic on this network interface
+	NetworkSecurityGroup *SubResource `json:"networkSecurityGroup,omitempty"`
 }
 
 // VirtualNetwork defines the structure of a VNET
