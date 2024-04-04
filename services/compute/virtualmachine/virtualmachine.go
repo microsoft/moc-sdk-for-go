@@ -450,30 +450,30 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 // Conversion functions from wssdcloudcompute to compute
 
 func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group string) *compute.VirtualMachine {
-	vmtype := compute.Tenant
-	if vm.VmType == wssdcloudcompute.VMType_LOADBALANCER {
-		vmtype = compute.LoadBalancer
-	} else if vm.VmType == wssdcloudcompute.VMType_STACKEDCONTROLPLANE {
-		vmtype = compute.StackedControlPlane
-	}
+	// vmtype := compute.Tenant
+	// if vm.VmType == wssdcloudcompute.VMType_LOADBALANCER {
+	// 	vmtype = compute.LoadBalancer
+	// } else if vm.VmType == wssdcloudcompute.VMType_STACKEDCONTROLPLANE {
+	// 	vmtype = compute.StackedControlPlane
+	// }
 	return &compute.VirtualMachine{
 		Name: &vm.Name,
 		ID:   &vm.Id,
 		Tags: getComputeTags(vm.GetTags()),
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
-			ProvisioningState: status.GetProvisioningState(vm.GetStatus().GetProvisioningStatus()),
-			ValidationStatus:  status.GetValidationStatus(vm.GetStatus()),
-			// Statuses:                c.getVirtualMachineStatuses(vm),
-			StorageProfile:          c.getVirtualMachineStorageProfile(vm.Storage),
-			HardwareProfile:         c.getVirtualMachineHardwareProfile(vm),
-			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
-			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
-			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
-			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
-			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
-			VmType:                  vmtype,
-			DisableHighAvailability: &vm.DisableHighAvailability,
-			Host:                    c.getVirtualMachineHostDescription(vm),
+			//ProvisioningState: status.GetProvisioningState(vm.GetStatus().GetProvisioningStatus()),
+			//ValidationStatus:  status.GetValidationStatus(vm.GetStatus()),
+			Statuses:                c.getVirtualMachineStatuses(vm),
+			// StorageProfile:          c.getVirtualMachineStorageProfile(vm.Storage),
+			// HardwareProfile:         c.getVirtualMachineHardwareProfile(vm),
+			// SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
+			// OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
+			// NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
+			// GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
+			// GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
+			// VmType:                  vmtype,
+			// DisableHighAvailability: &vm.DisableHighAvailability,
+			// Host:                    c.getVirtualMachineHostDescription(vm),
 		},
 		// Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
