@@ -479,9 +479,9 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 		ID:   &vm.Id,
 		Tags: getComputeTags(vm.GetTags()),
 		VirtualMachineProperties: &compute.VirtualMachineProperties{
-			ProvisioningState: status.GetProvisioningState(vm.GetStatus().GetProvisioningStatus()),
-			ValidationStatus:  status.GetValidationStatus(vm.GetStatus()),
-			// Statuses:                c.getVirtualMachineStatuses(vm),
+			ProvisioningState:       status.GetProvisioningState(vm.GetStatus().GetProvisioningStatus()),
+			ValidationStatus:        status.GetValidationStatus(vm.GetStatus()),
+			Statuses:                c.getVirtualMachineStatuses(vm),
 			StorageProfile:          c.getVirtualMachineStorageProfile(vm.Storage),
 			HardwareProfile:         c.getVirtualMachineHardwareProfile(vm),
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
