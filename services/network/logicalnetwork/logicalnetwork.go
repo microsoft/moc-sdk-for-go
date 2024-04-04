@@ -144,11 +144,11 @@ func getWssdNetworkSubnets(subnets *[]network.LogicalSubnet, location string) (w
 		}
 
 		if subnet.NetworkSecurityGroup != nil {
-			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.ResourceReference{
-				Name:     *subnet.NetworkSecurityGroup.ID,
-				Location: location,
+			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.NetworkSecurityGroupReference{
+				ResourceRef: &wssdcommonproto.ResourceReference{
+					Name: *subnet.NetworkSecurityGroup.ID,
+				},
 			}
-
 		}
 
 		wssdsubnets = append(wssdsubnets, wssdsubnet)
@@ -279,12 +279,12 @@ func getVlan(wssdvlan uint32) *uint16 {
 	return &vlan
 }
 
-func getNetworkSecurityGroup(wssdNsg *wssdcommonproto.ResourceReference) *network.SubResource {
-	if wssdNsg == nil || wssdNsg.Name == "" {
+func getNetworkSecurityGroup(wssdNsg *wssdcommonproto.NetworkSecurityGroupReference) *network.SubResource {
+	if wssdNsg == nil || wssdNsg.ResourceRef == nil {
 		return nil
 	}
 
 	return &network.SubResource{
-		ID: &wssdNsg.Name,
+		ID: &wssdNsg.ResourceRef.Name,
 	}
 }

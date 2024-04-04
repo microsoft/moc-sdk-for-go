@@ -130,12 +130,10 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 		wssdipconfig.Primary = *ipConfig.Primary
 	}
 	if ipConfig.NetworkSecurityGroup != nil {
-		wssdipconfig.Networksecuritygroup = &wssdcommonproto.ResourceReference{
-			Name: *ipConfig.NetworkSecurityGroup.ID,
-		}
-
-		if location != nil {
-			wssdipconfig.Networksecuritygroup.Location = *location
+		wssdipconfig.Networksecuritygroup = &wssdcommonproto.NetworkSecurityGroupReference{
+			ResourceRef: &wssdcommonproto.ResourceReference{
+				Name: *ipConfig.NetworkSecurityGroup.ID,
+			},
 		}
 	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
@@ -199,7 +197,9 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 	}
 
 	if wssdcloudipconfig.Networksecuritygroup != nil {
-		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{ID: &wssdcloudipconfig.Networksecuritygroup.Name}
+		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{
+			ID: &wssdcloudipconfig.Networksecuritygroup.ResourceRef.Name,
+		}
 	}
 
 	ipAllocationMethodProtobufToSdk(wssdcloudipconfig, ipconfig)
