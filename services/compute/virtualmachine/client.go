@@ -28,7 +28,7 @@ type Service interface {
 	RepairGuestAgent(context.Context, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 	Validate(context.Context, string, string) error
-	DiscoverVm(context.Context) (*[]compute.VirtualMachine, error)
+	DiscoverVm(context.Context) (*[]compute.VirtualMachineDiscovery, error)
 }
 
 type VirtualMachineClient struct {
@@ -378,6 +378,6 @@ func (c *VirtualMachineClient) Validate(ctx context.Context, group, name string)
 	return c.internal.Validate(ctx, group, name)
 }
 
-func (c *VirtualMachineClient) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachine, error) {
+func (c *VirtualMachineClient) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachineDiscovery, error) {
 	return c.internal.DiscoverVm(ctx)
 }
