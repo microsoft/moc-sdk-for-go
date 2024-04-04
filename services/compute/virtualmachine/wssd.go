@@ -218,14 +218,28 @@ func (c *client) Validate(ctx context.Context, group, name string) error {
 }
 
 // Discover VMs on this cluster node
-func (c *client) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachine, error) {
+func (c *client) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachineDiscovery, error) {
 	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DISCOVERVM, "", "", nil)
 	if err != nil {
 		return nil, err
 	}
 	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
 
-	return c.getVirtualMachineFromResponse(response, ""), nil
+	vms :=  c.getVirtualMachineFromResponse(response, "")
+
+	vmdiscoverys := []compute.VirtualMachineDiscovery{}
+	for _, vm := range *vms { 
+		vmdiscovery := compute.VirtualMachineDiscovery{
+			VmId: vm.ID,
+			VmName: vm.Name,
+			PowerState: vm.VirtualMachineProperties.Statuses["PowerState"],
+		}
+
+		vmdiscoverys = append(vmdiscoverys, vmdiscovery)
+	}
+
+	return &vmdiscoverys, nil
+
 }
 
 // Private methods
