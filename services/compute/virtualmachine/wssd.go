@@ -217,6 +217,17 @@ func (c *client) Validate(ctx context.Context, group, name string) error {
 	return nil
 }
 
+// Discover VMs on this cluster node
+func (c *client) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachine, error) {
+	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DISCOVERVM, "", "", nil)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
+
+	return c.getVirtualMachineFromResponse(response, ""), nil
+}
+
 // Private methods
 func (c *client) getVirtualMachineRunCommandRequest(ctx context.Context, group, name string, request *compute.VirtualMachineRunCommandRequest) (mocRequest *wssdcloudcompute.VirtualMachineRunCommandRequest, err error) {
 	vms, err := c.get(ctx, group, name)
