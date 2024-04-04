@@ -39,7 +39,7 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 	}
 
 	if c.VirtualNetworkPropertiesFormat != nil {
-		subnets, err := getWssdNetworkSubnets(c.Subnets)
+		subnets, err := getWssdNetworkSubnets(c.Subnets, c.Location)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +100,7 @@ func getWssdNetworkIPPoolInfo(ippoolinfo *network.IPPoolInfo) *wssdcommonproto.I
 	}
 	return nil
 }
-func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudnetwork.Subnet, err error) {
+func getWssdNetworkSubnets(subnets *[]network.Subnet, location *string) (wssdsubnets []*wssdcloudnetwork.Subnet, err error) {
 	if subnets == nil {
 		return
 	}
@@ -136,7 +136,11 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet) (wssdsubnets []*wssdcloudn
 		}
 
 		if subnet.NetworkSecurityGroup != nil {
-			wssdsubnet.NetworkSecurityGroup = *subnet.NetworkSecurityGroup.ID
+			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.NetworkSecurityGroupReference{
+				ResourceRef: &wssdcommonproto.ResourceReference{
+					Name: *subnet.NetworkSecurityGroup.ID,
+				},
+			}
 		}
 
 		//An address prefix is required if using ippools
@@ -315,13 +319,13 @@ func getVlan(wssdvlan uint32) *uint16 {
 	return &vlan
 }
 
-func getNetworkSecurityGroup(wssdNsg string) *network.SubResource {
-	if wssdNsg == "" {
+func getNetworkSecurityGroup(wssdNsg *wssdcommonproto.NetworkSecurityGroupReference) *network.SubResource {
+	if wssdNsg == nil || wssdNsg.ResourceRef == nil {
 		return nil
 	}
 
 	return &network.SubResource{
-		ID: &wssdNsg,
+		ID: &wssdNsg.ResourceRef.Name,
 	}
 }
 

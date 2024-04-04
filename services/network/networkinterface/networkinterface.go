@@ -26,7 +26,7 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 
 	wssdipconfigs := []*wssdcloudnetwork.IpConfiguration{}
 	for _, ipconfig := range *c.IPConfigurations {
-		wssdipconfig, err := getWssdNetworkInterfaceIPConfig(&ipconfig)
+		wssdipconfig, err := getWssdNetworkInterfaceIPConfig(&ipconfig, c.Location)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func ipAllocationMethodSdkToProtobuf(ipConfig *network.InterfaceIPConfiguration,
 	}
 }
 
-func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration) (*wssdcloudnetwork.IpConfiguration, error) {
+func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration, location *string) (*wssdcloudnetwork.IpConfiguration, error) {
 	if ipConfig.InterfaceIPConfigurationPropertiesFormat == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Interface IPConfiguration Properties")
 	}
@@ -130,7 +130,11 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 		wssdipconfig.Primary = *ipConfig.Primary
 	}
 	if ipConfig.NetworkSecurityGroup != nil {
-		wssdipconfig.Networksecuritygroup = *ipConfig.NetworkSecurityGroup.ID
+		wssdipconfig.Networksecuritygroup = &wssdcommonproto.NetworkSecurityGroupReference{
+			ResourceRef: &wssdcommonproto.ResourceReference{
+				Name: *ipConfig.NetworkSecurityGroup.ID,
+			},
+		}
 	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
@@ -184,13 +188,18 @@ func getDns(dnssetting *network.InterfaceDNSSettings) *wssdcommonproto.Dns {
 func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *network.InterfaceIPConfiguration {
 	ipconfig := &network.InterfaceIPConfiguration{
 		InterfaceIPConfigurationPropertiesFormat: &network.InterfaceIPConfigurationPropertiesFormat{
-			PrivateIPAddress:     &wssdcloudipconfig.Ipaddress,
-			Subnet:               &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
-			Gateway:              &wssdcloudipconfig.Gateway,
-			PrefixLength:         &wssdcloudipconfig.Prefixlength,
-			Primary:              &wssdcloudipconfig.Primary,
-			NetworkSecurityGroup: &network.SubResource{ID: &wssdcloudipconfig.Networksecuritygroup},
+			PrivateIPAddress: &wssdcloudipconfig.Ipaddress,
+			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
+			Gateway:          &wssdcloudipconfig.Gateway,
+			PrefixLength:     &wssdcloudipconfig.Prefixlength,
+			Primary:          &wssdcloudipconfig.Primary,
 		},
+	}
+
+	if wssdcloudipconfig.Networksecuritygroup != nil {
+		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{
+			ID: &wssdcloudipconfig.Networksecuritygroup.ResourceRef.Name,
+		}
 	}
 
 	ipAllocationMethodProtobufToSdk(wssdcloudipconfig, ipconfig)

@@ -34,16 +34,16 @@ func NewSecurityGroupClient(cloudFQDN string, authorizer auth.Authorizer) (*Netw
 }
 
 // Get methods invokes the client Get method
-func (c *NetworkSecurityGroupAgentClient) Get(ctx context.Context, group, name string) (*[]network.SecurityGroup, error) {
-	return c.internal.Get(ctx, group, name)
+func (c *NetworkSecurityGroupAgentClient) Get(ctx context.Context, location, name string) (*[]network.SecurityGroup, error) {
+	return c.internal.Get(ctx, location, name)
 }
 
 // Ensure methods invokes create or update on the client
-func (c *NetworkSecurityGroupAgentClient) CreateOrUpdate(ctx context.Context, group, name string, nsg *network.SecurityGroup) (*network.SecurityGroup, error) {
-	return c.internal.CreateOrUpdate(ctx, group, name, nsg)
+func (c *NetworkSecurityGroupAgentClient) CreateOrUpdate(ctx context.Context, location, name string, nsg *network.SecurityGroup) (*network.SecurityGroup, error) {
+	return c.internal.CreateOrUpdate(ctx, location, name, nsg)
 }
 
 // Delete methods invokes delete of the network resource
-func (c *NetworkSecurityGroupAgentClient) Delete(ctx context.Context, group, name string) error {
-	return c.internal.Delete(ctx, group, name)
+func (c *NetworkSecurityGroupAgentClient) Delete(ctx context.Context, location, name string) error {
+	return c.internal.Delete(ctx, location, name)
 }
