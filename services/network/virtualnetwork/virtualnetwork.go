@@ -136,7 +136,7 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet, location *string) (wssdsub
 		}
 
 		if subnet.NetworkSecurityGroup != nil {
-			wssdsubnet.NetworkSecurityGroup = &wssdcommonproto.NetworkSecurityGroupReference{
+			wssdsubnet.Networksecuritygroupref = &wssdcommonproto.NetworkSecurityGroupReference{
 				ResourceRef: &wssdcommonproto.ResourceReference{
 					Name: *subnet.NetworkSecurityGroup.ID,
 				},
@@ -259,7 +259,7 @@ func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.Subnet) *[]network.Subnet
 				IPAllocationMethod:   ipAllocationMethodProtobufToSdk(subnet.Allocation),
 				Vlan:                 getVlan(subnet.Vlan),
 				IPPools:              getIPPools(subnet.Ippools),
-				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.NetworkSecurityGroup),
+				NetworkSecurityGroup: getNetworkSecurityGroup(subnet.Networksecuritygroupref),
 			},
 		})
 	}

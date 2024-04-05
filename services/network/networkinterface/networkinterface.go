@@ -130,7 +130,7 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 		wssdipconfig.Primary = *ipConfig.Primary
 	}
 	if ipConfig.NetworkSecurityGroup != nil {
-		wssdipconfig.Networksecuritygroup = &wssdcommonproto.NetworkSecurityGroupReference{
+		wssdipconfig.NetworkSecurityGroupRef = &wssdcommonproto.NetworkSecurityGroupReference{
 			ResourceRef: &wssdcommonproto.ResourceReference{
 				Name: *ipConfig.NetworkSecurityGroup.ID,
 			},
@@ -196,9 +196,9 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 		},
 	}
 
-	if wssdcloudipconfig.Networksecuritygroup != nil {
+	if wssdcloudipconfig.NetworkSecurityGroupRef != nil {
 		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{
-			ID: &wssdcloudipconfig.Networksecuritygroup.ResourceRef.Name,
+			ID: &wssdcloudipconfig.NetworkSecurityGroupRef.ResourceRef.Name,
 		}
 	}
 
