@@ -225,13 +225,13 @@ func (c *client) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachineDisco
 	}
 	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
 
-	vms :=  c.getVirtualMachineFromResponse(response, "")
+	vms := c.getVirtualMachineFromResponse(response, "")
 
 	vmdiscoverys := []compute.VirtualMachineDiscovery{}
-	for _, vm := range *vms { 
+	for _, vm := range *vms {
 		vmdiscovery := compute.VirtualMachineDiscovery{
-			VmId: vm.ID,
-			VmName: vm.Name,
+			VmId:       vm.ID,
+			VmName:     vm.Name,
 			PowerState: vm.VirtualMachineProperties.Statuses["PowerState"],
 		}
 
