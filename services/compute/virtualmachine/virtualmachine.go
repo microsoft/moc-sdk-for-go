@@ -468,12 +468,22 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 // Conversion functions from wssdcloudcompute to compute
 
 func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group string) *compute.VirtualMachine {
+	if vm == nil {
+		return &compute.VirtualMachine{}
+	}
+
 	vmtype := compute.Tenant
 	if vm.VmType == wssdcloudcompute.VMType_LOADBALANCER {
 		vmtype = compute.LoadBalancer
 	} else if vm.VmType == wssdcloudcompute.VMType_STACKEDCONTROLPLANE {
 		vmtype = compute.StackedControlPlane
 	}
+
+	version := ""
+	if vm.Status != nil && vm.Status.Version != nil {
+		version = vm.Status.Version.Number
+	}
+
 	return &compute.VirtualMachine{
 		Name: &vm.Name,
 		ID:   &vm.Id,
@@ -487,14 +497,13 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
-			AvailabilitySetProfile:  c.getAvailabilitySetReference(vm.AvailabilitySet),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
 		},
-		// Version:  &vm.Status.Version.Number,
+		Version:  &version,
 		Location: &vm.LocationName,
 	}
 }
@@ -608,6 +617,10 @@ func (c *client) getVirtualMachineHostDescription(vm *wssdcloudcompute.VirtualMa
 func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConfiguration) *compute.NetworkProfile {
 	np := &compute.NetworkProfile{
 		NetworkInterfaces: &[]compute.NetworkInterfaceReference{},
+	}
+
+	if n == nil {
+		return np
 	}
 
 	for _, nic := range n.Interfaces {
@@ -726,6 +739,10 @@ func (c *client) getInstanceViewStatus(status *wssdcommon.InstanceViewStatus) *c
 }
 
 func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemConfiguration) *compute.OSProfile {
+	if o == nil {
+		return &compute.OSProfile{}
+	}
+
 	osType := compute.Windows
 	switch o.Ostype {
 	case wssdcommon.OperatingSystemType_LINUX:
