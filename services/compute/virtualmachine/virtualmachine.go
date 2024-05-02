@@ -491,12 +491,22 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 // Conversion functions from wssdcloudcompute to compute
 
 func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group string) *compute.VirtualMachine {
+	if vm == nil {
+		return &compute.VirtualMachine{}
+	}
+
 	vmtype := compute.Tenant
 	if vm.VmType == wssdcloudcompute.VMType_LOADBALANCER {
 		vmtype = compute.LoadBalancer
 	} else if vm.VmType == wssdcloudcompute.VMType_STACKEDCONTROLPLANE {
 		vmtype = compute.StackedControlPlane
 	}
+
+	version := ""
+	if vm.Status != nil && vm.Status.Version != nil {
+		version = vm.Status.Version.Number
+	}
+
 	return &compute.VirtualMachine{
 		Name: &vm.Name,
 		ID:   &vm.Id,
@@ -517,7 +527,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
 		},
-		// Version:  &vm.Status.Version.Number,
+		Version:  &version,
 		Location: &vm.LocationName,
 	}
 }
@@ -656,6 +666,10 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 		NetworkInterfaces: &[]compute.NetworkInterfaceReference{},
 	}
 
+	if n == nil {
+		return np
+	}
+
 	for _, nic := range n.Interfaces {
 		if nic == nil {
 			continue
@@ -772,6 +786,10 @@ func (c *client) getInstanceViewStatus(status *wssdcommon.InstanceViewStatus) *c
 }
 
 func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemConfiguration) *compute.OSProfile {
+	if o == nil {
+		return &compute.OSProfile{}
+	}
+
 	osType := compute.Windows
 	switch o.Ostype {
 	case wssdcommon.OperatingSystemType_LINUX:
