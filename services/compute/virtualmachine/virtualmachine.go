@@ -171,7 +171,7 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
 	var dynMemConfig *wssdcommon.DynamicMemoryConfiguration
-	var gpuList []*wssdcommon.Gpu
+	var vmGPUs []*wssdcommon.VirtualMachineGPU
 	if vm.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vm.HardwareProfile.VMSize)
 		if vm.HardwareProfile.CustomSize != nil {
@@ -197,15 +197,15 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 				dynMemConfig.TargetMemoryBuffer = *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer
 			}
 		}
-		if vm.HardwareProfile.GpuList != nil {
-			gpuList = vm.HardwareProfile.GpuList
+		if vm.HardwareProfile.VirtualMachineGPUs != nil {
+			vmGPUs = vm.HardwareProfile.VirtualMachineGPUs
 		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
 		VMSize:                     sizeType,
 		CustomSize:                 customSize,
 		DynamicMemoryConfiguration: dynMemConfig,
-		GpuList:                    gpuList,
+		VirtualMachineGPUs:         vmGPUs,
 	}
 	return wssdhardware, nil
 }
@@ -552,7 +552,7 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
 	var dynamicMemoryConfig *compute.DynamicMemoryConfiguration
-	var gpuList []*wssdcommon.Gpu
+	var vmGPUs []*wssdcommon.VirtualMachineGPU
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -568,13 +568,13 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 				TargetMemoryBuffer: &vm.Hardware.DynamicMemoryConfiguration.TargetMemoryBuffer,
 			}
 		}
-		gpuList = vm.GetHardware().GetGpuList()
+		vmGPUs = vm.GetHardware().GetVirtualMachineGPUs()
 	}
 	return &compute.HardwareProfile{
 		VMSize:              sizeType,
 		CustomSize:          customSize,
 		DynamicMemoryConfig: dynamicMemoryConfig,
-		GpuList:             gpuList,
+		VirtualMachineGPUs:  vmGPUs,
 	}
 }
 

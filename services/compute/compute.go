@@ -222,8 +222,8 @@ type HardwareProfile struct {
 	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
 	// DynamicMemoryConfig - Specifies the dynamic memory configuration for a VM, dynamic memory will be enabled if this field is present.
 	DynamicMemoryConfig *DynamicMemoryConfiguration `json:"dynamicmemoryconfig,omitempty"`
-	// GpuList - Specifies list of GPUs for VM
-	GpuList []*common.Gpu `json:"gpulist,omitempty"`
+	// VirtualMachineGPUs - Specifies list of GPUs for VM
+	VirtualMachineGPUs []*common.VirtualMachineGPU `json:"virtualmachinegpus,omitempty"`
 }
 
 // NetworkInterfaceReferenceProperties describes a network interface reference properties.
@@ -609,8 +609,8 @@ type VirtualMachineScaleSetHardwareProfile struct {
 	VMSize VirtualMachineSizeTypes `json:"vmSize,omitempty"`
 	// CustomSize - Specifies cpu/memory information for custom VMSize types.
 	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
-	// GpuList - Specifies list of GPUs for VM
-	GpuList []*common.Gpu `json:"gpulist,omitempty"`
+	// VirtualMachineGPUs - Specifies list of GPUs for VM
+	VirtualMachineGPUs []*common.VirtualMachineGPU `json:"virtualmachinegpus,omitempty"`
 }
 
 // VirtualMachineScaleSetVMProfile describes a virtual machine scale set virtual machine profile.

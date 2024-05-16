@@ -106,7 +106,7 @@ func (c *client) getVirtualMachineScaleSetStorageProfileDataDisk(dd *wssdcloudco
 func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.VirtualMachineScaleSetHardwareProfile, error) {
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
-	var gpuList []*common.Gpu
+	var vmGPUs []*common.VirtualMachineGPU
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -115,12 +115,12 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
 			}
 		}
-		gpuList = vm.GetHardware().GetGpuList()
+		vmGPUs = vm.GetHardware().GetVirtualMachineGPUs()
 	}
 	hardwareProfile := &compute.VirtualMachineScaleSetHardwareProfile{
-		VMSize:     sizeType,
-		CustomSize: customSize,
-		GpuList:    gpuList,
+		VMSize:             sizeType,
+		CustomSize:         customSize,
+		VirtualMachineGPUs: vmGPUs,
 	}
 
 	return hardwareProfile, nil
@@ -399,7 +399,7 @@ func (c *client) getWssdVirtualMachineScaleSetStorageConfigurationDataDisk(d *co
 func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcloudcompute.HardwareConfiguration, error) {
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
-	var gpuList []*wssdcommon.Gpu
+	var vmGPUs []*wssdcommon.VirtualMachineGPU
 	if vmp.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vmp.HardwareProfile.VMSize)
 		if vmp.HardwareProfile.CustomSize != nil {
@@ -408,12 +408,12 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 				MemoryMB: *vmp.HardwareProfile.CustomSize.MemoryMB,
 			}
 		}
-		gpuList = vmp.HardwareProfile.GpuList
+		vmGPUs = vmp.HardwareProfile.VirtualMachineGPUs
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
-		VMSize:     sizeType,
-		CustomSize: customSize,
-		GpuList:    gpuList,
+		VMSize:             sizeType,
+		CustomSize:         customSize,
+		VirtualMachineGPUs: vmGPUs,
 	}
 	return wssdhardware, nil
 }
