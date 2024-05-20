@@ -201,6 +201,7 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 		VMSize:                     sizeType,
 		CustomSize:                 customSize,
 		DynamicMemoryConfiguration: dynMemConfig,
+		VirtualMachineGPUs:         vm.HardwareProfile.VirtualMachineGPUs,
 	}
 	return wssdhardware, nil
 }
