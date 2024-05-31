@@ -4,6 +4,7 @@
 package virtualmachine
 
 import (
+	"github.com/google/go-cmp/cmp"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/convert"
 	"github.com/microsoft/moc/pkg/errors"
@@ -643,12 +644,12 @@ func (c *client) getVirtualMachineGuestInstanceView(g *wssdcommon.VirtualMachine
 }
 
 func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wssdcloudcompute.WindowsConfiguration) *compute.WindowsConfiguration {
-	wc := &compute.WindowsConfiguration{
-		RDP: &compute.RDPConfiguration{},
+	if windowsConfiguration == nil || cmp.Equal(windowsConfiguration, wssdcloudcompute.WindowsConfiguration{}) {
+		return nil
 	}
 
-	if windowsConfiguration == nil {
-		return wc
+	wc := &compute.WindowsConfiguration{
+		RDP: &compute.RDPConfiguration{},
 	}
 
 	if windowsConfiguration.WinRMConfiguration != nil && len(windowsConfiguration.WinRMConfiguration.Listeners) >= 1 {
@@ -680,6 +681,10 @@ func (c *client) getVirtualMachineWindowsConfiguration(windowsConfiguration *wss
 }
 
 func (c *client) getVirtualMachineLinuxConfiguration(linuxConfiguration *wssdcloudcompute.LinuxConfiguration) *compute.LinuxConfiguration {
+	if linuxConfiguration == nil || cmp.Equal(linuxConfiguration, wssdcloudcompute.LinuxConfiguration{}) {
+		return nil
+	}
+
 	lc := &compute.LinuxConfiguration{}
 
 	if linuxConfiguration != nil {
