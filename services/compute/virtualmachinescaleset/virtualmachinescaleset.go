@@ -9,7 +9,6 @@ import (
 	"github.com/microsoft/moc/pkg/status"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
-	"github.com/microsoft/moc/rpc/common"
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 )
 
@@ -106,7 +105,7 @@ func (c *client) getVirtualMachineScaleSetStorageProfileDataDisk(dd *wssdcloudco
 func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.VirtualMachineScaleSetHardwareProfile, error) {
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
-	var vmGPUs []*common.VirtualMachineGPU
+	var vmGPUs []*compute.VirtualMachineGPU
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -115,7 +114,27 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
 			}
 		}
-		vmGPUs = vm.GetHardware().GetVirtualMachineGPUs()
+		if vm.Hardware.VirtualMachineGPUs != nil {
+			for _, commonVMGPU := range vm.Hardware.VirtualMachineGPUs {
+				var assignment compute.Assignment
+				switch commonVMGPU.Assignment {
+				case wssdcommon.AssignmentType_GpuDDA:
+					assignment = compute.GpuDDA
+				case wssdcommon.AssignmentType_GpuP:
+					assignment = compute.GpuP
+				case wssdcommon.AssignmentType_GpuPV:
+					assignment = compute.GpuPV
+				case wssdcommon.AssignmentType_GpuDefault:
+					assignment = compute.GpuDefault
+				}
+				vmGPU := &compute.VirtualMachineGPU{
+					Assignment:      &assignment,
+					PartitionSizeMB: &commonVMGPU.PartitionSizeMB,
+					Name:            &commonVMGPU.Name,
+				}
+				vmGPUs = append(vmGPUs, vmGPU)
+			}
+		}
 	}
 	hardwareProfile := &compute.VirtualMachineScaleSetHardwareProfile{
 		VMSize:             sizeType,
@@ -408,7 +427,27 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 				MemoryMB: *vmp.HardwareProfile.CustomSize.MemoryMB,
 			}
 		}
-		vmGPUs = vmp.HardwareProfile.VirtualMachineGPUs
+		if vmp.HardwareProfile.VirtualMachineGPUs != nil {
+			for _, gpu := range vmp.HardwareProfile.VirtualMachineGPUs {
+				var assignment wssdcommon.AssignmentType
+				switch *gpu.Assignment {
+				case compute.GpuDDA:
+					assignment = wssdcommon.AssignmentType_GpuDDA
+				case compute.GpuP:
+					assignment = wssdcommon.AssignmentType_GpuP
+				case compute.GpuPV:
+					assignment = wssdcommon.AssignmentType_GpuPV
+				case compute.GpuDefault:
+					assignment = wssdcommon.AssignmentType_GpuDefault
+				}
+				vmGPU := &wssdcommon.VirtualMachineGPU{
+					Assignment:      assignment,
+					PartitionSizeMB: *gpu.PartitionSizeMB,
+					Name:            *gpu.Name,
+				}
+				vmGPUs = append(vmGPUs, vmGPU)
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
 		VMSize:             sizeType,
