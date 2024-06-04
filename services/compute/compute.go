@@ -217,13 +217,28 @@ type DynamicMemoryConfiguration struct {
 	TargetMemoryBuffer *uint32 `json:"targetmemorybuffer,omitempty"`
 }
 
+type Assignment string
+
+// possible values of gpu assignment
+const (
+	GpuDDA     Assignment = "GpuDDA"
+	GpuP       Assignment = "GpuP"
+	GpuPV      Assignment = "GpuPV"
+	GpuDefault Assignment = "GpuDefault"
+)
+
+type VirtualMachineGPU struct {
+	Assignment      *Assignment `json:"assignment,omitempty"`
+	PartitionSizeMB *uint64     `json:"partitionSizeMB,omitempty"`
+	Name            *string     `json:"name,omitempty"`
+}
+
 type HardwareProfile struct {
-	VMSize     VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
-	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
+	VMSize             VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
+	VirtualMachineGPUs []*VirtualMachineGPU      `json:"virtualMachineGPUs,omitempty"`
+	CustomSize         *VirtualMachineCustomSize `json:"customsize,omitempty"`
 	// DynamicMemoryConfig - Specifies the dynamic memory configuration for a VM, dynamic memory will be enabled if this field is present.
 	DynamicMemoryConfig *DynamicMemoryConfiguration `json:"dynamicmemoryconfig,omitempty"`
-	// VirtualMachineGPUs - Specifies list of GPUs for VM
-	VirtualMachineGPUs []*common.VirtualMachineGPU `json:"virtualmachinegpus,omitempty"`
 }
 
 // NetworkInterfaceReferenceProperties describes a network interface reference properties.
