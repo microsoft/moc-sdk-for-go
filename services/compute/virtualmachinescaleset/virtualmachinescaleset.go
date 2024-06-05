@@ -429,6 +429,7 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 		}
 		if vmp.HardwareProfile.VirtualMachineGPUs != nil {
 			for _, gpu := range vmp.HardwareProfile.VirtualMachineGPUs {
+				vmGPU := &wssdcommon.VirtualMachineGPU{}
 				var assignment wssdcommon.AssignmentType
 				switch *gpu.Assignment {
 				case compute.GpuDDA:
@@ -439,11 +440,15 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 					assignment = wssdcommon.AssignmentType_GpuPV
 				case compute.GpuDefault:
 					assignment = wssdcommon.AssignmentType_GpuDefault
+				default:
+					return nil, errors.Wrapf(errors.InvalidInput, "Invalid GPU Assignment %s", *gpu.Assignment)
 				}
-				vmGPU := &wssdcommon.VirtualMachineGPU{
-					Assignment:      assignment,
-					PartitionSizeMB: *gpu.PartitionSizeMB,
-					Name:            *gpu.Name,
+				vmGPU.Assignment = assignment
+				if gpu.Name != nil {
+					vmGPU.Name = *gpu.Name
+				}
+				if gpu.PartitionSizeMB != nil {
+					vmGPU.PartitionSizeMB = *gpu.PartitionSizeMB
 				}
 				vmGPUs = append(vmGPUs, vmGPU)
 			}
