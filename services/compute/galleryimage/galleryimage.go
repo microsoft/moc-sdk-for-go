@@ -30,6 +30,10 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		wssdgalleryimage.ContainerName = *c.GalleryImageProperties.ContainerName
 	}
 
+	if c.DisableHighAvailability != nil {
+		wssdgalleryimage.DisableHighAvailability = *c.DisableHighAvailability
+	}
+
 	if c.GalleryImageProperties != nil {
 		wssdgalleryimage.SourceType = c.SourceType
 		wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
@@ -56,6 +60,7 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 			Statuses:         status.GetStatuses(c.GetStatus()),
 			ContainerName:    &c.ContainerName,
 			HyperVGeneration: c.HyperVGeneration,
+			DisableHighAvailability: &c.DisableHighAvailability,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
