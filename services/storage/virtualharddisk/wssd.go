@@ -6,6 +6,7 @@ package virtualharddisk
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
@@ -77,6 +78,38 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 
 	return err
 
+}
+
+func (c *client) Precheck(ctx context.Context, group, container string, vhds []*storage.VirtualHardDisk) (bool, error) {
+	request, err := getVirtualHardDiskPrecheckRequest(group, container, vhds)
+	if err != nil {
+		return false, err
+	}
+
+	response, err := c.VirtualHardDiskAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	} else {
+		result := response.Result.GetValue()
+		if !result {
+			err = errors.New(response.GetError())
+		}
+		return result, err
+	}
+}
+
+func getVirtualHardDiskPrecheckRequest(group, container string, vhds []*storage.VirtualHardDisk) (*wssdcloudstorage.VirtualHardDiskPrecheckRequest, error) {
+	request := &wssdcloudstorage.VirtualHardDiskPrecheckRequest{
+		VirtualHardDisks: []*wssdcloudstorage.VirtualHardDisk{},
+	}
+	for _, vhd := range vhds {
+		wssdvhd, err := getWssdVirtualHardDisk(vhd, group, container)
+		if err != nil {
+			return nil, err
+		}
+		request.VirtualHardDisks = append(request.VirtualHardDisks, wssdvhd)
+	}
+	return request, nil
 }
 
 func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
