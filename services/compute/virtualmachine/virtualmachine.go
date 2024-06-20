@@ -150,8 +150,23 @@ func (c *client) getWssdVirtualMachineStorageConfigurationOsDisk(s *compute.OSDi
 	if s.Vhd.URI == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Vhd URI Configuration is missing in OSDisk")
 	}
+	var managedDisk *wssdcommon.VirtualMachineManagedDiskParameters
+	if s.ManagedDisk != nil {
+		managedDisk = &wssdcommon.VirtualMachineManagedDiskParameters{}
+		if s.ManagedDisk.SecurityProfile != nil {
+			securityEncryptionType := wssdcommon.SecurityEncryptionTypes_SecurityEncryptionNone
+			switch s.ManagedDisk.SecurityProfile.SecurityEncryptionTypes {
+			case compute.NonPersistedTPM:
+				securityEncryptionType = wssdcommon.SecurityEncryptionTypes_NonPersistedTPM
+			}
+			managedDisk.SecurityProfile = &wssdcommon.VMDiskSecurityProfile{
+				SecurityEncryptionType: securityEncryptionType,
+			}
+		}
+	}
 	return &wssdcloudcompute.Disk{
-		Diskname: *s.Vhd.URI,
+		Diskname:    *s.Vhd.URI,
+		ManagedDisk: managedDisk,
 	}, nil
 }
 
@@ -546,8 +561,23 @@ func (c *client) getVirtualMachineStorageProfileOsDisk(d *wssdcloudcompute.Disk)
 	if d == nil {
 		return &compute.OSDisk{}
 	}
+	var managedDisk *compute.VirtualMachineManagedDiskParameters
+	if d.ManagedDisk != nil {
+		managedDisk = &compute.VirtualMachineManagedDiskParameters{}
+		if d.ManagedDisk.SecurityProfile != nil {
+			var securityEncryptionType compute.SecurityEncryptionTypes
+			switch d.ManagedDisk.SecurityProfile.SecurityEncryptionType {
+			case wssdcommon.SecurityEncryptionTypes_NonPersistedTPM:
+				securityEncryptionType = compute.NonPersistedTPM
+			}
+			managedDisk.SecurityProfile = &compute.VMDiskSecurityProfile{
+				SecurityEncryptionTypes: securityEncryptionType,
+			}
+		}
+	}
 	return &compute.OSDisk{
-		Vhd: &compute.VirtualHardDisk{URI: &d.Diskname},
+		Vhd:         &compute.VirtualHardDisk{URI: &d.Diskname},
+		ManagedDisk: managedDisk,
 	}
 }
 
