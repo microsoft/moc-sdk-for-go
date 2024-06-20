@@ -89,13 +89,17 @@ func (c *client) Precheck(ctx context.Context, group, container string, vhds []*
 	response, err := c.VirtualHardDiskAgentClient.Precheck(ctx, request)
 	if err != nil {
 		return false, err
-	} else {
-		result := response.Result.GetValue()
-		if !result {
-			err = errors.New(response.GetError())
-		}
-		return result, err
 	}
+	return getVirtualHardDiskPrecheckResponse(response)
+}
+
+func getVirtualHardDiskPrecheckResponse(response *wssdcloudstorage.VirtualHardDiskPrecheckResponse) (bool, error) {
+	var err error = nil
+	result := response.GetResult().GetValue()
+	if !result {
+		err = errors.New(response.GetError())
+	}
+	return result, err
 }
 
 func getVirtualHardDiskPrecheckRequest(group, container string, vhds []*storage.VirtualHardDisk) (*wssdcloudstorage.VirtualHardDiskPrecheckRequest, error) {

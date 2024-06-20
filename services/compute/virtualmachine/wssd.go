@@ -207,13 +207,17 @@ func (c *client) Precheck(ctx context.Context, group string, vms []*compute.Virt
 	response, err := c.VirtualMachineAgentClient.Precheck(ctx, request)
 	if err != nil {
 		return false, err
-	} else {
-		result := response.GetResult().GetValue()
-		if !result {
-			err = errors.New(response.GetError())
-		}
-		return result, err
 	}
+	return getVirtualMachinePrecheckResponse(response)
+}
+
+func getVirtualMachinePrecheckResponse(response *wssdcloudcompute.VirtualMachinePrecheckResponse) (bool, error) {
+	var err error = nil
+	result := response.GetResult().GetValue()
+	if !result {
+		err = errors.New(response.GetError())
+	}
+	return result, err
 }
 
 func (c *client) getVirtualMachinePrecheckRequest(group string, vms []*compute.VirtualMachine) (*wssdcloudcompute.VirtualMachinePrecheckRequest, error) {
