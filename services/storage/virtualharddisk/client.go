@@ -5,6 +5,7 @@ package virtualharddisk
 
 import (
 	"context"
+
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -15,6 +16,7 @@ type Service interface {
 	Get(context.Context, string, string, string) (*[]storage.VirtualHardDisk, error)
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
+	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
 }
 
 // Client structure
@@ -65,4 +67,10 @@ func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, na
 	_, err = c.CreateOrUpdate(ctx, group, container, name, &vhd)
 
 	return err
+}
+
+// Prechecks whether the system is able to create specified virtual hard disks.
+// Returns true with virtual hard disk placement in mapping from virtual hard disk names to container names; or false with reason in error message.
+func (c *VirtualHardDiskClient) Precheck(ctx context.Context, group, container string, vhds []*storage.VirtualHardDisk) (bool, error) {
+	return c.internal.Precheck(ctx, group, container, vhds)
 }
