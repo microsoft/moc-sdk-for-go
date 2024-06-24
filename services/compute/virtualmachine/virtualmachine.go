@@ -49,6 +49,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get GuestAgent Configuration")
 	}
 
+	availabilitySetProfile, err := c.getWssdAvailabilitySetReference(vm.AvailabilitySetProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -57,16 +62,17 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	}
 
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:       *vm.Name,
-		Storage:    storageConfig,
-		Hardware:   hardwareConfig,
-		Security:   securityConfig,
-		GuestAgent: guestAgentConfig,
-		Os:         osconfig,
-		Network:    networkConfig,
-		GroupName:  group,
-		VmType:     vmtype,
-		Tags:       getWssdTags(vm.Tags),
+		Name:            *vm.Name,
+		Storage:         storageConfig,
+		Hardware:        hardwareConfig,
+		Security:        securityConfig,
+		GuestAgent:      guestAgentConfig,
+		Os:              osconfig,
+		Network:         networkConfig,
+		GroupName:       group,
+		VmType:          vmtype,
+		Tags:            getWssdTags(vm.Tags),
+		AvailabilitySet: availabilitySetProfile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -166,6 +172,7 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
 	var dynMemConfig *wssdcommon.DynamicMemoryConfiguration
+	var vmGPUs []*wssdcommon.VirtualMachineGPU
 	if vm.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vm.HardwareProfile.VMSize)
 		if vm.HardwareProfile.CustomSize != nil {
@@ -191,11 +198,33 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 				dynMemConfig.TargetMemoryBuffer = *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer
 			}
 		}
+		if vm.HardwareProfile.VirtualMachineGPUs != nil {
+			for _, gpu := range vm.HardwareProfile.VirtualMachineGPUs {
+				var assignment wssdcommon.AssignmentType
+				switch *gpu.Assignment {
+				case compute.GpuDDA:
+					assignment = wssdcommon.AssignmentType_GpuDDA
+				case compute.GpuP:
+					assignment = wssdcommon.AssignmentType_GpuP
+				case compute.GpuPV:
+					assignment = wssdcommon.AssignmentType_GpuPV
+				case compute.GpuDefault:
+					assignment = wssdcommon.AssignmentType_GpuDefault
+				}
+				vmGPU := &wssdcommon.VirtualMachineGPU{
+					Assignment:      assignment,
+					PartitionSizeMB: *gpu.PartitionSizeMB,
+					Name:            *gpu.Name,
+				}
+				vmGPUs = append(vmGPUs, vmGPU)
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
 		VMSize:                     sizeType,
 		CustomSize:                 customSize,
 		DynamicMemoryConfiguration: dynMemConfig,
+		VirtualMachineGPUs:         vmGPUs,
 	}
 	return wssdhardware, nil
 }
@@ -422,6 +451,18 @@ func (c *client) getWssdVirtualMachineGuestAgentConfiguration(s *compute.GuestAg
 	return gac, nil
 }
 
+func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetReference) (*wssdcloudcompute.AvailabilitySetReference, error) {
+	if s == nil {
+		return nil, nil
+	}
+
+	availabilitySet := &wssdcloudcompute.AvailabilitySetReference{
+		Name:      *s.Name,
+		GroupName: *s.GroupName,
+	}
+	return availabilitySet, nil
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -539,6 +580,7 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
 	var dynamicMemoryConfig *compute.DynamicMemoryConfiguration
+	var virtualMachineGPUs []*compute.VirtualMachineGPU
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -554,11 +596,33 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 				TargetMemoryBuffer: &vm.Hardware.DynamicMemoryConfiguration.TargetMemoryBuffer,
 			}
 		}
+		if vm.Hardware.VirtualMachineGPUs != nil {
+			for _, commonVMGPU := range vm.Hardware.VirtualMachineGPUs {
+				var assignment compute.Assignment
+				switch commonVMGPU.Assignment {
+				case wssdcommon.AssignmentType_GpuDDA:
+					assignment = compute.GpuDDA
+				case wssdcommon.AssignmentType_GpuP:
+					assignment = compute.GpuP
+				case wssdcommon.AssignmentType_GpuPV:
+					assignment = compute.GpuPV
+				case wssdcommon.AssignmentType_GpuDefault:
+					assignment = compute.GpuDefault
+				}
+				virtualMachineGPU := &compute.VirtualMachineGPU{
+					Assignment:      &assignment,
+					PartitionSizeMB: &commonVMGPU.PartitionSizeMB,
+					Name:            &commonVMGPU.Name,
+				}
+				virtualMachineGPUs = append(virtualMachineGPUs, virtualMachineGPU)
+			}
+		}
 	}
 	return &compute.HardwareProfile{
 		VMSize:              sizeType,
 		CustomSize:          customSize,
 		DynamicMemoryConfig: dynamicMemoryConfig,
+		VirtualMachineGPUs:  virtualMachineGPUs,
 	}
 }
 
@@ -613,6 +677,17 @@ func (c *client) getVirtualMachineNetworkProfile(n *wssdcloudcompute.NetworkConf
 		*np.NetworkInterfaces = append(*np.NetworkInterfaces, compute.NetworkInterfaceReference{ID: &((*nic).NetworkInterfaceName)})
 	}
 	return np
+}
+
+func (c *client) getAvailabilitySetReference(a *wssdcloudcompute.AvailabilitySetReference) *compute.AvailabilitySetReference {
+	if a == nil {
+		return nil
+	}
+	ap := &compute.AvailabilitySetReference{
+		Name:      &a.Name,
+		GroupName: &a.GroupName,
+	}
+	return ap
 }
 
 func (c *client) getVirtualMachineGuestAgentProfile(ga *wssdcommon.GuestAgentConfiguration) *compute.GuestAgentProfile {

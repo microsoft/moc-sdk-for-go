@@ -69,3 +69,13 @@ func GetMacPoolClient(serverAddress *string, authorizer auth.Authorizer) (networ
 
 	return network_pb.NewMacPoolAgentClient(conn), nil
 }
+
+// GetNetworkSecurityGroupClient returns the NetworkSecurityGroup client to communicate with the wssd agent
+func GetNetworkSecurityGroupClient(serverAddress *string, authorizer auth.Authorizer) (network_pb.NetworkSecurityGroupAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get NetworkSecurityGroupAgentClient. Failed to dial: %v", err)
+	}
+
+	return network_pb.NewNetworkSecurityGroupAgentClient(conn), nil
+}

@@ -217,9 +217,26 @@ type DynamicMemoryConfiguration struct {
 	TargetMemoryBuffer *uint32 `json:"targetmemorybuffer,omitempty"`
 }
 
+type Assignment string
+
+// possible values of gpu assignment
+const (
+	GpuDDA     Assignment = "GpuDDA"
+	GpuP       Assignment = "GpuP"
+	GpuPV      Assignment = "GpuPV"
+	GpuDefault Assignment = "GpuDefault"
+)
+
+type VirtualMachineGPU struct {
+	Assignment      *Assignment `json:"assignment,omitempty"`
+	PartitionSizeMB *uint64     `json:"partitionSizeMB,omitempty"`
+	Name            *string     `json:"name,omitempty"`
+}
+
 type HardwareProfile struct {
-	VMSize     VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
-	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
+	VMSize             VirtualMachineSizeTypes   `json:"vmsize,omitempty"`
+	VirtualMachineGPUs []*VirtualMachineGPU      `json:"virtualMachineGPUs,omitempty"`
+	CustomSize         *VirtualMachineCustomSize `json:"customsize,omitempty"`
 	// DynamicMemoryConfig - Specifies the dynamic memory configuration for a VM, dynamic memory will be enabled if this field is present.
 	DynamicMemoryConfig *DynamicMemoryConfiguration `json:"dynamicmemoryconfig,omitempty"`
 }
@@ -317,6 +334,8 @@ type VirtualMachineProperties struct {
 	GuestAgentProfile *GuestAgentProfile `json:"guestAgentProfile,omitempty"`
 	// SecurityProfile - Specifies the security settings for the virtual machine.
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
+	// AvailabilitySetSetting
+	AvailabilitySetProfile *AvailabilitySetReference `json:"availabilitySetprofile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
@@ -1159,6 +1178,44 @@ type ProxyConfiguration struct {
 	NoProxy *[]string `json:"noproxy,omitempty"`
 	// Alternative CA cert to use for connecting to proxy server
 	TrustedCa *string `json:"trustedca,omitempty"`
+}
+
+// AvailabilitySet describes the availabilitySet setting for a virtual machine
+type AvailabilitySet struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	Type *string `json:"type,omitempty"`
+	// Tags - Custom resource tags
+	Tags map[string]*string `json:"tags"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+	// Statuses - Statuses
+	Statuses map[string]*string `json:"statuses"`
+	// Fault domain count
+	PlatformFaultDomainCount *int32 `json:"platformFaultDomainCount,omitempty"`
+	// VMs
+	VirtualMachines []*VirtualMachineReference
+}
+
+// AvailabilitySetReference describes a resoruce reference setting for an availability set
+type AvailabilitySetReference struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	GroupName *string `json:"group,omitempty"`
+}
+
+// VirtualMachineReference describes a resoruce reference setting for a virtual machine
+type VirtualMachineReference struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	GroupName *string `json:"group,omitempty"`
 }
 
 type VirtualMachineDiscovery struct {

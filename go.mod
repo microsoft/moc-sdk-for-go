@@ -7,17 +7,17 @@ require (
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/uuid v1.4.0
-	github.com/microsoft/moc v0.14.0
+	github.com/microsoft/moc v0.18.1
 	google.golang.org/grpc v1.59.0
 	k8s.io/klog v1.0.0
 )
 
 require (
 	github.com/Microsoft/go-winio v0.6.1
-	github.com/golang/protobuf v1.5.3
+	github.com/golang/protobuf v1.5.4
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.34.1
 )
 
 replace (

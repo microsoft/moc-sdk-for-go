@@ -26,7 +26,7 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 
 	wssdipconfigs := []*wssdcloudnetwork.IpConfiguration{}
 	for _, ipconfig := range *c.IPConfigurations {
-		wssdipconfig, err := getWssdNetworkInterfaceIPConfig(&ipconfig)
+		wssdipconfig, err := getWssdNetworkInterfaceIPConfig(&ipconfig, c.Location)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func ipAllocationMethodSdkToProtobuf(ipConfig *network.InterfaceIPConfiguration,
 	}
 }
 
-func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration) (*wssdcloudnetwork.IpConfiguration, error) {
+func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration, location *string) (*wssdcloudnetwork.IpConfiguration, error) {
 	if ipConfig.InterfaceIPConfigurationPropertiesFormat == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Interface IPConfiguration Properties")
 	}
@@ -128,6 +128,13 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration)
 	}
 	if ipConfig.Primary != nil {
 		wssdipconfig.Primary = *ipConfig.Primary
+	}
+	if ipConfig.NetworkSecurityGroup != nil {
+		wssdipconfig.NetworkSecurityGroupRef = &wssdcommonproto.NetworkSecurityGroupReference{
+			ResourceRef: &wssdcommonproto.ResourceReference{
+				Name: *ipConfig.NetworkSecurityGroup.ID,
+			},
+		}
 	}
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
@@ -187,6 +194,12 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 			PrefixLength:     &wssdcloudipconfig.Prefixlength,
 			Primary:          &wssdcloudipconfig.Primary,
 		},
+	}
+
+	if wssdcloudipconfig.NetworkSecurityGroupRef != nil {
+		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{
+			ID: &wssdcloudipconfig.NetworkSecurityGroupRef.ResourceRef.Name,
+		}
 	}
 
 	ipAllocationMethodProtobufToSdk(wssdcloudipconfig, ipconfig)
