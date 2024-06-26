@@ -15,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]network.MACPool, error)
 	CreateOrUpdate(context.Context, string, string, *network.MACPool) (*network.MACPool, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, location string, macPools []*network.MACPool) (bool, error)
 }
 
 // MacPoolClient structure
@@ -46,4 +47,10 @@ func (c *MacPoolClient) CreateOrUpdate(ctx context.Context, location, name strin
 // Delete methods invokes delete of the network resource
 func (c *MacPoolClient) Delete(ctx context.Context, location, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *MacPoolClient) Precheck(ctx context.Context, location string, macPools []*network.MACPool) (bool, error) {
+	return c.internal.Precheck(ctx, location, macPools)
 }

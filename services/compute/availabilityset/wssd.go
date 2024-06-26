@@ -96,6 +96,18 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, group string, avsets []*compute.AvailabilitySet) (bool, error) {
+	request, err := getAvailabilitySetPrecheckRequest(group, avsets)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.AvailabilitySetAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getAvailabilitySetPrecheckResponse(response)
+}
+
 ///////// private methods ////////
 
 // Conversion from proto to sdk
@@ -139,4 +151,32 @@ func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, gro
 	request.AvailabilitySets = append(request.AvailabilitySets, avsetRet)
 	return request, nil
 
+}
+
+func getAvailabilitySetPrecheckRequest(group string, avsets []*compute.AvailabilitySet) (*wssdcloudcompute.AvailabilitySetPrecheckRequest, error) {
+	request := &wssdcloudcompute.AvailabilitySetPrecheckRequest{}
+
+	protoAvSets := make([]*wssdcloudcompute.AvailabilitySet, 0, len(avsets))
+
+	for _, avset := range avsets {
+		// can avset ever be nil here? what would be the meaning of that?
+		if avset != nil {
+			protoAvSet, err := getRpcAvailabilitySet(avset, group)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert AvailabilitySet to Protobuf representation")
+			}
+			protoAvSets = append(protoAvSets, protoAvSet)
+		}
+	}
+
+	request.AvailabilitySets = protoAvSets
+	return request, nil
+}
+
+func getAvailabilitySetPrecheckResponse(response *wssdcloudcompute.AvailabilitySetPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }

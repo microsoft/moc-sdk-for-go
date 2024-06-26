@@ -6,6 +6,7 @@ package container
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
@@ -77,6 +78,46 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 
 	return err
 
+}
+
+func (c *client) Precheck(ctx context.Context, location string, containers []*storage.Container) (bool, error) {
+	request, err := getContainerPrecheckRequest(location, containers)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.ContainerAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getContainerPrecheckResponse(response)
+}
+
+func getContainerPrecheckRequest(location string, containers []*storage.Container) (*wssdcloudstorage.ContainerPrecheckRequest, error) {
+	request := &wssdcloudstorage.ContainerPrecheckRequest{}
+
+	protoContainers := make([]*wssdcloudstorage.Container, 0, len(containers))
+
+	for _, container := range containers {
+		// can container ever be nil here? what would be the meaning of that?
+		if container != nil {
+			protoContainer, err := getWssdContainer(container, location)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert Container to Protobuf representation")
+			}
+			protoContainers = append(protoContainers, protoContainer)
+		}
+	}
+
+	request.Containers = protoContainers
+	return request, nil
+}
+
+func getContainerPrecheckResponse(response *wssdcloudstorage.ContainerPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }
 
 func getContainerRequest(opType wssdcloudcommon.Operation, location, name string, storage *storage.Container) (*wssdcloudstorage.ContainerRequest, error) {

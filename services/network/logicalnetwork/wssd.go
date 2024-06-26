@@ -79,6 +79,52 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, location string, logicalNetworks []*network.LogicalNetwork) (bool, error) {
+	request, err := getLogicalNetworkPrecheckRequest(location, logicalNetworks)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.LogicalNetworkAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getLogicalNetworkPrecheckResponse(response)
+}
+
+func getLogicalNetworkPrecheckRequest(location string, logicalNetworks []*network.LogicalNetwork) (*wssdcloudnetwork.LogicalNetworkPrecheckRequest, error) {
+	request := &wssdcloudnetwork.LogicalNetworkPrecheckRequest{}
+
+	protoLogicalNetworks := make([]*wssdcloudnetwork.LogicalNetwork, 0, len(logicalNetworks))
+
+	for _, logicalNetwork := range logicalNetworks {
+		// can logical network ever be nil here? what would be the meaning of that?
+		if logicalNetwork != nil {
+
+			// TODO (aweston): double check this
+			if logicalNetwork.Location == nil {
+				logicalNetwork.Location = &location
+			}
+
+			protoLogicalNetwork, err := getWssdLogicalNetwork(logicalNetwork)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert LogicalNetwork to Protobuf representation")
+			}
+			protoLogicalNetworks = append(protoLogicalNetworks, protoLogicalNetwork)
+		}
+	}
+
+	request.LogicalNetworks = protoLogicalNetworks
+	return request, nil
+}
+
+func getLogicalNetworkPrecheckResponse(response *wssdcloudnetwork.LogicalNetworkPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
+}
+
 func getLogicalNetworkRequest(opType wssdcloudcommon.Operation, location, name string, network *network.LogicalNetwork) (*wssdcloudnetwork.LogicalNetworkRequest, error) {
 	request := &wssdcloudnetwork.LogicalNetworkRequest{
 		OperationType:   opType,
