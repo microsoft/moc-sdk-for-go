@@ -32,6 +32,13 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 
 	if c.DisableHighAvailability != nil {
 		wssdgalleryimage.DisableHighAvailability = *c.DisableHighAvailability
+		// If HA is disabled, then throw error
+		if wssdgalleryimage.DisableHighAvailability {
+			return nil, errors.Wrapf(errors.NotSupported, "GalleryImage currently does not support Non-HighAvailability mode")
+		}
+	} else {
+		// If no value specified, set value as false
+		wssdgalleryimage.DisableHighAvailability = false
 	}
 
 	if c.GalleryImageProperties != nil {

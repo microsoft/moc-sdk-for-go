@@ -43,6 +43,9 @@ func getWssdContainer(c *storage.Container, locationName string) (*wssdcloudstor
 
 	if c.DisableHighAvailability != nil {
 		wssdcontainer.DisableHighAvailability = *c.DisableHighAvailability
+	} else {
+		// If HighAvailability mode isn't specified, proceed with default behavior i.e., HA
+		wssdcontainer.DisableHighAvailability = false
 	}
 
 	return wssdcontainer, nil
