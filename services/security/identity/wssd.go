@@ -287,7 +287,7 @@ func getIdentityPrecheckRequest(identities []*security.Identity) (*wssdcloudsecu
 		}
 	}
 
-	request.Identitys = protoIdentities
+	request.Identities = protoIdentities
 	return request, nil
 }
 
