@@ -818,6 +818,14 @@ type AzureGalleryImageProperties struct {
 	Version string `json:"version,omitempty"`
 }
 
+// Azure ComputeGalleryImage properties
+type AzureCGIProperties struct {
+	// SasURL - Specifies the resourceId for CGI
+	ResourceId string `json:"resourceId,omitempty"`
+	// Version - Specifies the version of the compute gallery image used to create the virtual machine.
+	Version string `json:"version,omitempty"`
+}
+
 // GalleryImageProperties describes the properties of a gallery Image Definition.
 type GalleryImageProperties struct {
 	// Description - The description of this gallery Image Definition resource. This property is updatable.

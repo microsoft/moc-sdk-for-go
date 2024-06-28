@@ -87,3 +87,15 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 	}
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
+
+func (c *GalleryImageClient) UploadImageFromCGI(ctx context.Context, location, name string, galImage *compute.GalleryImage, azCGImg *compute.AzureCGIProperties) (*compute.GalleryImage, error) {
+	// convert azCGImg struct to json string and use it as image-path
+	data, err := json.Marshal(azCGImg)
+	if err != nil {
+		return nil, err
+	}
+	if galImage != nil && galImage.GalleryImageProperties != nil {
+		galImage.SourceType = common.ImageSource_CGI_SOURCE
+	}
+	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
+}
