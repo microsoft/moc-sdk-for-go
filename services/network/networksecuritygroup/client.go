@@ -15,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]network.SecurityGroup, error)
 	CreateOrUpdate(context.Context, string, string, *network.SecurityGroup) (*network.SecurityGroup, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, location string, networkSecurityGroups []*network.SecurityGroup) (bool, error)
 }
 
 // NetworkSecurityGroupAgentClient structure
@@ -46,4 +47,10 @@ func (c *NetworkSecurityGroupAgentClient) CreateOrUpdate(ctx context.Context, lo
 // Delete methods invokes delete of the network resource
 func (c *NetworkSecurityGroupAgentClient) Delete(ctx context.Context, location, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *NetworkSecurityGroupAgentClient) Precheck(ctx context.Context, location string, networkSecurityGroups []*network.SecurityGroup) (bool, error) {
+	return c.internal.Precheck(ctx, location, networkSecurityGroups)
 }

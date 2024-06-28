@@ -116,6 +116,46 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, location string, networkSecurityGroups []*network.SecurityGroup) (bool, error) {
+	request, err := getNetworkSecurityGroupPrecheckRequest(location, networkSecurityGroups)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.NetworkSecurityGroupAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getNetworkSecurityGroupPrecheckResponse(response)
+}
+
+func getNetworkSecurityGroupPrecheckRequest(location string, networkSecurityGroups []*network.SecurityGroup) (*wssdcloudnetwork.NetworkSecurityGroupPrecheckRequest, error) {
+	request := &wssdcloudnetwork.NetworkSecurityGroupPrecheckRequest{}
+
+	protoNSGs := make([]*wssdcloudnetwork.NetworkSecurityGroup, 0, len(networkSecurityGroups))
+
+	for _, nsg := range networkSecurityGroups {
+		// can nsg ever be nil here? what would be the meaning of that?
+		if nsg != nil {
+			protoNSG, err := getWssdNetworkSecurityGroup(nsg, location)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert NetworkSecurityGroup to Protobuf representation")
+			}
+			protoNSGs = append(protoNSGs, protoNSG)
+		}
+	}
+
+	request.NetworkSecurityGroups = protoNSGs
+	return request, nil
+}
+
+func getNetworkSecurityGroupPrecheckResponse(response *wssdcloudnetwork.NetworkSecurityGroupPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
+}
+
 func (c *client) getNetworkSecurityGroupRequestByName(opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.NetworkSecurityGroupRequest, error) {
 	networkNSG := network.SecurityGroup{
 		Name: &name,

@@ -15,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]storage.Container, error)
 	CreateOrUpdate(context.Context, string, string, *storage.Container) (*storage.Container, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, location string, containers []*storage.Container) (bool, error)
 }
 
 // Client structure
@@ -46,4 +47,10 @@ func (c *ContainerClient) CreateOrUpdate(ctx context.Context, location, name str
 // Delete methods invokes delete of the storage resource
 func (c *ContainerClient) Delete(ctx context.Context, location, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *ContainerClient) Precheck(ctx context.Context, location string, containers []*storage.Container) (bool, error) {
+	return c.internal.Precheck(ctx, location, containers)
 }
