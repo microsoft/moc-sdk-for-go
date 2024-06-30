@@ -79,3 +79,13 @@ func GetNetworkSecurityGroupClient(serverAddress *string, authorizer auth.Author
 
 	return network_pb.NewNetworkSecurityGroupAgentClient(conn), nil
 }
+
+// GetPublicIPAddressAgentClient returns the PublicIPAddressClient client to communicate with the wssd agent
+func GetPublicIPAddressAgentClient(serverAddress *string, authorizer auth.Authorizer) (network_pb.PublicIPAddressAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get PublicIPAddressAgentClient. Failed to dial: %v", err)
+	}
+
+	return network_pb.NewPublicIPAddressAgentClient(conn), nil
+}

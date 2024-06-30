@@ -684,7 +684,7 @@ type InterfaceIPConfigurationPropertiesFormat struct {
 	// Primary - Gets whether this is a primary customer address on the network interface.
 	Primary *bool `json:"primary,omitempty"`
 	// PublicIPAddress - Public IP address bound to the IP configuration.
-	PublicIPAddress *PublicIPAddress `json:"publicIPAddress,omitempty"`
+	PublicIPAddress *SubResource `json:"publicIPAddress,omitempty"`
 	// ProvisioningState - The provisioning state of the network interface IP configuration. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
@@ -963,22 +963,16 @@ type IPTag struct {
 
 // PublicIPAddressProperties public IP address properties.
 type PublicIPAddressPropertiesFormat struct {
+	// IPAddress - The IP address associated with the public IP address resource.
+	IPAddress *string `json:"ipAddress,omitempty"`
 	// PublicIPAllocationMethod - The public IP address allocation method. Possible values include: 'Static', 'Dynamic'
 	PublicIPAllocationMethod IPAllocationMethod `json:"publicIPAllocationMethod,omitempty"`
 	// PublicIPAddressVersion - The public IP address version. Possible values include: 'IPv4', 'IPv6'
 	PublicIPAddressVersion IPVersion `json:"publicIPAddressVersion,omitempty"`
 	// IPConfiguration - READ-ONLY; The IP configuration associated with the public IP address.
 	IPConfiguration *IPConfiguration `json:"ipConfiguration,omitempty"`
-	// DNSSettings - The FQDN of the DNS record associated with the public IP address.
-	DNSSettings *PublicIPAddressDNSSettings `json:"dnsSettings,omitempty"`
-	// IPTags - The list of tags associated with the public IP address.
-	IPTags *[]IPTag `json:"ipTags,omitempty"`
-	// IPAddress - The IP address associated with the public IP address resource.
-	IPAddress *string `json:"ipAddress,omitempty"`
-	// PublicIPPrefix - The Public IP Prefix this Public IP Address should be allocated from.
-	PublicIPPrefix *SubResource `json:"publicIPPrefix,omitempty"`
 	// IdleTimeoutInMinutes - The idle timeout of the public IP address.
-	IdleTimeoutInMinutes *int32 `json:"idleTimeoutInMinutes,omitempty"`
+	IdleTimeoutInMinutes *uint32 `json:"idleTimeoutInMinutes,omitempty"`
 	// ProvisioningState - The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
@@ -992,14 +986,14 @@ type PublicIPAddress struct {
 	*PublicIPAddressPropertiesFormat `json:"properties,omitempty"`
 	// Etag - A unique read-only string that changes whenever the resource is updated.
 	Etag *string `json:"etag,omitempty"`
-	// Zones - A list of availability zones denoting the IP allocated for the resource needs to come from.
-	Zones *[]string `json:"zones,omitempty"`
 	// ID - Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Name - READ-ONLY; Resource name.
 	Name *string `json:"name,omitempty"`
 	// Type - READ-ONLY; Resource type.
 	Type *string `json:"type,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
 	// Location - Resource location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
