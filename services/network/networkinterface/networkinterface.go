@@ -136,6 +136,14 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 			},
 		}
 	}
+	if ipConfig.PublicIPAddress != nil {
+		wssdipconfig.PublicIPAddressRef = &wssdcommonproto.PublicIPAddressReference{
+			ResourceRef: &wssdcommonproto.ResourceReference{
+				Name: *ipConfig.PublicIPAddress.ID,
+			},
+		}
+	}
+
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
@@ -199,6 +207,12 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 	if wssdcloudipconfig.NetworkSecurityGroupRef != nil {
 		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{
 			ID: &wssdcloudipconfig.NetworkSecurityGroupRef.ResourceRef.Name,
+		}
+	}
+
+	if wssdcloudipconfig.PublicIPAddressRef != nil {
+		ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress = &network.SubResource{
+			ID: &wssdcloudipconfig.PublicIPAddressRef.ResourceRef.Name,
 		}
 	}
 
