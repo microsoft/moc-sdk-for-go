@@ -14,6 +14,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]compute.AvailabilitySet, error)
 	Create(ctx context.Context, group string, name string, avset *compute.AvailabilitySet) (*compute.AvailabilitySet, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, group string, avsets []*compute.AvailabilitySet) (bool, error)
 }
 
 type AvailabilitySetClient struct {
@@ -43,4 +44,10 @@ func (c *AvailabilitySetClient) Create(ctx context.Context, group, name string, 
 // Delete methods invokes delete of the compute resource
 func (c *AvailabilitySetClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Prechecks whether the system is able to create specified availability sets.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *AvailabilitySetClient) Precheck(ctx context.Context, group string, avsets []*compute.AvailabilitySet) (bool, error) {
+	return c.internal.Precheck(ctx, group, avsets)
 }

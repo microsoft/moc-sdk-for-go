@@ -79,6 +79,46 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error) {
+	request, err := getVirtualNetworkPrecheckRequest(group, virtualNetworks)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.VirtualNetworkAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getVirtualNetworkPrecheckResponse(response)
+}
+
+func getVirtualNetworkPrecheckRequest(group string, virtualNetworks []*network.VirtualNetwork) (*wssdcloudnetwork.VirtualNetworkPrecheckRequest, error) {
+	request := &wssdcloudnetwork.VirtualNetworkPrecheckRequest{}
+
+	protoVirtualNetworks := make([]*wssdcloudnetwork.VirtualNetwork, 0, len(virtualNetworks))
+
+	for _, vnet := range virtualNetworks {
+		// can vnet ever be nil here? what would be the meaning of that?
+		if vnet != nil {
+			protoVNet, err := getWssdVirtualNetwork(vnet, group)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert VirtualNetwork to Protobuf representation")
+			}
+			protoVirtualNetworks = append(protoVirtualNetworks, protoVNet)
+		}
+	}
+
+	request.VirtualNetworks = protoVirtualNetworks
+	return request, nil
+}
+
+func getVirtualNetworkPrecheckResponse(response *wssdcloudnetwork.VirtualNetworkPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
+}
+
 func getVirtualNetworkRequest(opType wssdcloudcommon.Operation, group, name string, network *network.VirtualNetwork) (*wssdcloudnetwork.VirtualNetworkRequest, error) {
 	request := &wssdcloudnetwork.VirtualNetworkRequest{
 		OperationType:   opType,

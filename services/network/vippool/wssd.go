@@ -97,6 +97,46 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, location string, vipPools []*network.VipPool) (bool, error) {
+	request, err := getVipPoolPrecheckRequest(location, vipPools)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.VipPoolAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getVipPoolPrecheckResponse(response)
+}
+
+func getVipPoolPrecheckRequest(location string, vipPools []*network.VipPool) (*wssdcloudnetwork.VipPoolPrecheckRequest, error) {
+	request := &wssdcloudnetwork.VipPoolPrecheckRequest{}
+
+	protoVipPools := make([]*wssdcloudnetwork.VipPool, 0, len(vipPools))
+
+	for _, vipPool := range vipPools {
+		// can vip pool ever be nil here? what would be the meaning of that?
+		if vipPool != nil {
+			protoVipPool, err := getWssdVipPool(vipPool, location)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert VipPool to Protobuf representation")
+			}
+			protoVipPools = append(protoVipPools, protoVipPool)
+		}
+	}
+
+	request.VipPools = protoVipPools
+	return request, nil
+}
+
+func getVipPoolPrecheckResponse(response *wssdcloudnetwork.VipPoolPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
+}
+
 func (c *client) getVipPoolRequestByName(opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.VipPoolRequest, error) {
 	networkVP := network.VipPool{
 		Name: &name,

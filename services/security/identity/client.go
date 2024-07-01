@@ -19,6 +19,7 @@ type Service interface {
 	Rotate(context.Context, string, string) (*security.Identity, error)
 	CreateCertificate(context.Context, string, string, []*security.CertificateRequest) ([]*security.Certificate, string, error)
 	RenewCertificate(context.Context, string, string, []*security.CertificateRequest) ([]*security.Certificate, string, error)
+	Precheck(ctx context.Context, identities []*security.Identity) (bool, error)
 }
 
 // Client structure
@@ -70,4 +71,10 @@ func (c *IdentityClient) CreateCertificate(ctx context.Context, group, name stri
 // RenewCertificate methods invokes renew client certificate for the identity
 func (c *IdentityClient) RenewCertificate(ctx context.Context, group, name string, csr []*security.CertificateRequest) ([]*security.Certificate, string, error) {
 	return c.internal.RenewCertificate(ctx, group, name, csr)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *IdentityClient) Precheck(ctx context.Context, identities []*security.Identity) (bool, error) {
+	return c.internal.Precheck(ctx, identities)
 }
