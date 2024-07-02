@@ -116,6 +116,12 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 		}
 		if vm.Hardware.VirtualMachineGPUs != nil {
 			for _, commonVMGPU := range vm.Hardware.VirtualMachineGPUs {
+				if commonVMGPU == nil {
+					continue
+				}
+				if &commonVMGPU.Assignment == nil {
+					return nil, errors.Wrapf(errors.InvalidInput, "GPU assignment is not specified")
+				}
 				var assignment compute.Assignment
 				switch commonVMGPU.Assignment {
 				case wssdcommon.AssignmentType_GpuDDA:
@@ -126,6 +132,16 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 					assignment = compute.GpuPV
 				case wssdcommon.AssignmentType_GpuDefault:
 					assignment = compute.GpuDefault
+				default:
+					return nil, errors.Wrapf(errors.InvalidInput, "Unsupported GPU assignment type [%s]", commonVMGPU.Assignment)
+				}
+				if &commonVMGPU.PartitionSizeMB == nil {
+					// if partition size is not specified, set it to 0
+					commonVMGPU.PartitionSizeMB = 0
+				}
+				if &commonVMGPU.Name == nil {
+					// if name is not specified, set it to empty string
+					commonVMGPU.Name = ""
 				}
 				vmGPU := &compute.VirtualMachineGPU{
 					Assignment:      &assignment,
@@ -429,7 +445,12 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 		}
 		if vmp.HardwareProfile.VirtualMachineGPUs != nil {
 			for _, gpu := range vmp.HardwareProfile.VirtualMachineGPUs {
-				vmGPU := &wssdcommon.VirtualMachineGPU{}
+				if gpu == nil {
+					continue
+				}
+				if gpu.Assignment == nil {
+					return nil, errors.Wrapf(errors.InvalidInput, "GPU assignment is not specified")
+				}
 				var assignment wssdcommon.AssignmentType
 				switch *gpu.Assignment {
 				case compute.GpuDDA:
@@ -441,14 +462,20 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 				case compute.GpuDefault:
 					assignment = wssdcommon.AssignmentType_GpuDefault
 				default:
-					return nil, errors.Wrapf(errors.InvalidInput, "Invalid GPU Assignment %s", *gpu.Assignment)
+					return nil, errors.Wrapf(errors.InvalidInput, "Unsupported GPU assignment type [%s]", *gpu.Assignment)
 				}
-				vmGPU.Assignment = assignment
-				if gpu.Name != nil {
-					vmGPU.Name = *gpu.Name
+				if gpu.PartitionSizeMB == nil {
+					// if partition size is not specified, set it to 0
+					*gpu.PartitionSizeMB = 0
 				}
-				if gpu.PartitionSizeMB != nil {
-					vmGPU.PartitionSizeMB = *gpu.PartitionSizeMB
+				if gpu.Name == nil {
+					// if name is not specified, set it to empty string
+					*gpu.Name = ""
+				}
+				vmGPU := &wssdcommon.VirtualMachineGPU{
+					Assignment:      assignment,
+					PartitionSizeMB: *gpu.PartitionSizeMB,
+					Name:            *gpu.Name,
 				}
 				vmGPUs = append(vmGPUs, vmGPU)
 			}
