@@ -6,6 +6,7 @@ package virtualmachineimage
 import (
 	"context"
 	"fmt"
+
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -74,6 +75,18 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 
 }
 
+func (c *client) Precheck(ctx context.Context, group string, virtualMachineImages []*compute.VirtualMachineImage) (bool, error) {
+	request, err := getVirtualMachineImagePrecheckRequest(group, virtualMachineImages)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.VirtualMachineImageAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getVirtualMachineImagePrecheckResponse(response)
+}
+
 func getVirtualMachineImageRequest(opType wssdcloudcommon.Operation, group, name string, compute *compute.VirtualMachineImage) (*wssdcloudcompute.VirtualMachineImageRequest, error) {
 	request := &wssdcloudcompute.VirtualMachineImageRequest{
 		OperationType:        opType,
@@ -109,4 +122,32 @@ func getVirtualMachineImagesFromResponse(response *wssdcloudcompute.VirtualMachi
 	}
 
 	return &virtualHardDisks
+}
+
+func getVirtualMachineImagePrecheckRequest(group string, vmImages []*compute.VirtualMachineImage) (*wssdcloudcompute.VirtualMachineImagePrecheckRequest, error) {
+	request := &wssdcloudcompute.VirtualMachineImagePrecheckRequest{}
+
+	protoVMImages := make([]*wssdcloudcompute.VirtualMachineImage, 0, len(vmImages))
+
+	for _, vmImage := range vmImages {
+		// can vm image ever be nil here? what would be the meaning of that?
+		if vmImage != nil {
+			protoVMImage, err := getWssdVirtualMachineImage(vmImage, group)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert VirtualMachineImage to Protobuf representation")
+			}
+			protoVMImages = append(protoVMImages, protoVMImage)
+		}
+	}
+
+	request.VirtualMachineImages = protoVMImages
+	return request, nil
+}
+
+func getVirtualMachineImagePrecheckResponse(response *wssdcloudcompute.VirtualMachineImagePrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }

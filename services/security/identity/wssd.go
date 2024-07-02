@@ -183,6 +183,18 @@ func (c *client) RenewCertificate(ctx context.Context, group, name string, csrs 
 	return certs, key, nil
 }
 
+func (c *client) Precheck(ctx context.Context, identities []*security.Identity) (bool, error) {
+	request, err := getIdentityPrecheckRequest(identities)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.IdentityAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getIdentityPrecheckResponse(response)
+}
+
 func getIdentitysFromResponse(response *wssdcloudsecurity.IdentityResponse) *[]security.Identity {
 	certs := []security.Identity{}
 	for _, identitys := range response.GetIdentitys() {
@@ -257,4 +269,32 @@ func getCertificatesFromResponse(response *wssdcloudsecurity.IdentityCertificate
 		certificates = append(certificates, certificate.GetCertificate(wssdCert))
 	}
 	return certificates
+}
+
+func getIdentityPrecheckRequest(identities []*security.Identity) (*wssdcloudsecurity.IdentityPrecheckRequest, error) {
+	request := &wssdcloudsecurity.IdentityPrecheckRequest{}
+
+	protoIdentities := make([]*wssdcloudsecurity.Identity, 0, len(identities))
+
+	for _, identity := range identities {
+		// can identity ever be nil here? what would be the meaning of that?
+		if identity != nil {
+			protoIdentity, err := getWssdIdentity(identity)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert Identity to Protobuf representation")
+			}
+			protoIdentities = append(protoIdentities, protoIdentity)
+		}
+	}
+
+	request.Identities = protoIdentities
+	return request, nil
+}
+
+func getIdentityPrecheckResponse(response *wssdcloudsecurity.IdentityPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }

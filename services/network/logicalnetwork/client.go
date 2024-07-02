@@ -15,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]network.LogicalNetwork, error)
 	CreateOrUpdate(context.Context, string, string, *network.LogicalNetwork) (*network.LogicalNetwork, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, location string, logicalNetworks []*network.LogicalNetwork) (bool, error)
 }
 
 // Client structure
@@ -46,4 +47,10 @@ func (c *LogicalNetworkClient) CreateOrUpdate(ctx context.Context, location, nam
 // Delete methods invokes delete of the logical network resource
 func (c *LogicalNetworkClient) Delete(ctx context.Context, location, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified logicalNetworks.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *LogicalNetworkClient) Precheck(ctx context.Context, location string, logicalNetworks []*network.LogicalNetwork) (bool, error) {
+	return c.internal.Precheck(ctx, location, logicalNetworks)
 }

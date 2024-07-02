@@ -6,6 +6,7 @@ package galleryimage
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
@@ -79,6 +80,18 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 
 }
 
+func (c *client) Precheck(ctx context.Context, location, imagePath string, galleryImages []*compute.GalleryImage) (bool, error) {
+	request, err := getGalleryImagePrecheckRequest(location, imagePath, galleryImages)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.GalleryImageAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getGalleryImagePrecheckResponse(response)
+}
+
 func getGalleryImageRequest(opType wssdcloudcommon.Operation, location, imagePath, name string, compute *compute.GalleryImage) (*wssdcloudcompute.GalleryImageRequest, error) {
 	request := &wssdcloudcompute.GalleryImageRequest{
 		OperationType: opType,
@@ -118,4 +131,32 @@ func getGalleryImagesFromResponse(response *wssdcloudcompute.GalleryImageRespons
 	}
 
 	return &virtualHardDisks
+}
+
+func getGalleryImagePrecheckRequest(location, imagePath string, galleryImages []*compute.GalleryImage) (*wssdcloudcompute.GalleryImagePrecheckRequest, error) {
+	request := &wssdcloudcompute.GalleryImagePrecheckRequest{}
+
+	protoGalleryImages := make([]*wssdcloudcompute.GalleryImage, 0, len(galleryImages))
+
+	for _, galImage := range galleryImages {
+		// can an entry in the galleryImages slice ever be nil here? what would be the meaning of that?
+		if galImage != nil {
+			protoGalImage, err := getWssdGalleryImage(galImage, location, imagePath)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert GalleryImage to Protobuf representation")
+			}
+			protoGalleryImages = append(protoGalleryImages, protoGalImage)
+		}
+	}
+
+	request.GalleryImages = protoGalleryImages
+	return request, nil
+}
+
+func getGalleryImagePrecheckResponse(response *wssdcloudcompute.GalleryImagePrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }
