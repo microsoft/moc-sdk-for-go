@@ -607,9 +607,6 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 				if commonVMGPU == nil {
 					continue
 				}
-				if &commonVMGPU.Assignment == nil {
-					continue
-				}
 				var assignment compute.Assignment
 				switch commonVMGPU.Assignment {
 				case wssdcommon.AssignmentType_GpuDDA:
@@ -622,14 +619,6 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 					assignment = compute.GpuDefault
 				default:
 					continue
-				}
-				if &commonVMGPU.PartitionSizeMB == nil {
-					// if partition size is not specified, set it to 0
-					commonVMGPU.PartitionSizeMB = 0
-				}
-				if &commonVMGPU.Name == nil {
-					// if name is not specified, set it to empty string
-					commonVMGPU.Name = ""
 				}
 				virtualMachineGPU := &compute.VirtualMachineGPU{
 					Assignment:      &assignment,
