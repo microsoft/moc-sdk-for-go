@@ -139,6 +139,11 @@ func (c *VirtualMachineClient) Update(ctx context.Context, group string, vmName 
 
 // Resize the Virtual Machine
 func (c *VirtualMachineClient) Resize(ctx context.Context, group string, vmName string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize) (err error) {
+	return c.ResizeEx(ctx, group, vmName, newSize, newCustomSize, nil)
+}
+
+// Resize the Virtual Machine with GPUs
+func (c *VirtualMachineClient) ResizeEx(ctx context.Context, group string, vmName string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize, newVirtualMachineGPUs []*compute.VirtualMachineGPU) (err error) {
 	for {
 		vms, err := c.Get(ctx, group, vmName)
 		if err != nil {
@@ -151,6 +156,7 @@ func (c *VirtualMachineClient) Resize(ctx context.Context, group string, vmName 
 		vm := (*vms)[0]
 		vm.HardwareProfile.VMSize = newSize
 		vm.HardwareProfile.CustomSize = newCustomSize
+		vm.HardwareProfile.VirtualMachineGPUs = newVirtualMachineGPUs
 
 		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
 		if err != nil {
