@@ -105,6 +105,7 @@ func (c *client) getVirtualMachineScaleSetStorageProfileDataDisk(dd *wssdcloudco
 func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.VirtualMachineProfile) (*compute.VirtualMachineScaleSetHardwareProfile, error) {
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
+	var vmGPUs []*compute.VirtualMachineGPU
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -113,10 +114,37 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 				MemoryMB: &vm.Hardware.CustomSize.MemoryMB,
 			}
 		}
+		if vm.Hardware.VirtualMachineGPUs != nil {
+			for _, commonVMGPU := range vm.Hardware.VirtualMachineGPUs {
+				if commonVMGPU == nil {
+					continue
+				}
+				var assignment compute.Assignment
+				switch commonVMGPU.Assignment {
+				case wssdcommon.AssignmentType_GpuDDA:
+					assignment = compute.GpuDDA
+				case wssdcommon.AssignmentType_GpuP:
+					assignment = compute.GpuP
+				case wssdcommon.AssignmentType_GpuPV:
+					assignment = compute.GpuPV
+				case wssdcommon.AssignmentType_GpuDefault:
+					assignment = compute.GpuDefault
+				default:
+					return nil, errors.Wrapf(errors.InvalidInput, "Unsupported GPU assignment type [%s]", commonVMGPU.Assignment)
+				}
+				vmGPU := &compute.VirtualMachineGPU{
+					Assignment:      &assignment,
+					PartitionSizeMB: &commonVMGPU.PartitionSizeMB,
+					Name:            &commonVMGPU.Name,
+				}
+				vmGPUs = append(vmGPUs, vmGPU)
+			}
+		}
 	}
 	hardwareProfile := &compute.VirtualMachineScaleSetHardwareProfile{
-		VMSize:     sizeType,
-		CustomSize: customSize,
+		VMSize:             sizeType,
+		CustomSize:         customSize,
+		VirtualMachineGPUs: vmGPUs,
 	}
 
 	return hardwareProfile, nil
@@ -395,6 +423,7 @@ func (c *client) getWssdVirtualMachineScaleSetStorageConfigurationDataDisk(d *co
 func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute.VirtualMachineScaleSetVMProfile) (*wssdcloudcompute.HardwareConfiguration, error) {
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
+	var vmGPUs []*wssdcommon.VirtualMachineGPU
 	if vmp.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vmp.HardwareProfile.VMSize)
 		if vmp.HardwareProfile.CustomSize != nil {
@@ -403,10 +432,48 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 				MemoryMB: *vmp.HardwareProfile.CustomSize.MemoryMB,
 			}
 		}
+		if vmp.HardwareProfile.VirtualMachineGPUs != nil {
+			for _, gpu := range vmp.HardwareProfile.VirtualMachineGPUs {
+				if gpu == nil {
+					continue
+				}
+				if gpu.Assignment == nil {
+					return nil, errors.Wrapf(errors.InvalidInput, "GPU assignment is not specified")
+				}
+				var assignment wssdcommon.AssignmentType
+				switch *gpu.Assignment {
+				case compute.GpuDDA:
+					assignment = wssdcommon.AssignmentType_GpuDDA
+				case compute.GpuP:
+					assignment = wssdcommon.AssignmentType_GpuP
+				case compute.GpuPV:
+					assignment = wssdcommon.AssignmentType_GpuPV
+				case compute.GpuDefault:
+					assignment = wssdcommon.AssignmentType_GpuDefault
+				default:
+					return nil, errors.Wrapf(errors.InvalidInput, "Unsupported GPU assignment type [%s]", *gpu.Assignment)
+				}
+				if gpu.PartitionSizeMB == nil {
+					// if partition size is not specified, set it to 0
+					*gpu.PartitionSizeMB = 0
+				}
+				if gpu.Name == nil {
+					// if name is not specified, set it to empty string
+					*gpu.Name = ""
+				}
+				vmGPU := &wssdcommon.VirtualMachineGPU{
+					Assignment:      assignment,
+					PartitionSizeMB: *gpu.PartitionSizeMB,
+					Name:            *gpu.Name,
+				}
+				vmGPUs = append(vmGPUs, vmGPU)
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
-		VMSize:     sizeType,
-		CustomSize: customSize,
+		VMSize:             sizeType,
+		CustomSize:         customSize,
+		VirtualMachineGPUs: vmGPUs,
 	}
 	return wssdhardware, nil
 }
