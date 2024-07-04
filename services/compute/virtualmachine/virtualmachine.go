@@ -220,11 +220,13 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 				}
 				if gpu.PartitionSizeMB == nil {
 					// if partition size is not specified, set it to 0
-					*gpu.PartitionSizeMB = 0
+					defaultInt := uint64(0)
+					gpu.PartitionSizeMB = &defaultInt
 				}
 				if gpu.Name == nil {
 					// if name is not specified, set it to empty string
-					*gpu.Name = ""
+					defaultString := ""
+					gpu.Name = &defaultString
 				}
 				vmGPU := &wssdcommon.VirtualMachineGPU{
 					Assignment:      assignment,
