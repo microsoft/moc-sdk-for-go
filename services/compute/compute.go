@@ -352,6 +352,8 @@ type VirtualMachineProperties struct {
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// Zones
+	Zones *Zones `json:"zones,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1216,4 +1218,9 @@ type VirtualMachineReference struct {
 	Name *string `json:"name,omitempty"`
 	// Type
 	GroupName *string `json:"group,omitempty"`
+}
+
+type Zones struct {
+	// Preferred Owners
+	Zones *[]string `json:"preferredOwners,omitempty"`
 }

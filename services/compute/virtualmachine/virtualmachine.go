@@ -89,6 +89,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		vmOut.LocationName = *vm.Location
 	}
 
+	if vm.Zones != nil {
+		vmOut.Zones = make([]string, len(*vm.Zones))
+		copy(vmOut.Zones, *vm.Zones)
+	}
+
 	return &vmOut, nil
 }
 
@@ -461,6 +466,19 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	}
 	return availabilitySet, nil
 }
+
+/*
+func (c *client) getWssdVirtualMachineZones(vm *compute.VirtualMachine) (*[]string, error) {
+	if vm == nil {
+		return nil, nil
+	}
+
+	zonesArr := make([]string, len(*vm.Zones))
+	copy(zonesArr, *vm.Zones)
+
+	return &zonesArr, nil
+}
+*/
 
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
