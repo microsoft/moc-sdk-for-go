@@ -5,10 +5,14 @@ package virtualharddisk
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
+	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // Service interface
@@ -73,4 +77,19 @@ func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, na
 // Returns true with virtual hard disk placement in mapping from virtual hard disk names to container names; or false with reason in error message.
 func (c *VirtualHardDiskClient) Precheck(ctx context.Context, group, container string, vhds []*storage.VirtualHardDisk) (bool, error) {
 	return c.internal.Precheck(ctx, group, container, vhds)
+}
+
+func (c *VirtualHardDiskClient) DownloadVhdFromHttp(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk, azHttpImg *compute.AzureGalleryImageProperties) (*storage.VirtualHardDisk, error) {
+	// convert httpImg struct to json string and use it as image-path
+	data, err := json.Marshal(azHttpImg)
+	if err != nil {
+		return nil, err
+	}
+	if storage != nil && storage.VirtualHardDiskProperties != nil {
+		storage.SourceType = common.ImageSource_HTTP_SOURCE
+		datastring := string(data)
+		storage.SourcePath = &datastring
+	}
+	fmt.Printf("moc-sdk-for-go: client.go: SourcePath:  %s\n", *storage.SourcePath)
+	return c.internal.CreateOrUpdate(ctx, group, container, name, storage)
 }
