@@ -53,6 +53,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
 
+	availabilityZoneProfiile, err := c.getWssdAvailabilityZoneConfiguration(vm.AvailabilityZoneProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -61,17 +66,18 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	}
 
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:            *vm.Name,
-		Storage:         storageConfig,
-		Hardware:        hardwareConfig,
-		Security:        securityConfig,
-		GuestAgent:      guestAgentConfig,
-		Os:              osconfig,
-		Network:         networkConfig,
-		GroupName:       group,
-		VmType:          vmtype,
-		Tags:            getWssdTags(vm.Tags),
-		AvailabilitySet: availabilitySetProfile,
+		Name:             *vm.Name,
+		Storage:          storageConfig,
+		Hardware:         hardwareConfig,
+		Security:         securityConfig,
+		GuestAgent:       guestAgentConfig,
+		Os:               osconfig,
+		Network:          networkConfig,
+		GroupName:        group,
+		VmType:           vmtype,
+		Tags:             getWssdTags(vm.Tags),
+		AvailabilitySet:  availabilitySetProfile,
+		AvailabilityZone: availabilityZoneProfiile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -87,11 +93,6 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 
 	if vm.Location != nil {
 		vmOut.LocationName = *vm.Location
-	}
-
-	if vm.Zones != nil {
-		vmOut.Zones = make([]string, len(*vm.Zones))
-		copy(vmOut.Zones, *vm.Zones)
 	}
 
 	return &vmOut, nil
@@ -467,18 +468,22 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	return availabilitySet, nil
 }
 
-/*
-func (c *client) getWssdVirtualMachineZones(vm *compute.VirtualMachine) (*[]string, error) {
-	if vm == nil {
+func (c *client) getWssdAvailabilityZoneConfiguration(avZoneConfig *compute.AvailabilityZoneProfile) (*wssdcloudcompute.AvailabilityZoneConfiguration, error) {
+	if avZoneConfig == nil {
 		return nil, nil
 	}
 
-	zonesArr := make([]string, len(*vm.Zones))
-	copy(zonesArr, *vm.Zones)
-
-	return &zonesArr, nil
+	availabilityZones := make([]*wssdcloudcompute.AvailabilityZone, len(*avZoneConfig.AvailabilityZones))
+	for i, zone := range *avZoneConfig.AvailabilityZones {
+		availabilityZones[i] = &wssdcloudcompute.AvailabilityZone{
+			Name: zone.Name,
+		}
+	}
+	return &wssdcloudcompute.AvailabilityZoneConfiguration{
+		AvailabilityZones:     availabilityZones,
+		StrictAffinityToZones: *avZoneConfig.StrictAffinityToZones,
+	}, nil
 }
-*/
 
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
