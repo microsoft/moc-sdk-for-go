@@ -1220,12 +1220,13 @@ type VirtualMachineReference struct {
 	GroupName *string `json:"group,omitempty"`
 }
 
-// Availability Zone describes the availability zone setting for a virtual machine
+// Availability Zone describes the availability zone associated with a virtual machine
 type AvailabilityZone struct {
-	Name string
+	// Name
+	Name *string `json:"name,omitempty"`
 }
 
-// AvailabilityZoneProfile describes the availability zone configuration for a virtual machine
+// AvailabilityZoneProfile describes the the list of availability zones and affinity type
 type AvailabilityZoneProfile struct {
 	// Availability Zones
 	AvailabilityZones *[]AvailabilityZone `json:"availabilityZones,omitempty"`

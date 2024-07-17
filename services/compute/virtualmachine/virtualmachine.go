@@ -476,7 +476,7 @@ func (c *client) getWssdAvailabilityZoneConfiguration(avZoneConfig *compute.Avai
 	availabilityZones := make([]*wssdcloudcompute.AvailabilityZone, len(*avZoneConfig.AvailabilityZones))
 	for i, zone := range *avZoneConfig.AvailabilityZones {
 		availabilityZones[i] = &wssdcloudcompute.AvailabilityZone{
-			Name: zone.Name,
+			Name: *zone.Name,
 		}
 	}
 	return &wssdcloudcompute.AvailabilityZoneConfiguration{
