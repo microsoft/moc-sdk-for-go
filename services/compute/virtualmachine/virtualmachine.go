@@ -55,7 +55,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 
 	availabilityZoneProfiile, err := c.getWssdAvailabilityZoneConfiguration(vm.AvailabilityZoneProfile)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
+		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
 	}
 
 	vmtype := wssdcloudcompute.VMType_TENANT
@@ -468,20 +468,18 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	return availabilitySet, nil
 }
 
-func (c *client) getWssdAvailabilityZoneConfiguration(avZoneConfig *compute.AvailabilityZoneProfile) (*wssdcloudcompute.AvailabilityZoneConfiguration, error) {
-	if avZoneConfig == nil {
+func (c *client) getWssdAvailabilityZoneConfiguration(avZoneProfile *compute.AvailabilityZoneProfile) (*wssdcloudcompute.AvailabilityZoneConfiguration, error) {
+	if avZoneProfile == nil {
 		return nil, nil
 	}
 
-	availabilityZones := make([]*wssdcloudcompute.AvailabilityZone, len(*avZoneConfig.AvailabilityZones))
-	for i, zone := range *avZoneConfig.AvailabilityZones {
-		availabilityZones[i] = &wssdcloudcompute.AvailabilityZone{
-			Name: *zone.Name,
-		}
+	availabilityZones := []*wssdcloudcompute.AvailabilityZone{}
+	for _, zone := range *avZoneProfile.AvailabilityZones {
+		availabilityZones = append(availabilityZones, &wssdcloudcompute.AvailabilityZone{Name: *zone.Name})
 	}
 	return &wssdcloudcompute.AvailabilityZoneConfiguration{
 		AvailabilityZones:     availabilityZones,
-		StrictAffinityToZones: *avZoneConfig.StrictAffinityToZones,
+		StrictAffinityToZones: *avZoneProfile.StrictAffinityToZones,
 	}, nil
 }
 
