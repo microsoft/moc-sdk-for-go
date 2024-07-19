@@ -6,6 +6,7 @@ package networkinterface
 import (
 	"context"
 	"fmt"
+
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/auth"
@@ -49,6 +50,24 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Interf
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnetInterface *network.Interface) (*network.Interface, error) {
+	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_POST, group, name, vnetInterface)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.NetworkInterfaceAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	vnets, err := c.getInterfacesFromResponse(group, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &(*vnets)[0], nil
+}
+
+// Hydrate
+func (c *client) Hydrate(ctx context.Context, group, name string, vnetInterface *network.Interface) (*network.Interface, error) {
 	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_POST, group, name, vnetInterface)
 	if err != nil {
 		return nil, err
