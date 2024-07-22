@@ -7,9 +7,7 @@ import (
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
-	prototags "github.com/microsoft/moc/pkg/tags"
 	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
-	wssdcloudproto "github.com/microsoft/moc/rpc/common"
 )
 
 // this is only used in create/update
