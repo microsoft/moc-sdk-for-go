@@ -35,6 +35,9 @@ func Test_getVirtualMachineOSProfile(t *testing.T)               {}
 func Test_getVirtualMachineAvailabilitySetProfile(t *testing.T) {
 	return
 }
+func Test_getVirtualMachineAvailabilityZoneProfile(t *testing.T) {
+	return
+}
 
 func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 	proxy := NewProxy()

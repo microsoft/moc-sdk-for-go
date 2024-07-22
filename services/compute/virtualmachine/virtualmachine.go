@@ -53,6 +53,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
 
+	availabilityZoneProfile, err := c.getWssdAvailabilityZoneReference(vm.AvailabilityZoneProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Configuration")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -72,6 +77,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		VmType:          vmtype,
 		Tags:            getWssdTags(vm.Tags),
 		AvailabilitySet: availabilitySetProfile,
+		AvailabilityZone: availabilityZoneProfile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -480,6 +486,18 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	return availabilitySet, nil
 }
 
+func (c *client) getWssdAvailabilityZoneReference(s *compute.AvailabilityZoneReference) (*wssdcloudcompute.AvailabilityZoneReference, error) {
+	if s == nil {
+		return nil, nil
+	}
+
+	availabilityZone := &wssdcloudcompute.AvailabilityZoneReference{
+		Name:      *s.Name,
+		GroupName: *s.GroupName,
+	}
+	return availabilityZone, nil
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -529,6 +547,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
 			AvailabilitySetProfile:  c.getAvailabilitySetReference(vm.AvailabilitySet),
+			AvailabilityZoneProfile:  c.getAvailabilityZoneReference(vm.AvailabilityZone),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,
@@ -693,6 +712,17 @@ func (c *client) getAvailabilitySetReference(a *wssdcloudcompute.AvailabilitySet
 		return nil
 	}
 	ap := &compute.AvailabilitySetReference{
+		Name:      &a.Name,
+		GroupName: &a.GroupName,
+	}
+	return ap
+}
+
+func (c *client) getAvailabilityZoneReference(a *wssdcloudcompute.AvailabilityZoneReference) *compute.AvailabilityZoneReference {
+	if a == nil {
+		return nil
+	}
+	ap := &compute.AvailabilityZoneReference{
 		Name:      &a.Name,
 		GroupName: &a.GroupName,
 	}
