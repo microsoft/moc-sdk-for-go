@@ -65,7 +65,7 @@ func Test_getWssdAvailabilityZone(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, result)
 
-	avset := wssdcloudcompute.AvailabilityZone{
+	avzone := wssdcloudcompute.AvailabilityZone{
 		Name:                     name,
 		LocationName:             location,
 		VirtualMachines:          rpcvms,
