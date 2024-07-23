@@ -538,6 +538,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
 			AvailabilityZoneProfile: c.getAvailabilityZoneProfile(vm.AvailabilityZone),
+			PlacementStatus:         c.getPlacementStatus(vm),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
@@ -853,5 +854,16 @@ func (c *client) getAvailabilityZoneProfile(availabilityZoneConfiguration *wssdc
 	return &compute.AvailabilityZoneProfile{
 		AvailabilityZones:     &availabilityZones,
 		StrictAffinityToZones: &strictAffinityToZones,
+	}
+}
+
+func (c *client) getPlacementStatus(vm *wssdcloudcompute.VirtualMachine) *compute.PlacementStatus {
+	if vm.PlacementStatus == nil {
+		return nil
+	}
+
+	return &compute.PlacementStatus{
+		Status:  convert.ToStringPtr(vm.PlacementStatus.GetStatus().String()),
+		Message: convert.ToStringPtr(vm.PlacementStatus.GetMessage()),
 	}
 }
