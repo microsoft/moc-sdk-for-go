@@ -24,7 +24,7 @@ func getRpcAvailabilityZone(s *compute.AvailabilityZone) (*wssdcloudcompute.Avai
 		Name:                     *s.Name,
 		Status:                   status.GetFromStatuses(s.Statuses),
 		VirtualMachines:          getRpcVirtualMachineReferences(s.VirtualMachines),
-		Nodes:                    s.Nodes,
+		Nodes:                    *s.Nodes,
 	}
 	return availabilityZone, nil
 }

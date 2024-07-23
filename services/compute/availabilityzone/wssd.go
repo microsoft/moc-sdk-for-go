@@ -120,7 +120,7 @@ func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, na
 	}
 
 	if len(name) == 0 {
-		return nil, errors.Wrapf(errors.InvalidName, "Name not specified")
+		return nil, errors.Wrapf(errors.InvalidInput, "Name not specified")
 	}
 
 	avzoneRet := &wssdcloudcompute.AvailabilityZone{
