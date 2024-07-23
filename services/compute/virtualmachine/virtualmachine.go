@@ -53,7 +53,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
 
-	availabilityZoneProfiile, err := c.getWssdAvailabilityZoneConfiguration(vm.AvailabilityZoneProfile)
+	availabilityZoneProfile, err := c.getWssdAvailabilityZoneConfiguration(vm.AvailabilityZoneProfile)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
 	}
@@ -77,7 +77,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		VmType:           vmtype,
 		Tags:             getWssdTags(vm.Tags),
 		AvailabilitySet:  availabilitySetProfile,
-		AvailabilityZone: availabilityZoneProfiile,
+		AvailabilityZone: availabilityZoneProfile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -537,6 +537,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
+			AvailabilityZoneProfile: c.getAvailabilityZoneProfile(vm.AvailabilityZone),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
@@ -835,5 +836,22 @@ func (c *client) getVirtualMachineProxyConfiguration(proxyConfiguration *wssdclo
 		HttpsProxy: &proxyConfiguration.HttpsProxy,
 		NoProxy:    &proxyConfiguration.NoProxy,
 		TrustedCa:  &proxyConfiguration.TrustedCa,
+	}
+}
+
+func (c *client) getAvailabilityZoneProfile(availabilityZoneConfiguration *wssdcloudcompute.AvailabilityZoneConfiguration) *compute.AvailabilityZoneProfile {
+	if availabilityZoneConfiguration == nil || len(availabilityZoneConfiguration.AvailabilityZones) == 0 {
+		return nil
+	}
+
+	availabilityZones := []compute.AvailabilityZone{}
+	strictAffinityToZones := availabilityZoneConfiguration.StrictAffinityToZones
+	for _, zone := range availabilityZoneConfiguration.AvailabilityZones {
+		zoneName := zone.Name
+		availabilityZones = append(availabilityZones, compute.AvailabilityZone{Name: &zoneName})
+	}
+	return &compute.AvailabilityZoneProfile{
+		AvailabilityZones:     &availabilityZones,
+		StrictAffinityToZones: &strictAffinityToZones,
 	}
 }
