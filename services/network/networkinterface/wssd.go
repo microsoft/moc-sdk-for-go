@@ -68,7 +68,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnetInt
 
 // Hydrate
 func (c *client) Hydrate(ctx context.Context, group, name string, vnetInterface *network.Interface) (*network.Interface, error) {
-	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_POST, group, name, vnetInterface)
+	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_HYDRATE, group, name, vnetInterface)
 	if err != nil {
 		return nil, err
 	}
