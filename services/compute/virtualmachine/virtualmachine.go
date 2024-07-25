@@ -473,9 +473,9 @@ func (c *client) getWssdAvailabilityZoneConfiguration(avZoneProfile *compute.Ava
 		return nil, nil
 	}
 
-	availabilityZones := []*wssdcloudcompute.AvailabilityZone{}
+	availabilityZones := []*wssdcloudcompute.AvailabilityZoneReference{}
 	for _, zone := range *avZoneProfile.AvailabilityZones {
-		availabilityZones = append(availabilityZones, &wssdcloudcompute.AvailabilityZone{Name: *zone.Name})
+		availabilityZones = append(availabilityZones, &wssdcloudcompute.AvailabilityZoneReference{Name: *zone.Name})
 	}
 	return &wssdcloudcompute.AvailabilityZoneConfiguration{
 		AvailabilityZones:     availabilityZones,
