@@ -354,8 +354,6 @@ type VirtualMachineProperties struct {
 	Statuses map[string]*string `json:"statuses"`
 	// Availability Zones
 	AvailabilityZoneProfile *AvailabilityZoneProfile `json:"availabilityZoneProfile,omitempty"`
-	// Placement Status
-	PlacementStatus *PlacementStatus `json:"placementStatus,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1234,11 +1232,4 @@ type AvailabilityZoneProfile struct {
 	AvailabilityZones *[]AvailabilityZone `json:"availabilityZones,omitempty"`
 	// Strict Affinity To Zones
 	StrictAffinityToZones *bool `json:"strictAffinityToZones,omitempty"`
-}
-
-type PlacementStatus struct {
-	// Status
-	Status *string `json:"status,omitempty"`
-	// Message
-	Message *string `json:"message,omitempty"`
 }
