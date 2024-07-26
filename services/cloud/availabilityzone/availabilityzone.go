@@ -43,7 +43,7 @@ func getWssdAvailabilityZone(s *wssdcloudcompute.AvailabilityZone) (*cloud.Avail
 		ID:                       &s.Id,
 		Location:                 &s.LocationName,
 		Version:                  &s.Status.Version.Number,
-		AvailabilityZoneProperties: &cloud.AvailabilityZoneProperties: {
+		AvailabilityZoneProperties: &cloud.AvailabilityZoneProperties{
 			Statuses:                 status.GetStatuses(s.Status),
 			Nodes:                    &s.Nodes,
 		},
