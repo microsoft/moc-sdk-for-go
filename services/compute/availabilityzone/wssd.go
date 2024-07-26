@@ -47,7 +47,7 @@ func (c *client) Get(ctx context.Context, name string) (*[]compute.AvailabilityZ
 }
 
 // Create
-func (c *client) Create(ctx context.Context, name string, avzone *compute.AvailabilityZone) (*compute.AvailabilityZone, error) {
+func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *compute.AvailabilityZone) (*compute.AvailabilityZone, error) {
 	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_POST, name, avzone)
 	if err != nil {
 		return nil, err

@@ -12,7 +12,7 @@ import (
 
 type Service interface {
 	Get(context.Context, string) (*[]compute.AvailabilityZone, error)
-	Create(ctx context.Context, name string, avzone *compute.AvailabilityZone) (*compute.AvailabilityZone, error)
+	CreateOrUpdate(ctx context.Context, name string, avzone *compute.AvailabilityZone) (*compute.AvailabilityZone, error)
 	Delete(context.Context, string) error
 }
 
@@ -36,8 +36,8 @@ func (c *AvailabilityZoneClient) Get(ctx context.Context, name string) (*[]compu
 }
 
 // CreateOrUpdate methods invokes create or update on the client
-func (c *AvailabilityZoneClient) Create(ctx context.Context, name string, compute *compute.AvailabilityZone) (*compute.AvailabilityZone, error) {
-	return c.internal.Create(ctx, name, compute)
+func (c *AvailabilityZoneClient) CreateOrUpdate(ctx context.Context, name string, compute *compute.AvailabilityZone) (*compute.AvailabilityZone, error) {
+	return c.internal.CreateOrUpdate(ctx, name, compute)
 }
 
 // Delete methods invokes delete of the compute resource
