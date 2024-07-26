@@ -352,6 +352,36 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 	return
 }
 
+func (c *client) WrapKey_NoRollover(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	err = c.isSupportedWrapAlgorithm(param.Algorithm)
+	if err != nil {
+		return
+	}
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey_NoRollover)
+	if err != nil {
+		return
+	}
+	response, err := c.KeyAgentClient.Operate(ctx, request)
+	if err != nil {
+		return
+	}
+	result, err = getDataFromResponse(response)
+	return
+}
+
+func (c *client) Status(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Status)
+	if err != nil {
+		return
+	}
+	response, err := c.KeyAgentClient.Operate(ctx, request)
+	if err != nil {
+		return
+	}
+	result, err = getDataFromResponse(response)
+	return
+}
+
 func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
 	err = c.isSupportedWrapAlgorithm(param.Algorithm)
 	if err != nil {
