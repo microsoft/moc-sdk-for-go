@@ -1220,4 +1220,3 @@ type VirtualMachineReference struct {
 	GroupName *string `json:"group,omitempty"`
 }
 
-
