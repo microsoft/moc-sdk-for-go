@@ -480,18 +480,6 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	return availabilitySet, nil
 }
 
-func (c *client) getWssdAvailabilityZoneReference(s *compute.AvailabilityZoneReference) (*wssdcloudcompute.AvailabilityZoneReference, error) {
-	if s == nil {
-		return nil, nil
-	}
-
-	availabilityZone := &wssdcloudcompute.AvailabilityZoneReference{
-		Name:      *s.Name,
-		GroupName: *s.GroupName,
-	}
-	return availabilityZone, nil
-}
-
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
