@@ -336,8 +336,6 @@ type VirtualMachineProperties struct {
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// AvailabilitySetSetting
 	AvailabilitySetProfile *AvailabilitySetReference `json:"availabilitySetprofile,omitempty"`
-	// AvailabilityZoneSetting
-	AvailabilityZoneProfile *AvailabilityZoneReference `json:"availabilityZoneprofile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
@@ -1222,30 +1220,4 @@ type VirtualMachineReference struct {
 	GroupName *string `json:"group,omitempty"`
 }
 
-// AvailabilityZone describes the availabilityZone setting for a virtual machine
-type AvailabilityZone struct {
-	// ID
-	ID *string `json:"ID,omitempty"`
-	// Name
-	Name *string `json:"name,omitempty"`
-	// Type
-	Type *string `json:"type,omitempty"`
-	// Version
-	Version *string `json:"version,omitempty"`
-	// Location - Resource location
-	Location *string `json:"location,omitempty"`
-	// Statuses - Statuses
-	Statuses map[string]*string `json:"statuses"`
-	// Nodes
-    Nodes *[]string `json:"nodes,omitempty"`
-	// VMs
-	VirtualMachines []*VirtualMachineReference
-}
 
-// AvailabilityZoneReference describes a resource reference setting for an availability zone
-type AvailabilityZoneReference struct {
-	// Name
-	Name *string `json:"name,omitempty"`
-	// Type
-	GroupName *string `json:"group,omitempty"`
-}

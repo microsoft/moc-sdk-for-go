@@ -6,18 +6,18 @@ package availabilityzone
 import (
 	"context"
 
-	"github.com/microsoft/moc-sdk-for-go/services/compute"
+	"github.com/microsoft/moc-sdk-for-go/services/cloud"
 	"github.com/microsoft/moc/pkg/auth"
 )
 
 type Service interface {
-	Get(context.Context, string) (*[]compute.AvailabilityZone, error)
-	CreateOrUpdate(ctx context.Context, name string, avzone *compute.AvailabilityZone) (*compute.AvailabilityZone, error)
+	Get(context.Context, string) (*[]cloud.AvailabilityZone, error)
+	CreateOrUpdate(ctx context.Context, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error)
 	Delete(context.Context, string) error
 }
 
 type AvailabilityZoneClient struct {
-	compute.BaseClient
+	cloud.BaseClient
 	internal Service
 }
 
@@ -31,16 +31,16 @@ func NewAvailabilityZoneClient(cloudFQDN string, authorizer auth.Authorizer) (*A
 }
 
 // Get methods invokes the client Get method
-func (c *AvailabilityZoneClient) Get(ctx context.Context, name string) (*[]compute.AvailabilityZone, error) {
+func (c *AvailabilityZoneClient) Get(ctx context.Context, name string) (*[]cloud.AvailabilityZone, error) {
 	return c.internal.Get(ctx, name)
 }
 
 // CreateOrUpdate methods invokes create or update on the client
-func (c *AvailabilityZoneClient) CreateOrUpdate(ctx context.Context, name string, compute *compute.AvailabilityZone) (*compute.AvailabilityZone, error) {
-	return c.internal.CreateOrUpdate(ctx, name, compute)
+func (c *AvailabilityZoneClient) CreateOrUpdate(ctx context.Context, name string, cloud *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error) {
+	return c.internal.CreateOrUpdate(ctx, name, cloud)
 }
 
-// Delete methods invokes delete of the compute resource
+// Delete methods invokes delete of the cloud resource
 func (c *AvailabilityZoneClient) Delete(ctx context.Context, name string) error {
 	return c.internal.Delete(ctx, name)
 }

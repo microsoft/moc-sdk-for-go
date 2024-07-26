@@ -13,8 +13,8 @@ import (
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
-	"github.com/microsoft/moc-sdk-for-go/services/compute"
-	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/cloud"
 )
 
 type client struct {
@@ -33,7 +33,7 @@ func newAvailabilityZoneClient(subID string, authorizer auth.Authorizer) (*clien
 }
 
 // Get
-func (c *client) Get(ctx context.Context, name string) (*[]compute.AvailabilityZone, error) {
+func (c *client) Get(ctx context.Context, name string) (*[]cloud.AvailabilityZone, error) {
 	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_GET, name, nil)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (c *client) Get(ctx context.Context, name string) (*[]compute.AvailabilityZ
 }
 
 // Create
-func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *compute.AvailabilityZone) (*compute.AvailabilityZone, error) {
+func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error) {
 	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_POST, name, avzone)
 	if err != nil {
 		return nil, err
@@ -99,8 +99,8 @@ func (c *client) Delete(ctx context.Context, name string) error {
 ///////// private methods ////////
 
 // Conversion from proto to sdk
-func (c *client) getAvailabilityZoneFromResponse(response *wssdcloudcompute.AvailabilityZoneResponse) (*[]compute.AvailabilityZone, error) {
-	avzonesRet := []compute.AvailabilityZone{}
+func (c *client) getAvailabilityZoneFromResponse(response *wssdcloudcompute.AvailabilityZoneResponse) (*[]cloud.AvailabilityZone, error) {
+	avzonesRet := []cloud.AvailabilityZone{}
 	for _, avzone := range response.GetAvailabilityZones() {
 		cavzone, err := getWssdAvailabilityZone(avzone)
 		if err != nil {
@@ -113,7 +113,7 @@ func (c *client) getAvailabilityZoneFromResponse(response *wssdcloudcompute.Avai
 
 }
 
-func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, name string, avzone *compute.AvailabilityZone) (*wssdcloudcompute.AvailabilityZoneRequest, error) {
+func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, name string, avzone *cloud.AvailabilityZone) (*wssdcloudcompute.AvailabilityZoneRequest, error) {
 	request := &wssdcloudcompute.AvailabilityZoneRequest{
 		OperationType:    opType,
 		AvailabilityZones: []*wssdcloudcompute.AvailabilityZone{},

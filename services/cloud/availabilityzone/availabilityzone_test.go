@@ -6,8 +6,8 @@ package availabilityzone
 import (
 	"testing"
 
-	"github.com/microsoft/moc-sdk-for-go/services/compute"
-	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/compute"
+	"github.com/microsoft/moc-sdk-for-go/services/cloud"
+	wssdcloudcompute "github.com/microsoft/moc/rpc/cloudagent/cloud"
 	wssdcommon "github.com/microsoft/moc/rpc/common"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,8 +23,6 @@ var a2Group = "ag2"
 var provisionoingstate = "CREATED"
 var health = "OK"
 var wssdnodes = []string {"node1", "node2"}
-var wssdvms = []*compute.VirtualMachineReference{{Name: &a1Name, GroupName: &a1Group}, {Name: &a2Name, GroupName: &a2Group}}
-var rpcvms = []*wssdcloudcompute.VirtualMachineReference{{Name: a1Name, GroupName: a1Group}, {Name: a2Name, GroupName: a2Group}}
 var wssdstatus = map[string]*string{
 	"ProvisionState": &provisionoingstate,
 	"HealthState":    &health,
@@ -40,10 +38,9 @@ func Test_getRpcAvailabilityZone(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, result)
 
-	avzone := compute.AvailabilityZone{
+	avzone := cloud.AvailabilityZone{
 		Name:                     &name,
 		Location:                 &location,
-		VirtualMachines:          wssdvms,
 		Statuses:                 wssdstatus,
 		Nodes:                    wssdnodes,
 	}
@@ -56,7 +53,6 @@ func Test_getRpcAvailabilityZone(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, name, result.Name)
 	assert.Equal(t, location, result.LocationName)
-	assert.Equal(t, 2, len(result.VirtualMachines))
 }
 
 
@@ -68,7 +64,6 @@ func Test_getWssdAvailabilityZone(t *testing.T) {
 	avzone := wssdcloudcompute.AvailabilityZone{
 		Name:                     name,
 		LocationName:             location,
-		VirtualMachines:          rpcvms,
 		Status:                   &rpcstatus,
 		Nodes:                    wssdnodes,
 	}
@@ -77,26 +72,4 @@ func Test_getWssdAvailabilityZone(t *testing.T) {
 	assert.Nil(t, err)
 	assert.EqualValues(t, name, *result.Name)
 	assert.EqualValues(t, location, *result.Location)
-	assert.EqualValues(t, 2, len(result.VirtualMachines))
-}
-
-func Test_getRpcWssdVirtualMachineReference(t *testing.T) {
-	a1Name := "a1"
-	a1Group := "ag1"
-	a2Name := "a2"
-	a2Group := "ag2"
-	a := []*compute.VirtualMachineReference{{Name: &a1Name, GroupName: &a1Group}, {Name: &a2Name, GroupName: &a2Group}}
-	b := getRpcVirtualMachineReferences(a)
-	assert.Equal(t, 2, len(b))
-	assert.EqualValues(t, a1Name, b[0].Name)
-	assert.EqualValues(t, a1Group, b[0].GroupName)
-	assert.EqualValues(t, a2Name, b[1].Name)
-	assert.EqualValues(t, a2Group, b[1].GroupName)
-
-	b = getRpcVirtualMachineReferences([]*compute.VirtualMachineReference{})
-	assert.Equal(t, 0, len(b))
-
-	b = getRpcVirtualMachineReferences([]*compute.VirtualMachineReference{nil})
-	assert.Equal(t, 1, len(b))
-	assert.Nil(t, b[0])
 }
