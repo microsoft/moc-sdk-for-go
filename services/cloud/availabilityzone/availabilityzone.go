@@ -25,7 +25,7 @@ func getRpcAvailabilityZone(s *cloud.AvailabilityZone) (*wssdcloudcompute.Availa
 		Status:                   status.GetFromStatuses(s.Statuses),
 	}
 
-	if len(s.AvailabilityZoneProperties.Nodes) > 0 {
+	if s.AvailabilityZoneProperties.Nodes != nil {
 		availabilityZone.Nodes = *s.AvailabilityZoneProperties.Nodes
 	}
 
