@@ -23,7 +23,6 @@ func getRpcAvailabilityZone(s *cloud.AvailabilityZone) (*wssdcloudcompute.Availa
 	availabilityZone := &wssdcloudcompute.AvailabilityZone{
 		Name:                     *s.Name,
 		Status:                   status.GetFromStatuses(s.Statuses),
-		VirtualMachines:          getRpcVirtualMachineReferences(s.VirtualMachines)
 	}
 
 	if len(s.Nodes) > 0 {
@@ -44,7 +43,6 @@ func getWssdAvailabilityZone(s *wssdcloudcompute.AvailabilityZone) (*cloud.Avail
 		ID:                       &s.Id,
 		Location:                 &s.LocationName,
 		Version:                  &s.Status.Version.Number,
-		VirtualMachines:          getWssdVirtualMachineReferences(s.VirtualMachines),
 		Statuses:                 status.GetStatuses(s.Status),
 		Nodes:                    &s.Nodes,
 	}
