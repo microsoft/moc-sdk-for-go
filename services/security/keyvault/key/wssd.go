@@ -365,7 +365,7 @@ func (c *client) WrapKey_NoRollover(ctx context.Context, group, vaultName, name 
 	if err != nil {
 		return
 	}
-	result, err = getDataFromResponse(response)
+	result, err = getKeyIdAndDataFromResponse(response)
 	return
 }
 
@@ -378,7 +378,7 @@ func (c *client) Status(ctx context.Context, group, vaultName, name string, para
 	if err != nil {
 		return
 	}
-	result, err = getDataFromResponse(response)
+	result, err = getKeyIdAndDataFromResponse(response)
 	return
 }
 
@@ -468,6 +468,14 @@ func getKeyRequest(opType wssdcloudcommon.Operation, groupName, vaultName, name 
 
 func getDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyOperationResult, err error) {
 	result = &keyvault.KeyOperationResult{
+		Result: &response.Data,
+	}
+	return result, nil
+}
+
+func getKeyIdAndDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyOperationResult, err error) {
+	result = &keyvault.KeyOperationResult{
+		Kid:    &response.KeyId,
 		Result: &response.Data,
 	}
 	return result, nil
