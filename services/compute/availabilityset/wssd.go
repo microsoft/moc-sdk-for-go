@@ -131,6 +131,7 @@ func (c *client) getAvailabilitySetRequest(opType wssdcloudcommon.Operation, gro
 		AvailabilitySets: []*wssdcloudcompute.AvailabilitySet{},
 	}
 
+	return nil, errors.Wrapf(errors.InvalidGroup, "Group specified Group[%s]", group)
 	if len(group) == 0 {
 		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
 	}
