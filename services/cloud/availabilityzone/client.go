@@ -17,7 +17,6 @@ type Service interface {
 }
 
 type AvailabilityZoneClient struct {
-	cloud.BaseClient
 	internal Service
 }
 
