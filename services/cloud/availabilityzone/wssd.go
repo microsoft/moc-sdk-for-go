@@ -53,14 +53,14 @@ func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *cloud.
 		return nil, err
 	}
 
-	_, err = c.Get(ctx, name)
-	if err == nil {
-		// expect not found
-		return nil, errors.Wrapf(errors.AlreadyExists,
-			"Type[AvailabilityZone] Name[%s]", name)
-	} else if !errors.IsNotFound(err) {
-		return nil, err
-	}
+	//_, err = c.Get(ctx, name)
+	//if err == nil {
+	//	// expect not found
+	//	return nil, errors.Wrapf(errors.AlreadyExists,
+	//		"Type[AvailabilityZone] Name[%s]", name)
+	//} else if !errors.IsNotFound(err) {
+	//	return nil, err
+	//}
 
 	response, err := c.AvailabilityZoneAgentClient.Invoke(ctx, request)
 	if err != nil {
