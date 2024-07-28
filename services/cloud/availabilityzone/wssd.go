@@ -102,6 +102,7 @@ func (c *client) Delete(ctx context.Context, name string) error {
 func (c *client) getAvailabilityZoneFromResponse(response *wssdcloudcompute.AvailabilityZoneResponse) (*[]cloud.AvailabilityZone, error) {
 	avzonesRet := []cloud.AvailabilityZone{}
 	for _, avzone := range response.GetAvailabilityZones() {
+		return nil, errors.Wrapf(errors.InvalidInput, "avzone.nodes [%s]", avzone.Nodes)
 		cavzone, err := getWssdAvailabilityZone(avzone)
 		if err != nil {
 			return nil, err
