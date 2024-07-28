@@ -53,8 +53,6 @@ func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *cloud.
 		return nil, err
 	}
 
-	return nil, errors.Wrapf(errors.InvalidInput, "avzone.AvailabilityZoneProperties.Nodes [%s]", avzone.AvailabilityZoneProperties.Nodes)
-
 	//_, err = c.Get(ctx, name)
 	//if err == nil {
 	//	// expect not found
