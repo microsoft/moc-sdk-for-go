@@ -108,7 +108,6 @@ func (c *client) getAvailabilityZoneFromResponse(response *wssdcloudcompute.Avai
 		}
 		avzonesRet = append(avzonesRet, *cavzone)
 	}
-    return nil, errors.Wrapf(errors.InvalidInput, "avzonesRet[0].nodes [%s]", avzonesRet[0].Nodes)
 	return &avzonesRet, nil
 
 }
