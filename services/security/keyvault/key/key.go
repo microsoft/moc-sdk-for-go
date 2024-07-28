@@ -303,7 +303,8 @@ func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, e
 	case "A-256-CBC":
 		return keyvault.A256CBC, nil
 	}
-	return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+	// return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+	return keyvault.A256KW, nil
 }
 
 func GetMOCKeyWrappingAlgorithm(algo keyvault.KeyWrappingAlgorithm) (wrappingAlgo wssdcloudcommon.KeyWrappingAlgorithm, err error) {
