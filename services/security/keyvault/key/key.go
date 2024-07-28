@@ -260,7 +260,8 @@ func getMOCAlgorithm(algo keyvault.JSONWebKeyEncryptionAlgorithm) (wssdcloudcomm
 	case keyvault.A256CBC:
 		return wssdcloudcommon.Algorithm_A256CBC, nil
 	}
-	return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+	// return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
+	return wssdcloudcommon.Algorithm_A256KW, nil
 }
 
 func getMOCSigningAlgorithm(algo keyvault.JSONWebKeySignatureAlgorithm) (wssdcloudcommon.JSONWebKeySignatureAlgorithm, error) {
