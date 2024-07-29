@@ -217,6 +217,43 @@ func (c *client) Validate(ctx context.Context, group, name string) error {
 	return nil
 }
 
+func (c *client) Precheck(ctx context.Context, group string, vms []*compute.VirtualMachine) (bool, error) {
+	request, err := c.getVirtualMachinePrecheckRequest(group, vms)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.VirtualMachineAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getVirtualMachinePrecheckResponse(response)
+}
+
+func getVirtualMachinePrecheckResponse(response *wssdcloudcompute.VirtualMachinePrecheckResponse) (bool, error) {
+	var err error = nil
+	result := response.GetResult().GetValue()
+	if !result {
+		err = errors.New(response.GetError())
+	}
+	return result, err
+}
+
+func (c *client) getVirtualMachinePrecheckRequest(group string, vms []*compute.VirtualMachine) (*wssdcloudcompute.VirtualMachinePrecheckRequest, error) {
+	request := &wssdcloudcompute.VirtualMachinePrecheckRequest{
+		VirtualMachines: []*wssdcloudcompute.VirtualMachine{},
+	}
+	for _, vm := range vms {
+		if vm != nil {
+			mocvm, err := c.getWssdVirtualMachine(vm, group)
+			if err != nil {
+				return nil, err
+			}
+			request.VirtualMachines = append(request.VirtualMachines, mocvm)
+		}
+	}
+	return request, nil
+}
+
 // Discover VMs on this cluster node
 func (c *client) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachineDiscovery, error) {
 	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DISCOVERVM, "", "", nil)

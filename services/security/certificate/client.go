@@ -17,6 +17,7 @@ type Service interface {
 	Delete(context.Context, string, string) error
 	Sign(context.Context, string, string, *security.CertificateRequest) (*security.Certificate, string, error)
 	Renew(context.Context, string, string, *security.CertificateRequest) (*security.Certificate, string, error)
+	Precheck(ctx context.Context, certificates []*security.Certificate) (bool, error)
 }
 
 // Client structure
@@ -58,4 +59,10 @@ func (c *CertificateClient) Sign(ctx context.Context, group, name string, csr *s
 // Renew methods invokes renew to renew signed-certificate
 func (c *CertificateClient) Renew(ctx context.Context, group, name string, csr *security.CertificateRequest) (*security.Certificate, string, error) {
 	return c.internal.Renew(ctx, group, name, csr)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *CertificateClient) Precheck(ctx context.Context, certificates []*security.Certificate) (bool, error) {
+	return c.internal.Precheck(ctx, certificates)
 }

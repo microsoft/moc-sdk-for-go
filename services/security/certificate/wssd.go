@@ -127,6 +127,18 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, certificates []*security.Certificate) (bool, error) {
+	request, err := getCertificatePrecheckRequest(certificates)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.CertificateAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getCertificatePrecheckResponse(response)
+}
+
 func getCertificatesFromResponse(response *wssdcloudsecurity.CertificateResponse) *[]security.Certificate {
 	certs := []security.Certificate{}
 	for _, certificates := range response.GetCertificates() {
@@ -174,4 +186,32 @@ func getCSRRequest(name string, csr *security.CertificateRequest) (*wssdcloudsec
 	}
 	request.CSRs = append(request.CSRs, wssdcsr)
 	return request, key, nil
+}
+
+func getCertificatePrecheckRequest(certificates []*security.Certificate) (*wssdcloudsecurity.CertificatePrecheckRequest, error) {
+	request := &wssdcloudsecurity.CertificatePrecheckRequest{}
+
+	protoCerts := make([]*wssdcloudsecurity.Certificate, 0, len(certificates))
+
+	for _, certificate := range certificates {
+		// can cert ever be nil here? what would be the meaning of that?
+		if certificate != nil {
+			protoCert, err := GetWssdCertificate(certificate)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert Certificate to Protobuf representation")
+			}
+			protoCerts = append(protoCerts, protoCert)
+		}
+	}
+
+	request.Certificates = protoCerts
+	return request, nil
+}
+
+func getCertificatePrecheckResponse(response *wssdcloudsecurity.CertificatePrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }

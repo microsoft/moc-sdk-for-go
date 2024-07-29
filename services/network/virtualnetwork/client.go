@@ -5,6 +5,7 @@ package virtualnetwork
 
 import (
 	"context"
+
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/auth"
 )
@@ -14,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]network.VirtualNetwork, error)
 	CreateOrUpdate(context.Context, string, string, *network.VirtualNetwork) (*network.VirtualNetwork, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error)
 }
 
 // Client structure
@@ -45,4 +47,10 @@ func (c *VirtualNetworkClient) CreateOrUpdate(ctx context.Context, group, name s
 // Delete methods invokes delete of the network resource
 func (c *VirtualNetworkClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *VirtualNetworkClient) Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error) {
+	return c.internal.Precheck(ctx, group, virtualNetworks)
 }

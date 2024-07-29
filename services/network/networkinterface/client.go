@@ -16,6 +16,7 @@ type Service interface {
 	CreateOrUpdate(context.Context, string, string, *network.Interface) (*network.Interface, error)
 	Hydrate(context.Context, string, string, *network.Interface) (*network.Interface, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, group string, networkInterfaces []*network.Interface) (bool, error)
 }
 
 // InterfaceClient structure
@@ -52,4 +53,10 @@ func (c *InterfaceClient) Hydrate(ctx context.Context, group, name string, netwo
 // Delete methods invokes delete of the network interface resource
 func (c *InterfaceClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *InterfaceClient) Precheck(ctx context.Context, group string, networkInterfaces []*network.Interface) (bool, error) {
+	return c.internal.Precheck(ctx, group, networkInterfaces)
 }

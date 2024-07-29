@@ -107,6 +107,18 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, group string, resources []*network.Interface) (bool, error) {
+	request, err := getNetworkInterfacePrecheckRequest(group, resources)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.NetworkInterfaceAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getNetworkInterfacePrecheckResponse(response)
+}
+
 // ///////////// private methods  ///////////////
 func (c *client) getNetworkInterfaceRequest(opType wssdcloudcommon.Operation, group, name string, networkInterface *network.Interface) (*wssdcloudnetwork.NetworkInterfaceRequest, error) {
 	request := &wssdcloudnetwork.NetworkInterfaceRequest{
@@ -148,4 +160,32 @@ func (c *client) getInterfacesFromResponse(group string, response *wssdcloudnetw
 	}
 
 	return &virtualNetworkInterfaces, nil
+}
+
+func getNetworkInterfacePrecheckRequest(group string, networkInterfaces []*network.Interface) (*wssdcloudnetwork.NetworkInterfacePrecheckRequest, error) {
+	request := &wssdcloudnetwork.NetworkInterfacePrecheckRequest{}
+
+	protoNetworkInterfaces := make([]*wssdcloudnetwork.NetworkInterface, 0, len(networkInterfaces))
+
+	for _, networkInterface := range networkInterfaces {
+		// can networkInterface ever be nil here? what would be the meaning of that?
+		if networkInterface != nil {
+			protoNetworkInterface, err := getWssdNetworkInterface(networkInterface, group)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert NetworkInterface to Protobuf representation")
+			}
+			protoNetworkInterfaces = append(protoNetworkInterfaces, protoNetworkInterface)
+		}
+	}
+
+	request.NetworkInterfaces = protoNetworkInterfaces
+	return request, nil
+}
+
+func getNetworkInterfacePrecheckResponse(response *wssdcloudnetwork.NetworkInterfacePrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }

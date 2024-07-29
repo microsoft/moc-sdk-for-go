@@ -99,6 +99,46 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error) {
+	request, err := getLoadBalancerPrecheckRequest(group, loadBalancers)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.LoadBalancerAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getLoadBalancerPrecheckResponse(response)
+}
+
+func getLoadBalancerPrecheckRequest(group string, loadBalancers []*network.LoadBalancer) (*wssdcloudnetwork.LoadBalancerPrecheckRequest, error) {
+	request := &wssdcloudnetwork.LoadBalancerPrecheckRequest{}
+
+	protoLoadBalancers := make([]*wssdcloudnetwork.LoadBalancer, 0, len(loadBalancers))
+
+	for _, lb := range loadBalancers {
+		// can lb ever be nil here? what would be the meaning of that?
+		if lb != nil {
+			protoLB, err := getWssdLoadBalancer(lb, group)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert LoadBalancer to Protobuf representation")
+			}
+			protoLoadBalancers = append(protoLoadBalancers, protoLB)
+		}
+	}
+
+	request.LoadBalancers = protoLoadBalancers
+	return request, nil
+}
+
+func getLoadBalancerPrecheckResponse(response *wssdcloudnetwork.LoadBalancerPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
+}
+
 func (c *client) getLoadBalancerRequestByName(opType wssdcloudcommon.Operation, group, name string) (*wssdcloudnetwork.LoadBalancerRequest, error) {
 	networkLB := network.LoadBalancer{
 		Name: &name,
