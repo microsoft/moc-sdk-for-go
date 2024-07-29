@@ -80,7 +80,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location string, name strin
 
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, location string, name string) error {
-	vmss, err := c.Get(ctx, name)
+	vmss, err := c.Get(ctx, location, name)
 	if err != nil {
 		return err
 	}
