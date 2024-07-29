@@ -260,8 +260,7 @@ func getMOCAlgorithm(algo keyvault.JSONWebKeyEncryptionAlgorithm) (wssdcloudcomm
 	case keyvault.A256CBC:
 		return wssdcloudcommon.Algorithm_A256CBC, nil
 	}
-	// return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
-	return wssdcloudcommon.Algorithm_A256KW, nil
+	return wssdcloudcommon.Algorithm_A_UNKNOWN, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 }
 
 func getMOCSigningAlgorithm(algo keyvault.JSONWebKeySignatureAlgorithm) (wssdcloudcommon.JSONWebKeySignatureAlgorithm, error) {
@@ -303,8 +302,7 @@ func GetMOCAlgorithmType(algo string) (keyvault.JSONWebKeyEncryptionAlgorithm, e
 	case "A-256-CBC":
 		return keyvault.A256CBC, nil
 	}
-	// return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
-	return keyvault.A256KW, nil
+	return keyvault.RSA15, errors.Wrapf(errors.InvalidInput, "Invalid Algorithm [%s]", algo)
 }
 
 func GetMOCKeyWrappingAlgorithm(algo keyvault.KeyWrappingAlgorithm) (wrappingAlgo wssdcloudcommon.KeyWrappingAlgorithm, err error) {
