@@ -11,9 +11,9 @@ import (
 )
 
 type Service interface {
-	Get(context.Context, string) (*[]cloud.AvailabilityZone, error)
-	CreateOrUpdate(ctx context.Context, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error)
-	Delete(context.Context, string) error
+	Get(context.Context, string, string) (*[]cloud.AvailabilityZone, error)
+	CreateOrUpdate(ctx context.Context, location string, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error)
+	Delete(context.Context, string, string) error
 }
 
 type AvailabilityZoneClient struct {
@@ -30,16 +30,16 @@ func NewAvailabilityZoneClient(cloudFQDN string, authorizer auth.Authorizer) (*A
 }
 
 // Get methods invokes the client Get method
-func (c *AvailabilityZoneClient) Get(ctx context.Context, name string) (*[]cloud.AvailabilityZone, error) {
-	return c.internal.Get(ctx, name)
+func (c *AvailabilityZoneClient) Get(ctx context.Context, location string, name string) (*[]cloud.AvailabilityZone, error) {
+	return c.internal.Get(ctx, location, name)
 }
 
 // CreateOrUpdate methods invokes create or update on the client
-func (c *AvailabilityZoneClient) CreateOrUpdate(ctx context.Context, name string, cloud *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error) {
-	return c.internal.CreateOrUpdate(ctx, name, cloud)
+func (c *AvailabilityZoneClient) CreateOrUpdate(ctx context.Context, location string, name string, cloud *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error) {
+	return c.internal.CreateOrUpdate(ctx, location, name, cloud)
 }
 
 // Delete methods invokes delete of the cloud resource
-func (c *AvailabilityZoneClient) Delete(ctx context.Context, name string) error {
-	return c.internal.Delete(ctx, name)
+func (c *AvailabilityZoneClient) Delete(ctx context.Context, location string, name string) error {
+	return c.internal.Delete(ctx, location, name)
 }
