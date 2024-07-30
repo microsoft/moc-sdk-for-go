@@ -33,8 +33,8 @@ func newAvailabilityZoneClient(subID string, authorizer auth.Authorizer) (*clien
 }
 
 // Get
-func (c *client) Get(ctx context.Context, name string) (*[]cloud.AvailabilityZone, error) {
-	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_GET, name, nil)
+func (c *client) Get(ctx context.Context, location string, name string) (*[]cloud.AvailabilityZone, error) {
+	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_GET, location, name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -47,20 +47,20 @@ func (c *client) Get(ctx context.Context, name string) (*[]cloud.AvailabilityZon
 }
 
 // Create
-func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error) {
-	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_POST, name, avzone)
+func (c *client) CreateOrUpdate(ctx context.Context, location string, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error) {
+	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_POST, location, name, avzone)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = c.Get(ctx, name)
-	if err == nil {
-		// expect not found
-		return nil, errors.Wrapf(errors.AlreadyExists,
-			"Type[AvailabilityZone] Name[%s]", name)
-	} else if !errors.IsNotFound(err) {
-		return nil, err
-	}
+	//_, err = c.Get(ctx, name)
+	//if err == nil {
+	//	// expect not found
+	//	return nil, errors.Wrapf(errors.AlreadyExists,
+	//		"Type[AvailabilityZone] Name[%s]", name)
+	//} else if !errors.IsNotFound(err) {
+	//	return nil, err
+	//}
 
 	response, err := c.AvailabilityZoneAgentClient.Invoke(ctx, request)
 	if err != nil {
@@ -79,8 +79,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, name string, avzone *cloud.
 }
 
 // Delete methods invokes create or update on the client
-func (c *client) Delete(ctx context.Context, name string) error {
-	vmss, err := c.Get(ctx, name)
+func (c *client) Delete(ctx context.Context, location string, name string) error {
+	vmss, err := c.Get(ctx, location, name)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (c *client) Delete(ctx context.Context, name string) error {
 		return errors.NotFound
 	}
 
-	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_DELETE, name, &(*vmss)[0])
+	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*vmss)[0])
 	if err != nil {
 		return err
 	}
@@ -108,23 +108,23 @@ func (c *client) getAvailabilityZoneFromResponse(response *wssdcloudcompute.Avai
 		}
 		avzonesRet = append(avzonesRet, *cavzone)
 	}
-
 	return &avzonesRet, nil
 
 }
 
-func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, name string, avzone *cloud.AvailabilityZone) (*wssdcloudcompute.AvailabilityZoneRequest, error) {
+func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, location string, name string, avzone *cloud.AvailabilityZone) (*wssdcloudcompute.AvailabilityZoneRequest, error) {
 	request := &wssdcloudcompute.AvailabilityZoneRequest{
 		OperationType:    opType,
 		AvailabilityZones: []*wssdcloudcompute.AvailabilityZone{},
 	}
 
-	if len(name) == 0 {
-		return nil, errors.Wrapf(errors.InvalidInput, "Name not specified")
+	if len(location) == 0 {
+		return nil, errors.Wrapf(errors.InvalidInput, "Location not specified")
 	}
 
 	avzoneRet := &wssdcloudcompute.AvailabilityZone{
 		Name:      name,
+		LocationName: location,
 	}
 
 	if avzone != nil {
