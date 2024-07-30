@@ -89,7 +89,7 @@ func (c *client) Hydrate(ctx context.Context, group, name string) (*compute.Virt
 	}
 	vms := c.getVirtualMachineFromResponse(response, group)
 	if len(*vms) == 0 {
-		return nil, fmt.Errorf("Hydration of Virtual Machine failed to unknown reason.")
+		return nil, fmt.Errorf("hydration of Virtual Machine failed to unknown reason")
 	}
 
 	return &(*vms)[0], nil
@@ -254,31 +254,6 @@ func (c *client) getVirtualMachinePrecheckRequest(group string, vms []*compute.V
 	return request, nil
 }
 
-// Discover VMs on this cluster node
-func (c *client) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachineDiscovery, error) {
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DISCOVERVM, "", "", nil)
-	if err != nil {
-		return nil, err
-	}
-	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
-
-	vms := c.getVirtualMachineFromResponse(response, "")
-
-	vmdiscoverys := []compute.VirtualMachineDiscovery{}
-	for _, vm := range *vms {
-		vmdiscovery := compute.VirtualMachineDiscovery{
-			VmId:       vm.ID,
-			VmName:     vm.Name,
-			PowerState: vm.VirtualMachineProperties.Statuses["PowerState"],
-		}
-
-		vmdiscoverys = append(vmdiscoverys, vmdiscovery)
-	}
-
-	return &vmdiscoverys, nil
-
-}
-
 // Private methods
 func (c *client) getVirtualMachineRunCommandRequest(ctx context.Context, group, name string, request *compute.VirtualMachineRunCommandRequest) (mocRequest *wssdcloudcompute.VirtualMachineRunCommandRequest, err error) {
 	vms, err := c.get(ctx, group, name)
@@ -359,7 +334,7 @@ func (c *client) getVirtualMachineRunCommandResponse(mocResponse *wssdcloudcompu
 func (c *client) getVirtualMachineFromResponse(response *wssdcloudcompute.VirtualMachineResponse, group string) *[]compute.VirtualMachine {
 	vms := []compute.VirtualMachine{}
 	for _, vm := range response.GetVirtualMachines() {
-		vms = append(vms, *(c.getVirtualMachine(vm, group)))
+		vms = append(vms, *(c.getVirtualMachine(vm)))
 	}
 
 	return &vms

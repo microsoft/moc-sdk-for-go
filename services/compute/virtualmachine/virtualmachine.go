@@ -509,7 +509,7 @@ func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.Pr
 
 // Conversion functions from wssdcloudcompute to compute
 
-func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group string) *compute.VirtualMachine {
+func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine) *compute.VirtualMachine {
 	if vm == nil {
 		return &compute.VirtualMachine{}
 	}
@@ -539,6 +539,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			SecurityProfile:         c.getVirtualMachineSecurityProfile(vm),
 			OsProfile:               c.getVirtualMachineOSProfile(vm.Os),
 			NetworkProfile:          c.getVirtualMachineNetworkProfile(vm.Network),
+			AvailabilitySetProfile:  c.getAvailabilitySetReference(vm.AvailabilitySet),
 			GuestAgentProfile:       c.getVirtualMachineGuestAgentProfile(vm.GuestAgent),
 			GuestAgentInstanceView:  c.getVirtualMachineGuestInstanceView(vm.GuestAgentInstanceView),
 			VmType:                  vmtype,

@@ -28,7 +28,6 @@ type Service interface {
 	RepairGuestAgent(context.Context, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 	Validate(context.Context, string, string) error
-	DiscoverVm(context.Context) (*[]compute.VirtualMachineDiscovery, error)
 	Precheck(context.Context, string, []*compute.VirtualMachine) (bool, error)
 }
 
@@ -61,7 +60,7 @@ func (c *VirtualMachineClient) CreateOrUpdate(ctx context.Context, group, name s
 	return c.internal.CreateOrUpdate(ctx, group, name, compute)
 }
 
-// Hydrate methods invokes create or update on the client
+// Hydrate methods creates MOC representation of the VM resource
 func (c *VirtualMachineClient) Hydrate(ctx context.Context, group, name string) (*compute.VirtualMachine, error) {
 	return c.internal.Hydrate(ctx, group, name)
 }
@@ -389,8 +388,4 @@ func (c *VirtualMachineClient) Validate(ctx context.Context, group, name string)
 // Returns true with virtual machine placement in mapping from virtual machine names to node names; or false with reason in error message.
 func (c *VirtualMachineClient) Precheck(ctx context.Context, group string, vms []*compute.VirtualMachine) (bool, error) {
 	return c.internal.Precheck(ctx, group, vms)
-}
-
-func (c *VirtualMachineClient) DiscoverVm(ctx context.Context) (*[]compute.VirtualMachineDiscovery, error) {
-	return c.internal.DiscoverVm(ctx)
 }
