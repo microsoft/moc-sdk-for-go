@@ -313,8 +313,6 @@ type AvailabilityZone struct {
 	ID *string `json:"ID,omitempty"`
 	// Name
 	Name *string `json:"name,omitempty"`
-	// Type
-	Type *string `json:"type,omitempty"`
 	// Version
 	Version *string `json:"version,omitempty"`
 	// Location - Resource location
