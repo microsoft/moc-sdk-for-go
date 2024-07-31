@@ -70,7 +70,7 @@ func GetControlPlaneClient(serverAddress *string, authorizer auth.Authorizer) (c
 	return cloud_pb.NewControlPlaneAgentClient(conn), nil
 }
 
-// GetAvailabilityZone returns the virtual machine client to communicate with the wssd agent
+// GetAvailabilityZone returns the availability zone client to communicate with the wssd agent
 func GetAvailabilityZoneClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.AvailabilityZoneAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {
