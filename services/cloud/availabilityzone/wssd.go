@@ -53,42 +53,33 @@ func (c *client) CreateOrUpdate(ctx context.Context, location string, name strin
 		return nil, err
 	}
 
-	//_, err = c.Get(ctx, name)
-	//if err == nil {
-	//	// expect not found
-	//	return nil, errors.Wrapf(errors.AlreadyExists,
-	//		"Type[AvailabilityZone] Name[%s]", name)
-	//} else if !errors.IsNotFound(err) {
-	//	return nil, err
-	//}
-
 	response, err := c.AvailabilityZoneAgentClient.Invoke(ctx, request)
 	if err != nil {
 		return nil, err
 	}
-	vmsss, err := c.getAvailabilityZoneFromResponse(response)
+	avzones, err := c.getAvailabilityZoneFromResponse(response)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(*vmsss) == 0 {
+	if len(*avzones) == 0 {
 		return nil, fmt.Errorf("creation of availability zone failed to unknown reason")
 	}
 
-	return &(*vmsss)[0], nil
+	return &(*avzones)[0], nil
 }
 
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, location string, name string) error {
-	vmss, err := c.Get(ctx, location, name)
+	avzones, err := c.Get(ctx, location, name)
 	if err != nil {
 		return err
 	}
-	if len(*vmss) == 0 {
+	if len(*avzones) == 0 {
 		return errors.NotFound
 	}
 
-	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*vmss)[0])
+	request, err := c.getAvailabilityZoneRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*avzones)[0])
 	if err != nil {
 		return err
 	}
