@@ -115,6 +115,9 @@ func (c *client) getVirtualMachineScaleSetHardwareProfile(vm *wssdcloudcompute.V
 			}
 		}
 		if vm.Hardware.VirtualMachineGPUs != nil {
+			if vm.Hardware.CustomSize == nil || &vm.Hardware.CustomSize.CpuCount == nil || &vm.Hardware.CustomSize.MemoryMB == nil {
+				return nil, errors.Wrapf(errors.InvalidInput, "CPU count and MemoryMB must be specified")
+			}
 			for _, commonVMGPU := range vm.Hardware.VirtualMachineGPUs {
 				if commonVMGPU == nil {
 					continue
@@ -433,6 +436,9 @@ func (c *client) getWssdVirtualMachineScaleSetHardwareConfiguration(vmp *compute
 			}
 		}
 		if vmp.HardwareProfile.VirtualMachineGPUs != nil {
+			if vmp.HardwareProfile.CustomSize == nil || vmp.HardwareProfile.CustomSize.CpuCount == nil || vmp.HardwareProfile.CustomSize.MemoryMB == nil {
+				return nil, errors.Wrapf(errors.InvalidInput, "CPU count and MemoryMB must be specified")
+			}
 			for _, gpu := range vmp.HardwareProfile.VirtualMachineGPUs {
 				if gpu == nil {
 					continue

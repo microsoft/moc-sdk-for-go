@@ -198,6 +198,9 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 			}
 		}
 		if vm.HardwareProfile.VirtualMachineGPUs != nil {
+			if vm.HardwareProfile.CustomSize == nil || vm.HardwareProfile.CustomSize.CpuCount == nil || vm.HardwareProfile.CustomSize.MemoryMB == nil {
+				return nil, errors.Wrapf(errors.InvalidInput, "CPU count and MemoryMB must be specified")
+			}
 			for _, gpu := range vm.HardwareProfile.VirtualMachineGPUs {
 				if gpu == nil {
 					continue
