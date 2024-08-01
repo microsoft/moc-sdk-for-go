@@ -15,6 +15,7 @@ require (
 require (
 	github.com/Microsoft/go-winio v0.6.1
 	github.com/golang/protobuf v1.5.4
+	github.com/google/go-cmp v0.6.0
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	google.golang.org/protobuf v1.34.2
@@ -24,6 +25,7 @@ replace (
 	github.com/Azure/go-autorest v11.1.2+incompatible => github.com/Azure/go-autorest/autorest v0.10.0
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+	github.com/microsoft/moc => ../moc
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
