@@ -103,5 +103,6 @@ func (c *GalleryImageClient) UploadImageFromVMOsDisk(ctx context.Context, locati
 		fmt.Println("moc-sdk-for-go: client.go: Setting the source type to VM OS DISK")
 		compute.SourceType = common.ImageSource_VMOSDISK_SOURCE
 	}
+	fmt.Printf("moc-sdk-for-go: client.go: UploadImageFromVMOsDisk: Source VM: %s \n", *(compute.GalleryImageProperties.SourceVM))
 	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
 }

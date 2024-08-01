@@ -34,6 +34,9 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		wssdgalleryimage.SourceType = c.SourceType
 		wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
 		wssdgalleryimage.HyperVGeneration = c.HyperVGeneration
+		if c.GalleryImageProperties.SourceVM != nil {
+			wssdgalleryimage.SourceVM = *c.GalleryImageProperties.SourceVM
+		}
 	}
 
 	if c.Version != nil {
