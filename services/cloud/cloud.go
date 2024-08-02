@@ -318,7 +318,7 @@ type AvailabilityZone struct {
 	// Location - Resource location
 	Location *string `json:"location,omitempty"`
 
-	*AvailabilityZoneProperties `json:"availabilityzoneproperties,omitempty"`
+	*AvailabilityZoneProperties `json:"properties,omitempty"`
 }
 
 type AvailabilityZoneProperties struct {
