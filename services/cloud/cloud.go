@@ -306,3 +306,24 @@ type EtcdCluster struct {
 	// Tags - The tags attached to the resource group.
 	Tags map[string]*string `json:"tags"`
 }
+
+// AvailabilityZone describes the availabilityZone setting for a virtual machine
+type AvailabilityZone struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+
+	*AvailabilityZoneProperties `json:"properties,omitempty"`
+}
+
+type AvailabilityZoneProperties struct {
+	// Statuses - Statuses
+	Statuses map[string]*string `json:"statuses"`
+	// Nodes
+	Nodes *[]string `json:"nodes,omitempty"`
+}
