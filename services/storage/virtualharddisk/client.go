@@ -6,7 +6,6 @@ package virtualharddisk
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
@@ -90,6 +89,5 @@ func (c *VirtualHardDiskClient) DownloadVhdFromHttp(ctx context.Context, group, 
 		datastring := string(data)
 		storage.SourcePath = &datastring
 	}
-	fmt.Printf("moc-sdk-for-go: client.go: SourcePath:  %s\n", *storage.SourcePath)
 	return c.internal.CreateOrUpdate(ctx, group, container, name, storage)
 }

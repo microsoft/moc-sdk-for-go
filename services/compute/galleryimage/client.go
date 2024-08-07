@@ -6,7 +6,6 @@ package galleryimage
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
@@ -98,11 +97,8 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 
 // UploadImageFromLocal   methods invokes  UploadImageFromLocal  on the client
 func (c *GalleryImageClient) UploadImageFromVMOsDisk(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
-	fmt.Println("moc-sdk-for-go: client.go: UploadImageFromVMOsDisk start")
 	if compute != nil && compute.GalleryImageProperties != nil && compute.GalleryImageProperties.SourceVM != nil {
-		fmt.Println("moc-sdk-for-go: client.go: Setting the source type to VM OS DISK")
 		compute.SourceType = common.ImageSource_VMOSDISK_SOURCE
 	}
-	fmt.Printf("moc-sdk-for-go: client.go: UploadImageFromVMOsDisk: Source VM: %s \n", *(compute.GalleryImageProperties.SourceVM))
 	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
 }
