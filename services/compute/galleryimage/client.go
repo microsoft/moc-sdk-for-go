@@ -94,3 +94,11 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 	}
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
+
+// UploadImageFromLocal   methods invokes  UploadImageFromLocal  on the client
+func (c *GalleryImageClient) UploadImageFromVMOsDisk(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
+	if compute != nil && compute.GalleryImageProperties != nil && compute.GalleryImageProperties.SourceVM != nil {
+		compute.SourceType = common.ImageSource_VMOSDISK_SOURCE
+	}
+	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
+}
