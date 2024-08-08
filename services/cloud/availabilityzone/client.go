@@ -14,6 +14,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]cloud.AvailabilityZone, error)
 	CreateOrUpdate(ctx context.Context, location string, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, group string, avzones []*cloud.AvailabilityZone) (bool, error)
 }
 
 type AvailabilityZoneClient struct {
@@ -42,4 +43,10 @@ func (c *AvailabilityZoneClient) CreateOrUpdate(ctx context.Context, location st
 // Delete methods invokes delete of the cloud resource
 func (c *AvailabilityZoneClient) Delete(ctx context.Context, location string, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified availability zones.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *AvailabilityZoneClient) Precheck(ctx context.Context, group string, avzones []*cloud.AvailabilityZone) (bool, error) {
+	return c.internal.Precheck(ctx, group, avzones)
 }

@@ -87,6 +87,18 @@ func (c *client) Delete(ctx context.Context, location string, name string) error
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, group string, avzones []*compute.AvailabilityZone) (bool, error) {
+	request, err := getAvailabilityZonePrecheckRequest(group, avzones)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.AvailabilityZoneAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getAvailabilityZonePrecheckResponse(response)
+}
+
 ///////// private methods ////////
 
 // Conversion from proto to sdk
@@ -129,4 +141,32 @@ func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, lo
 	request.AvailabilityZones = append(request.AvailabilityZones, avzoneRet)
 	return request, nil
 
+}
+
+func getAvailabilityZonePrecheckRequest(group string, avzones []*compute.AvailabilityZone) (*wssdcloudcompute.AvailabilityZonePrecheckRequest, error) {
+	request := &wssdcloudcompute.AvailabilityZonePrecheckRequest{}
+
+	protoAvZones := make([]*wssdcloudcompute.AvailabilityZone, 0, len(avzones))
+
+	for _, avzone := range avzones {
+		// can avzone ever be nil here? what would be the meaning of that?
+		if avset != nil {
+			protoAvZone, err := getRpcAvailabilityZone(avzone, group)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert AvailabilityZone to Protobuf representation")
+			}
+			protoAvZones = append(protoAvZones, protoAvZone)
+		}
+	}
+
+	request.AvailabilityZones = protoAvZones
+	return request, nil
+}
+
+func getAvailabilityZonePrecheckResponse(response *wssdcloudcompute.AvailabilityZonePrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
 }
