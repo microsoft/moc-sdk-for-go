@@ -87,8 +87,8 @@ func (c *client) Delete(ctx context.Context, location string, name string) error
 	return err
 }
 
-func (c *client) Precheck(ctx context.Context, group string, avzones []*cloud.AvailabilityZone) (bool, error) {
-	request, err := getAvailabilityZonePrecheckRequest(group, avzones)
+func (c *client) Precheck(ctx context.Context, location string, avzones []*cloud.AvailabilityZone) (bool, error) {
+	request, err := getAvailabilityZonePrecheckRequest(location, avzones)
 	if err != nil {
 		return false, err
 	}
@@ -143,7 +143,7 @@ func (c *client) getAvailabilityZoneRequest(opType wssdcloudcommon.Operation, lo
 
 }
 
-func getAvailabilityZonePrecheckRequest(group string, avzones []*cloud.AvailabilityZone) (*wssdcloudcompute.AvailabilityZonePrecheckRequest, error) {
+func getAvailabilityZonePrecheckRequest(location string, avzones []*cloud.AvailabilityZone) (*wssdcloudcompute.AvailabilityZonePrecheckRequest, error) {
 	request := &wssdcloudcompute.AvailabilityZonePrecheckRequest{}
 
 	protoAvZones := make([]*wssdcloudcompute.AvailabilityZone, 0, len(avzones))
@@ -151,7 +151,7 @@ func getAvailabilityZonePrecheckRequest(group string, avzones []*cloud.Availabil
 	for _, avzone := range avzones {
 		// can avzone ever be nil here? what would be the meaning of that?
 		if avzone != nil {
-			protoAvZone, err := getRpcAvailabilityZone(avzone, group)
+			protoAvZone, err := getRpcAvailabilityZone(avzone)
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to convert AvailabilityZone to Protobuf representation")
 			}

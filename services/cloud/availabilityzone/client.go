@@ -47,6 +47,6 @@ func (c *AvailabilityZoneClient) Delete(ctx context.Context, location string, na
 
 // Prechecks whether the system is able to create specified availability zones.
 // Returns true if it is possible; or false with reason in error message if not.
-func (c *AvailabilityZoneClient) Precheck(ctx context.Context, group string, avzones []*cloud.AvailabilityZone) (bool, error) {
-	return c.internal.Precheck(ctx, group, avzones)
+func (c *AvailabilityZoneClient) Precheck(ctx context.Context, location string, avzones []*cloud.AvailabilityZone) (bool, error) {
+	return c.internal.Precheck(ctx, location, avzones)
 }
