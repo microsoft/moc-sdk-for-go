@@ -14,7 +14,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]cloud.AvailabilityZone, error)
 	CreateOrUpdate(ctx context.Context, location string, name string, avzone *cloud.AvailabilityZone) (*cloud.AvailabilityZone, error)
 	Delete(context.Context, string, string) error
-	Precheck(ctx context.Context, group string, avzones []*cloud.AvailabilityZone) (bool, error)
+	Precheck(ctx context.Context, location string, avzones []*cloud.AvailabilityZone) (bool, error)
 }
 
 type AvailabilityZoneClient struct {
