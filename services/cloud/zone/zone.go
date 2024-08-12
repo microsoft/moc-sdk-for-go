@@ -13,7 +13,7 @@ import (
 // this is only used in create/update
 func getRpcZone(s *cloud.Zone) (*wssdcloudcompute.Zone, error) {
 	if s == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Availability zone object is nil")
+		return nil, errors.Wrapf(errors.InvalidInput, "zone object is nil")
 	}
 
 	if s.Name == nil {
@@ -42,7 +42,7 @@ func getRpcZone(s *cloud.Zone) (*wssdcloudcompute.Zone, error) {
 // Convert from client model (rpc) to core model (compute)
 func getWssdZone(s *wssdcloudcompute.Zone) (*cloud.Zone, error) {
 	if s == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Availability zone object is nil")
+		return nil, errors.Wrapf(errors.InvalidInput, "zone object is nil")
 	}
 
 	zone := &cloud.Zone{

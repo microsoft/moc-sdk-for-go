@@ -63,7 +63,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location string, name strin
 	}
 
 	if len(*avzones) == 0 {
-		return nil, fmt.Errorf("creation of availability zone failed to unknown reason")
+		return nil, fmt.Errorf("creation of zone failed to unknown reason")
 	}
 
 	return &(*avzones)[0], nil
