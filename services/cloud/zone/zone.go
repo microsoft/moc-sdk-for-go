@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the Apache v2.0 License.
 
-package availabilityzone
+package zone
 
 import (
 	"github.com/microsoft/moc-sdk-for-go/services/cloud"
@@ -11,51 +11,51 @@ import (
 )
 
 // this is only used in create/update
-func getRpcAvailabilityZone(s *cloud.AvailabilityZone) (*wssdcloudcompute.AvailabilityZone, error) {
+func getRpcZone(s *cloud.Zone) (*wssdcloudcompute.Zone, error) {
 	if s == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Availability zone object is nil")
 	}
 
 	if s.Name == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "AvailabilityZone object Name is empty")
+		return nil, errors.Wrapf(errors.InvalidInput, "Zone object Name is empty")
 	}
 
-	availabilityZone := &wssdcloudcompute.AvailabilityZone{
+	zone := &wssdcloudcompute.Zone{
 		Name:                     *s.Name,
 		LocationName:             *s.Location,
 	}
 
 	if s.Version != nil {  
-		if availabilityZone.Status == nil {
-			availabilityZone.Status = status.InitStatus()
+		if zone.Status == nil {
+			zone.Status = status.InitStatus()
 		}
-		availabilityZone.Status.Version.Number = *s.Version
+		zone.Status.Version.Number = *s.Version
 	}
 
-	if s.AvailabilityZoneProperties.Nodes != nil {
-		availabilityZone.Nodes = *s.AvailabilityZoneProperties.Nodes
+	if s.ZoneProperties.Nodes != nil {
+		zone.Nodes = *s.ZoneProperties.Nodes
 	}
 
-	return availabilityZone, nil
+	return zone, nil
 }
 
 // Convert from client model (rpc) to core model (compute)
-func getWssdAvailabilityZone(s *wssdcloudcompute.AvailabilityZone) (*cloud.AvailabilityZone, error) {
+func getWssdZone(s *wssdcloudcompute.Zone) (*cloud.Zone, error) {
 	if s == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Availability zone object is nil")
 	}
 
-	availabilityZone := &cloud.AvailabilityZone{
+	zone := &cloud.Zone{
 		Name:                     &s.Name,
 		ID:                       &s.Id,
 		Location:                 &s.LocationName,
 		Version:                  &s.Status.Version.Number,
-		AvailabilityZoneProperties: &cloud.AvailabilityZoneProperties{
+		ZoneProperties: &cloud.ZoneProperties{
 			Statuses:                 status.GetStatuses(s.Status),
 			Nodes:                    &s.Nodes,
 		},
 	}
 
-	return availabilityZone, nil
+	return zone, nil
 }
 
