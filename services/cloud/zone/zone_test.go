@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the Apache v2.0 License.
 
-package availabilityzone
+package zone
 
 import (
 	"testing"
@@ -22,7 +22,7 @@ var a2Name = "a2"
 var a2Group = "ag2"
 var provisionoingstate = "CREATED"
 var health = "OK"
-var wssdnodes = []string {"node1", "node2"}
+var wssdnodes = []string{"node1", "node2"}
 var wssdstatus = map[string]*string{
 	"ProvisionState": &provisionoingstate,
 	"HealthState":    &health,
@@ -33,42 +33,41 @@ var rpcstatus = wssdcommon.Status{
 	Version:            &wssdcommon.Version{Number: "123"},
 }
 
-func Test_getRpcAvailabilityZone(t *testing.T) {
-	result, err := getRpcAvailabilityZone(nil)
+func Test_getRpcZone(t *testing.T) {
+	result, err := getRpcZone(nil)
 	assert.Error(t, err)
 	assert.Nil(t, result)
 
-	avzone := cloud.AvailabilityZone{
-		Name:                     &name,
-		Location:                 &location,
-		Statuses:                 wssdstatus,
-		Nodes:                    wssdnodes,
+	avzone := cloud.Zone{
+		Name:     &name,
+		Location: &location,
+		Statuses: wssdstatus,
+		Nodes:    wssdnodes,
 	}
 
-	result, err = getRpcAvailabilityZone(&avzone)
+	result, err = getRpcZone(&avzone)
 	assert.Error(t, err)
 
 	avzone.ID = &id
-	result, err = getRpcAvailabilityZone(&avzone)
+	result, err = getRpcZone(&avzone)
 	assert.Nil(t, err)
 	assert.Equal(t, name, result.Name)
 	assert.Equal(t, location, result.LocationName)
 }
 
-
-func Test_getWssdAvailabilityZone(t *testing.T) {
-	result, err := getWssdAvailabilityZone(nil)
+func Test_getWssdZone(t *testing.T) {
+	result, err := getWssdZone(nil)
 	assert.Error(t, err)
 	assert.Nil(t, result)
 
-	avzone := wssdcloudcompute.AvailabilityZone{
-		Name:                     name,
-		LocationName:             location,
-		Status:                   &rpcstatus,
-		Nodes:                    wssdnodes,
+	avzone := wssdcloudcompute.Zone{
+		Name:         name,
+		LocationName: location,
+		Status:       &rpcstatus,
+		Nodes:        wssdnodes,
 	}
 
-	result, err = getWssdAvailabilityZone(&avzone)
+	result, err = getWssdZone(&avzone)
 	assert.Nil(t, err)
 	assert.EqualValues(t, name, *result.Name)
 	assert.EqualValues(t, location, *result.Location)
