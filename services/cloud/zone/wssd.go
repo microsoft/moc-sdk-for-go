@@ -105,8 +105,8 @@ func (c *client) getZoneFromResponse(response *wssdcloudcompute.ZoneResponse) (*
 
 func (c *client) getZoneRequest(opType wssdcloudcommon.Operation, location string, name string, avzone *cloud.Zone) (*wssdcloudcompute.ZoneRequest, error) {
 	request := &wssdcloudcompute.ZoneRequest{
-		OperationType:    opType,
-		Zones: []*wssdcloudcompute.Zone{},
+		OperationType: opType,
+		Zones:         []*wssdcloudcompute.Zone{},
 	}
 
 	if len(location) == 0 {
@@ -114,7 +114,7 @@ func (c *client) getZoneRequest(opType wssdcloudcommon.Operation, location strin
 	}
 
 	avzoneRet := &wssdcloudcompute.Zone{
-		Name:      name,
+		Name:         name,
 		LocationName: location,
 	}
 

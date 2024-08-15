@@ -22,7 +22,7 @@ var a2Name = "a2"
 var a2Group = "ag2"
 var provisionoingstate = "CREATED"
 var health = "OK"
-var wssdnodes = []string {"node1", "node2"}
+var wssdnodes = []string{"node1", "node2"}
 var wssdstatus = map[string]*string{
 	"ProvisionState": &provisionoingstate,
 	"HealthState":    &health,
@@ -39,10 +39,10 @@ func Test_getRpcZone(t *testing.T) {
 	assert.Nil(t, result)
 
 	avzone := cloud.Zone{
-		Name:                     &name,
-		Location:                 &location,
-		Statuses:                 wssdstatus,
-		Nodes:                    wssdnodes,
+		Name:     &name,
+		Location: &location,
+		Statuses: wssdstatus,
+		Nodes:    wssdnodes,
 	}
 
 	result, err = getRpcZone(&avzone)
@@ -55,17 +55,16 @@ func Test_getRpcZone(t *testing.T) {
 	assert.Equal(t, location, result.LocationName)
 }
 
-
 func Test_getWssdZone(t *testing.T) {
 	result, err := getWssdZone(nil)
 	assert.Error(t, err)
 	assert.Nil(t, result)
 
 	avzone := wssdcloudcompute.Zone{
-		Name:                     name,
-		LocationName:             location,
-		Status:                   &rpcstatus,
-		Nodes:                    wssdnodes,
+		Name:         name,
+		LocationName: location,
+		Status:       &rpcstatus,
+		Nodes:        wssdnodes,
 	}
 
 	result, err = getWssdZone(&avzone)

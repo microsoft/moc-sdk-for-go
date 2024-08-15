@@ -21,11 +21,11 @@ func getRpcZone(s *cloud.Zone) (*wssdcloudcompute.Zone, error) {
 	}
 
 	zone := &wssdcloudcompute.Zone{
-		Name:                     *s.Name,
-		LocationName:             *s.Location,
+		Name:         *s.Name,
+		LocationName: *s.Location,
 	}
 
-	if s.Version != nil {  
+	if s.Version != nil {
 		if zone.Status == nil {
 			zone.Status = status.InitStatus()
 		}
@@ -46,16 +46,15 @@ func getWssdZone(s *wssdcloudcompute.Zone) (*cloud.Zone, error) {
 	}
 
 	zone := &cloud.Zone{
-		Name:                     &s.Name,
-		ID:                       &s.Id,
-		Location:                 &s.LocationName,
-		Version:                  &s.Status.Version.Number,
+		Name:     &s.Name,
+		ID:       &s.Id,
+		Location: &s.LocationName,
+		Version:  &s.Status.Version.Number,
 		ZoneProperties: &cloud.ZoneProperties{
-			Statuses:                 status.GetStatuses(s.Status),
-			Nodes:                    &s.Nodes,
+			Statuses: status.GetStatuses(s.Status),
+			Nodes:    &s.Nodes,
 		},
 	}
 
 	return zone, nil
 }
-
