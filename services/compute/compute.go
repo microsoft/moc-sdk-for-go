@@ -852,6 +852,8 @@ type GalleryImageProperties struct {
 	SourceType common.ImageSource `json:"sourceType,omitempty"`
 	// CloudInitDataSource - READ-ONLY; The cloud init data source to be used with the image. [NoCloud, Azure]. Default Value – NoCloud. For marketplace images it will be Azure.
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
+	//Source VM to create the image from
+	SourceVirtualMachine *string `json:"sourceVirtualMachine,omitempty"`
 }
 
 // GalleryImage specifies information about the gallery Image Definition that you want to create or update.
