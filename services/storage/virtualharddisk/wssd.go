@@ -75,7 +75,7 @@ func (c *client) Hydrate(ctx context.Context, group, container, name string, vhd
 	vhds := getVirtualHardDisksFromResponse(response, group)
 
 	if len(*vhds) == 0 {
-		return nil, fmt.Errorf("[VirtualHardDisk][Create] Unexpected error: Hydrating a storage interface returned no result")
+		return nil, fmt.Errorf("[VirtualHardDisk][Hydrate] Unexpected error: Hydrating a storage interface returned no result")
 	}
 
 	return &((*vhds)[0]), nil
@@ -88,7 +88,7 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 		return err
 	}
 	if len(*vhd) == 0 {
-		return fmt.Errorf("Virtual Network [%s] not found", name)
+		return fmt.Errorf("[VirtualHardDisk][Delete] %s: not found", name)
 	}
 
 	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_DELETE, group, container, name, &(*vhd)[0])

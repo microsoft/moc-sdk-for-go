@@ -78,8 +78,8 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 }
 
 // Hydrate
-func (c *client) Hydrate(ctx context.Context, group, name string) (*compute.VirtualMachine, error) {
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_HYDRATE, group, name, nil)
+func (c *client) Hydrate(ctx context.Context, group, name string, sg *compute.VirtualMachine) (*compute.VirtualMachine, error) {
+	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_HYDRATE, group, name, sg)
 	if err != nil {
 		return nil, err
 	}
