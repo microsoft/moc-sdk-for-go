@@ -95,9 +95,15 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
 
-func (c *GalleryImageClient) UploadImageFromVMOsDisk(ctx context.Context, location, imagePath, name string, compute *compute.GalleryImage) (*compute.GalleryImage, error) {
-	if compute != nil && compute.GalleryImageProperties != nil && compute.GalleryImageProperties.SourceVirtualMachine != nil {
+func (c *GalleryImageClient) UploadImageFromVMOsDisk(ctx context.Context, location, name string, compute *compute.GalleryImage, vmOsDiskImg *compute.VMOSDiskImageProperties) (*compute.GalleryImage, error) {
+	// convert vmOsDiskImg struct to json string and use it as image-path
+	data, err := json.Marshal(vmOsDiskImg)
+	if err != nil {
+		return nil, err
+	}
+	if compute != nil && compute.GalleryImageProperties != nil {
 		compute.SourceType = common.ImageSource_VMOSDISK_SOURCE
 	}
-	return c.internal.CreateOrUpdate(ctx, location, imagePath, name, compute)
+
+	return c.internal.CreateOrUpdate(ctx, location, string(data), name, compute)
 }
