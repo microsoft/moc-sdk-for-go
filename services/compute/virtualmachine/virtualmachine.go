@@ -598,6 +598,8 @@ func (c *client) getVirtualMachineStorageProfileOsDisk(d *wssdcloudcompute.Disk)
 			switch d.ManagedDisk.SecurityProfile.SecurityEncryptionType {
 			case wssdcommon.SecurityEncryptionTypes_NonPersistedTPM:
 				securityEncryptionType = compute.NonPersistedTPM
+			default:
+				securityEncryptionType = ""
 			}
 			managedDisk.SecurityProfile = &compute.VMDiskSecurityProfile{
 				SecurityEncryptionType: securityEncryptionType,
