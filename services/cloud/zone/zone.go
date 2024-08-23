@@ -20,6 +20,10 @@ func getRpcZone(s *cloud.Zone) (*wssdcloudcompute.Zone, error) {
 		return nil, errors.Wrapf(errors.InvalidInput, "Zone object Name is empty")
 	}
 
+	if s.Location == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Zone object Location is empty")
+	}
+
 	zone := &wssdcloudcompute.Zone{
 		Name:         *s.Name,
 		LocationName: *s.Location,
@@ -32,7 +36,7 @@ func getRpcZone(s *cloud.Zone) (*wssdcloudcompute.Zone, error) {
 		zone.Status.Version.Number = *s.Version
 	}
 
-	if s.ZoneProperties.Nodes != nil {
+	if s.ZoneProperties != nil && s.ZoneProperties.Nodes != nil {
 		zone.Nodes = *s.ZoneProperties.Nodes
 	}
 
