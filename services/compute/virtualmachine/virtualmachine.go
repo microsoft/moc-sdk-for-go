@@ -144,6 +144,8 @@ func (c *client) getWssdVirtualMachineStorageConfigurationImageReference(s *comp
 	return *s.Name, nil
 }
 func (c *client) getWssdVirtualMachineStorageConfigurationOsDisk(s *compute.OSDisk) (*wssdcloudcompute.Disk, error) {
+	// If ManagedDisk == nil, the OsDisk must have a valid Vhd
+	// If ManagedDisk != nil, It may be used only to propogate SecurityProfile until cloning an imagereference. Don't error if Vhd is invalid
 	if s.ManagedDisk == nil {
 		if s.Vhd == nil {
 			return nil, errors.Wrapf(errors.InvalidInput, "Vhd Configuration is missing in OSDisk")
@@ -161,7 +163,7 @@ func (c *client) getWssdVirtualMachineStorageConfigurationOsDisk(s *compute.OSDi
 	if s.ManagedDisk != nil {
 		managedDisk = &wssdcommon.VirtualMachineManagedDiskParameters{}
 		if s.ManagedDisk.SecurityProfile != nil {
-			securityEncryptionType := wssdcommon.SecurityEncryptionTypes_SecurityEncryptionNone
+			var securityEncryptionType wssdcommon.SecurityEncryptionTypes
 			switch s.ManagedDisk.SecurityProfile.SecurityEncryptionType {
 			case compute.NonPersistedTPM:
 				securityEncryptionType = wssdcommon.SecurityEncryptionTypes_NonPersistedTPM
