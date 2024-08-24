@@ -565,7 +565,8 @@ func (c *client) getVirtualMachineStorageProfileOsDisk(d *wssdcloudcompute.Disk)
 		return &compute.OSDisk{}
 	}
 	return &compute.OSDisk{
-		Vhd: &compute.VirtualHardDisk{URI: &d.Diskname},
+		Name: &d.Diskname,
+		Vhd:  &compute.VirtualHardDisk{URI: &d.Diskname},
 	}
 }
 
