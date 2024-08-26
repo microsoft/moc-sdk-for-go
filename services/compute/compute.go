@@ -626,6 +626,8 @@ type VirtualMachineScaleSetHardwareProfile struct {
 	VMSize VirtualMachineSizeTypes `json:"vmSize,omitempty"`
 	// CustomSize - Specifies cpu/memory information for custom VMSize types.
 	CustomSize *VirtualMachineCustomSize `json:"customsize,omitempty"`
+	// VirtualMachineGPUs - Specifies list of GPUs for VM.
+	VirtualMachineGPUs []*VirtualMachineGPU `json:"virtualMachineGPUs,omitempty"`
 }
 
 // VirtualMachineScaleSetVMProfile describes a virtual machine scale set virtual machine profile.
