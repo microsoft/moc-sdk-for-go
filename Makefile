@@ -9,7 +9,7 @@ COMMIT ?= $(shell git describe --always)
 BUILD_DATE ?= $(shell date -u +%m/%d/%Y)
 
 BIN_DIR=bin
-LD_FLAGS_WINDOWS_CSHARED=-extldflags=-Wl,--out-implib=MocCppWrapper.lib
+LD_FLAGS_WINDOWS_CSHARED=-extldflags=-Wl,--out-implib=MocCppWrapper.lib,-g,--export-all-symbols
 CPP_WRAPPER_NAME=MocCppWrapper
 CPP_WRAPPER_EXT=.dll
 CPP_WRAPPER_OUT=$(BIN_DIR)/$(CPP_WRAPPER_NAME)$(CPP_WRAPPER_EXT)
