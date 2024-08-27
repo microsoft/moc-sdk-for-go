@@ -839,11 +839,6 @@ type AzureGalleryImageProperties struct {
 	Version string `json:"version,omitempty"`
 }
 
-// Local image properties
-type VMOSDiskImageProperties struct {
-	OsDiskName string `json:"osDiskName,omitempty"`
-}
-
 // GalleryImageProperties describes the properties of a gallery Image Definition.
 type GalleryImageProperties struct {
 	// Description - The description of this gallery Image Definition resource. This property is updatable.
