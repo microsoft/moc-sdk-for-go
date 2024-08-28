@@ -69,7 +69,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, location string, name strin
 	return &(*avzones)[0], nil
 }
 
-// Delete methods invokes create or update on the client
+// Delete
 func (c *client) Delete(ctx context.Context, location string, name string) error {
 	avzones, err := c.Get(ctx, location, name)
 	if err != nil {
