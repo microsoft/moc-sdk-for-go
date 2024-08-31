@@ -371,6 +371,8 @@ type VirtualMachineProperties struct {
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// Availability Zones
+	ZoneProfile *ZoneProfile `json:"zoneProfile,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1237,4 +1239,18 @@ type VirtualMachineReference struct {
 	Name *string `json:"name,omitempty"`
 	// Type
 	GroupName *string `json:"group,omitempty"`
+}
+
+// Describes the zone associated with a virtual machine
+type Zone struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+}
+
+// ZoneProfile describes the the list of zones and placement type
+type ZoneProfile struct {
+	// Zones
+	Zones *[]Zone `json:"zones,omitempty"`
+	// Strict placement in Zones
+	StrictPlacement *bool `json:"strictPlacement,omitempty"`
 }

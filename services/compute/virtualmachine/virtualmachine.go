@@ -53,6 +53,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
 
+	zoneProfile, err := c.getWssdZoneConfiguration(vm.ZoneProfile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get Zone Profile")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -72,6 +77,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		VmType:          vmtype,
 		Tags:            getWssdTags(vm.Tags),
 		AvailabilitySet: availabilitySetProfile,
+		Zone:            zoneProfile,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -506,6 +512,21 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	return availabilitySet, nil
 }
 
+func (c *client) getWssdZoneConfiguration(zoneProfile *compute.ZoneProfile) (*wssdcloudcompute.ZoneConfiguration, error) {
+	if zoneProfile == nil {
+		return nil, nil
+	}
+
+	zones := []*wssdcloudcompute.ZoneReference{}
+	for _, zone := range *zoneProfile.Zones {
+		zones = append(zones, &wssdcloudcompute.ZoneReference{Name: *zone.Name})
+	}
+	return &wssdcloudcompute.ZoneConfiguration{
+		Zones:           zones,
+		StrictPlacement: *zoneProfile.StrictPlacement,
+	}, nil
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -560,6 +581,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
+			ZoneProfile:             c.getZoneProfile(vm.Zone),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
@@ -880,5 +902,22 @@ func (c *client) getVirtualMachineProxyConfiguration(proxyConfiguration *wssdclo
 		HttpsProxy: &proxyConfiguration.HttpsProxy,
 		NoProxy:    &proxyConfiguration.NoProxy,
 		TrustedCa:  &proxyConfiguration.TrustedCa,
+	}
+}
+
+func (c *client) getZoneProfile(zoneConfiguration *wssdcloudcompute.ZoneConfiguration) *compute.ZoneProfile {
+	if zoneConfiguration == nil || len(zoneConfiguration.Zones) == 0 {
+		return nil
+	}
+
+	zones := []compute.Zone{}
+	strictPlacement := zoneConfiguration.StrictPlacement
+	for _, zone := range zoneConfiguration.Zones {
+		zoneName := zone.Name
+		zones = append(zones, compute.Zone{Name: &zoneName})
+	}
+	return &compute.ZoneProfile{
+		Zones:           &zones,
+		StrictPlacement: &strictPlacement,
 	}
 }
