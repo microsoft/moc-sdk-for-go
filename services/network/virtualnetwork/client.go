@@ -13,8 +13,11 @@ import (
 // Service interface
 type Service interface {
 	Get(context.Context, string, string) (*[]network.VirtualNetwork, error)
+	GetEx(context.Context, string, string, string) (*[]network.VirtualNetwork, error)
 	CreateOrUpdate(context.Context, string, string, *network.VirtualNetwork) (*network.VirtualNetwork, error)
+	CreateOrUpdateEx(context.Context, string, string, *network.VirtualNetwork, string) (*network.VirtualNetwork, error)
 	Delete(context.Context, string, string) error
+	DeleteEx(context.Context, string, string, string) error
 	Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error)
 }
 
@@ -39,14 +42,29 @@ func (c *VirtualNetworkClient) Get(ctx context.Context, group, name string) (*[]
 	return c.internal.Get(ctx, group, name)
 }
 
+// Get methods invokes the client Get method
+func (c *VirtualNetworkClient) GetEx(ctx context.Context, group, name, apiVersion string) (*[]network.VirtualNetwork, error) {
+	return c.internal.GetEx(ctx, group, name, apiVersion)
+}
+
 // CreateOrUpdate methods invokes create or update on the client
 func (c *VirtualNetworkClient) CreateOrUpdate(ctx context.Context, group, name string, network *network.VirtualNetwork) (*network.VirtualNetwork, error) {
 	return c.internal.CreateOrUpdate(ctx, group, name, network)
 }
 
+// CreateOrUpdate methods invokes create or update on the client
+func (c *VirtualNetworkClient) CreateOrUpdateEx(ctx context.Context, group, name string, network *network.VirtualNetwork, apiVersion string) (*network.VirtualNetwork, error) {
+	return c.internal.CreateOrUpdateEx(ctx, group, name, network, apiVersion)
+}
+
 // Delete methods invokes delete of the network resource
 func (c *VirtualNetworkClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Delete methods invokes delete of the network resource
+func (c *VirtualNetworkClient) DeleteEx(ctx context.Context, group, name, apiVersion string) error {
+	return c.internal.DeleteEx(ctx, group, name, apiVersion)
 }
 
 // Prechecks whether the system is able to create specified resources.

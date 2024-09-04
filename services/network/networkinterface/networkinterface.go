@@ -125,16 +125,16 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 
 	wssdipconfig := &wssdcloudnetwork.IpConfiguration{}
 
-	subnetRef, err := getQualifiedSubnetRef(ipConfig.Subnet.ID)
+	subnet, err := getWssdSubnetReference(ipConfig.Subnet.ID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if subnetRef != nil {
-		wssdipconfig.SubnetRef = subnetRef
+	if subnet != nil {
+		wssdipconfig.Subnet = subnet
 	} else {
-		// backward compact
+		// for backward compat
 		wssdipconfig.Subnetid = *ipConfig.Subnet.ID
 	}
 
@@ -216,8 +216,8 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 		},
 	}
 
-	if wssdcloudipconfig.SubnetRef != nil {
-		ipconfig.Subnet = getQualifiedSubnetApiRef(wssdcloudipconfig.SubnetRef)
+	if wssdcloudipconfig.Subnet != nil {
+		ipconfig.Subnet = getQualifiedSubnetReference(wssdcloudipconfig.Subnet)
 	} else {
 		ipconfig.Subnet = &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid}
 	}
@@ -259,7 +259,7 @@ func getIovSetting(vnic *wssdcloudnetwork.NetworkInterface) *bool {
 	return &isAcceleratedNetworkingEnabled
 }
 
-func getQualifiedSubnetRef(subnetId *string) (*wssdcommonproto.SubnetReference, error) {
+func getWssdSubnetReference(subnetId *string) (*wssdcommonproto.SubnetReference, error) {
 
 	// /virtualnetworks/<networkname>/subnets/<subnetname>
 	subnetComponents := strings.Split(*subnetId, "/")
@@ -283,25 +283,25 @@ func getQualifiedSubnetRef(subnetId *string) (*wssdcommonproto.SubnetReference, 
 	}
 
 	return &wssdcommonproto.SubnetReference{
-		ParentNetwork: networkRef,
+		Network: networkRef,
 		ResourceRef: &wssdcommonproto.ResourceReference{
 			Name: subnetComponents[4],
 		},
 	}, nil
 }
 
-func getQualifiedSubnetApiRef(subnetRef *wssdcommonproto.SubnetReference) *network.APIEntityReference {
+func getQualifiedSubnetReference(subnet *wssdcommonproto.SubnetReference) *network.APIEntityReference {
 
 	var networkPrefix string
 
-	if subnetRef.GetParentNetwork().NetworkType == wssdcommonproto.NetworkType_VIRTUAL_NETWORK {
+	if subnet.GetNetwork().NetworkType == wssdcommonproto.NetworkType_VIRTUAL_NETWORK {
 		networkPrefix = VNET_PREFIX
 	} else {
 		networkPrefix = LNET_PREFIX
 
 	}
 
-	id := "/" + networkPrefix + "/" + subnetRef.GetParentNetwork().GetResourceRef().GetName() + "/subnets/" + subnetRef.GetResourceRef().GetName()
+	id := "/" + networkPrefix + "/" + subnet.GetNetwork().GetResourceRef().GetName() + "/subnets/" + subnet.GetResourceRef().GetName()
 
 	return &network.APIEntityReference{
 		ID: &id,
