@@ -3,12 +3,21 @@
 package networkinterface
 
 import (
+	"strings"
+
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/status"
 	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
 	wssdcommonproto "github.com/microsoft/moc/rpc/common"
+)
+
+const (
+	LNET_PREFIX        = "logicalnetworks"
+	LNET_PREFIX_LEGACY = "logicalnetwork"
+	VNET_PREFIX        = "virtualnetworks"
+	SUBNET_PREFIX      = "subnets"
 )
 
 // Conversion functions from network interface to wssdcloud network interface
@@ -114,9 +123,21 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Subnet Reference")
 	}
 
-	wssdipconfig := &wssdcloudnetwork.IpConfiguration{
-		Subnetid: *ipConfig.Subnet.ID,
+	wssdipconfig := &wssdcloudnetwork.IpConfiguration{}
+
+	subnetRef, err := getQualifiedSubnetRef(ipConfig.Subnet.ID)
+
+	if err != nil {
+		return nil, err
 	}
+
+	if subnetRef != nil {
+		wssdipconfig.SubnetRef = subnetRef
+	} else {
+		// backward compact
+		wssdipconfig.Subnetid = *ipConfig.Subnet.ID
+	}
+
 	if ipConfig.PrivateIPAddress != nil {
 		wssdipconfig.Ipaddress = *ipConfig.PrivateIPAddress
 	}
@@ -189,11 +210,16 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 	ipconfig := &network.InterfaceIPConfiguration{
 		InterfaceIPConfigurationPropertiesFormat: &network.InterfaceIPConfigurationPropertiesFormat{
 			PrivateIPAddress: &wssdcloudipconfig.Ipaddress,
-			Subnet:           &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid},
 			Gateway:          &wssdcloudipconfig.Gateway,
 			PrefixLength:     &wssdcloudipconfig.Prefixlength,
 			Primary:          &wssdcloudipconfig.Primary,
 		},
+	}
+
+	if wssdcloudipconfig.SubnetRef != nil {
+		ipconfig.Subnet = getQualifiedSubnetApiRef(wssdcloudipconfig.SubnetRef)
+	} else {
+		ipconfig.Subnet = &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid}
 	}
 
 	if wssdcloudipconfig.NetworkSecurityGroupRef != nil {
@@ -231,4 +257,53 @@ func getIovSetting(vnic *wssdcloudnetwork.NetworkInterface) *bool {
 		isAcceleratedNetworkingEnabled = true
 	}
 	return &isAcceleratedNetworkingEnabled
+}
+
+func getQualifiedSubnetRef(subnetId *string) (*wssdcommonproto.SubnetReference, error) {
+
+	// /virtualnetworks/<networkname>/subnets/<subnetname>
+	subnetComponents := strings.Split(*subnetId, "/")
+
+	if len(subnetComponents) != 5 {
+		return nil, nil
+	}
+
+	networkRef := &wssdcommonproto.NetworkReference{
+		ResourceRef: &wssdcommonproto.ResourceReference{
+			Name: subnetComponents[2],
+		},
+	}
+
+	if strings.EqualFold(subnetComponents[1], VNET_PREFIX) {
+		networkRef.NetworkType = wssdcommonproto.NetworkType_VIRTUAL_NETWORK
+	} else if strings.EqualFold(subnetComponents[1], LNET_PREFIX) || strings.EqualFold(subnetComponents[1], LNET_PREFIX_LEGACY) {
+		networkRef.NetworkType = wssdcommonproto.NetworkType_LOGICAL_NETWORK
+	} else {
+		return nil, errors.Wrapf(errors.InvalidInput, "Cannot parse network type for the vnic")
+	}
+
+	return &wssdcommonproto.SubnetReference{
+		ParentNetwork: networkRef,
+		ResourceRef: &wssdcommonproto.ResourceReference{
+			Name: subnetComponents[4],
+		},
+	}, nil
+}
+
+func getQualifiedSubnetApiRef(subnetRef *wssdcommonproto.SubnetReference) *network.APIEntityReference {
+
+	var networkPrefix string
+
+	if subnetRef.GetParentNetwork().NetworkType == wssdcommonproto.NetworkType_VIRTUAL_NETWORK {
+		networkPrefix = VNET_PREFIX
+	} else {
+		networkPrefix = LNET_PREFIX
+
+	}
+
+	id := "/" + networkPrefix + "/" + subnetRef.GetParentNetwork().GetResourceRef().GetName() + "/subnets/" + subnetRef.GetResourceRef().GetName()
+
+	return &network.APIEntityReference{
+		ID: &id,
+	}
 }
