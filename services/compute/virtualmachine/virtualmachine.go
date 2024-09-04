@@ -144,14 +144,40 @@ func (c *client) getWssdVirtualMachineStorageConfigurationImageReference(s *comp
 	return *s.Name, nil
 }
 func (c *client) getWssdVirtualMachineStorageConfigurationOsDisk(s *compute.OSDisk) (*wssdcloudcompute.Disk, error) {
-	if s.Vhd == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Vhd Configuration is missing in OSDisk")
+	// If ManagedDisk == nil, the OsDisk must have a valid Vhd
+	// If ManagedDisk != nil, It may be used only to propogate SecurityProfile until cloning an imagereference. Don't error if Vhd is invalid
+	if s.ManagedDisk == nil {
+		if s.Vhd == nil {
+			return nil, errors.Wrapf(errors.InvalidInput, "Vhd Configuration is missing in OSDisk")
+		}
+		if s.Vhd.URI == nil {
+			return nil, errors.Wrapf(errors.InvalidInput, "Vhd URI Configuration is missing in OSDisk")
+		}
 	}
-	if s.Vhd.URI == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Vhd URI Configuration is missing in OSDisk")
+
+	diskName := ""
+	if s.Vhd != nil && s.Vhd.URI != nil {
+		diskName = *s.Vhd.URI
+	}
+	var managedDisk *wssdcommon.VirtualMachineManagedDiskParameters
+	if s.ManagedDisk != nil {
+		managedDisk = &wssdcommon.VirtualMachineManagedDiskParameters{}
+		if s.ManagedDisk.SecurityProfile != nil {
+			var securityEncryptionType wssdcommon.SecurityEncryptionTypes
+			switch s.ManagedDisk.SecurityProfile.SecurityEncryptionType {
+			case compute.NonPersistedTPM:
+				securityEncryptionType = wssdcommon.SecurityEncryptionTypes_NonPersistedTPM
+			default:
+				securityEncryptionType = wssdcommon.SecurityEncryptionTypes_SecurityEncryptionNone
+			}
+			managedDisk.SecurityProfile = &wssdcommon.VMDiskSecurityProfile{
+				SecurityEncryptionType: securityEncryptionType,
+			}
+		}
 	}
 	return &wssdcloudcompute.Disk{
-		Diskname: *s.Vhd.URI,
+		Diskname:    diskName,
+		ManagedDisk: managedDisk,
 	}, nil
 }
 
@@ -171,6 +197,7 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 	sizeType := wssdcommon.VirtualMachineSizeType_Default
 	var customSize *wssdcommon.VirtualMachineCustomSize
 	var dynMemConfig *wssdcommon.DynamicMemoryConfiguration
+	var vmGPUs []*wssdcommon.VirtualMachineGPU
 	if vm.HardwareProfile != nil {
 		sizeType = compute.GetCloudVirtualMachineSizeFromCloudSdkVirtualMachineSize(vm.HardwareProfile.VMSize)
 		if vm.HardwareProfile.CustomSize != nil {
@@ -196,11 +223,51 @@ func (c *client) getWssdVirtualMachineHardwareConfiguration(vm *compute.VirtualM
 				dynMemConfig.TargetMemoryBuffer = *vm.HardwareProfile.DynamicMemoryConfig.TargetMemoryBuffer
 			}
 		}
+		if vm.HardwareProfile.VirtualMachineGPUs != nil {
+			for _, gpu := range vm.HardwareProfile.VirtualMachineGPUs {
+				if gpu == nil {
+					continue
+				}
+				if gpu.Assignment == nil {
+					return nil, errors.Wrapf(errors.InvalidInput, "GPU assignment is not specified")
+				}
+				var assignment wssdcommon.AssignmentType
+				switch *gpu.Assignment {
+				case compute.GpuDDA:
+					assignment = wssdcommon.AssignmentType_GpuDDA
+				case compute.GpuP:
+					assignment = wssdcommon.AssignmentType_GpuP
+				case compute.GpuPV:
+					assignment = wssdcommon.AssignmentType_GpuPV
+				case compute.GpuDefault:
+					assignment = wssdcommon.AssignmentType_GpuDefault
+				default:
+					return nil, errors.Wrapf(errors.InvalidInput, "Unsupported GPU assignment type [%s]", *gpu.Assignment)
+				}
+				if gpu.PartitionSizeMB == nil {
+					// if partition size is not specified, set it to 0
+					defaultInt := uint64(0)
+					gpu.PartitionSizeMB = &defaultInt
+				}
+				if gpu.Name == nil {
+					// if name is not specified, set it to empty string
+					defaultString := ""
+					gpu.Name = &defaultString
+				}
+				vmGPU := &wssdcommon.VirtualMachineGPU{
+					Assignment:      assignment,
+					PartitionSizeMB: *gpu.PartitionSizeMB,
+					Name:            *gpu.Name,
+				}
+				vmGPUs = append(vmGPUs, vmGPU)
+			}
+		}
 	}
 	wssdhardware := &wssdcloudcompute.HardwareConfiguration{
 		VMSize:                     sizeType,
 		CustomSize:                 customSize,
 		DynamicMemoryConfiguration: dynMemConfig,
+		VirtualMachineGPUs:         vmGPUs,
 	}
 	return wssdhardware, nil
 }
@@ -523,8 +590,25 @@ func (c *client) getVirtualMachineStorageProfileOsDisk(d *wssdcloudcompute.Disk)
 	if d == nil {
 		return &compute.OSDisk{}
 	}
+	var managedDisk *compute.VirtualMachineManagedDiskParameters
+	if d.ManagedDisk != nil {
+		managedDisk = &compute.VirtualMachineManagedDiskParameters{}
+		if d.ManagedDisk.SecurityProfile != nil {
+			var securityEncryptionType compute.SecurityEncryptionTypes
+			switch d.ManagedDisk.SecurityProfile.SecurityEncryptionType {
+			case wssdcommon.SecurityEncryptionTypes_NonPersistedTPM:
+				securityEncryptionType = compute.NonPersistedTPM
+			default:
+				securityEncryptionType = ""
+			}
+			managedDisk.SecurityProfile = &compute.VMDiskSecurityProfile{
+				SecurityEncryptionType: securityEncryptionType,
+			}
+		}
+	}
 	return &compute.OSDisk{
-		Vhd: &compute.VirtualHardDisk{URI: &d.Diskname},
+		Vhd:         &compute.VirtualHardDisk{URI: &d.Diskname},
+		ManagedDisk: managedDisk,
 	}
 }
 
@@ -547,6 +631,7 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 	sizeType := compute.VirtualMachineSizeTypesDefault
 	var customSize *compute.VirtualMachineCustomSize
 	var dynamicMemoryConfig *compute.DynamicMemoryConfiguration
+	var virtualMachineGPUs []*compute.VirtualMachineGPU
 	if vm.Hardware != nil {
 		sizeType = compute.GetCloudSdkVirtualMachineSizeFromCloudVirtualMachineSize(vm.Hardware.VMSize)
 		if vm.Hardware.CustomSize != nil {
@@ -562,11 +647,38 @@ func (c *client) getVirtualMachineHardwareProfile(vm *wssdcloudcompute.VirtualMa
 				TargetMemoryBuffer: &vm.Hardware.DynamicMemoryConfiguration.TargetMemoryBuffer,
 			}
 		}
+		if vm.Hardware.VirtualMachineGPUs != nil {
+			for _, commonVMGPU := range vm.Hardware.VirtualMachineGPUs {
+				if commonVMGPU == nil {
+					continue
+				}
+				var assignment compute.Assignment
+				switch commonVMGPU.Assignment {
+				case wssdcommon.AssignmentType_GpuDDA:
+					assignment = compute.GpuDDA
+				case wssdcommon.AssignmentType_GpuP:
+					assignment = compute.GpuP
+				case wssdcommon.AssignmentType_GpuPV:
+					assignment = compute.GpuPV
+				case wssdcommon.AssignmentType_GpuDefault:
+					assignment = compute.GpuDefault
+				default:
+					continue
+				}
+				virtualMachineGPU := &compute.VirtualMachineGPU{
+					Assignment:      &assignment,
+					PartitionSizeMB: &commonVMGPU.PartitionSizeMB,
+					Name:            &commonVMGPU.Name,
+				}
+				virtualMachineGPUs = append(virtualMachineGPUs, virtualMachineGPU)
+			}
+		}
 	}
 	return &compute.HardwareProfile{
 		VMSize:              sizeType,
 		CustomSize:          customSize,
 		DynamicMemoryConfig: dynamicMemoryConfig,
+		VirtualMachineGPUs:  virtualMachineGPUs,
 	}
 }
 

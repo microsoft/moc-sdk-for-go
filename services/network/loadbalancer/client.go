@@ -15,6 +15,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]network.LoadBalancer, error)
 	CreateOrUpdate(context.Context, string, string, *network.LoadBalancer) (*network.LoadBalancer, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error)
 }
 
 // LoadBalancerClient structure
@@ -46,4 +47,10 @@ func (c *LoadBalancerClient) CreateOrUpdate(ctx context.Context, group, name str
 // Delete methods invokes delete of the network resource
 func (c *LoadBalancerClient) Delete(ctx context.Context, group, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// Prechecks whether the system is able to create specified loadBalancers.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *LoadBalancerClient) Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error) {
+	return c.internal.Precheck(ctx, group, loadBalancers)
 }

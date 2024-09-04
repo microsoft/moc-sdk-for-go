@@ -17,6 +17,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]compute.GalleryImage, error)
 	CreateOrUpdate(context.Context, string, string, string, *compute.GalleryImage) (*compute.GalleryImage, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, location, imagePath string, galleryImages []*compute.GalleryImage) (bool, error)
 }
 
 // Client structure
@@ -51,6 +52,12 @@ func (c *GalleryImageClient) CreateOrUpdate(ctx context.Context, location, image
 // Delete methods invokes delete of the compute resource
 func (c *GalleryImageClient) Delete(ctx context.Context, location, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified resources.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *GalleryImageClient) Precheck(ctx context.Context, location, imagePath string, galleryImages []*compute.GalleryImage) (bool, error) {
+	return c.internal.Precheck(ctx, location, imagePath, galleryImages)
 }
 
 // UploadImageFromLocal   methods invokes  UploadImageFromLocal  on the client

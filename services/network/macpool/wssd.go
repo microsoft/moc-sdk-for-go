@@ -97,6 +97,46 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, location string, macPools []*network.MACPool) (bool, error) {
+	request, err := getMacPoolPrecheckRequest(location, macPools)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.MacPoolAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getMacPoolPrecheckResponse(response)
+}
+
+func getMacPoolPrecheckRequest(location string, macPools []*network.MACPool) (*wssdcloudnetwork.MacPoolPrecheckRequest, error) {
+	request := &wssdcloudnetwork.MacPoolPrecheckRequest{}
+
+	protoMACPools := make([]*wssdcloudnetwork.MacPool, 0, len(macPools))
+
+	for _, macPool := range macPools {
+		// can mac pool ever be nil here? what would be the meaning of that?
+		if macPool != nil {
+			protoMACPool, err := getWssdMacPool(macPool, location)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to convert MacPool to Protobuf representation")
+			}
+			protoMACPools = append(protoMACPools, protoMACPool)
+		}
+	}
+
+	request.MacPools = protoMACPools
+	return request, nil
+}
+
+func getMacPoolPrecheckResponse(response *wssdcloudnetwork.MacPoolPrecheckResponse) (bool, error) {
+	result := response.GetResult().GetValue()
+	if !result {
+		return result, errors.New(response.GetError())
+	}
+	return result, nil
+}
+
 func (c *client) getMacPoolRequestByName(opType wssdcloudcommon.Operation, location, name string) (*wssdcloudnetwork.MacPoolRequest, error) {
 	networkMacPool := network.MACPool{
 		Name: &name,

@@ -27,6 +27,7 @@ type Service interface {
 	RepairGuestAgent(context.Context, string, string) error
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 	Validate(context.Context, string, string) error
+	Precheck(context.Context, string, []*compute.VirtualMachine) (bool, error)
 }
 
 type VirtualMachineClient struct {
@@ -138,6 +139,11 @@ func (c *VirtualMachineClient) Update(ctx context.Context, group string, vmName 
 
 // Resize the Virtual Machine
 func (c *VirtualMachineClient) Resize(ctx context.Context, group string, vmName string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize) (err error) {
+	return c.ResizeEx(ctx, group, vmName, newSize, newCustomSize, nil)
+}
+
+// Resize the Virtual Machine with GPUs
+func (c *VirtualMachineClient) ResizeEx(ctx context.Context, group string, vmName string, newSize compute.VirtualMachineSizeTypes, newCustomSize *compute.VirtualMachineCustomSize, newVirtualMachineGPUs []*compute.VirtualMachineGPU) (err error) {
 	for {
 		vms, err := c.Get(ctx, group, vmName)
 		if err != nil {
@@ -150,6 +156,7 @@ func (c *VirtualMachineClient) Resize(ctx context.Context, group string, vmName 
 		vm := (*vms)[0]
 		vm.HardwareProfile.VMSize = newSize
 		vm.HardwareProfile.CustomSize = newCustomSize
+		vm.HardwareProfile.VirtualMachineGPUs = newVirtualMachineGPUs
 
 		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
 		if err != nil {
@@ -369,4 +376,10 @@ func (c *VirtualMachineClient) ListIPs(ctx context.Context, group, name string) 
 // Validate methods invokes the validate Get method
 func (c *VirtualMachineClient) Validate(ctx context.Context, group, name string) error {
 	return c.internal.Validate(ctx, group, name)
+}
+
+// Prechecks whether the system is able to create specified virtual machines.
+// Returns true with virtual machine placement in mapping from virtual machine names to node names; or false with reason in error message.
+func (c *VirtualMachineClient) Precheck(ctx context.Context, group string, vms []*compute.VirtualMachine) (bool, error) {
+	return c.internal.Precheck(ctx, group, vms)
 }

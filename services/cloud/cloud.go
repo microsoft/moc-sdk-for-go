@@ -306,3 +306,24 @@ type EtcdCluster struct {
 	// Tags - The tags attached to the resource group.
 	Tags map[string]*string `json:"tags"`
 }
+
+// Zone describes the Zone setting for a virtual machine
+type Zone struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+
+	*ZoneProperties `json:"properties,omitempty"`
+}
+
+type ZoneProperties struct {
+	// Statuses - Statuses
+	Statuses map[string]*string `json:"statuses"`
+	// Nodes
+	Nodes *[]string `json:"nodes,omitempty"`
+}

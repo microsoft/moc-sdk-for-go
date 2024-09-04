@@ -70,6 +70,16 @@ func GetControlPlaneClient(serverAddress *string, authorizer auth.Authorizer) (c
 	return cloud_pb.NewControlPlaneAgentClient(conn), nil
 }
 
+// GetZone returns the availability zone client to communicate with the wssd agent
+func GetZoneClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.ZoneAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get ZoneClient. Failed to dial: %v", err)
+	}
+
+	return cloud_pb.NewZoneAgentClient(conn), nil
+}
+
 // GetEtcdClusterClient returns the cluster client to communicate with the wssd agent
 func GetEtcdClusterClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.EtcdClusterAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
