@@ -11,13 +11,12 @@
 
 package main
 
+// the below blob is NOT a comment, it is required to compile the c wrapper
+
 /*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef unsigned long long uint64_t;
-
 */
 import "C"
 
@@ -56,13 +55,15 @@ func copyErrorMessage(errMessage *C.char, errMessageBuffer *C.char, errMessageSi
 	}
 }
 
-// This function exists to maintain backwards compatability. Please use SecurityLoginCV.
+// This function exists to maintain backwards compatability. Please use SecurityLoginV2.
 //
 //export SecurityLogin
 func SecurityLogin(serverName *C.char, groupName *C.char, loginFilePath *C.char, timeoutInSeconds C.int) *C.char {
 	return SecurityLoginCV(serverName, groupName, loginFilePath, C.CString(""), timeoutInSeconds)
 }
 
+// This function exists to maintain backwards compatability. Please use SecurityLoginV2.
+//
 //export SecurityLoginCV
 func SecurityLoginCV(serverName *C.char, groupName *C.char, loginFilePath *C.char, cv *C.char, timeoutInSeconds C.int) *C.char {
 	loginconfig := auth.LoginConfig{}
@@ -94,6 +95,18 @@ func SecurityLoginCV(serverName *C.char, groupName *C.char, loginFilePath *C.cha
 	return nil
 }
 
+// This function performs security login
+// parameters:
+//   - serverName
+//   - groupName
+//   - loginFilePath
+//   - cv: for logging purpose
+//   - timeoutInSeconds
+//   - errMessageBuffer: the pre allocated buffer to accept error message if there is any. If the buffer is not pre allocated, the error messaged won't be copied
+//   - errMessageSize: the size of pre allocated errMessageBuffer. If the actual error message size is bigger, the error message will be truncated to errMessageSize
+// return:
+//   - int: the win32 code
+//
 //export SecurityLoginV2
 func SecurityLoginV2(serverName *C.char, groupName *C.char, loginFilePath *C.char, cv *C.char, timeoutInSeconds C.int, errMessageBuffer *C.char, errMessageSize C.ulonglong) C.int {
 	if (serverName == nil || groupName == nil || loginFilePath == nil || cv == nil) {
@@ -134,13 +147,15 @@ func SecurityLoginV2(serverName *C.char, groupName *C.char, loginFilePath *C.cha
 	return C.int(Win32Succeed)
 }
 
-// This function exists to maintain backwards compatability. Please use KeyvaultKeyEncryptDataCV.
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyEncryptDataV2.
 //
 //export KeyvaultKeyEncryptData
 func KeyvaultKeyEncryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
 	return KeyvaultKeyEncryptDataCV(serverName, groupName, keyvaultName, keyName, input, C.CString(""), timeoutInSeconds)
 }
 
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyEncryptDataV2.
+//
 //export KeyvaultKeyEncryptDataCV
 func KeyvaultKeyEncryptDataCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, cv *C.char, timeoutInSeconds C.int) *C.char {
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
@@ -172,6 +187,26 @@ func KeyvaultKeyEncryptDataCV(serverName *C.char, groupName *C.char, keyvaultNam
 	return C.CString(*response.Result)
 }
 
+// This function performs Encrypt
+// parameters:
+//   - serverName
+//   - groupName
+//   - keyvaultName
+//   - keyName
+//   - input: the data to be encrypted
+//   - algorithm: the encryption algorithm
+//   - cv: for logging purpose
+//   - timeoutInSeconds
+//   - outputBuffer: the buffer to accept encrypted data
+//   - outputBufferSize: the size of the outputBuffer. If this is not allocated or size is not big enough the expected size will be set to outputBufferSize.
+//   - errMessageBuffer: the pre allocated buffer to accept error message if there is any. If the buffer is not pre allocated, the error messaged won't be copied
+//   - errMessageSize: the size of pre allocated errMessageBuffer. If the actual error message size is bigger, the error message will be truncated to errMessageSize
+// return:
+//   - int: the win32 code. If output buffer is not big enough this function will return Win32ErrorInsufficientBuffer which is win32 error ERROR_INSUFFICIENT_BUFFER.
+//     Caller when seeing this error should allocate outputBuffer to size outputBufferSize
+// Calling pattern:
+//   call KeyvaultKeyEncryptDataV2 for the first time. If returned error Win32ErrorInsufficientBuffer, caller allocate outputBuffer to size outputBufferSize and call KeyvaultKeyEncryptDataV2 again.
+//
 //export KeyvaultKeyEncryptDataV2
 func KeyvaultKeyEncryptDataV2(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, algorithm *C.char, cv *C.char, timeoutInSeconds C.int, outputBuffer *C.char, outputBufferSize *C.ulonglong, errMessageBuffer *C.char, errMessageSize C.ulonglong) C.int {
 	if (serverName == nil || groupName == nil || keyvaultName == nil || keyName == nil || input == nil || algorithm == nil || cv == nil || outputBufferSize == nil) {
@@ -181,7 +216,6 @@ func KeyvaultKeyEncryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 	}
 
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
-	// if errror occurs, return an empty string so that caller can tell between error and encrypted blob
 	if err != nil {
 		telemetry.EmitWrapperTelemetry("KeyvaultKeyEncryptDataV2", C.GoString(cv), err.Error(), "getKeyvaultKeyClient", C.GoString(serverName))
 		copyErrorMessage(C.CString(telemetry.FilterSensitiveData(err.Error())), errMessageBuffer, errMessageSize)
@@ -208,7 +242,6 @@ func KeyvaultKeyEncryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 		return C.int(Win32ErrorFunctionFail)
 	}
 
-	// retrun base64 encoded string
 	encryptedCString := C.CString(*response.Result)
 	var encryptedCStringLength C.ulonglong = C.strlen(encryptedCString)
 
@@ -226,13 +259,15 @@ func KeyvaultKeyEncryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 	return C.int(Win32Succeed)
 }
 
-// This function exists to maintain backwards compatability. Please use KeyvaultKeyDecryptDataCV.
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyDecryptDataV2.
 //
 //export KeyvaultKeyDecryptData
 func KeyvaultKeyDecryptData(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, timeoutInSeconds C.int) *C.char {
 	return KeyvaultKeyDecryptDataCV(serverName, groupName, keyvaultName, keyName, input, C.CString(""), timeoutInSeconds)
 }
 
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyDecryptDataV2.
+//
 //export KeyvaultKeyDecryptDataCV
 func KeyvaultKeyDecryptDataCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, cv *C.char, timeoutInSeconds C.int) *C.char {
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
@@ -262,6 +297,26 @@ func KeyvaultKeyDecryptDataCV(serverName *C.char, groupName *C.char, keyvaultNam
 	return C.CString(*response.Result)
 }
 
+// This function performs Decrypt
+// parameters:
+//   - serverName
+//   - groupName
+//   - keyvaultName
+//   - keyName
+//   - input: the data to be decrypted
+//   - algorithm: the decryption algorithm
+//   - cv: for logging purpose
+//   - timeoutInSeconds
+//   - outputBuffer: the buffer to accept decrypted data
+//   - outputBufferSize: the size of the outputBuffer. If this is not allocated or size is not big enough the expected size will be set to outputBufferSize.
+//   - errMessageBuffer: the pre allocated buffer to accept error message if there is any. If the buffer is not pre allocated, the error messaged won't be copied
+//   - errMessageSize: the size of pre allocated errMessageBuffer. If the actual error message size is bigger, the error message will be truncated to errMessageSize
+// return:
+//   - int: the win32 code. If output buffer is not big enough this function will return Win32ErrorInsufficientBuffer which is win32 error ERROR_INSUFFICIENT_BUFFER.
+//     Caller when seeing this error should allocate outputBuffer to size outputBufferSize
+// Calling pattern:
+//   call KeyvaultKeyDecryptDataV2 for the first time. If returned error Win32ErrorInsufficientBuffer, caller allocate outputBuffer to size outputBufferSize and call KeyvaultKeyDecryptDataV2 again.
+//
 //export KeyvaultKeyDecryptDataV2
 func KeyvaultKeyDecryptDataV2(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, input *C.char, algorithm *C.char, cv *C.char, timeoutInSeconds C.int, outputBuffer *C.char, outputBufferSize *C.ulonglong, errMessageBuffer *C.char, errMessageSize C.ulonglong) C.int {
 	if (serverName == nil || groupName == nil || keyvaultName == nil || keyName == nil || input == nil || algorithm == nil || cv == nil || outputBufferSize == nil) {
@@ -271,7 +326,6 @@ func KeyvaultKeyDecryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 	}
 
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
-	// if errror occurs, return an empty string so that caller can tell between error and decrypted blob
 	if err != nil {
 		copyErrorMessage(C.CString(telemetry.FilterSensitiveData(err.Error())), errMessageBuffer, errMessageSize)
 		return C.int(Win32ErrorFunctionFail)
@@ -344,13 +398,15 @@ func KeyvaultKeyExistCV(serverName *C.char, groupName *C.char, keyvaultName *C.c
 	return 0
 }
 
-// This function exists to maintain backwards compatability. Please use KeyvaultKeyCreateOrUpdateCV.
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyCreateOrUpdateV2.
 //
 //export KeyvaultKeyCreateOrUpdate
 func KeyvaultKeyCreateOrUpdate(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, keySize C.int, timeoutInSeconds C.int) *C.char {
 	return KeyvaultKeyCreateOrUpdateCV(serverName, groupName, keyvaultName, keyName, keyTypeName, keySize, C.CString(""), timeoutInSeconds)
 }
 
+// This function exists to maintain backwards compatability. Please use KeyvaultKeyCreateOrUpdateV2.
+//
 //export KeyvaultKeyCreateOrUpdateCV
 func KeyvaultKeyCreateOrUpdateCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, keySize C.int, cv *C.char, timeoutInSeconds C.int) *C.char {
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
@@ -389,6 +445,21 @@ func KeyvaultKeyCreateOrUpdateCV(serverName *C.char, groupName *C.char, keyvault
 	return nil
 }
 
+// This function performs key creation or update
+// parameters:
+//   - serverName
+//   - groupName
+//   - keyvaultName
+//   - keyName
+//   - keyTypeName
+//   - keySize
+//   - cv: for logging purpose
+//   - timeoutInSeconds
+//   - errMessageBuffer: the pre allocated buffer to accept error message if there is any. If the buffer is not pre allocated, the error messaged won't be copied
+//   - errMessageSize: the size of pre allocated errMessageBuffer. If the actual error message size is bigger, the error message will be truncated to errMessageSize
+// return:
+//   - int: the win32 code.
+//
 //export KeyvaultKeyCreateOrUpdateV2
 func KeyvaultKeyCreateOrUpdateV2(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, keyTypeName *C.char, keySize C.int, cv *C.char, timeoutInSeconds C.int, errMessageBuffer *C.char, errMessageSize C.ulonglong) C.int {
 	if (serverName == nil || groupName == nil || keyvaultName == nil || keyName == nil || keyTypeName == nil || cv == nil) {
@@ -483,7 +554,6 @@ func KeyvaultKeyVerifyData(serverName *C.char, groupName *C.char, keyvaultName *
 //export KeyvaultKeyVerifyDataCV
 func KeyvaultKeyVerifyDataCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, digest *C.char, signature *C.char, algorithm *C.char, cv *C.char, timeoutInSeconds C.int) (ret C.int) {
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
-	// if errror occurs, return an empty string so that caller can tell between error and decrypted blob
 	if err != nil {
 		telemetry.EmitWrapperTelemetry("KeyvaultKeyVerifyDataCV", C.GoString(cv), err.Error(), "getKeyvaultKeyClient", C.GoString(serverName))
 		return 0
@@ -519,13 +589,15 @@ func KeyvaultKeyVerifyDataCV(serverName *C.char, groupName *C.char, keyvaultName
 	}
 }
 
-// This function exists to maintain backwards compatability. Please use KeyvaultGetPublicKeyCV.
+// This function exists to maintain backwards compatability. Please use KeyvaultGetPublicKeyV2.
 //
 //export KeyvaultGetPublicKey
 func KeyvaultGetPublicKey(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, timeoutInSeconds C.int) *C.char {
 	return KeyvaultGetPublicKeyCV(serverName, groupName, keyvaultName, keyName, C.CString(""), timeoutInSeconds)
 }
 
+// This function exists to maintain backwards compatability. Please use KeyvaultGetPublicKeyV2.
+//
 //export KeyvaultGetPublicKeyCV
 func KeyvaultGetPublicKeyCV(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, cv *C.char, timeoutInSeconds C.int) *C.char {
 	keyClient, err := getKeyvaultKeyClient(C.GoString(serverName), C.GoString(cv))
@@ -553,6 +625,24 @@ func KeyvaultGetPublicKeyCV(serverName *C.char, groupName *C.char, keyvaultName 
 	return C.CString(*pemPkcs1KeyPub)
 }
 
+// This function performs public key retrieval
+// parameters:
+//   - serverName
+//   - groupName
+//   - keyvaultName
+//   - keyName
+//   - cv: for logging purpose
+//   - timeoutInSeconds
+//   - outputBuffer: the buffer to accept public key data
+//   - outputBufferSize: the size of the outputBuffer. If this is not allocated or size is not big enough the expected size will be set to outputBufferSize.
+//   - errMessageBuffer: the pre allocated buffer to accept error message if there is any. If the buffer is not pre allocated, the error messaged won't be copied
+//   - errMessageSize: the size of pre allocated errMessageBuffer. If the actual error message size is bigger, the error message will be truncated to errMessageSize
+// return:
+//   - int: the win32 code. If output buffer is not big enough this function will return Win32ErrorInsufficientBuffer which is win32 error ERROR_INSUFFICIENT_BUFFER.
+//     Caller when seeing this error should allocate outputBuffer to size outputBufferSize
+// Calling pattern:
+//   call KeyvaultGetPublicKeyV2 for the first time. If returned error Win32ErrorInsufficientBuffer, caller allocate outputBuffer to size outputBufferSize and call KeyvaultGetPublicKeyV2 again.
+//
 //export KeyvaultGetPublicKeyV2
 func KeyvaultGetPublicKeyV2(serverName *C.char, groupName *C.char, keyvaultName *C.char, keyName *C.char, cv *C.char, timeoutInSeconds C.int, outputBuffer *C.char, outputBufferSize *C.ulonglong, errMessageBuffer *C.char, errMessageSize C.ulonglong) C.int {
 	if (serverName == nil || groupName == nil || keyvaultName == nil || keyName == nil || outputBufferSize == nil || cv == nil) {
