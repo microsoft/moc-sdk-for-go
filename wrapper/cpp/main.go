@@ -242,21 +242,7 @@ func KeyvaultKeyEncryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 		return C.int(Win32ErrorFunctionFail)
 	}
 
-	encryptedCString := C.CString(*response.Result)
-	var encryptedCStringLength C.ulonglong = C.strlen(encryptedCString)
-
-	if (outputBuffer == nil || *outputBufferSize < encryptedCStringLength) {
-		telemetry.EmitWrapperTelemetry("KeyvaultKeyEncryptDataV2", C.GoString(cv), "", "InsufficientBuffer", C.GoString(serverName))
-		*outputBufferSize = encryptedCStringLength;
-		C.free(unsafe.Pointer(encryptedCString))
-		return C.int(Win32ErrorInsufficientBuffer)
-	}
-
-	// copy over the result
-	C.strncpy(outputBuffer, encryptedCString, encryptedCStringLength)
-	*outputBufferSize = encryptedCStringLength
-	C.free(unsafe.Pointer(encryptedCString))
-	return C.int(Win32Succeed)
+	return handleOutputBuffer(serverName, *response.Result, cv, outputBuffer, outputBufferSize, "KeyvaultKeyDecryptDataV2")
 }
 
 // This function exists to maintain backwards compatability. Please use KeyvaultKeyDecryptDataV2.
@@ -350,20 +336,7 @@ func KeyvaultKeyDecryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 		return C.int(Win32ErrorFunctionFail)
 	}
 
-	decryptedCString := C.CString(*response.Result)
-	var decryptedCStringLength C.ulonglong = C.strlen(decryptedCString)
-
-	if (outputBuffer == nil || *outputBufferSize < decryptedCStringLength) {
-		telemetry.EmitWrapperTelemetry("KeyvaultKeyDecryptDataV2", C.GoString(cv), "", "InsufficientBuffer", C.GoString(serverName))
-		*outputBufferSize = decryptedCStringLength;
-		C.free(unsafe.Pointer(decryptedCString))
-		return C.int(Win32ErrorInsufficientBuffer)
-	}
-	// copy over the result
-	C.strncpy(outputBuffer, decryptedCString, decryptedCStringLength)
-	*outputBufferSize = decryptedCStringLength
-	C.free(unsafe.Pointer(decryptedCString))
-	return C.int(Win32Succeed)
+	return handleOutputBuffer(serverName, *response.Result, cv, outputBuffer, outputBufferSize, "KeyvaultKeyDecryptDataV2")
 }
 
 // This function exists to maintain backwards compatability. Please use KeyvaultKeyExistCV.
@@ -675,20 +648,27 @@ func KeyvaultGetPublicKeyV2(serverName *C.char, groupName *C.char, keyvaultName 
 	}
 
 	pemPkcs1KeyPub := (*keys)[0].Value
-	pemPkcs1KeyPubCString := C.CString(*pemPkcs1KeyPub)
-	var pemPkcs1KeyPubCStringLength C.ulonglong = C.strlen(pemPkcs1KeyPubCString)
+	return handleOutputBuffer(serverName, *pemPkcs1KeyPub, cv, outputBuffer, outputBufferSize, "KeyvaultGetPublicKeyV2")
+}
 
-	if (outputBuffer == nil || *outputBufferSize < pemPkcs1KeyPubCStringLength) {
-		telemetry.EmitWrapperTelemetry("KeyvaultGetPublicKeyV2", C.GoString(cv), "", "InsufficientBuffer", C.GoString(serverName))
-		*outputBufferSize = pemPkcs1KeyPubCStringLength;
-		C.free(unsafe.Pointer(pemPkcs1KeyPubCString))
+func handleOutputBuffer(serverName *C.char, resultGoString string, cv *C.char, outputBuffer *C.char, outputBufferSize *C.ulonglong, funcName string) C.int {
+	if (outputBufferSize == nil) {
+		return C.int(Win32ErrorBadArg)
+	}
+
+	resultCString := C.CString(resultGoString)
+	var resultCStringLength C.ulonglong = C.strlen(resultCString)
+
+	if (outputBuffer == nil || *outputBufferSize < resultCStringLength) {
+		telemetry.EmitWrapperTelemetry(funcName, C.GoString(cv), "", "InsufficientBuffer", C.GoString(serverName))
+		*outputBufferSize = resultCStringLength;
+		C.free(unsafe.Pointer(resultCString))
 		return C.int(Win32ErrorInsufficientBuffer)
 	}
 
-	// copy over the result and size
-	C.strncpy(outputBuffer, pemPkcs1KeyPubCString, pemPkcs1KeyPubCStringLength)
-	*outputBufferSize = pemPkcs1KeyPubCStringLength
-	C.free(unsafe.Pointer(pemPkcs1KeyPubCString))
+	C.strncpy(outputBuffer, resultCString, resultCStringLength)
+	*outputBufferSize = resultCStringLength
+	C.free(unsafe.Pointer(resultCString))
 	return C.int(Win32Succeed)
 }
 
