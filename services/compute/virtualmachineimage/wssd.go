@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 
+	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
@@ -20,7 +21,11 @@ type client struct {
 
 // newClient - creates a client session with the backend wssdcloud agent
 func newVirtualMachineImageClient(subID string, authorizer auth.Authorizer) (*client, error) {
-	return nil, errors.NotImplemented
+	c, err := wssdcloudclient.GetVirtualMachineImageClient(&subID, authorizer)
+	if err != nil {
+		return nil, err
+	}
+	return &client{c}, nil
 }
 
 // Get

@@ -977,6 +977,8 @@ type VirtualMachineImageProperties struct {
 	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// Path - READ-ONLY; The local filesystem path for the VirtualMachineImage resource.
+	Path *string `json:"path,omitempty"`
 }
 
 // Image the source user image virtual hard disk. The virtual hard disk will be copied before being

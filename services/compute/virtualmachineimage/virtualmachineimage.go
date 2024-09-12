@@ -36,6 +36,7 @@ func getVirtualMachineImage(c *wssdcloudcompute.VirtualMachineImage, group strin
 		ID:   &c.Id,
 		VirtualMachineImageProperties: &compute.VirtualMachineImageProperties{
 			HyperVGeneration: c.HyperVGeneration,
+			Path:             &c.Path,
 		},
 	}
 }

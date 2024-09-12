@@ -94,11 +94,3 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 	}
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
-
-func (c *GalleryImageClient) UploadImageFromVMOsDisk(ctx context.Context, location, name string, compute *compute.GalleryImage, osDiskName string) (*compute.GalleryImage, error) {
-	if compute != nil && compute.GalleryImageProperties != nil {
-		compute.SourceType = common.ImageSource_VMOSDISK_SOURCE
-	}
-
-	return c.internal.CreateOrUpdate(ctx, location, osDiskName, name, compute)
-}
