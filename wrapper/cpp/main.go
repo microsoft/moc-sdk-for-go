@@ -55,6 +55,39 @@ func copyErrorMessage(errMessage *C.char, errMessageBuffer *C.char, errMessageSi
 	}
 }
 
+// helper function to handle copying over results to output buffer. In the scenario output buffer is not big enough, error out properly with expected buffer size
+func handleOutputBuffer(serverName *C.char, resultGoString string, cv *C.char, outputBuffer *C.char, outputBufferSize *C.ulonglong, funcName string) C.int {
+	if (outputBufferSize == nil) {
+		return C.int(Win32ErrorBadArg)
+	}
+
+	resultCString := C.CString(resultGoString)
+	var resultCStringLength C.ulonglong = C.strlen(resultCString)
+
+	if (outputBuffer == nil || *outputBufferSize < resultCStringLength) {
+		telemetry.EmitWrapperTelemetry(funcName, C.GoString(cv), "", "InsufficientBuffer", C.GoString(serverName))
+		*outputBufferSize = resultCStringLength;
+		C.free(unsafe.Pointer(resultCString))
+		return C.int(Win32ErrorInsufficientBuffer)
+	}
+
+	C.strncpy(outputBuffer, resultCString, resultCStringLength)
+	*outputBufferSize = resultCStringLength
+	C.free(unsafe.Pointer(resultCString))
+	return C.int(Win32Succeed)
+}
+
+// helper function to create key client
+func getKeyvaultKeyClient(serverName string, cv string) (*key.KeyClient, error) {
+	authorizer, err := auth.NewAuthorizerFromEnvironment(serverName)
+	if err != nil {
+		telemetry.EmitWrapperTelemetry("getKeyvaultKeyClient", cv, err.Error(), "auth.NewAuthorizerFromEnvironment", serverName)
+		return nil, err
+	}
+
+	return key.NewKeyClient(serverName, authorizer)
+}
+
 // This function exists to maintain backwards compatability. Please use SecurityLoginV2.
 //
 //export SecurityLogin
@@ -649,37 +682,6 @@ func KeyvaultGetPublicKeyV2(serverName *C.char, groupName *C.char, keyvaultName 
 
 	pemPkcs1KeyPub := (*keys)[0].Value
 	return handleOutputBuffer(serverName, *pemPkcs1KeyPub, cv, outputBuffer, outputBufferSize, "KeyvaultGetPublicKeyV2")
-}
-
-func handleOutputBuffer(serverName *C.char, resultGoString string, cv *C.char, outputBuffer *C.char, outputBufferSize *C.ulonglong, funcName string) C.int {
-	if (outputBufferSize == nil) {
-		return C.int(Win32ErrorBadArg)
-	}
-
-	resultCString := C.CString(resultGoString)
-	var resultCStringLength C.ulonglong = C.strlen(resultCString)
-
-	if (outputBuffer == nil || *outputBufferSize < resultCStringLength) {
-		telemetry.EmitWrapperTelemetry(funcName, C.GoString(cv), "", "InsufficientBuffer", C.GoString(serverName))
-		*outputBufferSize = resultCStringLength;
-		C.free(unsafe.Pointer(resultCString))
-		return C.int(Win32ErrorInsufficientBuffer)
-	}
-
-	C.strncpy(outputBuffer, resultCString, resultCStringLength)
-	*outputBufferSize = resultCStringLength
-	C.free(unsafe.Pointer(resultCString))
-	return C.int(Win32Succeed)
-}
-
-func getKeyvaultKeyClient(serverName string, cv string) (*key.KeyClient, error) {
-	authorizer, err := auth.NewAuthorizerFromEnvironment(serverName)
-	if err != nil {
-		telemetry.EmitWrapperTelemetry("getKeyvaultKeyClient", cv, err.Error(), "auth.NewAuthorizerFromEnvironment", serverName)
-		return nil, err
-	}
-
-	return key.NewKeyClient(serverName, authorizer)
 }
 
 func main() {}
