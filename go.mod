@@ -2,8 +2,6 @@ module github.com/microsoft/moc-sdk-for-go
 
 go 1.22
 
-toolchain go1.22.4
-
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
 	github.com/Azure/go-autorest/autorest v0.11.29
@@ -38,8 +36,8 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
+	golang.org/x/text v0.17.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240820151423-278611b39280 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
