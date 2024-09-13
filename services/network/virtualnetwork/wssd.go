@@ -19,6 +19,7 @@ import (
 const (
 	// supported API versions for vnet
 	Version_Default = ""
+	Version_1_0     = "1.0"
 	Version_2_0     = "2.0"
 )
 
@@ -226,6 +227,8 @@ func getApiVersion(apiVersion string) (version *wssdcloudcommon.ApiVersion, err 
 
 	switch {
 	case apiVersion == Version_Default:
+		fallthrough
+	case apiVersion == Version_1_0:
 		return nil, nil
 	case apiVersion == Version_2_0:
 		version = &wssdcloudcommon.ApiVersion{
