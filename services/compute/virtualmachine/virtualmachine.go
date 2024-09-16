@@ -144,14 +144,40 @@ func (c *client) getWssdVirtualMachineStorageConfigurationImageReference(s *comp
 	return *s.Name, nil
 }
 func (c *client) getWssdVirtualMachineStorageConfigurationOsDisk(s *compute.OSDisk) (*wssdcloudcompute.Disk, error) {
-	if s.Vhd == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Vhd Configuration is missing in OSDisk")
+	// If ManagedDisk == nil, the OsDisk must have a valid Vhd
+	// If ManagedDisk != nil, It may be used only to propogate SecurityProfile until cloning an imagereference. Don't error if Vhd is invalid
+	if s.ManagedDisk == nil {
+		if s.Vhd == nil {
+			return nil, errors.Wrapf(errors.InvalidInput, "Vhd Configuration is missing in OSDisk")
+		}
+		if s.Vhd.URI == nil {
+			return nil, errors.Wrapf(errors.InvalidInput, "Vhd URI Configuration is missing in OSDisk")
+		}
 	}
-	if s.Vhd.URI == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Vhd URI Configuration is missing in OSDisk")
+
+	diskName := ""
+	if s.Vhd != nil && s.Vhd.URI != nil {
+		diskName = *s.Vhd.URI
+	}
+	var managedDisk *wssdcommon.VirtualMachineManagedDiskParameters
+	if s.ManagedDisk != nil {
+		managedDisk = &wssdcommon.VirtualMachineManagedDiskParameters{}
+		if s.ManagedDisk.SecurityProfile != nil {
+			var securityEncryptionType wssdcommon.SecurityEncryptionTypes
+			switch s.ManagedDisk.SecurityProfile.SecurityEncryptionType {
+			case compute.NonPersistedTPM:
+				securityEncryptionType = wssdcommon.SecurityEncryptionTypes_NonPersistedTPM
+			default:
+				securityEncryptionType = wssdcommon.SecurityEncryptionTypes_SecurityEncryptionNone
+			}
+			managedDisk.SecurityProfile = &wssdcommon.VMDiskSecurityProfile{
+				SecurityEncryptionType: securityEncryptionType,
+			}
+		}
 	}
 	return &wssdcloudcompute.Disk{
-		Diskname: *s.Vhd.URI,
+		Diskname:    diskName,
+		ManagedDisk: managedDisk,
 	}, nil
 }
 
@@ -564,9 +590,26 @@ func (c *client) getVirtualMachineStorageProfileOsDisk(d *wssdcloudcompute.Disk)
 	if d == nil {
 		return &compute.OSDisk{}
 	}
+	var managedDisk *compute.VirtualMachineManagedDiskParameters
+	if d.ManagedDisk != nil {
+		managedDisk = &compute.VirtualMachineManagedDiskParameters{}
+		if d.ManagedDisk.SecurityProfile != nil {
+			var securityEncryptionType compute.SecurityEncryptionTypes
+			switch d.ManagedDisk.SecurityProfile.SecurityEncryptionType {
+			case wssdcommon.SecurityEncryptionTypes_NonPersistedTPM:
+				securityEncryptionType = compute.NonPersistedTPM
+			default:
+				securityEncryptionType = ""
+			}
+			managedDisk.SecurityProfile = &compute.VMDiskSecurityProfile{
+				SecurityEncryptionType: securityEncryptionType,
+			}
+		}
+	}
 	return &compute.OSDisk{
 		Name: &d.Diskname,
-		Vhd:  &compute.VirtualHardDisk{URI: &d.Diskname},
+		Vhd:         &compute.VirtualHardDisk{URI: &d.Diskname},
+		ManagedDisk: managedDisk,
 	}
 }
 
