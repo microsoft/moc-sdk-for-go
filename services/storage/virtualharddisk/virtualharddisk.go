@@ -9,10 +9,11 @@ import (
 	"github.com/microsoft/moc/pkg/status"
 	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // Conversion functions from storage to wssdcloudstorage
-func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName string) (*wssdcloudstorage.VirtualHardDisk, error) {
+func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName string, sourcePath string, sourceType common.ImageSource) (*wssdcloudstorage.VirtualHardDisk, error) {
 	if c.Name == nil {
 		return nil, errors.Wrapf(errors.InvalidInput, "Virtual Hard Disk name is missing")
 	}
@@ -53,11 +54,9 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 		if c.VirtualMachineName != nil {
 			wssdvhd.VirtualmachineName = *c.VirtualMachineName
 		}
-		if c.SourcePath != nil {
-			wssdvhd.SourcePath = *c.SourcePath
-		}
+		wssdvhd.SourcePath = sourcePath
 
-		wssdvhd.SourceType = c.SourceType
+		wssdvhd.SourceType = sourceType
 		wssdvhd.HyperVGeneration = c.HyperVGeneration
 		wssdvhd.DiskFileFormat = c.DiskFileFormat
 

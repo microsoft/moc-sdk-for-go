@@ -41,10 +41,6 @@ type VirtualHardDiskProperties struct {
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
-	// Source path for the VHD. Only supports url.
-	SourcePath *string `json:"sourcePath,omitempty"`
-	// Source Type for the VHD
-	SourceType common.ImageSource `json:"sourceType,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD

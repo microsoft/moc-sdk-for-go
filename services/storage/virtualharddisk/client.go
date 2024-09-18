@@ -17,7 +17,7 @@ import (
 // Service interface
 type Service interface {
 	Get(context.Context, string, string, string) (*[]storage.VirtualHardDisk, error)
-	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
+	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
 }
@@ -45,7 +45,7 @@ func (c *VirtualHardDiskClient) Get(ctx context.Context, group, container, name 
 
 // CreateOrUpdate methods invokes create or update on the client
 func (c *VirtualHardDiskClient) CreateOrUpdate(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
-	return c.internal.CreateOrUpdate(ctx, group, container, name, storage)
+	return c.internal.CreateOrUpdate(ctx, group, container, name, storage, "", common.ImageSource_LOCAL_SOURCE)
 }
 
 // Delete methods invokes delete of the storage resource
@@ -84,10 +84,6 @@ func (c *VirtualHardDiskClient) DownloadVhdFromHttp(ctx context.Context, group, 
 	if err != nil {
 		return nil, err
 	}
-	if storage != nil && storage.VirtualHardDiskProperties != nil {
-		storage.SourceType = common.ImageSource_HTTP_SOURCE
-		datastring := string(data)
-		storage.SourcePath = &datastring
-	}
-	return c.internal.CreateOrUpdate(ctx, group, container, name, storage)
+	datastring := string(data)
+	return c.internal.CreateOrUpdate(ctx, group, container, name, storage, datastring, common.ImageSource_HTTP_SOURCE)
 }
