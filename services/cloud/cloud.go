@@ -307,8 +307,8 @@ type EtcdCluster struct {
 	Tags map[string]*string `json:"tags"`
 }
 
-// AvailabilityZone describes the availabilityZone setting for a virtual machine
-type AvailabilityZone struct {
+// Zone describes the Zone setting for a virtual machine
+type Zone struct {
 	// ID
 	ID *string `json:"ID,omitempty"`
 	// Name
@@ -318,10 +318,10 @@ type AvailabilityZone struct {
 	// Location - Resource location
 	Location *string `json:"location,omitempty"`
 
-	*AvailabilityZoneProperties `json:"properties,omitempty"`
+	*ZoneProperties `json:"properties,omitempty"`
 }
 
-type AvailabilityZoneProperties struct {
+type ZoneProperties struct {
 	// Statuses - Statuses
 	Statuses map[string]*string `json:"statuses"`
 	// Nodes

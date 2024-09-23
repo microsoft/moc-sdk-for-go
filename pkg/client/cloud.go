@@ -70,14 +70,14 @@ func GetControlPlaneClient(serverAddress *string, authorizer auth.Authorizer) (c
 	return cloud_pb.NewControlPlaneAgentClient(conn), nil
 }
 
-// GetAvailabilityZone returns the availability zone client to communicate with the wssd agent
-func GetAvailabilityZoneClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.AvailabilityZoneAgentClient, error) {
+// GetZone returns the availability zone client to communicate with the wssd agent
+func GetZoneClient(serverAddress *string, authorizer auth.Authorizer) (cloud_pb.ZoneAgentClient, error) {
 	conn, err := getClientConnection(serverAddress, authorizer)
 	if err != nil {
-		log.Fatalf("Unable to get AvailabilityZoneClient. Failed to dial: %v", err)
+		log.Fatalf("Unable to get ZoneClient. Failed to dial: %v", err)
 	}
 
-	return cloud_pb.NewAvailabilityZoneAgentClient(conn), nil
+	return cloud_pb.NewZoneAgentClient(conn), nil
 }
 
 // GetEtcdClusterClient returns the cluster client to communicate with the wssd agent
