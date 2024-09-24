@@ -372,7 +372,7 @@ type VirtualMachineProperties struct {
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 	// Availability Zones
-	AvailabilityZoneProfile *AvailabilityZoneProfile `json:"availabilityZoneProfile,omitempty"`
+	ZoneProfile *ZoneProfile `json:"zoneProfile,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1241,16 +1241,16 @@ type VirtualMachineReference struct {
 	GroupName *string `json:"group,omitempty"`
 }
 
-// Availability Zone describes the availability zone associated with a virtual machine
-type AvailabilityZone struct {
+// Zone describes the zone associated with a virtual machine
+type Zone struct {
 	// Name
 	Name *string `json:"name,omitempty"`
 }
 
-// AvailabilityZoneProfile describes the the list of availability zones and affinity type
-type AvailabilityZoneProfile struct {
-	// Availability Zones
-	AvailabilityZones *[]AvailabilityZone `json:"availabilityZones,omitempty"`
+// ZoneProfile describes the the list of zones and affinity type
+type ZoneProfile struct {
+	// Zones
+	Zones *[]Zone `json:"zones,omitempty"`
 	// Strict Affinity To Zones
 	StrictAffinityToZones *bool `json:"strictAffinityToZones,omitempty"`
 }
