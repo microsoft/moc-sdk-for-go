@@ -372,7 +372,7 @@ type VirtualMachineProperties struct {
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 	// Availability Zones
-	ZoneProfile *ZoneProfile `json:"zoneProfile,omitempty"`
+	ZoneConfiguration *ZoneConfiguration `json:"zoneConfiguration,omitempty"`
 }
 
 type VirtualMachine struct {
@@ -1247,10 +1247,10 @@ type Zone struct {
 	Name *string `json:"name,omitempty"`
 }
 
-// ZoneProfile describes the the list of zones and affinity type
-type ZoneProfile struct {
+// ZoneConfiguration describes the the list of zones and affinity type
+type ZoneConfiguration struct {
 	// Zones
 	Zones *[]Zone `json:"zones,omitempty"`
-	// Strict Affinity To Zones
-	StrictAffinityToZones *bool `json:"strictAffinityToZones,omitempty"`
+	// Strict Placement
+	StrictPlacement *bool `json:"strictPlacement,omitempty"`
 }
