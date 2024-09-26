@@ -371,7 +371,7 @@ type VirtualMachineProperties struct {
 	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
-	// Availability Zones
+	// Zones
 	ZoneConfiguration *ZoneConfiguration `json:"zoneConfiguration,omitempty"`
 }
 
