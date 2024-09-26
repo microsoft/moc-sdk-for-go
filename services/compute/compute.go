@@ -355,6 +355,8 @@ type VirtualMachineProperties struct {
 	SecurityProfile *SecurityProfile `json:"securityProfile,omitempty"`
 	// AvailabilitySetSetting
 	AvailabilitySetProfile *AvailabilitySetReference `json:"availabilitySetprofile,omitempty"`
+	// PlacementGroupSetting
+	PlacementGroupProfile *PlacementGroupReference `json:"placementGroupprofile,omitempty"`
 	// Host - Specifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.
 	Host *SubResource `json:"host,omitempty"`
 	// ProvisioningState - READ-ONLY; The provisioning state, which only appears in the response.
@@ -1221,6 +1223,46 @@ type AvailabilitySet struct {
 	PlatformFaultDomainCount *int32 `json:"platformFaultDomainCount,omitempty"`
 	// VMs
 	VirtualMachines []*VirtualMachineReference
+}
+
+type PlacementGroup struct {
+	// ID
+	ID *string `json:"ID,omitempty"`
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	Type *string `json:"type,omitempty"`
+	// Tags - Custom resource tags
+	Tags map[string]*string `json:"tags"`
+	// Version
+	Version *string `json:"version,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+	// Group - Resource group
+	Group *string `json:"group,omitempty"`
+
+	*PlacementGroupProperties `json:"properties,omitempty"`
+}
+
+type PlacementGroupProperties struct {
+	// Statuses - Statuses
+	Statuses map[string]*string `json:"statuses"`
+	// Zones
+	Zones *[]string `json:"nodes,omitempty"`
+	// scope
+	Scope string `json:"scope,omitempty"`
+	// strict placement
+	StrictPlacement bool `json:"strictplacement,omitempty"`
+	// VMs
+	VirtualMachines []*VirtualMachineReference
+}
+
+// PlacementGroupReference describes a resoruce reference setting for an Placement Group
+type PlacementGroupReference struct {
+	// Name
+	Name *string `json:"name,omitempty"`
+	// Type
+	GroupName *string `json:"group,omitempty"`
 }
 
 // AvailabilitySetReference describes a resoruce reference setting for an availability set
