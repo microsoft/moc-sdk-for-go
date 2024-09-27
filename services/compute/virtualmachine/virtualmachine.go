@@ -871,6 +871,8 @@ func (c *client) getVirtualMachineOSProfile(o *wssdcloudcompute.OperatingSystemC
 
 	osBootstrapEngine := compute.CloudInit
 	switch o.OsBootstrapEngine {
+	case wssdcommon.OperatingSystemBootstrapEngine_HYDRATED:
+		osBootstrapEngine = compute.Hydrated
 	case wssdcommon.OperatingSystemBootstrapEngine_WINDOWS_ANSWER_FILES:
 		osBootstrapEngine = compute.WindowsAnswerFiles
 	case wssdcommon.OperatingSystemBootstrapEngine_CLOUD_INIT:
