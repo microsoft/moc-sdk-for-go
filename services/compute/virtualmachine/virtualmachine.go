@@ -513,7 +513,7 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 }
 
 func (c *client) getWssdZoneConfiguration(zoneProfile *compute.ZoneConfiguration) (*wssdcommon.ZoneConfiguration, error) {
-	if zoneProfile == nil {
+	if zoneProfile == nil || zoneProfile.Zones == nil {
 		return nil, nil
 	}
 
