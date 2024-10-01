@@ -34,7 +34,8 @@ type VirtualHardDiskProperties struct {
 	Statuses map[string]*string `json:"statuses"`
 	//HyperVGeneration - Gets the HyperVGenerationType of the VirtualMachine created from the image. Possible values are common.HyperVGeneration_HyperVGenerationV1 and common.HyperVGeneration_HyperVGenerationV2
 	HyperVGeneration common.HyperVGeneration `json:"hyperVGeneration,omitempty"`
-	//DiskFileFormat - File format of the disk. possible values are common.DiskFileFormat_DiskFileFormatVHD and common.DiskFileFormat_DiskFileFormatVHDX
+	//DiskFileFormat - File format of the disk. possible values are common.DiskFileFormat_DiskFileFormatVHD, common.DiskFileFormat_DiskFileFormatVHDX and common.DiskFileFormat_DiskFileFormatUNKNOWN.
+	//If not specified, default value is common.DiskFileFormat_DiskFileFormatVHDX
 	DiskFileFormat common.DiskFileFormat `json:"diskFileFormat,omitempty"`
 	// CloudInitDataSource - The cloud init data source to be used with the image. [NoCloud, Azure]. Default Value – NoCloud. For marketplace images it will be Azure.
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
