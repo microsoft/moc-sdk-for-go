@@ -22,17 +22,11 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 		return nil, errors.Wrapf(errors.InvalidInput, "PlacementGroup object Name is empty")
 	}
 
-	if s.PlatformFaultDomainCount == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "PlacementGroup object PlatformFaultDomainCount is empty")
-	}
-
 	placementGroup := &wssdcloudcompute.PlacementGroup{
 		Name:                     *s.Name,
 		GroupName:                group,
-		PlatformFaultDomainCount: *s.PlatformFaultDomainCount,
 		Status:                   status.GetFromStatuses(s.Statuses),
 		VirtualMachines:          getRpcVirtualMachineReferences(s.VirtualMachines),
-		Tags:                     getRpcWssdTags(s.Tags),
 	}
 	return placementGroup, nil
 }
@@ -41,20 +35,20 @@ func getRpcWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
 	return prototags.MapToProto(tags)
 }
 
-func getRpcVirtualMachineReferences(resources []*compute.VirtualMachineReference) []*wssdcloudcompute.VirtualMachineReference {
-	ret := []*wssdcloudcompute.VirtualMachineReference{}
+func getRpcVirtualMachineReferences(resources []*compute.VirtualMachineReference) []*wssdcloudcompute.VirtualMachineRef {
+	ret := []*wssdcloudcompute.VirtualMachineRef{}
 	for _, res := range resources {
 		ret = append(ret, getRpcVirtualMachineReference(res))
 	}
 	return ret
 }
 
-func getRpcVirtualMachineReference(s *compute.VirtualMachineReference) *wssdcloudcompute.VirtualMachineReference {
+func getRpcVirtualMachineReference(s *compute.VirtualMachineReference) *wssdcloudcompute.VirtualMachineRef {
 	if s == nil {
 		return nil
 	}
 
-	vm := &wssdcloudcompute.VirtualMachineReference{
+	vm := &wssdcloudcompute.VirtualMachineRef{
 		Name:      *s.Name,
 		GroupName: *s.GroupName,
 	}
@@ -71,20 +65,17 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 		Name:                     &s.Name,
 		ID:                       &s.Id,
 		Location:                 &s.LocationName,
-		PlatformFaultDomainCount: &s.PlatformFaultDomainCount,
-		Tags:                     getWssdTags(s.Tags),
 		Version:                  &s.Status.Version.Number,
-		VirtualMachines:          getWssdVirtualMachineReferences(s.VirtualMachines),
-		Statuses:                 status.GetStatuses(s.Status),
+		PlacementGroupProperties:  &compute.PlacementGroupProperties{
+			VirtualMachines:          getWssdVirtualMachineReferences(s.VirtualMachines),
+			Statuses:                 status.GetStatuses(s.Status),
+		},
 	}
+
 	return placementGroup, nil
 }
 
-func getWssdTags(tags *wssdcloudproto.Tags) map[string]*string {
-	return prototags.ProtoToMap(tags)
-}
-
-func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineReference) []*compute.VirtualMachineReference {
+func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineRef) []*compute.VirtualMachineReference {
 	ret := []*compute.VirtualMachineReference{}
 	for _, wssdvm := range cs {
 		vm := getWssdVirtualMachineReference(wssdvm)
@@ -93,7 +84,7 @@ func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineRefere
 	return ret
 }
 
-func getWssdVirtualMachineReference(s *wssdcloudcompute.VirtualMachineReference) *compute.VirtualMachineReference {
+func getWssdVirtualMachineReference(s *wssdcloudcompute.VirtualMachineRef) *compute.VirtualMachineReference {
 	if s == nil {
 		return nil
 	}
