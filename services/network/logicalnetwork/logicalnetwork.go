@@ -44,6 +44,10 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 		if c.LogicalNetworkPropertiesFormat.MacPoolName != nil {
 			wssdnetwork.MacPoolName = *c.LogicalNetworkPropertiesFormat.MacPoolName
 		}
+
+		if c.LogicalNetworkPropertiesFormat.NetworkVirtualizationEnabled != nil {
+			wssdnetwork.NetworkVirtualizationEnabled = *c.LogicalNetworkPropertiesFormat.NetworkVirtualizationEnabled
+		}
 	}
 
 	return wssdnetwork, nil
@@ -189,9 +193,10 @@ func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwo
 		ID:       &c.Id,
 		Version:  &c.Status.Version.Number,
 		LogicalNetworkPropertiesFormat: &network.LogicalNetworkPropertiesFormat{
-			Subnets:     getNetworkSubnets(c.Subnets),
-			Statuses:    status.GetStatuses(c.GetStatus()),
-			MacPoolName: &c.MacPoolName,
+			Subnets:                      getNetworkSubnets(c.Subnets),
+			Statuses:                     status.GetStatuses(c.GetStatus()),
+			MacPoolName:                  &c.MacPoolName,
+			NetworkVirtualizationEnabled: &c.NetworkVirtualizationEnabled,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}

@@ -54,6 +54,10 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 				Servers: *c.DhcpOptions.DNSServers,
 			}
 		}
+
+		if c.AddressSpace != nil && c.AddressSpace.AddressPrefixes != nil {
+			wssdnetwork.Cidr = append(wssdnetwork.Cidr, *c.AddressSpace.AddressPrefixes...)
+		}
 	}
 
 	if c.Type == nil {
@@ -227,6 +231,7 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 	if c.Dns != nil {
 		dnsservers = c.Dns.Servers
 	}
+
 	return &network.VirtualNetwork{
 		Name:     &c.Name,
 		Location: &c.LocationName,
@@ -239,6 +244,9 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 			MacPoolName: &c.MacPoolName,
 			DhcpOptions: &network.DhcpOptions{
 				DNSServers: &dnsservers,
+			},
+			AddressSpace: &network.AddressSpace{
+				AddressPrefixes: &c.Cidr,
 			},
 		},
 		Tags: tags.ProtoToMap(c.Tags),

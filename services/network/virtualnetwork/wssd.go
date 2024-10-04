@@ -12,7 +12,15 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	"github.com/microsoft/moc/rpc/common"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
+)
+
+const (
+	// supported API versions for vnet
+	Version_Default = ""
+	Version_1_0     = "1.0" // same as Version_Default
+	Version_2_0     = "2.0"
 )
 
 type client struct {
@@ -29,8 +37,21 @@ func newVirtualNetworkClient(subID string, authorizer auth.Authorizer) (*client,
 }
 
 // Get
+func (c *client) GetWithVersion(ctx context.Context, group, name, apiVersion string) (*[]network.VirtualNetwork, error) {
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_GET, group, name, nil, apiVersion)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.VirtualNetworkAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return getVirtualNetworksFromResponse(response, group), nil
+}
+
+// Get
 func (c *client) Get(ctx context.Context, group, name string) (*[]network.VirtualNetwork, error) {
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_GET, group, name, nil)
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_GET, group, name, nil, "")
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +64,26 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.Virtua
 
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnet *network.VirtualNetwork) (*network.VirtualNetwork, error) {
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_POST, group, name, vnet)
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_POST, group, name, vnet, "")
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.VirtualNetworkAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	vnets := getVirtualNetworksFromResponse(response, group)
+
+	if len(*vnets) == 0 {
+		return nil, fmt.Errorf("[VirtualNetwork][Create] Unexpected error: Creating a Virtual Network returned no result")
+	}
+
+	return &((*vnets)[0]), nil
+}
+
+// CreateOrUpdate
+func (c *client) CreateOrUpdateWithVersion(ctx context.Context, group, name string, vnet *network.VirtualNetwork, apiVersion string) (*network.VirtualNetwork, error) {
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_POST, group, name, vnet, apiVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +110,26 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Virtual Network [%s] not found", name)
 	}
 
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0])
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0], "")
+	if err != nil {
+		return err
+	}
+	_, err = c.VirtualNetworkAgentClient.Invoke(ctx, request)
+
+	return err
+}
+
+// Delete methods invokes create or update on the client
+func (c *client) DeleteWithVersion(ctx context.Context, group, name string, apiVersion string) error {
+	vnet, err := c.GetWithVersion(ctx, group, name, apiVersion)
+	if err != nil {
+		return err
+	}
+	if len(*vnet) == 0 {
+		return fmt.Errorf("virtual Network [%s] not found", name)
+	}
+
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0], apiVersion)
 	if err != nil {
 		return err
 	}
@@ -119,13 +178,21 @@ func getVirtualNetworkPrecheckResponse(response *wssdcloudnetwork.VirtualNetwork
 	return result, nil
 }
 
-func getVirtualNetworkRequest(opType wssdcloudcommon.Operation, group, name string, network *network.VirtualNetwork) (*wssdcloudnetwork.VirtualNetworkRequest, error) {
+func getVirtualNetworkRequest(opType wssdcloudcommon.Operation,
+	group, name string, network *network.VirtualNetwork, apiVersion string) (*wssdcloudnetwork.VirtualNetworkRequest, error) {
+
+	var err error
+	var version *common.ApiVersion
+
+	if version, err = getApiVersion(apiVersion); err != nil {
+		return nil, err
+	}
+
 	request := &wssdcloudnetwork.VirtualNetworkRequest{
 		OperationType:   opType,
 		VirtualNetworks: []*wssdcloudnetwork.VirtualNetwork{},
+		Version:         version,
 	}
-
-	var err error
 
 	wssdnetwork := &wssdcloudnetwork.VirtualNetwork{
 		Name:      name,
@@ -154,4 +221,22 @@ func getVirtualNetworksFromResponse(response *wssdcloudnetwork.VirtualNetworkRes
 	}
 
 	return &virtualNetworks
+}
+
+func getApiVersion(apiVersion string) (version *wssdcloudcommon.ApiVersion, err error) {
+
+	switch {
+	case apiVersion == Version_Default:
+		fallthrough
+	case apiVersion == Version_1_0:
+		return nil, nil
+	case apiVersion == Version_2_0:
+		version = &wssdcloudcommon.ApiVersion{
+			Major: 2,
+			Minor: 0,
+		}
+		return version, nil
+	}
+
+	return nil, errors.Wrapf(errors.InvalidVersion, "Apiversion [%s] is unsupported", apiVersion)
 }

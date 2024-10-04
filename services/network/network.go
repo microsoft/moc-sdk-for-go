@@ -1092,6 +1092,8 @@ type LogicalNetworkPropertiesFormat struct {
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
+	// NetworkVirtualizationEnabled - Denotes if this lnet can be used as overlay for a vnet
+	NetworkVirtualizationEnabled *bool `json:"networkVirtualizationEnabled,omitempty"`
 }
 
 // LogicalNetwork defines the structure of an LNET
