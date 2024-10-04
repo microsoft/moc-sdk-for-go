@@ -19,7 +19,7 @@ import (
 const (
 	// supported API versions for vnet
 	Version_Default = ""
-	Version_1_0     = "1.0"
+	Version_1_0     = "1.0" // same as Version_Default
 	Version_2_0     = "2.0"
 )
 
@@ -37,7 +37,7 @@ func newVirtualNetworkClient(subID string, authorizer auth.Authorizer) (*client,
 }
 
 // Get
-func (c *client) GetEx(ctx context.Context, group, name, apiVersion string) (*[]network.VirtualNetwork, error) {
+func (c *client) GetWithVersion(ctx context.Context, group, name, apiVersion string) (*[]network.VirtualNetwork, error) {
 	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_GET, group, name, nil, apiVersion)
 	if err != nil {
 		return nil, err
@@ -82,7 +82,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnet *n
 }
 
 // CreateOrUpdate
-func (c *client) CreateOrUpdateEx(ctx context.Context, group, name string, vnet *network.VirtualNetwork, apiVersion string) (*network.VirtualNetwork, error) {
+func (c *client) CreateOrUpdateWithVersion(ctx context.Context, group, name string, vnet *network.VirtualNetwork, apiVersion string) (*network.VirtualNetwork, error) {
 	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_POST, group, name, vnet, apiVersion)
 	if err != nil {
 		return nil, err
@@ -120,8 +120,8 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 }
 
 // Delete methods invokes create or update on the client
-func (c *client) DeleteEx(ctx context.Context, group, name string, apiVersion string) error {
-	vnet, err := c.GetEx(ctx, group, name, apiVersion)
+func (c *client) DeleteWithVersion(ctx context.Context, group, name string, apiVersion string) error {
+	vnet, err := c.GetWithVersion(ctx, group, name, apiVersion)
 	if err != nil {
 		return err
 	}
