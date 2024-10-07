@@ -41,6 +41,21 @@ const (
 	StackedControlPlane VMType = "StackedControlPlane"
 )
 
+type PlacementGroupType string
+
+const (
+	Affinity           PlacementGroupType = "Affinity"
+	AntiAffinity       PlacementGroupType = "AntiAffinity"
+	StrictAntiAffinity PlacementGroupType = "StrictAntiAffinity"
+)
+
+type PlacementGroupScope string
+
+const (
+	Server PlacementGroupScope = "Server"
+	Zone   PlacementGroupScope = "Zone"
+)
+
 // IPVersion enumerates the values for ip version.
 type IPVersion string
 

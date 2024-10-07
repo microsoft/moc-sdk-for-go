@@ -23,10 +23,10 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 	}
 
 	placementGroup := &wssdcloudcompute.PlacementGroup{
-		Name:                     *s.Name,
-		GroupName:                group,
-		Status:                   status.GetFromStatuses(s.Statuses),
-		VirtualMachines:          getRpcVirtualMachineReferences(s.VirtualMachines),
+		Name:            *s.Name,
+		GroupName:       group,
+		Status:          status.GetFromStatuses(s.Statuses),
+		VirtualMachines: getRpcVirtualMachineReferences(s.VirtualMachines),
 	}
 	return placementGroup, nil
 }
@@ -62,13 +62,13 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 	}
 
 	placementGroup := &compute.PlacementGroup{
-		Name:                     &s.Name,
-		ID:                       &s.Id,
-		Location:                 &s.LocationName,
-		Version:                  &s.Status.Version.Number,
-		PlacementGroupProperties:  &compute.PlacementGroupProperties{
-			VirtualMachines:          getWssdVirtualMachineReferences(s.VirtualMachines),
-			Statuses:                 status.GetStatuses(s.Status),
+		Name:     &s.Name,
+		ID:       &s.Id,
+		Location: &s.LocationName,
+		Version:  &s.Status.Version.Number,
+		PlacementGroupProperties: &compute.PlacementGroupProperties{
+			VirtualMachines: getWssdVirtualMachineReferences(s.VirtualMachines),
+			Statuses:        status.GetStatuses(s.Status),
 		},
 	}
 

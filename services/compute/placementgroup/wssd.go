@@ -127,7 +127,7 @@ func (c *client) getPlacementGroupFromResponse(response *wssdcloudcompute.Placem
 
 func (c *client) getPlacementGroupRequest(opType wssdcloudcommon.Operation, group, name string, pgroup *compute.PlacementGroup) (*wssdcloudcompute.PlacementGroupRequest, error) {
 	request := &wssdcloudcompute.PlacementGroupRequest{
-		OperationType:    opType,
+		OperationType:   opType,
 		PlacementGroups: []*wssdcloudcompute.PlacementGroup{},
 	}
 
