@@ -14,6 +14,7 @@ type Service interface {
 	Get(context.Context, string, string) (*[]cloud.Zone, error)
 	CreateOrUpdate(ctx context.Context, location string, name string, avzone *cloud.Zone) (*cloud.Zone, error)
 	Delete(context.Context, string, string) error
+	Precheck(ctx context.Context, location string, avzones []*cloud.Zone) (bool, error)
 }
 
 type ZoneClient struct {
@@ -42,4 +43,10 @@ func (c *ZoneClient) CreateOrUpdate(ctx context.Context, location string, name s
 // Delete methods invokes delete of the cloud resource
 func (c *ZoneClient) Delete(ctx context.Context, location string, name string) error {
 	return c.internal.Delete(ctx, location, name)
+}
+
+// Prechecks whether the system is able to create specified zones.
+// Returns true with zone creation; or false with reason in error message.
+func (c *ZoneClient) Precheck(ctx context.Context, location string, avzones []*cloud.Zone) (bool, error) {
+	return c.internal.Precheck(ctx, location, avzones)
 }
