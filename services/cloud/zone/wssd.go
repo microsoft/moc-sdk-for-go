@@ -87,6 +87,18 @@ func (c *client) Delete(ctx context.Context, location string, name string) error
 	return err
 }
 
+func (c *client) Precheck(ctx context.Context, location string, zones []*cloud.Zone) (bool, error) {
+	request, err := c.getZonePrecheckRequest(location, zones)
+	if err != nil {
+		return false, err
+	}
+	response, err := c.ZoneAgentClient.Precheck(ctx, request)
+	if err != nil {
+		return false, err
+	}
+	return getZonePrecheckResponse(response)
+}
+
 ///////// private methods ////////
 
 // Conversion from proto to sdk
@@ -129,4 +141,29 @@ func (c *client) getZoneRequest(opType wssdcloudcommon.Operation, location strin
 	request.Zones = append(request.Zones, avzoneRet)
 	return request, nil
 
+}
+
+func getZonePrecheckResponse(response *wssdcloudcompute.ZonePrecheckResponse) (bool, error) {
+	var err error = nil
+	result := response.GetResult().GetValue()
+	if !result {
+		err = errors.New(response.GetError())
+	}
+	return result, err
+}
+
+func (c *client) getZonePrecheckRequest(location string, zones []*cloud.Zone) (*wssdcloudcompute.ZonePrecheckRequest, error) {
+	request := &wssdcloudcompute.ZonePrecheckRequest{
+		Zones: []*wssdcloudcompute.Zone{},
+	}
+	for _, zone := range zones {
+		if zone != nil {
+			moczone, err := getRpcZone(zone)
+			if err != nil {
+				return nil, err
+			}
+			request.Zones = append(request.Zones, moczone)
+		}
+	}
+	return request, nil
 }
