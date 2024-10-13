@@ -196,6 +196,9 @@ func (c *client) getBareMetalMachine(bmm *wssdcloudcompute.BareMetalMachine, gro
 }
 
 func (c *client) getBareMetalMachineStorageProfile(s *wssdcloudcompute.BareMetalMachineStorageConfiguration) *compute.BareMetalMachineStorageProfile {
+	if s == nil {
+		return nil
+	}
 	return &compute.BareMetalMachineStorageProfile{
 		ImageReference: c.getBareMetalMachineStorageProfileImageReference(s.ImageReference),
 	}
@@ -228,6 +231,9 @@ func (c *client) getBareMetalMachineLinuxConfiguration(linuxConfiguration *wssdc
 }
 
 func (c *client) getBareMetalMachineOSProfile(osConfiguration *wssdcloudcompute.BareMetalMachineOperatingSystemConfiguration) *compute.BareMetalMachineOSProfile {
+	if osConfiguration == nil {
+		return nil
+	}
 	op := &compute.BareMetalMachineOSProfile{
 		ComputerName:       &osConfiguration.ComputerName,
 		CustomData:         &osConfiguration.CustomData,
