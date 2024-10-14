@@ -396,8 +396,6 @@ type VirtualMachine struct {
 	Plan *Plan `json:"plan,omitempty"`
 	// Properties
 	*VirtualMachineProperties `json:"virtualmachineproperties,omitempty"`
-	// Failover Priority
-	FailoverPriority *int `json:"failoverPriority,omitempty"`
 }
 
 type Sku struct {
