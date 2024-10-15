@@ -70,9 +70,9 @@ func getContainer(c *wssdcloudstorage.Container, location string) *storage.Conta
 			Path:     &c.Path,
 			Isolated: c.Isolated,
 			ContainerInfo: &storage.ContainerInfo{
-				AvailableSize:      availSize,
-				TotalSize:          totalSize,
-				PreferredOwnerNode: preferredOwner,
+				AvailableSize:  availSize,
+				TotalSize:      totalSize,
+				PreferredOwner: preferredOwner,
 			},
 		},
 		Version: &c.Status.Version.Number,
