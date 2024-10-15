@@ -34,6 +34,12 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		wssdgalleryimage.SourceType = c.SourceType
 		wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
 		wssdgalleryimage.HyperVGeneration = c.HyperVGeneration
+		switch c.OsType {
+		case compute.Windows:
+			wssdgalleryimage.ImageOSType = wssdcloudcompute.GalleryImageOSType_WINDOWS
+		case compute.Linux:
+			wssdgalleryimage.ImageOSType = wssdcloudcompute.GalleryImageOSType_LINUX
+		}
 	}
 
 	if c.Version != nil {
@@ -48,7 +54,7 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 
 // Conversion function from wssdcloudcompute to compute
 func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute.GalleryImage {
-	return &compute.GalleryImage{
+	galleryImg := &compute.GalleryImage{
 		Name:    &c.Name,
 		ID:      &c.Id,
 		Version: &c.Status.Version.Number,
@@ -59,4 +65,11 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
+	switch c.ImageOSType {
+	case wssdcloudcompute.GalleryImageOSType_WINDOWS:
+		galleryImg.OsType = compute.Windows
+	case wssdcloudcompute.GalleryImageOSType_LINUX:
+		galleryImg.OsType = compute.Linux
+	}
+	return galleryImg
 }
