@@ -374,7 +374,7 @@ type VirtualMachineProperties struct {
 	// Zones
 	ZoneConfiguration *ZoneConfiguration `json:"zoneConfiguration,omitempty"`
 	// Failover Priority
-	FailoverPriority *int `json:"failoverPriority,omitempty"`
+	Priority *int `json:"priority,omitempty"`
 }
 
 type VirtualMachine struct {

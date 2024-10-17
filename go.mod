@@ -65,5 +65,6 @@ replace (
 	golang.org/x/crypto => golang.org/x/crypto v0.26.0
 	golang.org/x/image => golang.org/x/image v0.19.0
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
-	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
+	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24z
+	github.com/microsoft/moc => github.com/microsoft/moc v0.23.6-0.20241017224318-5343d933d137
 )
