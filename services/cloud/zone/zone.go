@@ -55,7 +55,7 @@ func getWssdZone(s *wssdcloudcompute.Zone) (*cloud.Zone, error) {
 		Location: &s.LocationName,
 		Version:  &s.Status.Version.Number,
 		ZoneProperties: &cloud.ZoneProperties{
-			Statuses: status.GetStatuses(s.Status),
+			Statuses: status.GetStatuses(s.GetStatus()),
 			Nodes:    &s.Nodes,
 		},
 	}
