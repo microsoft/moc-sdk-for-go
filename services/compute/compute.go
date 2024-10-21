@@ -52,8 +52,8 @@ const (
 type PlacementGroupScope string
 
 const (
-	Server PlacementGroupScope = "Server"
-	Zone   PlacementGroupScope = "Zone"
+	ServerScope PlacementGroupScope = "Server"
+	ZoneScope   PlacementGroupScope = "Zone"
 )
 
 // IPVersion enumerates the values for ip version.
