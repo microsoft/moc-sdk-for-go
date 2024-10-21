@@ -35,20 +35,20 @@ func getRpcWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
 	return prototags.MapToProto(tags)
 }
 
-func getRpcVirtualMachineReferences(resources []*compute.VirtualMachineReference) []*wssdcloudcompute.VirtualMachineRef {
-	ret := []*wssdcloudcompute.VirtualMachineRef{}
+func getRpcVirtualMachineReferences(resources []*compute.VirtualMachineReference) []*wssdcloudcompute.VirtualMachineReference {
+	ret := []*wssdcloudcompute.VirtualMachineReference{}
 	for _, res := range resources {
 		ret = append(ret, getRpcVirtualMachineReference(res))
 	}
 	return ret
 }
 
-func getRpcVirtualMachineReference(s *compute.VirtualMachineReference) *wssdcloudcompute.VirtualMachineRef {
+func getRpcVirtualMachineReference(s *compute.VirtualMachineReference) *wssdcloudcompute.VirtualMachineReference {
 	if s == nil {
 		return nil
 	}
 
-	vm := &wssdcloudcompute.VirtualMachineRef{
+	vm := &wssdcloudcompute.VirtualMachineReference{
 		Name:      *s.Name,
 		GroupName: *s.GroupName,
 	}
@@ -75,7 +75,7 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 	return placementGroup, nil
 }
 
-func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineRef) []*compute.VirtualMachineReference {
+func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineReference) []*compute.VirtualMachineReference {
 	ret := []*compute.VirtualMachineReference{}
 	for _, wssdvm := range cs {
 		vm := getWssdVirtualMachineReference(wssdvm)
@@ -84,7 +84,7 @@ func getWssdVirtualMachineReferences(cs []*wssdcloudcompute.VirtualMachineRef) [
 	return ret
 }
 
-func getWssdVirtualMachineReference(s *wssdcloudcompute.VirtualMachineRef) *compute.VirtualMachineReference {
+func getWssdVirtualMachineReference(s *wssdcloudcompute.VirtualMachineReference) *compute.VirtualMachineReference {
 	if s == nil {
 		return nil
 	}
