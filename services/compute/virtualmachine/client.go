@@ -28,7 +28,7 @@ type Service interface {
 	RunCommand(context.Context, string, string, *compute.VirtualMachineRunCommandRequest) (*compute.VirtualMachineRunCommandResponse, error)
 	Validate(context.Context, string, string) error
 	Precheck(context.Context, string, []*compute.VirtualMachine) (bool, error)
-	RemoveIso(context.Context, string, string) error
+	RemoveIsoDisk(context.Context, string, string) error
 }
 
 type VirtualMachineClient struct {
@@ -105,8 +105,8 @@ func (c *VirtualMachineClient) Save(ctx context.Context, group string, name stri
 }
 
 // Remove ISO from the Virtual Machine
-func (c *VirtualMachineClient) RemoveIso(ctx context.Context, group string, name string) (err error) {
-	err = c.internal.RemoveIso(ctx, group, name)
+func (c *VirtualMachineClient) RemoveIsoDisk(ctx context.Context, group string, name string) (err error) {
+	err = c.internal.RemoveIsoDisk(ctx, group, name)
 	return
 }
 

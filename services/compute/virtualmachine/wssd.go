@@ -161,7 +161,7 @@ func (c *client) Save(ctx context.Context, group, name string) (err error) {
 }
 
 // RemoveIso
-func (c *client) RemoveIso(ctx context.Context, group, name string) (err error) {
+func (c *client) RemoveIsoDisk(ctx context.Context, group, name string) (err error) {
 	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Remove_Iso_Disk, group, name)
 	if err != nil {
 		return
