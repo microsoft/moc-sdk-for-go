@@ -58,6 +58,8 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
 	}
 
+	priority := c.getWssdVirtualMachinePriority(vm.Priority)
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -78,6 +80,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		Tags:              getWssdTags(vm.Tags),
 		AvailabilitySet:   availabilitySetProfile,
 		ZoneConfiguration: zoneConfig,
+		Priority:          *priority,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -527,6 +530,23 @@ func (c *client) getWssdZoneConfiguration(zoneProfile *compute.ZoneConfiguration
 	}, nil
 }
 
+func (c *client) getWssdVirtualMachinePriority(priority *int32) *wssdcommon.Priority {
+	priorityValue := wssdcommon.Priority_DEFAULT
+	if priority == nil {
+		return &priorityValue
+	}
+
+	switch *priority {
+	case 1:
+		priorityValue = wssdcloudproto.Priority_LOW
+	case 2:
+		priorityValue = wssdcloudproto.Priority_MEDIUM
+	case 3:
+		priorityValue = wssdcloudproto.Priority_HIGH
+	}
+	return &priorityValue
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -582,6 +602,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
 			ZoneConfiguration:       c.getZoneConfiguration(vm.ZoneConfiguration),
+			Priority:                c.getPriority(vm.Priority),
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,
@@ -921,4 +942,17 @@ func (c *client) getZoneConfiguration(zoneConfiguration *wssdcommon.ZoneConfigur
 		Zones:           &zones,
 		StrictPlacement: &strinctPlacement,
 	}
+}
+
+func (c *client) getPriority(priority wssdcommon.Priority) *int32 {
+	var priorityValue int32 = 0
+	if priority == wssdcloudproto.Priority_LOW {
+		priorityValue = 1
+	} else if priority == wssdcloudproto.Priority_MEDIUM {
+		priorityValue = 2
+	} else if priority == wssdcloudproto.Priority_HIGH {
+		priorityValue = 3
+	}
+
+	return &priorityValue
 }
