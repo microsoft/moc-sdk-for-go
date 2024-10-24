@@ -929,6 +929,7 @@ func (c *client) getZoneConfiguration(zoneConfiguration *wssdcommon.ZoneConfigur
 	}
 }
 
+<<<<<<< HEAD
 func (c *client) getWssdPlacementGroupReference(s *compute.PlacementGroupReference) *wssdcloudcompute.PlacementGroupReference {
 	if s == nil {
 		return nil
