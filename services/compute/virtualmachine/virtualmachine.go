@@ -58,10 +58,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
 	}
 
-	priority, err := c.getWssdVirtualMachinePriority(*vm.Priority)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get Priority")
-	}
+	priority := c.getWssdVirtualMachinePriority(vm.Priority)
 
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
@@ -533,17 +530,21 @@ func (c *client) getWssdZoneConfiguration(zoneProfile *compute.ZoneConfiguration
 	}, nil
 }
 
-func (c *client) getWssdVirtualMachinePriority(priority int32) (*wssdcommon.Priority, error) {
+func (c *client) getWssdVirtualMachinePriority(priority *int32) (*wssdcommon.Priority) {
 	priorityValue := wssdcommon.Priority_DEFAULT
-	if priority == 1 {
-		priorityValue = wssdcloudproto.Priority_LOW
-	} else if priority == 2 {
-		priorityValue = wssdcloudproto.Priority_MEDIUM
-	} else if priority == 3 {
-		priorityValue = wssdcloudproto.Priority_HIGH
+	if priority == nil {
+		return &priorityValue
 	}
 
-	return &priorityValue, nil
+	switch *priority {
+		case 1:
+			priorityValue = wssdcloudproto.Priority_LOW
+		case 2:
+			priorityValue = wssdcloudproto.Priority_MEDIUM
+		case 3:
+			priorityValue = wssdcloudproto.Priority_HIGH
+	}
+	return &priorityValue
 }
 
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
