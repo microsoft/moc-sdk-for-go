@@ -539,7 +539,7 @@ func (c *client) getWssdVirtualMachinePriority(priority int32) (*wssdcommon.Prio
 		priorityValue = wssdcloudproto.Priority_LOW
 	} else if priority == 2 {
 		priorityValue = wssdcloudproto.Priority_MEDIUM
-	} else {
+	} else if priority == 3 {
 		priorityValue = wssdcloudproto.Priority_HIGH
 	}
 
@@ -945,7 +945,6 @@ func (c *client) getZoneConfiguration(zoneConfiguration *wssdcommon.ZoneConfigur
 
 func (c *client) getPriority(priority wssdcommon.Priority) *int32 {
 	var priorityValue int32 = 0
-
 	if priority == wssdcloudproto.Priority_LOW {
 		priorityValue = 1
 	} else if priority == wssdcloudproto.Priority_MEDIUM {
@@ -953,5 +952,6 @@ func (c *client) getPriority(priority wssdcommon.Priority) *int32 {
 	} else if priority == wssdcloudproto.Priority_HIGH {
 		priorityValue = 3
 	}
+
 	return &priorityValue
 }
