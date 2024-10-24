@@ -530,19 +530,19 @@ func (c *client) getWssdZoneConfiguration(zoneProfile *compute.ZoneConfiguration
 	}, nil
 }
 
-func (c *client) getWssdVirtualMachinePriority(priority *int32) (*wssdcommon.Priority) {
+func (c *client) getWssdVirtualMachinePriority(priority *int32) *wssdcommon.Priority {
 	priorityValue := wssdcommon.Priority_DEFAULT
 	if priority == nil {
 		return &priorityValue
 	}
 
 	switch *priority {
-		case 1:
-			priorityValue = wssdcloudproto.Priority_LOW
-		case 2:
-			priorityValue = wssdcloudproto.Priority_MEDIUM
-		case 3:
-			priorityValue = wssdcloudproto.Priority_HIGH
+	case 1:
+		priorityValue = wssdcloudproto.Priority_LOW
+	case 2:
+		priorityValue = wssdcloudproto.Priority_MEDIUM
+	case 3:
+		priorityValue = wssdcloudproto.Priority_HIGH
 	}
 	return &priorityValue
 }
