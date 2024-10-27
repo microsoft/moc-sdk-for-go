@@ -23,38 +23,37 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 	}
 
 	pgType := wssdcloudcompute.PlacementGroupType_Affinity
-    if s.Type == compute.Affinity {
-	  pgType = wssdcloudcompute.PlacementGroupType_Affinity
+	if s.Type == compute.Affinity {
+		pgType = wssdcloudcompute.PlacementGroupType_Affinity
 	} else if s.Type == compute.AntiAffinity {
-	  pgType = wssdcloudcompute.PlacementGroupType_AntiAffinity
+		pgType = wssdcloudcompute.PlacementGroupType_AntiAffinity
 	} else if s.Type == compute.StrictAntiAffinity {
-	  pgType = wssdcloudcompute.PlacementGroupType_StrictAntiAffinity
+		pgType = wssdcloudcompute.PlacementGroupType_StrictAntiAffinity
 	}
 
 	pgScope := wssdcloudcompute.PlacementGroupScope_Server
-    if s.Scope == compute.ZoneScope {
+	if s.Scope == compute.ZoneScope {
 		pgScope = wssdcloudcompute.PlacementGroupScope_Zone
 	}
 
 	placementGroup := &wssdcloudcompute.PlacementGroup{
 		Name:            *s.Name,
 		GroupName:       group,
-		LocationName:	 *s.Location,
 		Status:          status.GetFromStatuses(s.Statuses),
 		VirtualMachines: getRpcVirtualMachineReferences(s.VirtualMachines),
-		Type: pgType,
-		Scope: pgScope,
+		Type:            pgType,
+		Scope:           pgScope,
 	}
 
 	if s.PlacementGroupProperties != nil {
 		if s.PlacementGroupProperties.Zones != nil {
 			placementGroup.Zones = &wssdcloudproto.ZoneConfiguration{
-				Zones: []*wssdcloudproto.ZoneReference{},
-                StrictPlacement: s.PlacementGroupProperties.StrictPlacement,
+				Zones:           []*wssdcloudproto.ZoneReference{},
+				StrictPlacement: s.PlacementGroupProperties.StrictPlacement,
 			}
 
 			for _, zn := range *s.PlacementGroupProperties.Zones {
-                rpcZoneRef, err := getRpcZoneReference(&zn)
+				rpcZoneRef, err := getRpcZoneReference(&zn)
 				if err != nil {
 					return nil, err
 				}
@@ -72,8 +71,8 @@ func getRpcZoneReference(s *string) (*wssdcloudproto.ZoneReference, error) {
 	}
 
 	return &wssdcloudproto.ZoneReference{
-        Name: *s,
-	},nil
+		Name: *s,
+	}, nil
 }
 
 func getRpcWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
@@ -108,11 +107,11 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 
 	pgZone := []string{}
 	for _, zn := range s.Zones.Zones {
-		pgZone = append(pgZone, zn.Name) 
-	} 
+		pgZone = append(pgZone, zn.Name)
+	}
 
 	pgScope := compute.ServerScope
-    if s.Scope == wssdcloudcompute.PlacementGroupScope_Zone {
+	if s.Scope == wssdcloudcompute.PlacementGroupScope_Zone {
 		pgScope = compute.ZoneScope
 	}
 
@@ -125,8 +124,8 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 			VirtualMachines: getWssdVirtualMachineReferences(s.VirtualMachines),
 			Statuses:        status.GetStatuses(s.Status),
 			Zones:           &pgZone,
-			Scope: 			 pgScope,
-			StrictPlacement: s.Zones.StrictPlacement, 
+			Scope:           pgScope,
+			StrictPlacement: s.Zones.StrictPlacement,
 		},
 	}
 
