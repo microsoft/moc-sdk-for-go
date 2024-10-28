@@ -106,9 +106,12 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 	}
 
 	pgZone := []string{}
-	for _, zn := range s.Zones.Zones {
-		pgZone = append(pgZone, zn.Name)
-	}
+
+	if s.Zones != nil && s.Zones.Zones != nil {
+		for _, zn := range s.Zones.Zones {
+			pgZone = append(pgZone, zn.Name)
+		}
+    }
 
 	pgScope := compute.ServerScope
 	if s.Scope == wssdcloudcompute.PlacementGroupScope_Zone {
