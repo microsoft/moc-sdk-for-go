@@ -45,11 +45,15 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 		Scope:           pgScope,
 	}
 
+	placementGroup.Zones = &wssdcloudproto.ZoneConfiguration{
+		Zones:  []*wssdcloudproto.ZoneReference{},
+		StrictPlacement: false,
+	}
+
 	if s.PlacementGroupProperties != nil {
 		if s.PlacementGroupProperties.Zones != nil {
-			placementGroup.Zones = &wssdcloudproto.ZoneConfiguration{
-				Zones:           []*wssdcloudproto.ZoneReference{},
-				StrictPlacement: s.PlacementGroupProperties.StrictPlacement,
+			if s.PlacementGroupProperties.StrictPlacement {
+				placementGroup.Zones.StrictPlacement = true
 			}
 
 			for _, zn := range *s.PlacementGroupProperties.Zones {
