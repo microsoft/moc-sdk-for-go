@@ -122,6 +122,11 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 		pgScope = compute.ZoneScope
 	}
 
+	pgStrictPlacement := false
+	if s.Zones.StrictPlacement {
+		pgStrictPlacement = true
+	}
+
 	placementGroup := &compute.PlacementGroup{
 		Name:     &s.Name,
 		ID:       &s.Id,
@@ -132,7 +137,7 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 			Statuses:        status.GetStatuses(s.Status),
 			Zones:           &pgZone,
 			Scope:           pgScope,
-			StrictPlacement: s.Zones.StrictPlacement,
+			StrictPlacement: pgStrictPlacement,
 		},
 	}
 
