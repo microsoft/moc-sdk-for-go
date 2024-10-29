@@ -61,7 +61,7 @@ replace (
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/go-retryablehttp => github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/microsoft/moc => github.com/microsoft/moc v0.23.6-0.20241021214042-4902c229bd42
+	github.com/microsoft/moc => github.com/microsoft/moc v0.23.8-0.20241029230425-78a56c78851a
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
 	golang.org/x/crypto => golang.org/x/crypto v0.26.0
