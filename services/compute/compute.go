@@ -1248,7 +1248,7 @@ type PlacementGroup struct {
 	// Name
 	Name *string `json:"name,omitempty"`
 	// Type
-	Type *string `json:"type,omitempty"`
+	Type PlacementGroupType `json:"type,omitempty"`
 	// Tags - Custom resource tags
 	Tags map[string]*string `json:"tags"`
 	// Version
@@ -1267,7 +1267,7 @@ type PlacementGroupProperties struct {
 	// Zones
 	Zones *[]string `json:"nodes,omitempty"`
 	// scope
-	Scope string `json:"scope,omitempty"`
+	Scope PlacementGroupScope `json:"scope,omitempty"`
 	// strict placement
 	StrictPlacement bool `json:"strictplacement,omitempty"`
 	// VMs

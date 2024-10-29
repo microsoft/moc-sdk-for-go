@@ -22,13 +22,61 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 		return nil, errors.Wrapf(errors.InvalidInput, "PlacementGroup object Name is empty")
 	}
 
+	pgType := wssdcloudcompute.PlacementGroupType_Affinity
+	if s.Type == compute.Affinity {
+		pgType = wssdcloudcompute.PlacementGroupType_Affinity
+	} else if s.Type == compute.AntiAffinity {
+		pgType = wssdcloudcompute.PlacementGroupType_AntiAffinity
+	} else if s.Type == compute.StrictAntiAffinity {
+		pgType = wssdcloudcompute.PlacementGroupType_StrictAntiAffinity
+	}
+
+	pgScope := wssdcloudcompute.PlacementGroupScope_Server
+	if s.Scope == compute.ZoneScope {
+		pgScope = wssdcloudcompute.PlacementGroupScope_Zone
+	}
+
 	placementGroup := &wssdcloudcompute.PlacementGroup{
 		Name:            *s.Name,
 		GroupName:       group,
 		Status:          status.GetFromStatuses(s.Statuses),
 		VirtualMachines: getRpcVirtualMachineReferences(s.VirtualMachines),
+		Type:            pgType,
+		Scope:           pgScope,
 	}
+
+	placementGroup.Zones = &wssdcloudproto.ZoneConfiguration{
+		Zones:  []*wssdcloudproto.ZoneReference{},
+		StrictPlacement: false,
+	}
+
+	if s.PlacementGroupProperties != nil {
+		if s.PlacementGroupProperties.Zones != nil {
+			if s.PlacementGroupProperties.StrictPlacement {
+				placementGroup.Zones.StrictPlacement = true
+			}
+
+			for _, zn := range *s.PlacementGroupProperties.Zones {
+				rpcZoneRef, err := getRpcZoneReference(&zn)
+				if err != nil {
+					return nil, err
+				}
+				placementGroup.Zones.Zones = append(placementGroup.Zones.Zones, rpcZoneRef)
+			}
+		}
+	}
+
 	return placementGroup, nil
+}
+
+func getRpcZoneReference(s *string) (*wssdcloudproto.ZoneReference, error) {
+	if s == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "Zone Name is missing")
+	}
+
+	return &wssdcloudproto.ZoneReference{
+		Name: *s,
+	}, nil
 }
 
 func getRpcWssdTags(tags map[string]*string) *wssdcloudproto.Tags {
@@ -61,6 +109,26 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 		return nil, errors.Wrapf(errors.InvalidInput, "Placement group object is nil")
 	}
 
+	pgZone := []string{}
+	pgStrictPlacement := false
+
+	if s.Zones != nil {
+	    if s.Zones.Zones != nil {
+		    for _, zn := range s.Zones.Zones {
+		    	pgZone = append(pgZone, zn.Name)
+		    }
+		}
+
+		if s.Zones.StrictPlacement {
+			pgStrictPlacement = s.Zones.StrictPlacement
+		}
+    }
+
+	pgScope := compute.ServerScope
+	if s.Scope == wssdcloudcompute.PlacementGroupScope_Zone {
+		pgScope = compute.ZoneScope
+	}
+
 	placementGroup := &compute.PlacementGroup{
 		Name:     &s.Name,
 		ID:       &s.Id,
@@ -69,6 +137,9 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 		PlacementGroupProperties: &compute.PlacementGroupProperties{
 			VirtualMachines: getWssdVirtualMachineReferences(s.VirtualMachines),
 			Statuses:        status.GetStatuses(s.Status),
+			Zones:           &pgZone,
+			Scope:           pgScope,
+			StrictPlacement: pgStrictPlacement,
 		},
 	}
 
