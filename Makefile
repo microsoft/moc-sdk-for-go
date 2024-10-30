@@ -15,7 +15,7 @@ CPP_WRAPPER_EXT=.dll
 CPP_WRAPPER_OUT=$(BIN_DIR)/$(CPP_WRAPPER_NAME)$(CPP_WRAPPER_EXT)
 
 # Private repo workaround
-export GOPRIVATE = github.com/microsoft
+export GOPRIVATE=github.com/microsoft
 # Active module mode, as we use go modules to manage dependencies
 export GO111MODULE=on
 
