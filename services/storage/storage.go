@@ -61,9 +61,10 @@ type VirtualHardDisk struct {
 }
 
 type ContainerInfo struct {
-	AvailableSize  string `json:"AvailableSize,omitempty"`
-	TotalSize      string `json:"TotalSize,omitempty"`
-	PreferredOwner string `json:"PreferredOwner,omitempty"`
+	AvailableSize string `json:"AvailableSize,omitempty"`
+	TotalSize     string `json:"TotalSize,omitempty"`
+	NodeName      string `json:"NodeName,omitempty"`
+	ZoneName      string `json:"ZoneName,omitempty"`
 }
 
 // ContainerProperties defines the structure of a Load Balancer
