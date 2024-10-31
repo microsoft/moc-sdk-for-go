@@ -54,6 +54,11 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilitySet Configuration")
 	}
 
+	zoneConfig, err := c.getWssdZoneConfiguration(vm.ZoneConfiguration)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
+	}
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -62,17 +67,18 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 	}
 
 	vmOut := wssdcloudcompute.VirtualMachine{
-		Name:            *vm.Name,
-		Storage:         storageConfig,
-		Hardware:        hardwareConfig,
-		Security:        securityConfig,
-		GuestAgent:      guestAgentConfig,
-		Os:              osconfig,
-		Network:         networkConfig,
-		GroupName:       group,
-		VmType:          vmtype,
-		Tags:            getWssdTags(vm.Tags),
-		AvailabilitySet: availabilitySetProfile,
+		Name:              *vm.Name,
+		Storage:           storageConfig,
+		Hardware:          hardwareConfig,
+		Security:          securityConfig,
+		GuestAgent:        guestAgentConfig,
+		Os:                osconfig,
+		Network:           networkConfig,
+		GroupName:         group,
+		VmType:            vmtype,
+		Tags:              getWssdTags(vm.Tags),
+		AvailabilitySet:   availabilitySetProfile,
+		ZoneConfiguration: zoneConfig,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -507,6 +513,21 @@ func (c *client) getWssdAvailabilitySetReference(s *compute.AvailabilitySetRefer
 	return availabilitySet, nil
 }
 
+func (c *client) getWssdZoneConfiguration(zoneProfile *compute.ZoneConfiguration) (*wssdcommon.ZoneConfiguration, error) {
+	if zoneProfile == nil || zoneProfile.Zones == nil {
+		return nil, nil
+	}
+
+	zones := []*wssdcommon.ZoneReference{}
+	for _, zone := range *zoneProfile.Zones {
+		zones = append(zones, &wssdcommon.ZoneReference{Name: *zone.Name})
+	}
+	return &wssdcommon.ZoneConfiguration{
+		Zones:           zones,
+		StrictPlacement: *zoneProfile.StrictPlacement,
+	}, nil
+}
+
 func (c *client) getWssdVirtualMachineProxyConfiguration(proxyConfig *compute.ProxyConfiguration) *wssdcloudproto.ProxyConfiguration {
 	if proxyConfig == nil {
 		return nil
@@ -571,6 +592,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine) *compute
 			VmType:                  vmtype,
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
+			ZoneConfiguration:       c.getZoneConfiguration(vm.ZoneConfiguration),
 		},
 		Version:  &version,
 		Location: &vm.LocationName,
@@ -905,5 +927,23 @@ func (c *client) getVirtualMachineProxyConfiguration(proxyConfiguration *wssdclo
 		HttpsProxy: &proxyConfiguration.HttpsProxy,
 		NoProxy:    &proxyConfiguration.NoProxy,
 		TrustedCa:  &proxyConfiguration.TrustedCa,
+	}
+}
+
+func (c *client) getZoneConfiguration(zoneConfiguration *wssdcommon.ZoneConfiguration) *compute.ZoneConfiguration {
+	if zoneConfiguration == nil || len(zoneConfiguration.Zones) == 0 {
+		return nil
+	}
+
+	zones := []compute.Zone{}
+	strinctPlacement := zoneConfiguration.StrictPlacement
+	for _, zone := range zoneConfiguration.Zones {
+		zoneName := zone.Name
+		zones = append(zones, compute.Zone{Name: &zoneName})
+	}
+
+	return &compute.ZoneConfiguration{
+		Zones:           &zones,
+		StrictPlacement: &strinctPlacement,
 	}
 }

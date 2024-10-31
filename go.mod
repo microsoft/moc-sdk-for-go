@@ -1,13 +1,13 @@
 module github.com/microsoft/moc-sdk-for-go
 
-go 1.20
+go 1.22
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.20.4
+	github.com/microsoft/moc v0.23.7
 	google.golang.org/grpc v1.62.1
 	k8s.io/klog v1.0.0
 )
@@ -34,10 +34,11 @@ require (
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240820151423-278611b39280 // indirect
+	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20241021214115-324edc3d5d38 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -51,8 +52,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	google.golang.org/protobuf v1.34.2
+	golang.org/x/sys v0.26.0 // indirect
+	google.golang.org/protobuf v1.35.1
 )
 
 replace (

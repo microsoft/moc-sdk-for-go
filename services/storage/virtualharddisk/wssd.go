@@ -12,6 +12,7 @@ import (
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
 	wssdcloudstorage "github.com/microsoft/moc/rpc/cloudagent/storage"
+	"github.com/microsoft/moc/rpc/common"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
 )
 
@@ -30,7 +31,7 @@ func newVirtualHardDiskClient(subID string, authorizer auth.Authorizer) (*client
 
 // Get
 func (c *client) Get(ctx context.Context, group, container, name string) (*[]storage.VirtualHardDisk, error) {
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_GET, group, container, name, nil)
+	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_GET, group, container, name, nil, "", common.ImageSource_LOCAL_SOURCE)
 	if err != nil {
 		return nil, err
 	}
@@ -42,8 +43,8 @@ func (c *client) Get(ctx context.Context, group, container, name string) (*[]sto
 }
 
 // CreateOrUpdate
-func (c *client) CreateOrUpdate(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_POST, group, container, name, vhd)
+func (c *client) CreateOrUpdate(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk, sourcePath string, sourceType common.ImageSource) (*storage.VirtualHardDisk, error) {
+	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_POST, group, container, name, vhd, sourcePath, sourceType)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, container, name stri
 // Ultimately, we need the full path on disk to the disk file which we assemble from the path of the container plus the file name of the disk.
 // (e.g. "C:\ClusterStorage\Userdata_1\abc123" for the container path and "my_disk.vhd" for the disk name)
 func (c *client) Hydrate(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_HYDRATE, group, container, name, vhd)
+	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_HYDRATE, group, container, name, vhd, "", common.ImageSource_LOCAL_SOURCE)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 		return fmt.Errorf("[VirtualHardDisk][Delete] %s: not found", name)
 	}
 
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_DELETE, group, container, name, &(*vhd)[0])
+	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_DELETE, group, container, name, &(*vhd)[0], "", common.ImageSource_LOCAL_SOURCE)
 	if err != nil {
 		return err
 	}
@@ -128,7 +129,7 @@ func getVirtualHardDiskPrecheckRequest(group, container string, vhds []*storage.
 		VirtualHardDisks: []*wssdcloudstorage.VirtualHardDisk{},
 	}
 	for _, vhd := range vhds {
-		wssdvhd, err := getWssdVirtualHardDisk(vhd, group, container)
+		wssdvhd, err := getWssdVirtualHardDisk(vhd, group, container, "", common.ImageSource_LOCAL_SOURCE)
 		if err != nil {
 			return nil, err
 		}
@@ -137,7 +138,7 @@ func getVirtualHardDiskPrecheckRequest(group, container string, vhds []*storage.
 	return request, nil
 }
 
-func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
+func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk, sourcePath string, sourceType common.ImageSource) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
 	request := &wssdcloudstorage.VirtualHardDiskRequest{
 		OperationType:    opType,
 		VirtualHardDisks: []*wssdcloudstorage.VirtualHardDisk{},
@@ -155,7 +156,7 @@ func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, containe
 	}
 
 	if storage != nil {
-		wssdvhd, err = getWssdVirtualHardDisk(storage, group, container)
+		wssdvhd, err = getWssdVirtualHardDisk(storage, group, container, sourcePath, sourceType)
 		if err != nil {
 			return nil, err
 		}

@@ -17,6 +17,7 @@ import (
 	log "k8s.io/klog"
 
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/intercept"
 )
 
 const (
@@ -81,6 +82,8 @@ func getDefaultDialOption(authorizer auth.Authorizer) []grpc.DialOption {
 			Timeout:             20 * time.Second,
 			PermitWithoutStream: true,
 		}))
+
+	opts = append(opts, grpc.WithUnaryInterceptor(intercept.NewErrorParsingInterceptor()))
 
 	return opts
 }

@@ -5,17 +5,20 @@ package virtualharddisk
 
 import (
 	"context"
+	"encoding/json"
 
+	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
+	"github.com/microsoft/moc/rpc/common"
 )
 
 // Service interface
 type Service interface {
 	Get(context.Context, string, string, string) (*[]storage.VirtualHardDisk, error)
-	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
 	Hydrate(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
+	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
 }
@@ -43,7 +46,7 @@ func (c *VirtualHardDiskClient) Get(ctx context.Context, group, container, name 
 
 // CreateOrUpdate methods invokes create or update on the client
 func (c *VirtualHardDiskClient) CreateOrUpdate(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
-	return c.internal.CreateOrUpdate(ctx, group, container, name, storage)
+	return c.internal.CreateOrUpdate(ctx, group, container, name, storage, "", common.ImageSource_LOCAL_SOURCE)
 }
 
 // The entry point for the hydrate call takes the group name, container name and the name of the disk file. The group is standard input for every call.
@@ -81,4 +84,14 @@ func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, na
 // Returns true with virtual hard disk placement in mapping from virtual hard disk names to container names; or false with reason in error message.
 func (c *VirtualHardDiskClient) Precheck(ctx context.Context, group, container string, vhds []*storage.VirtualHardDisk) (bool, error) {
 	return c.internal.Precheck(ctx, group, container, vhds)
+}
+
+func (c *VirtualHardDiskClient) DownloadVhdFromHttp(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk, azHttpImg *compute.AzureGalleryImageProperties) (*storage.VirtualHardDisk, error) {
+	// convert httpImg struct to json string and use it as image-path
+	data, err := json.Marshal(azHttpImg)
+	if err != nil {
+		return nil, err
+	}
+	datastring := string(data)
+	return c.internal.CreateOrUpdate(ctx, group, container, name, storage, datastring, common.ImageSource_HTTP_SOURCE)
 }
