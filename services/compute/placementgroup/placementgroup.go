@@ -23,11 +23,11 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 	}
 
 	pgType := wssdcloudcompute.PlacementGroupType_Affinity
-	if s.Type == compute.Affinity {
+	if s.PlacementGroupProperties.Type == compute.Affinity {
 		pgType = wssdcloudcompute.PlacementGroupType_Affinity
-	} else if s.Type == compute.AntiAffinity {
+	} else if s.PlacementGroupProperties.Type == compute.AntiAffinity {
 		pgType = wssdcloudcompute.PlacementGroupType_AntiAffinity
-	} else if s.Type == compute.StrictAntiAffinity {
+	} else if s.PlacementGroupProperties.Type == compute.StrictAntiAffinity {
 		pgType = wssdcloudcompute.PlacementGroupType_StrictAntiAffinity
 	}
 
@@ -46,7 +46,7 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 	}
 
 	placementGroup.Zones = &wssdcloudproto.ZoneConfiguration{
-		Zones:  []*wssdcloudproto.ZoneReference{},
+		Zones:           []*wssdcloudproto.ZoneReference{},
 		StrictPlacement: false,
 	}
 
@@ -113,20 +113,29 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 	pgStrictPlacement := false
 
 	if s.Zones != nil {
-	    if s.Zones.Zones != nil {
-		    for _, zn := range s.Zones.Zones {
-		    	pgZone = append(pgZone, zn.Name)
-		    }
+		if s.Zones.Zones != nil {
+			for _, zn := range s.Zones.Zones {
+				pgZone = append(pgZone, zn.Name)
+			}
 		}
 
 		if s.Zones.StrictPlacement {
 			pgStrictPlacement = s.Zones.StrictPlacement
 		}
-    }
+	}
 
 	pgScope := compute.ServerScope
 	if s.Scope == wssdcloudcompute.PlacementGroupScope_Zone {
 		pgScope = compute.ZoneScope
+	}
+
+	pgType := compute.Affinity
+	if s.Type == wssdcloudcompute.PlacementGroupType_Affinity {
+		pgType = compute.Affinity
+	} else if s.Type == wssdcloudcompute.PlacementGroupType_AntiAffinity {
+		pgType = compute.AntiAffinity
+	} else if s.Type == wssdcloudcompute.PlacementGroupType_StrictAntiAffinity {
+		pgType = compute.StrictAntiAffinity
 	}
 
 	placementGroup := &compute.PlacementGroup{
@@ -140,6 +149,7 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 			Zones:           &pgZone,
 			Scope:           pgScope,
 			StrictPlacement: pgStrictPlacement,
+			Type:            pgType,
 		},
 	}
 

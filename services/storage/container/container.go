@@ -56,9 +56,13 @@ func getVirtualharddisktype(enum string) wssdcloudstorage.ContainerType {
 func getContainer(c *wssdcloudstorage.Container, location string) *storage.Container {
 	var totalSize string
 	var availSize string
+	var node string
+	var zone string
 	if c.Info != nil {
 		totalSize = bytefmt.ByteSize(c.Info.Capacity.TotalBytes)
 		availSize = bytefmt.ByteSize(c.Info.Capacity.AvailableBytes)
+		node = c.Info.Node
+		zone = c.Info.Zone
 	}
 	return &storage.Container{
 		Name: &c.Name,
@@ -70,6 +74,8 @@ func getContainer(c *wssdcloudstorage.Container, location string) *storage.Conta
 			ContainerInfo: &storage.ContainerInfo{
 				AvailableSize: availSize,
 				TotalSize:     totalSize,
+				Node:          node,
+				Zone:          zone,
 			},
 		},
 		Version: &c.Status.Version.Number,

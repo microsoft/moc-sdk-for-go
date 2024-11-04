@@ -1247,8 +1247,6 @@ type PlacementGroup struct {
 	ID *string `json:"ID,omitempty"`
 	// Name
 	Name *string `json:"name,omitempty"`
-	// Type
-	Type PlacementGroupType `json:"type,omitempty"`
 	// Tags - Custom resource tags
 	Tags map[string]*string `json:"tags"`
 	// Version
@@ -1262,6 +1260,8 @@ type PlacementGroup struct {
 }
 
 type PlacementGroupProperties struct {
+	// Type
+	Type PlacementGroupType `json:"type,omitempty"`
 	// Statuses - Statuses
 	Statuses map[string]*string `json:"statuses"`
 	// Zones
