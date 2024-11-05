@@ -58,10 +58,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
 	}
 
-	placementGroupProfile, err := c.getWssdPlacementGroupReference(vm.PlacementGroupProfile)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to get PlacementGroup Configuration")
-	}
+	placementGroupProfile := c.getWssdPlacementGroupReference(vm.PlacementGroupProfile)
 
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
@@ -930,16 +927,16 @@ func (c *client) getZoneConfiguration(zoneConfiguration *wssdcommon.ZoneConfigur
 	}
 }
 
-func (c *client) getWssdPlacementGroupReference(s *compute.PlacementGroupReference) (*wssdcloudcompute.PlacementGroupReference, error) {
+func (c *client) getWssdPlacementGroupReference(s *compute.PlacementGroupReference) *wssdcloudcompute.PlacementGroupReference {
 	if s == nil {
-		return nil, nil
+		return nil
 	}
 
 	placementGroup := &wssdcloudcompute.PlacementGroupReference{
 		Name:      *s.Name,
 		GroupName: *s.GroupName,
 	}
-	return placementGroup, nil
+	return placementGroup
 }
 
 func (c *client) getPlacementGroupReference(placementGroup *wssdcloudcompute.PlacementGroupReference) *compute.PlacementGroupReference {
