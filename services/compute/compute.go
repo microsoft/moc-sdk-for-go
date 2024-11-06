@@ -1268,8 +1268,8 @@ type PlacementGroupProperties struct {
 	Zones *[]string `json:"zones,omitempty"`
 	// scope
 	Scope PlacementGroupScope `json:"scope,omitempty"`
-	// strict zone placement
-	StrictZonePlacement bool `json:"strictzoneplacement,omitempty"`
+	// strict placement
+	StrictPlacement bool `json:"strictplacement,omitempty"`
 	// VMs
 	VirtualMachines []*VirtualMachineReference
 }
