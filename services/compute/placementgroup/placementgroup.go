@@ -52,7 +52,7 @@ func getRpcPlacementGroup(s *compute.PlacementGroup, group string) (*wssdcloudco
 
 	if s.PlacementGroupProperties != nil {
 		if s.PlacementGroupProperties.Zones != nil {
-			if s.PlacementGroupProperties.StrictPlacement {
+			if s.PlacementGroupProperties.StrictZonePlacement {
 				placementGroup.Zones.StrictPlacement = true
 			}
 
@@ -144,12 +144,12 @@ func getWssdPlacementGroup(s *wssdcloudcompute.PlacementGroup) (*compute.Placeme
 		Location: &s.LocationName,
 		Version:  &s.Status.Version.Number,
 		PlacementGroupProperties: &compute.PlacementGroupProperties{
-			VirtualMachines: getWssdVirtualMachineReferences(s.VirtualMachines),
-			Statuses:        status.GetStatuses(s.Status),
-			Zones:           &pgZone,
-			Scope:           pgScope,
-			StrictPlacement: pgStrictPlacement,
-			Type:            pgType,
+			VirtualMachines:     getWssdVirtualMachineReferences(s.VirtualMachines),
+			Statuses:            status.GetStatuses(s.Status),
+			Zones:               &pgZone,
+			Scope:               pgScope,
+			StrictZonePlacement: pgStrictPlacement,
+			Type:                pgType,
 		},
 	}
 
