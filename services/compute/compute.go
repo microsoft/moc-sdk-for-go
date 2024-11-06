@@ -374,7 +374,7 @@ type VirtualMachineProperties struct {
 	// Zones
 	ZoneConfiguration *ZoneConfiguration `json:"zoneConfiguration,omitempty"`
 	// Priority
-	Priority *int32 `json:"priority,omitempty"`
+	Priority common.Priority `json:"priority,omitempty"`
 }
 
 type VirtualMachine struct {
