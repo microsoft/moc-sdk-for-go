@@ -160,6 +160,17 @@ func (c *client) Save(ctx context.Context, group, name string) (err error) {
 	return
 }
 
+// RemoveIso
+func (c *client) RemoveIsoDisk(ctx context.Context, group, name string) (err error) {
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Remove_Iso_Disk, group, name)
+	if err != nil {
+		return
+	}
+
+	_, err = c.VirtualMachineAgentClient.Operate(ctx, request)
+	return
+}
+
 // RepairGuestAgent
 func (c *client) RepairGuestAgent(ctx context.Context, group, name string) (err error) {
 	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Repair_Guest_Agent, group, name)
