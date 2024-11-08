@@ -6,6 +6,7 @@ package virtualharddisk
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc-sdk-for-go/services/storage"
@@ -20,6 +21,7 @@ type Service interface {
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
+	Upload(context.Context, string, string, *storage.VirtualHardDisk, string) (*storage.VirtualHardDisk, error)
 }
 
 // Client structure
@@ -53,7 +55,7 @@ func (c *VirtualHardDiskClient) Delete(ctx context.Context, group, container, na
 	return c.internal.Delete(ctx, group, container, name)
 }
 
-// Resize methods invokes delete of the storage resource
+// Resize methods invokes Update to change size of the storage resource
 func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, name string, newSize int64) error {
 	vhds, err := c.Get(ctx, group, container, name)
 	if err != nil {
@@ -70,6 +72,33 @@ func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, na
 	_, err = c.CreateOrUpdate(ctx, group, container, name, &vhd)
 
 	return err
+}
+
+// Upload methods invokes upload of the storage resource to target sasurl
+func (c *VirtualHardDiskClient) Upload(ctx context.Context, group, container, name string, targetUrl string) (*storage.VirtualHardDisk, error) {
+	fmt.Printf("moc-sdk-for-go: client.go: Upload start: vhd name [%s] to [%s]\n", name, targetUrl)
+	fmt.Printf("moc-sdk-for-go: client.go: Calling Get on VHD name\n")
+
+	vhds, err := c.Get(ctx, group, container, name)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("moc-sdk-for-go: client.go: Done with Get\n")
+
+	if vhds == nil || len(*vhds) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "%s", name)
+	}
+	fmt.Printf("moc-sdk-for-go: client.go: Found vhd as len is not zero\n")
+
+	if targetUrl == "" {
+		return nil, errors.Wrapf(errors.InvalidInput, "targetUrl cannot be empty")
+	}
+	fmt.Printf("moc-sdk-for-go: client.go: Targeturl is not empty\n")
+
+	vhd := (*vhds)[0]
+	fmt.Printf("moc-sdk-for-go: client.go: Calling internal Upload now\n")
+
+	return c.internal.Upload(ctx, group, container, &vhd, targetUrl)
 }
 
 // Prechecks whether the system is able to create specified virtual hard disks.

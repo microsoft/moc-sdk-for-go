@@ -68,7 +68,7 @@ func (c *client) Delete(ctx context.Context, group, container, name string) erro
 		return err
 	}
 	if len(*vhd) == 0 {
-		return fmt.Errorf("Virtual Network [%s] not found", name)
+		return fmt.Errorf("VirtualHardDisk [%s] not found", name)
 	}
 
 	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_DELETE, group, container, name, &(*vhd)[0], "", common.ImageSource_LOCAL_SOURCE)
@@ -94,6 +94,30 @@ func (c *client) Precheck(ctx context.Context, group, container string, vhds []*
 	return getVirtualHardDiskPrecheckResponse(response)
 }
 
+func (c *client) Upload(ctx context.Context, group, container string, vhd *storage.VirtualHardDisk, targetUrl string) (*storage.VirtualHardDisk, error) {
+	request, err := getVirtualHardDiskOperationRequest(group, container, vhd, targetUrl, wssdcloudcommon.ProviderAccessOperation_VirtualHardDisk_Upload)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Request created, Calling Operate\n")
+	response, err := c.VirtualHardDiskAgentClient.Operate(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Operate completed\n")
+
+	vhds := getVirtualHardDisksOperationResponse(response, group)
+
+	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Response processed\n")
+
+	if len(*vhds) == 0 {
+		return nil, fmt.Errorf("[VirtualHardDisk][Upload] Unexpected error: Uploading a VirtualHardDisk returned no result")
+	}
+
+	return &((*vhds)[0]), nil
+}
+
 func getVirtualHardDiskPrecheckResponse(response *wssdcloudstorage.VirtualHardDiskPrecheckResponse) (bool, error) {
 	var err error = nil
 	result := response.GetResult().GetValue()
@@ -115,6 +139,36 @@ func getVirtualHardDiskPrecheckRequest(group, container string, vhds []*storage.
 		request.VirtualHardDisks = append(request.VirtualHardDisks, wssdvhd)
 	}
 	return request, nil
+}
+
+func getVirtualHardDiskOperationRequest(group, container string, vhd *storage.VirtualHardDisk, targetUrl string, opType wssdcloudcommon.ProviderAccessOperation) (*wssdcloudstorage.VirtualHardDiskOperationRequest, error) {
+	request := &wssdcloudstorage.VirtualHardDiskOperationRequest{
+		VirtualHardDisks: []*wssdcloudstorage.VirtualHardDisk{},
+		OperationType:    opType,
+	}
+
+	var err error
+
+	if len(group) == 0 {
+		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
+	}
+	wssdvhd, err := getWssdVirtualHardDisk(vhd, group, container, "", common.ImageSource_LOCAL_SOURCE) //sourcePath and SourceType are not used in this context
+	if err != nil {
+		return nil, err
+	}
+	wssdvhd.TargetUrl = targetUrl
+	request.VirtualHardDisks = append(request.VirtualHardDisks, wssdvhd)
+
+	return request, nil
+}
+
+func getVirtualHardDisksOperationResponse(response *wssdcloudstorage.VirtualHardDiskOperationResponse, group string) *[]storage.VirtualHardDisk {
+	virtualHardDisks := []storage.VirtualHardDisk{}
+	for _, vhd := range response.GetVirtualHardDisks() {
+		virtualHardDisks = append(virtualHardDisks, *(getVirtualHardDisk(vhd, group)))
+	}
+
+	return &virtualHardDisks
 }
 
 func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk, sourcePath string, sourceType common.ImageSource) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
