@@ -1265,7 +1265,7 @@ type PlacementGroupProperties struct {
 	// Statuses - Statuses
 	Statuses map[string]*string `json:"statuses"`
 	// Zones
-	Zones *[]string `json:"nodes,omitempty"`
+	Zones *[]string `json:"zones,omitempty"`
 	// scope
 	Scope PlacementGroupScope `json:"scope,omitempty"`
 	// strict placement
