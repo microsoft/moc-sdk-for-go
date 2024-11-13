@@ -390,6 +390,8 @@ type VirtualMachineProperties struct {
 	Statuses map[string]*string `json:"statuses"`
 	// Zones
 	ZoneConfiguration *ZoneConfiguration `json:"zoneConfiguration,omitempty"`
+	// Priority
+	Priority common.Priority `json:"priority,omitempty"`
 }
 
 type VirtualMachine struct {
