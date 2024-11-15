@@ -81,6 +81,7 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		AvailabilitySet:   availabilitySetProfile,
 		ZoneConfiguration: zoneConfig,
 		PlacementGroup:    placementGroupProfile,
+		Priority:          vm.Priority,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -586,6 +587,7 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine, group st
 			Host:                    c.getVirtualMachineHostDescription(vm),
 			ZoneConfiguration:       c.getZoneConfiguration(vm.ZoneConfiguration),
 			PlacementGroupProfile:   c.getPlacementGroupReference(vm.PlacementGroup),
+			Priority:                vm.Priority,
 		},
 		Version:  &vm.Status.Version.Number,
 		Location: &vm.LocationName,

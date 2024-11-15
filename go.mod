@@ -7,7 +7,7 @@ require (
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.23.12
+	github.com/microsoft/moc v0.24.1
 	google.golang.org/grpc v1.62.1
 	k8s.io/klog v1.0.0
 )
