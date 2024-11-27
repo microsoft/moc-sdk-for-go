@@ -6,7 +6,6 @@ package loadbalancer
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
@@ -184,6 +183,17 @@ func (c *client) getLoadBalancersFromResponse(response *wssdcloudnetwork.LoadBal
 	return &networkLBs, nil
 }
 
+func getWssdProtocol(protocol string) (wssdcloudcommon.Protocol, error) {
+	// Hash lookup where the protocol string is the key and the enum int is the value
+	protocolInt, ok := wssdcloudcommon.Protocol_value[protocol]
+	if !ok {
+		// string not found in has of approved protocols
+		return wssdcloudcommon.Protocol_All, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", protocol)
+	}
+	// Convert the int back into the Protocol enum
+	return wssdcloudcommon.Protocol(protocolInt), nil
+}
+
 // getWssdLoadBalancer convert our internal representation of a loadbalancer (network.LoadBalancer) to the cloud load balancer protobuf used by wssdcloudagent (wssdnetwork.LoadBalancer)
 func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdCloudLB *wssdcloudnetwork.LoadBalancer, err error) {
 
@@ -217,16 +227,20 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 
 	if networkLB.LoadBalancerPropertiesFormat != nil {
 		lbp := networkLB.LoadBalancerPropertiesFormat
+		// Backend Address Pool
 		if lbp.BackendAddressPools != nil && len(*lbp.BackendAddressPools) > 0 {
 			bap := *lbp.BackendAddressPools
 			if bap[0].Name != nil {
 				wssdCloudLB.Backendpoolnames = append(wssdCloudLB.Backendpoolnames, *bap[0].Name)
 			}
 		}
+		// Frontend Ip Configurations
 		if lbp.FrontendIPConfigurations != nil && len(*lbp.FrontendIPConfigurations) > 0 {
 			fipc := *lbp.FrontendIPConfigurations
 			if fipc[0].FrontendIPConfigurationPropertiesFormat != nil {
 				fipcf := fipc[0].FrontendIPConfigurationPropertiesFormat
+				// New FrontendIpConfigurations
+				wssdCloudLBFIpC := &wssdcloudnetwork.FrontEndIpConfiguration{}
 				if fipcf.Subnet != nil {
 					subnet := fipcf.Subnet
 					if subnet.ID != nil {
@@ -236,8 +250,30 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 				if fipcf.IPAddress != nil {
 					wssdCloudLB.FrontendIP = *fipcf.IPAddress
 				}
+				if fipc[0].Name != nil {
+					wssdCloudLBFIpC.Name = *fipc[0].Name
+				}
+				if fipcf.PublicIPAddress != nil {
+					if fipcf.PublicIPAddress.Name != nil {
+						wssdCloudLBFIpC.PublicIPAddress = &wssdcloudcommon.PublicIPAddressReference{
+							ResourceRef: &wssdcloudcommon.ResourceReference{
+								Name: *fipcf.PublicIPAddress.Name,
+							},
+						}
+					}
+					if fipcf.PublicIPAddress.Type != nil {
+						allocMethod, ok := wssdcloudcommon.IPAllocationMethod_value[*(fipcf.PublicIPAddress.Type)]
+						if !ok {
+							return nil, errors.Wrapf(errors.InvalidInput, "Unknown Allocation Method %s specified", *(fipcf.PublicIPAddress.Type))
+						}
+						wssdCloudLBFIpC.AllocationMethod = wssdcloudcommon.IPAllocationMethod(allocMethod)
+					}
+				}
+
+				wssdCloudLB.FrontendIpConfigurations = append(wssdCloudLB.FrontendIpConfigurations, wssdCloudLBFIpC)
 			}
 		}
+		// LoadBalancing Rules
 		if lbp.LoadBalancingRules != nil && len(*lbp.LoadBalancingRules) > 0 {
 			rules := *lbp.LoadBalancingRules
 			for _, rule := range rules {
@@ -248,24 +284,128 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 					return nil, errors.Wrapf(errors.InvalidInput, "Backend port not specified")
 				}
 
-				var protocol wssdcloudcommon.Protocol
-
-				if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolAll)) {
-					protocol = wssdcloudcommon.Protocol_All
-				} else if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolTCP)) {
-					protocol = wssdcloudcommon.Protocol_Tcp
-				} else if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolUDP)) {
-					protocol = wssdcloudcommon.Protocol_Udp
-				} else {
-					return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", rule.Protocol)
+				protocol := wssdcloudcommon.Protocol_All
+				if string(rule.Protocol) != "" {
+					protocol, err = getWssdProtocol(string(rule.Protocol))
+					if err != nil {
+						return nil, err
+					}
 				}
 
+				// Create rule object with required params
 				wssdCloudLBRule := &wssdcloudnetwork.LoadBalancingRule{
 					FrontendPort: uint32(*rule.FrontendPort),
 					BackendPort:  uint32(*rule.BackendPort),
 					Protocol:     protocol,
 				}
+
+				// Add optional params
+				if rule.IdleTimeoutInMinutes != nil {
+					wssdCloudLBRule.IdleTimeoutInMinutes = uint32(*rule.IdleTimeoutInMinutes)
+				}
+				if string(rule.LoadDistribution) != "" {
+					distribution, ok := wssdcloudnetwork.LoadDistribution_value[string(rule.LoadDistribution)]
+					if !ok {
+						return nil, errors.Wrapf(errors.InvalidInput, "Unknown LoadDistribution %s specified", rule.LoadDistribution)
+					}
+					wssdCloudLBRule.LoadDistribution = wssdcloudnetwork.LoadDistribution(distribution)
+				}
+				if rule.FrontendIPConfiguration != nil && rule.FrontendIPConfiguration.ID != nil {
+					wssdCloudLBRule.FrontendIpConfigurationRef = &wssdcloudcommon.FrontendIPConfigurationReference{
+						ResourceRef: &wssdcloudcommon.ResourceReference{
+							Name: *rule.FrontendIPConfiguration.ID,
+						},
+					}
+				}
+				if rule.BackendAddressPool != nil && rule.BackendAddressPool.ID != nil {
+					wssdCloudLBRule.BackendAddressPoolRef = &wssdcloudcommon.BackendAddressPoolReference{
+						ResourceRef: &wssdcloudcommon.ResourceReference{
+							Name: *rule.BackendAddressPool.ID,
+						},
+					}
+				}
+				if rule.Probe != nil && rule.Probe.ID != nil {
+					wssdCloudLBRule.ProbeRef = &wssdcloudcommon.ProbeReference{
+						ResourceRef: &wssdcloudcommon.ResourceReference{
+							Name: *rule.Probe.ID,
+						},
+					}
+				}
+				if rule.EnableFloatingIP != nil {
+					wssdCloudLBRule.EnableFloatingIP = *rule.EnableFloatingIP
+				}
+				if rule.EnableTCPReset != nil {
+					wssdCloudLBRule.EnableTcpReset = *rule.EnableTCPReset
+				}
+				if rule.Name != nil {
+					wssdCloudLBRule.Name = *rule.Name
+				}
 				wssdCloudLB.Loadbalancingrules = append(wssdCloudLB.Loadbalancingrules, wssdCloudLBRule)
+			}
+		}
+		if lbp.Probes != nil && len(*lbp.Probes) > 0 {
+			probes := *lbp.Probes
+			for _, probe := range probes {
+				wssdCloudProbe := &wssdcloudnetwork.Probe{}
+				if probe.Name != nil {
+					wssdCloudProbe.Name = *probe.Name
+				}
+				if probe.Port != nil {
+					wssdCloudProbe.Port = uint32(*probe.Port)
+				}
+				if probe.IntervalInSeconds != nil {
+					wssdCloudProbe.IntervalInSeconds = uint32(*probe.IntervalInSeconds)
+				}
+				if probe.NumberOfProbes != nil {
+					wssdCloudProbe.NumberOfProbes = uint32(*probe.NumberOfProbes)
+				}
+				if string(probe.Protocol) != "" {
+					wssdCloudProbe.Protocol, err = getWssdProtocol(string(probe.Protocol))
+					if err != nil {
+						return nil, err
+					}
+				}
+				wssdCloudLB.Probes = append(wssdCloudLB.Probes, wssdCloudProbe)
+			}
+		}
+		// Outbound Rules
+		if lbp.OutboundRules != nil && len(*lbp.OutboundRules) > 0 {
+			OutboundRules := *lbp.OutboundRules
+			for _, outRule := range OutboundRules {
+				wssdCloudOutRule := &wssdcloudnetwork.LoadbalancerOutboundNatRule{}
+				if outRule.Name != nil {
+					wssdCloudOutRule.Name = *outRule.Name
+				}
+				if outRule.EnableTCPReset != nil {
+					wssdCloudOutRule.EnableTcpReset = *outRule.EnableTCPReset
+				}
+				if string(outRule.Protocol) != "" {
+					wssdCloudOutRule.Protocol, err = getWssdProtocol(string(outRule.Protocol))
+					if err != nil {
+						return nil, err
+					}
+				}
+				if outRule.FrontendIPConfigurations != nil {
+					for _, outfipc := range *outRule.FrontendIPConfigurations {
+						if outfipc.ID != nil {
+							wssdCloudOutRule.FrontendIpConfigurationsRef = append(
+								wssdCloudOutRule.FrontendIpConfigurationsRef,
+								&wssdcloudcommon.FrontendIPConfigurationReference{
+									ResourceRef: &wssdcloudcommon.ResourceReference{
+										Name: *outfipc.ID,
+									},
+								})
+						}
+					}
+				}
+				if outRule.BackendAddressPool != nil && outRule.BackendAddressPool.ID != nil {
+					wssdCloudOutRule.BackendAddressPoolRef = &wssdcloudcommon.BackendAddressPoolReference{
+						ResourceRef: &wssdcloudcommon.ResourceReference{
+							Name: *outRule.BackendAddressPool.ID,
+						},
+					}
+				}
+				wssdCloudLB.OutboundNatRules = append(wssdCloudLB.OutboundNatRules, wssdCloudOutRule)
 			}
 		}
 	}
