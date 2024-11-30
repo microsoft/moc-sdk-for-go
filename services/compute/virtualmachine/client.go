@@ -88,6 +88,9 @@ func (c *VirtualMachineClient) Restart(ctx context.Context, group string, name s
 	if err != nil {
 		return
 	}
+	//wait for 5 seconds before starting the VM
+	time.Sleep(5 * time.Second)
+
 	err = c.internal.Start(ctx, group, name)
 	return
 }
