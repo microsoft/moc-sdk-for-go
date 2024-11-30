@@ -30,6 +30,17 @@ func getWssdGalleryImage(c *compute.GalleryImage, locationName, imagePath string
 		wssdgalleryimage.ContainerName = *c.GalleryImageProperties.ContainerName
 	}
 
+	if c.DisableHighAvailability != nil {
+		wssdgalleryimage.DisableHighAvailability = *c.DisableHighAvailability
+		// If HA is disabled, then throw error
+		if wssdgalleryimage.DisableHighAvailability {
+			return nil, errors.Wrapf(errors.NotSupported, "GalleryImage currently does not support Non-HighAvailability mode")
+		}
+	} else {
+		// If no value specified, set value as false
+		wssdgalleryimage.DisableHighAvailability = false
+	}
+
 	if c.GalleryImageProperties != nil {
 		wssdgalleryimage.SourceType = c.SourceType
 		wssdgalleryimage.CloudInitDataSource = c.GalleryImageProperties.CloudInitDataSource
@@ -62,6 +73,7 @@ func getGalleryImage(c *wssdcloudcompute.GalleryImage, location string) *compute
 			Statuses:         status.GetStatuses(c.GetStatus()),
 			ContainerName:    &c.ContainerName,
 			HyperVGeneration: c.HyperVGeneration,
+			DisableHighAvailability: &c.DisableHighAvailability,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}

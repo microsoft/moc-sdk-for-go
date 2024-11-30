@@ -62,6 +62,10 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 
 		wssdvhd.CloudInitDataSource = c.CloudInitDataSource
 	}
+
+	if c.DisableHighAvailability != nil {
+		wssdvhd.DisableHighAvailability = *c.DisableHighAvailability
+	}
 	return wssdvhd, nil
 }
 
@@ -86,6 +90,7 @@ func getVirtualHardDisk(c *wssdcloudstorage.VirtualHardDisk, group string) *stor
 			HyperVGeneration:    c.HyperVGeneration,
 			DiskFileFormat:      c.DiskFileFormat,
 			ContainerName:       &c.ContainerName,
+			DisableHighAvailability: &c.DisableHighAvailability,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
