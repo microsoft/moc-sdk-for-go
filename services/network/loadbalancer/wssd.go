@@ -360,10 +360,13 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 					wssdCloudProbe.NumberOfProbes = uint32(*probe.NumberOfProbes)
 				}
 				if string(probe.Protocol) != "" {
-					wssdCloudProbe.Protocol, err = getWssdProtocol(string(probe.Protocol))
-					if err != nil {
-						return nil, err
+					protocolInt, ok := wssdcloudnetwork.ProbeProtocol_value[string(probe.Protocol)]
+					if !ok {
+						// string not found in has of approved protocols
+						return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", probe.Protocol)
 					}
+					// Convert the int back into the Protocol enum
+					wssdCloudProbe.Protocol = wssdcloudnetwork.ProbeProtocol(protocolInt)
 				}
 				wssdCloudLB.Probes = append(wssdCloudLB.Probes, wssdCloudProbe)
 			}
