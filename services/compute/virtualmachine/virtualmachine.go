@@ -59,6 +59,8 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		return nil, errors.Wrapf(err, "Failed to get AvailabilityZone Profile")
 	}
 
+	placementGroupProfile := c.getWssdPlacementGroupReference(vm.PlacementGroupProfile)
+
 	vmtype := wssdcloudcompute.VMType_TENANT
 	if vm.VmType == compute.LoadBalancer {
 		vmtype = wssdcloudcompute.VMType_LOADBALANCER
@@ -79,6 +81,8 @@ func (c *client) getWssdVirtualMachine(vm *compute.VirtualMachine, group string)
 		Tags:              getWssdTags(vm.Tags),
 		AvailabilitySet:   availabilitySetProfile,
 		ZoneConfiguration: zoneConfig,
+		PlacementGroup:    placementGroupProfile,
+		Priority:          vm.Priority,
 	}
 
 	if vm.DisableHighAvailability != nil {
@@ -593,6 +597,8 @@ func (c *client) getVirtualMachine(vm *wssdcloudcompute.VirtualMachine) *compute
 			DisableHighAvailability: &vm.DisableHighAvailability,
 			Host:                    c.getVirtualMachineHostDescription(vm),
 			ZoneConfiguration:       c.getZoneConfiguration(vm.ZoneConfiguration),
+			PlacementGroupProfile:   c.getPlacementGroupReference(vm.PlacementGroup),
+			Priority:                vm.Priority,
 		},
 		Version:  &version,
 		Location: &vm.LocationName,
@@ -945,5 +951,28 @@ func (c *client) getZoneConfiguration(zoneConfiguration *wssdcommon.ZoneConfigur
 	return &compute.ZoneConfiguration{
 		Zones:           &zones,
 		StrictPlacement: &strinctPlacement,
+	}
+}
+
+func (c *client) getWssdPlacementGroupReference(s *compute.PlacementGroupReference) *wssdcloudcompute.PlacementGroupReference {
+	if s == nil {
+		return nil
+	}
+
+	placementGroup := &wssdcloudcompute.PlacementGroupReference{
+		Name:      *s.Name,
+		GroupName: *s.GroupName,
+	}
+	return placementGroup
+}
+
+func (c *client) getPlacementGroupReference(placementGroup *wssdcloudcompute.PlacementGroupReference) *compute.PlacementGroupReference {
+	if placementGroup == nil {
+		return nil
+	}
+
+	return &compute.PlacementGroupReference{
+		Name:      &placementGroup.Name,
+		GroupName: &placementGroup.GroupName,
 	}
 }
