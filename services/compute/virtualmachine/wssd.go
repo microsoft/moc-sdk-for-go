@@ -77,6 +77,24 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, sg *com
 	return &(*vms)[0], nil
 }
 
+// Hydrate
+func (c *client) Hydrate(ctx context.Context, group, name string, sg *compute.VirtualMachine) (*compute.VirtualMachine, error) {
+	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_HYDRATE, group, name, sg)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.VirtualMachineAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	vms := c.getVirtualMachineFromResponse(response, group)
+	if len(*vms) == 0 {
+		return nil, fmt.Errorf("hydration of Virtual Machine failed to unknown reason")
+	}
+
+	return &(*vms)[0], nil
+}
+
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name string) error {
 	vm, err := c.Get(ctx, group, name)
@@ -327,7 +345,7 @@ func (c *client) getVirtualMachineRunCommandResponse(mocResponse *wssdcloudcompu
 func (c *client) getVirtualMachineFromResponse(response *wssdcloudcompute.VirtualMachineResponse, group string) *[]compute.VirtualMachine {
 	vms := []compute.VirtualMachine{}
 	for _, vm := range response.GetVirtualMachines() {
-		vms = append(vms, *(c.getVirtualMachine(vm, group)))
+		vms = append(vms, *(c.getVirtualMachine(vm)))
 	}
 
 	return &vms
