@@ -21,7 +21,7 @@ type Service interface {
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
-	Upload(context.Context, string, string, *storage.VirtualHardDisk, string) (*storage.VirtualHardDisk, error)
+	Upload(context.Context, string, string, *storage.VirtualHardDisk, string) error
 }
 
 // Client structure
@@ -75,23 +75,23 @@ func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, na
 }
 
 // Upload methods invokes upload of the storage resource to target sasurl
-func (c *VirtualHardDiskClient) Upload(ctx context.Context, group, container, name string, targetUrl string) (*storage.VirtualHardDisk, error) {
+func (c *VirtualHardDiskClient) Upload(ctx context.Context, group, container, name string, targetUrl string) error {
 	fmt.Printf("moc-sdk-for-go: client.go: Upload start: vhd name [%s] to [%s]\n", name, targetUrl)
 	fmt.Printf("moc-sdk-for-go: client.go: Calling Get on VHD name\n")
 
 	vhds, err := c.Get(ctx, group, container, name)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	fmt.Printf("moc-sdk-for-go: client.go: Done with Get\n")
 
 	if vhds == nil || len(*vhds) == 0 {
-		return nil, errors.Wrapf(errors.NotFound, "%s", name)
+		return errors.Wrapf(errors.NotFound, "%s", name)
 	}
 	fmt.Printf("moc-sdk-for-go: client.go: Found vhd as len is not zero\n")
 
 	if targetUrl == "" {
-		return nil, errors.Wrapf(errors.InvalidInput, "targetUrl cannot be empty")
+		return errors.Wrapf(errors.InvalidInput, "targetUrl cannot be empty")
 	}
 	fmt.Printf("moc-sdk-for-go: client.go: Targeturl is not empty\n")
 

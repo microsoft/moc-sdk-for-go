@@ -94,28 +94,20 @@ func (c *client) Precheck(ctx context.Context, group, container string, vhds []*
 	return getVirtualHardDiskPrecheckResponse(response)
 }
 
-func (c *client) Upload(ctx context.Context, group, container string, vhd *storage.VirtualHardDisk, targetUrl string) (*storage.VirtualHardDisk, error) {
+func (c *client) Upload(ctx context.Context, group, container string, vhd *storage.VirtualHardDisk, targetUrl string) error {
 	request, err := getVirtualHardDiskOperationRequest(group, container, vhd, targetUrl, wssdcloudcommon.ProviderAccessOperation_VirtualHardDisk_Upload)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Request created, Calling Operate\n")
-	response, err := c.VirtualHardDiskAgentClient.Operate(ctx, request)
+	_, err = c.VirtualHardDiskAgentClient.Operate(ctx, request)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Operate completed\n")
 
-	vhds := getVirtualHardDisksOperationResponse(response, group)
-
-	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Response processed\n")
-
-	if len(*vhds) == 0 {
-		return nil, fmt.Errorf("[VirtualHardDisk][Upload] Unexpected error: Uploading a VirtualHardDisk returned no result")
-	}
-
-	return &((*vhds)[0]), nil
+	return nil
 }
 
 func getVirtualHardDiskPrecheckResponse(response *wssdcloudstorage.VirtualHardDiskPrecheckResponse) (bool, error) {
