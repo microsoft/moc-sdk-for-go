@@ -541,6 +541,7 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 		networkLB.LoadBalancerPropertiesFormat.FrontendIPConfigurations = &frontendipconfigurations
 	}
 
+	// Load Balancing Rules
 	if len(wssdLB.Loadbalancingrules) > 0 {
 		networkLBRules := []network.LoadBalancingRule{}
 
@@ -555,7 +556,7 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 			}
 			loadDistribution := network.LoadDistribution(loadDistributionStr)
 
-			networkLBRules = append(networkLBRules, network.LoadBalancingRule{
+			networkLBRule := network.LoadBalancingRule{
 				Name: toStringPtr(loadbalancingrule.Name),
 				LoadBalancingRulePropertiesFormat: &network.LoadBalancingRulePropertiesFormat{
 					FrontendPort:         toInt32Ptr(int32(loadbalancingrule.FrontendPort)),
@@ -566,11 +567,36 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 					EnableTCPReset:       toBoolPtr(loadbalancingrule.EnableTcpReset),
 					LoadDistribution:     loadDistribution,
 				},
-			})
+			}
+
+			if len(loadbalancingrule.FrontendIpConfigurationsRef) > 0 &&
+				loadbalancingrule.FrontendIpConfigurationsRef[0] != nil &&
+				loadbalancingrule.FrontendIpConfigurationsRef[0].ResourceRef != nil {
+				networkLBRule.LoadBalancingRulePropertiesFormat.FrontendIPConfiguration = &network.SubResource{
+					ID: toStringPtr(loadbalancingrule.FrontendIpConfigurationsRef[0].ResourceRef.Name),
+				}
+			}
+
+			if loadbalancingrule.BackendAddressPoolRef != nil &&
+				loadbalancingrule.BackendAddressPoolRef.ResourceRef != nil {
+				networkLBRule.LoadBalancingRulePropertiesFormat.BackendAddressPool = &network.SubResource{
+					ID: toStringPtr(loadbalancingrule.BackendAddressPoolRef.ResourceRef.Name),
+				}
+			}
+
+			if loadbalancingrule.ProbeRef != nil &&
+				loadbalancingrule.ProbeRef.ResourceRef != nil {
+				networkLBRule.LoadBalancingRulePropertiesFormat.Probe = &network.SubResource{
+					ID: toStringPtr(loadbalancingrule.ProbeRef.ResourceRef.Name),
+				}
+			}
+
+			networkLBRules = append(networkLBRules, networkLBRule)
 		}
 		networkLB.LoadBalancerPropertiesFormat.LoadBalancingRules = &networkLBRules
 	}
 
+	// V1 Inbound Nate Rules
 	if len(wssdLB.InboundNatRules) > 0 {
 		networkInboundNatRules := []network.InboundNatRule{}
 
@@ -601,6 +627,69 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 		}
 
 		networkLB.InboundNatRules = &networkInboundNatRules
+	}
+
+	// Probes
+	if len(wssdLB.Probes) > 0 {
+		networkProbes := []network.Probe{}
+		for _, probe := range wssdLB.Probes {
+			networkProbe := network.Probe{
+				Name: toStringPtr(probe.Name),
+				ProbePropertiesFormat: &network.ProbePropertiesFormat{
+					Port:              toInt32Ptr(int32(probe.Port)),
+					IntervalInSeconds: toInt32Ptr(int32(probe.IntervalInSeconds)),
+					NumberOfProbes:    toInt32Ptr(int32(probe.NumberOfProbes)),
+				},
+			}
+			if probe.RequestPath != nil && probe.RequestPath.ResourceRef != nil {
+				networkProbe.ProbePropertiesFormat.RequestPath = toStringPtr(probe.RequestPath.ResourceRef.Name)
+			}
+			protocol, ok := wssdcloudnetwork.ProbeProtocol_name[int32(probe.Protocol)]
+			if !ok {
+				return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", probe.Protocol)
+			}
+			networkProbe.ProbePropertiesFormat.Protocol = network.ProbeProtocol(protocol)
+			networkProbes = append(networkProbes, networkProbe)
+		}
+		networkLB.LoadBalancerPropertiesFormat.Probes = &networkProbes
+	}
+
+	// Outbound Nat Rules
+	if len(wssdLB.OutboundNatRules) > 0 {
+		networkOutNatRules := []network.OutboundRule{}
+		for _, outNatRule := range wssdLB.OutboundNatRules {
+			networkOutNatRule := network.OutboundRule{
+				Name: toStringPtr(outNatRule.Name),
+				OutboundRulePropertiesFormat: &network.OutboundRulePropertiesFormat{
+					EnableTCPReset: toBoolPtr(outNatRule.EnableTcpReset),
+				},
+			}
+			//Protocol
+			protocolStr, ok := wssdcloudcommon.Protocol_name[int32(outNatRule.Protocol)]
+			if !ok {
+				return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified in outbound nat rule", outNatRule.Protocol)
+			}
+			networkOutNatRule.OutboundRulePropertiesFormat.Protocol = network.LoadBalancerOutboundRuleProtocol(protocolStr)
+			//FrontendIPConfigurations
+			if outNatRule.FrontendIpConfigurationsRef != nil &&
+				len(outNatRule.FrontendIpConfigurationsRef) > 0 &&
+				outNatRule.FrontendIpConfigurationsRef[0].ResourceRef != nil {
+				networkOutNatRule.OutboundRulePropertiesFormat.FrontendIPConfigurations = &[]network.SubResource{
+					{
+						ID: toStringPtr(outNatRule.FrontendIpConfigurationsRef[0].ResourceRef.Name),
+					},
+				}
+			}
+			//BackendAddressPool
+			if outNatRule.BackendAddressPoolRef != nil &&
+				outNatRule.BackendAddressPoolRef.ResourceRef != nil {
+				networkOutNatRule.OutboundRulePropertiesFormat.BackendAddressPool = &network.SubResource{
+					ID: toStringPtr(outNatRule.BackendAddressPoolRef.ResourceRef.Name),
+				}
+			}
+			networkOutNatRules = append(networkOutNatRules, networkOutNatRule)
+		}
+		networkLB.LoadBalancerPropertiesFormat.OutboundRules = &networkOutNatRules
 	}
 
 	return networkLB, nil
