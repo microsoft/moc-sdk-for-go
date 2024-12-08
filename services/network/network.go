@@ -382,6 +382,12 @@ const (
 	ProbeProtocolTCP ProbeProtocol = "Tcp"
 )
 
+var ProbeProtocol_value = map[string]ProbeProtocol{
+	"Http":  ProbeProtocolHTTP,
+	"Https": ProbeProtocolHTTPS,
+	"Tcp":   ProbeProtocolTCP,
+}
+
 // ProbePropertiesFormat load balancer probe resource.
 type ProbePropertiesFormat struct {
 	// LoadBalancingRules - READ-ONLY; The load balancer rules that use this probe.
