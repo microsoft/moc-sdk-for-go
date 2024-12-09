@@ -79,3 +79,14 @@ func GetNetworkSecurityGroupClient(serverAddress *string, authorizer auth.Author
 
 	return network_pb.NewNetworkSecurityGroupAgentClient(conn), nil
 }
+
+// GetPublicIPAddressAgentClient creates a new PublicIPAddressAgentClient using the provided server address and authorizer.
+// It establishes a client connection and returns the PublicIPAddressAgentClient.
+func GetPublicIPAddressAgentClient(serverAddress *string, authorizer auth.Authorizer) (network_pb.PublicIPAddressAgentClient, error) {
+	conn, err := getClientConnection(serverAddress, authorizer)
+	if err != nil {
+		log.Fatalf("Unable to get PublicIPAddressAgentClient. Failed to dial: %v", err)
+	}
+
+	return network_pb.NewPublicIPAddressAgentClient(conn), nil
+}
