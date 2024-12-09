@@ -14,6 +14,7 @@ import (
 type Service interface {
 	Get(context.Context, string, string) (*[]network.Interface, error)
 	CreateOrUpdate(context.Context, string, string, *network.Interface) (*network.Interface, error)
+	Hydrate(context.Context, string, string, *network.Interface) (*network.Interface, error)
 	Delete(context.Context, string, string) error
 	Precheck(ctx context.Context, group string, networkInterfaces []*network.Interface) (bool, error)
 }
@@ -42,6 +43,11 @@ func (c *InterfaceClient) Get(ctx context.Context, group, name string) (*[]netwo
 // CreateOrUpdate methods invokes create or update on the client
 func (c *InterfaceClient) CreateOrUpdate(ctx context.Context, group, name string, networkInterface *network.Interface) (*network.Interface, error) {
 	return c.internal.CreateOrUpdate(ctx, group, name, networkInterface)
+}
+
+// Hydrate methods invokes hydrate on the client
+func (c *InterfaceClient) Hydrate(ctx context.Context, group, name string, networkInterface *network.Interface) (*network.Interface, error) {
+	return c.internal.Hydrate(ctx, group, name, networkInterface)
 }
 
 // Delete methods invokes delete of the network interface resource
