@@ -961,6 +961,8 @@ type IPTag struct {
 	Tag *string `json:"tag,omitempty"`
 }
 
+const DefaultIdleTimeoutInMinutes int32 = 4
+
 // PublicIPAddressProperties public IP address properties.
 type PublicIPAddressPropertiesFormat struct {
 	// PublicIPAllocationMethod - The public IP address allocation method. Possible values include: 'Static', 'Dynamic'
@@ -1000,6 +1002,8 @@ type PublicIPAddress struct {
 	Name *string `json:"name,omitempty"`
 	// Type - READ-ONLY; Resource type.
 	Type *string `json:"type,omitempty"`
+	// Version
+	Version *string `json:"version,omitempty"`
 	// Location - Resource location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
