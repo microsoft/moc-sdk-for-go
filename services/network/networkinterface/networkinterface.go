@@ -169,15 +169,24 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 
 // Conversion function from wssdcloud network interface to network interface
 func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterface) (*network.Interface, error) {
+	if c == nil {
+		return &network.Interface{}, nil
+	}
+
 	ipConfigs := []network.InterfaceIPConfiguration{}
 	for _, wssdipconfig := range c.IpConfigurations {
 		ipConfigs = append(ipConfigs, *(getNetworkIpConfig(wssdipconfig)))
 	}
 
+	version := ""
+	if c.Status != nil && c.Status.Version != nil {
+		version = c.Status.Version.Number
+	}
+
 	vnetIntf := &network.Interface{
 		Name:    &c.Name,
 		ID:      &c.Id,
-		Version: &c.Status.Version.Number,
+		Version: &version,
 		InterfacePropertiesFormat: &network.InterfacePropertiesFormat{
 			MacAddress: &c.Macaddress,
 			// TODO: Type
