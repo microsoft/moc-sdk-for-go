@@ -66,6 +66,24 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, vnetInt
 	return &(*vnets)[0], nil
 }
 
+// Hydrate
+func (c *client) Hydrate(ctx context.Context, group, name string, networkInterface *network.Interface) (*network.Interface, error) {
+	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_HYDRATE, group, name, networkInterface)
+	if err != nil {
+		return nil, err
+	}
+	response, err := c.NetworkInterfaceAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	vnics, err := c.getInterfacesFromResponse(group, response)
+	if err != nil {
+		return nil, err
+	}
+
+	return &(*vnics)[0], nil
+}
+
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name string) error {
 	vnetInterface, err := c.Get(ctx, group, name)
