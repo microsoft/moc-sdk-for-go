@@ -171,6 +171,16 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
 		for _, addresspool := range *ipConfig.LoadBalancerBackendAddressPools {
 			wssdipconfig.Loadbalanceraddresspool = append(wssdipconfig.Loadbalanceraddresspool, *addresspool.Name)
+			// SLB V2 BackendAddressPoolRef
+			if len(strings.Split(*addresspool.Name, "/")) == 5 {
+				wssdipconfig.LoadBalancerAddressPoolsRef = append(
+					wssdipconfig.LoadBalancerAddressPoolsRef,
+					&wssdcommonproto.BackendAddressPoolReference{
+						ResourceRef: &wssdcommonproto.ResourceReference{
+							Name: *addresspool.Name,
+						},
+					})
+			}
 		}
 	}
 	return wssdipconfig, nil
