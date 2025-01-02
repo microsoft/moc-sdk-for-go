@@ -364,7 +364,7 @@ func getNetworkSecurityGroup(wssdNSG *wssdcloudnetwork.NetworkSecurityGroup) (ne
 		for _, rule := range wssdNSG.Networksecuritygrouprules {
 			name := rule.Name
 			description := rule.Description
-			protocol := network.SecurityRuleProtocolAsterisk
+			var protocol network.SecurityRuleProtocol
 			var action network.SecurityRuleAccess
 			var direction network.SecurityRuleDirection
 			priority := uint32(rule.GetPriority())
