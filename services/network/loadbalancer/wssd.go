@@ -248,7 +248,7 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 					return nil, errors.Wrapf(errors.InvalidInput, "Backend port not specified")
 				}
 
-				protocol := wssdcloudcommon.Protocol_All
+				var protocol wssdcloudcommon.Protocol
 
 				if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolAll)) {
 					protocol = wssdcloudcommon.Protocol_All
@@ -319,7 +319,7 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 		for _, loadbalancingrule := range wssdLB.Loadbalancingrules {
 			frontendport := int32(loadbalancingrule.FrontendPort)
 			backendport := int32(loadbalancingrule.BackendPort)
-			protocol := network.TransportProtocolAll
+			var protocol network.TransportProtocol
 
 			if loadbalancingrule.Protocol == wssdcloudcommon.Protocol_All {
 				protocol = network.TransportProtocolAll
@@ -347,7 +347,7 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 		for _, wssdInboundNatRule := range wssdLB.InboundNatRules {
 			fePort := int32(wssdInboundNatRule.FrontendPort)
 			bePort := int32(wssdInboundNatRule.BackendPort)
-			protocol := network.TransportProtocolAll
+			var protocol network.TransportProtocol
 			if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_All {
 				protocol = network.TransportProtocolAll
 			} else if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_Tcp {

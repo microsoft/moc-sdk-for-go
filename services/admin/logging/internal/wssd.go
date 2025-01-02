@@ -60,7 +60,7 @@ func (c *client) GetLogFile(ctx context.Context, location, filename string) erro
 		}
 		tempFilename := strconv.FormatInt(time.Now().Unix(), 16) + ".log"
 		err = loggingHelpers.ReceiveFile(ctx, tempFilename, recFunc)
-		os.Rename(tempFilename, filename)
+		os.Rename(tempFilename, filename) //nolint:golint,errcheck
 	}
 	if err != doneErr {
 		return err
