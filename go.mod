@@ -10,7 +10,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.25.2
+	github.com/microsoft/moc v0.25.4
 	google.golang.org/grpc v1.62.1
 	k8s.io/klog v1.0.0
 )
@@ -56,7 +56,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
 	golang.org/x/sys v0.29.0 // indirect
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.2
 )
 
 replace (
@@ -64,7 +64,6 @@ replace (
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/go-retryablehttp => github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/microsoft/moc => github.com/microsoft/moc v0.25.4-0.20250106204333-94c318904c01
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
 	golang.org/x/crypto => golang.org/x/crypto v0.26.0

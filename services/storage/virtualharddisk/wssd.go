@@ -173,15 +173,6 @@ func getVirtualHardDiskOperationRequest(group, container string, vhd *storage.Vi
 	return request, nil
 }
 
-func getVirtualHardDisksOperationResponse(response *wssdcloudstorage.VirtualHardDiskOperationResponse, group string) *[]storage.VirtualHardDisk {
-	virtualHardDisks := []storage.VirtualHardDisk{}
-	for _, vhd := range response.GetVirtualHardDisks() {
-		virtualHardDisks = append(virtualHardDisks, *(getVirtualHardDisk(vhd, group)))
-	}
-
-	return &virtualHardDisks
-}
-
 func getVirtualHardDiskRequest(opType wssdcloudcommon.Operation, group, container, name string, storage *storage.VirtualHardDisk, sourcePath string, sourceType common.ImageSource) (*wssdcloudstorage.VirtualHardDiskRequest, error) {
 	request := &wssdcloudstorage.VirtualHardDiskRequest{
 		OperationType:    opType,
