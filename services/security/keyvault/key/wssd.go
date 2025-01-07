@@ -62,7 +62,7 @@ func (c *client) get(ctx context.Context, group, vaultName, name string) ([]*wss
 // CreateOrUpdate
 func (c *client) CreateOrUpdate(ctx context.Context, group, vaultName, name string,
 	param *keyvault.Key) (*keyvault.Key, error) {
-	err := c.validate(ctx, group, vaultName, name, param)
+	err := c.validate(vaultName, name, param)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +177,7 @@ func ParseAndValidateImportParams(keyValue *string, importKey *wssdcloudsecurity
 
 // Import
 func (c *client) ImportKey(ctx context.Context, group, vaultName, name string, param *keyvault.Key) (*keyvault.Key, error) {
-	err := c.validate(ctx, group, vaultName, name, param)
+	err := c.validate(vaultName, name, param)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func GetExportInformationFromResponseKey(responseKey *wssdcloudsecurity.Key) (st
 
 // Export
 func (c *client) ExportKey(ctx context.Context, group, vaultName, name string, param *keyvault.Key) (*keyvault.Key, error) {
-	err := c.validate(ctx, group, vaultName, name, param)
+	err := c.validate(vaultName, name, param)
 	if err != nil {
 		return nil, err
 	}
@@ -268,16 +268,16 @@ func (c *client) ExportKey(ctx context.Context, group, vaultName, name string, p
 	return &((*sec)[0]), err
 }
 
-func (c *client) validate(ctx context.Context, group, vaultName, name string, param *keyvault.Key) (err error) {
+func (c *client) validate(vaultName, name string, param *keyvault.Key) error {
 	if param == nil {
 		return errors.Wrapf(errors.InvalidInput, "Invalid Configuration")
 	}
 
 	if len(vaultName) == 0 {
-		errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
+		return errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
 	}
 	if len(name) == 0 {
-		errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
+		return errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
 	}
 
 	return nil
