@@ -3,6 +3,7 @@
 GOCMD=go
 GOBUILD=$(GOCMD) build -v 
 GOHOSTOS=$(strip $(shell $(GOCMD) env get GOHOSTOS))
+GOPATH_BIN := $(shell go env GOPATH)/bin
 
 TAG ?= $(shell git describe --tags)
 COMMIT ?= $(shell git describe --always)
@@ -42,3 +43,8 @@ format:
 
 unittest:
 	GOARCH=amd64 go test -v ./services/security/...
+
+
+golangci-lint:
+	$(GOCMD) install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	$(GOPATH_BIN)/golangci-lint run --config .golangci.yml

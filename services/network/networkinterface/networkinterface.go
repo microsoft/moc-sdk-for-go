@@ -150,13 +150,21 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 	if ipConfig.Primary != nil {
 		wssdipconfig.Primary = *ipConfig.Primary
 	}
-	if ipConfig.NetworkSecurityGroup != nil {
+	if ipConfig.NetworkSecurityGroup != nil && ipConfig.NetworkSecurityGroup.ID != nil {
 		wssdipconfig.NetworkSecurityGroupRef = &wssdcommonproto.NetworkSecurityGroupReference{
 			ResourceRef: &wssdcommonproto.ResourceReference{
 				Name: *ipConfig.NetworkSecurityGroup.ID,
 			},
 		}
 	}
+	if ipConfig.PublicIPAddress != nil && ipConfig.PublicIPAddress.ID != nil {
+		wssdipconfig.PublicIPAddressRef = &wssdcommonproto.PublicIPAddressReference{
+			ResourceRef: &wssdcommonproto.ResourceReference{
+				Name: *ipConfig.PublicIPAddress.ID,
+			},
+		}
+	}
+
 	ipAllocationMethodSdkToProtobuf(ipConfig, wssdipconfig)
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
@@ -179,15 +187,24 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 
 // Conversion function from wssdcloud network interface to network interface
 func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterface) (*network.Interface, error) {
+	if c == nil {
+		return &network.Interface{}, nil
+	}
+
 	ipConfigs := []network.InterfaceIPConfiguration{}
 	for _, wssdipconfig := range c.IpConfigurations {
 		ipConfigs = append(ipConfigs, *(getNetworkIpConfig(wssdipconfig)))
 	}
 
+	version := ""
+	if c.Status != nil && c.Status.Version != nil {
+		version = c.Status.Version.Number
+	}
+
 	vnetIntf := &network.Interface{
 		Name:    &c.Name,
 		ID:      &c.Id,
-		Version: &c.Status.Version.Number,
+		Version: &version,
 		InterfacePropertiesFormat: &network.InterfacePropertiesFormat{
 			MacAddress: &c.Macaddress,
 			// TODO: Type
@@ -232,9 +249,16 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 		ipconfig.Subnet = &network.APIEntityReference{ID: &wssdcloudipconfig.Subnetid}
 	}
 
-	if wssdcloudipconfig.NetworkSecurityGroupRef != nil {
+	if wssdcloudipconfig.NetworkSecurityGroupRef != nil && wssdcloudipconfig.NetworkSecurityGroupRef.ResourceRef != nil {
 		ipconfig.InterfaceIPConfigurationPropertiesFormat.NetworkSecurityGroup = &network.SubResource{
 			ID: &wssdcloudipconfig.NetworkSecurityGroupRef.ResourceRef.Name,
+		}
+	}
+
+	// Set public IP Address reference
+	if wssdcloudipconfig.PublicIPAddressRef != nil && wssdcloudipconfig.PublicIPAddressRef.ResourceRef != nil {
+		ipconfig.InterfaceIPConfigurationPropertiesFormat.PublicIPAddress = &network.PublicIPAddress{
+			ID: &wssdcloudipconfig.PublicIPAddressRef.ResourceRef.Name,
 		}
 	}
 

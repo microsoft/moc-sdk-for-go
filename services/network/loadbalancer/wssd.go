@@ -603,7 +603,7 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 		for _, wssdInboundNatRule := range wssdLB.InboundNatRules {
 			fePort := int32(wssdInboundNatRule.FrontendPort)
 			bePort := int32(wssdInboundNatRule.BackendPort)
-			protocol := network.TransportProtocolAll
+			var protocol network.TransportProtocol
 			if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_All {
 				protocol = network.TransportProtocolAll
 			} else if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_Tcp {
