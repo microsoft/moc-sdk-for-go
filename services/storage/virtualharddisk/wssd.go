@@ -121,12 +121,10 @@ func (c *client) Upload(ctx context.Context, group, container string, vhd *stora
 		return err
 	}
 
-	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Request created, Calling Operate\n")
 	_, err = c.VirtualHardDiskAgentClient.Operate(ctx, request)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("moc-sdk-for-go: wssd.go: Internal Upload: Operate completed\n")
 
 	return nil
 }
