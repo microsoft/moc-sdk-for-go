@@ -1,5 +1,17 @@
 # Contributing
 
+## How to Build
+
+Install mingw-w64 by runnin below command if you are using WSL
+
+`sudo apt-get install mingw-w64`
+
+Then run 
+
+`make`
+
+Note: Try running `go mod tidy` if there are any issues with go packages when building
+
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.

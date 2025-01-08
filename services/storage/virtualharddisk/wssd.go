@@ -115,6 +115,20 @@ func (c *client) Precheck(ctx context.Context, group, container string, vhds []*
 	return getVirtualHardDiskPrecheckResponse(response)
 }
 
+func (c *client) Upload(ctx context.Context, group, container string, vhd *storage.VirtualHardDisk, targetUrl string) error {
+	request, err := getVirtualHardDiskOperationRequest(group, container, vhd, targetUrl, wssdcloudcommon.ProviderAccessOperation_VirtualHardDisk_Upload)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.VirtualHardDiskAgentClient.Operate(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getVirtualHardDiskPrecheckResponse(response *wssdcloudstorage.VirtualHardDiskPrecheckResponse) (bool, error) {
 	var err error = nil
 	result := response.GetResult().GetValue()
@@ -135,6 +149,28 @@ func getVirtualHardDiskPrecheckRequest(group, container string, vhds []*storage.
 		}
 		request.VirtualHardDisks = append(request.VirtualHardDisks, wssdvhd)
 	}
+	return request, nil
+}
+
+func getVirtualHardDiskOperationRequest(group, container string, vhd *storage.VirtualHardDisk, targetUrl string, opType wssdcloudcommon.ProviderAccessOperation) (*wssdcloudstorage.VirtualHardDiskOperationRequest, error) {
+	request := &wssdcloudstorage.VirtualHardDiskOperationRequest{
+		VirtualHardDisks: []*wssdcloudstorage.VirtualHardDisk{},
+		OperationType:    opType,
+	}
+
+	var err error
+
+	if vhd == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "VirtualHardDisk object is nil")
+	}
+
+	wssdvhd, err := getWssdVirtualHardDisk(vhd, group, container, "", common.ImageSource_LOCAL_SOURCE) //sourcePath and SourceType are not used in this context
+	if err != nil {
+		return nil, err
+	}
+	wssdvhd.TargetUrl = targetUrl
+	request.VirtualHardDisks = append(request.VirtualHardDisks, wssdvhd)
+
 	return request, nil
 }
 
