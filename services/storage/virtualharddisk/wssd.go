@@ -160,9 +160,10 @@ func getVirtualHardDiskOperationRequest(group, container string, vhd *storage.Vi
 
 	var err error
 
-	if len(group) == 0 {
-		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
+	if vhd == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "VirtualHardDisk object is nil")
 	}
+
 	wssdvhd, err := getWssdVirtualHardDisk(vhd, group, container, "", common.ImageSource_LOCAL_SOURCE) //sourcePath and SourceType are not used in this context
 	if err != nil {
 		return nil, err
