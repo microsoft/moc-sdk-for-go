@@ -197,6 +197,17 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 			wssdipconfig.Loadbalanceraddresspool = append(wssdipconfig.Loadbalanceraddresspool, *addresspool.Name)
 		}
 	}
+
+	if ipConfig.LoadBalancerInboundNatRules != nil {
+		for _, natrule := range *ipConfig.LoadBalancerInboundNatRules {
+			if natrule.Name != nil {
+				inboundNatrule := &wssdcloudnetwork.InboundNatRule{}
+				inboundNatrule.Name = *natrule.Name
+				wssdipconfig.InboundNatRules = append(wssdipconfig.InboundNatRules, inboundNatrule)
+			}
+		}
+	}
+
 	return wssdipconfig, nil
 }
 
