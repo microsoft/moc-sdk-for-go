@@ -893,6 +893,20 @@ type PrivateEndpoint struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+type PolicyType string
+
+const (
+	PolicyType_Unknown PolicyType = "Unknown"
+	PolicyType_SDN_All PolicyType = "SDN_All"
+)
+
+type AdvancedNetworkPolicy struct {
+	// PolicyType
+	Type PolicyType `json:"type,omitempty"`
+	// Enabled - Enable or disable advanced network policy
+	Enabled bool `json:"enabled,omitempty"`
+}
+
 // InterfacePropertiesFormat networkInterface properties.
 type InterfacePropertiesFormat struct {
 	// VirtualMachine - READ-ONLY; The reference of a virtual machine.
@@ -921,6 +935,8 @@ type InterfacePropertiesFormat struct {
 	EnableDHCPGuard *bool `json:"enableDHCPGuard,omitempty"`
 	// EnableRouterAdvertisementGuard
 	EnableRouterAdvertisementGuard *bool `json:"enableRouterAdvertisementGuard,omitempty"`
+	// AdvancedNetworkPolicies
+	AdvancedNetworkPolicies *[]AdvancedNetworkPolicy `json:"advancedNetworkPolicies,omitempty"`
 }
 
 // VirtualNetwork defines the structure of a VNET
