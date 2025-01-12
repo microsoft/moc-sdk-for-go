@@ -40,6 +40,14 @@ func getWssdContainer(c *storage.Container, locationName string) (*wssdcloudstor
 		}
 		wssdcontainer.Isolated = c.Isolated
 	}
+
+	if c.DisableHighAvailability != nil {
+		wssdcontainer.DisableHighAvailability = *c.DisableHighAvailability
+	} else {
+		// If HighAvailability mode isn't specified, proceed with default behavior i.e., HA
+		wssdcontainer.DisableHighAvailability = false
+	}
+
 	return wssdcontainer, nil
 }
 
@@ -77,6 +85,7 @@ func getContainer(c *wssdcloudstorage.Container, location string) *storage.Conta
 				Node:          node,
 				Zone:          zone,
 			},
+			DisableHighAvailability: &c.DisableHighAvailability,
 		},
 		Version: &c.Status.Version.Number,
 		Tags:    tags.ProtoToMap(c.Tags),
