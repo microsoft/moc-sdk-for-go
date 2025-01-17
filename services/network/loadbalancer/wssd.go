@@ -290,19 +290,12 @@ func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdClo
 					wssdCloudLBFIpC.Name = *fipc[0].Name
 				}
 				if fipcf.PublicIPAddress != nil {
-					if fipcf.PublicIPAddress.Name != nil {
+					if fipcf.PublicIPAddress.ID != nil {
 						wssdCloudLBFIpC.PublicIPAddress = &wssdcloudcommon.PublicIPAddressReference{
 							ResourceRef: &wssdcloudcommon.ResourceReference{
-								Name: *fipcf.PublicIPAddress.Name,
+								Name: *fipcf.PublicIPAddress.ID,
 							},
 						}
-					}
-					if fipcf.PublicIPAddress.Type != nil {
-						allocMethod, ok := wssdcloudcommon.IPAllocationMethod_value[*(fipcf.PublicIPAddress.Type)]
-						if !ok {
-							return nil, errors.Wrapf(errors.InvalidInput, "Unknown Allocation Method %s specified", *(fipcf.PublicIPAddress.Type))
-						}
-						wssdCloudLBFIpC.AllocationMethod = wssdcloudcommon.IPAllocationMethod(allocMethod)
 					}
 				}
 
@@ -525,15 +518,13 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 			if wssdFeIpConf != nil {
 				feIpConf := network.FrontendIPConfiguration{
 					Name: toStringPtr(wssdFeIpConf.Name),
-					FrontendIPConfigurationPropertiesFormat: &network.FrontendIPConfigurationPropertiesFormat{
-						PublicIPAddress: &network.PublicIPAddress{
-							Type: toStringPtr(wssdcloudcommon.IPAllocationMethod_name[int32(wssdFeIpConf.AllocationMethod)]),
-						},
-					},
 				}
 				if wssdFeIpConf.PublicIPAddress != nil && wssdFeIpConf.PublicIPAddress.ResourceRef != nil {
-					feIpConf.FrontendIPConfigurationPropertiesFormat.PublicIPAddress.Name =
-						toStringPtr(wssdFeIpConf.PublicIPAddress.ResourceRef.Name)
+					feIpConf.FrontendIPConfigurationPropertiesFormat = &network.FrontendIPConfigurationPropertiesFormat{
+						PublicIPAddress: &network.PublicIPAddress{
+							ID: toStringPtr(wssdFeIpConf.PublicIPAddress.ResourceRef.Name),
+						},
+					}
 				}
 				frontendipconfigurations = append(frontendipconfigurations, feIpConf)
 			}
