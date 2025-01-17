@@ -21,6 +21,7 @@ type Service interface {
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
+	Upload(context.Context, string, string, *storage.VirtualHardDisk, string) error
 }
 
 // Client structure
@@ -61,7 +62,7 @@ func (c *VirtualHardDiskClient) Delete(ctx context.Context, group, container, na
 	return c.internal.Delete(ctx, group, container, name)
 }
 
-// Resize methods invokes delete of the storage resource
+// Resize methods invokes Update to change size of the storage resource
 func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, name string, newSize int64) error {
 	vhds, err := c.Get(ctx, group, container, name)
 	if err != nil {
@@ -78,6 +79,30 @@ func (c *VirtualHardDiskClient) Resize(ctx context.Context, group, container, na
 	_, err = c.CreateOrUpdate(ctx, group, container, name, &vhd)
 
 	return err
+}
+
+// Upload methods invokes upload of the storage resource to target sasurl
+func (c *VirtualHardDiskClient) Upload(ctx context.Context, group, container, name string, targetUrl string) error {
+	vhds, err := c.Get(ctx, group, container, name)
+	if err != nil {
+		return err
+	}
+
+	if vhds == nil || len(*vhds) == 0 {
+		return errors.Wrapf(errors.NotFound, "%s", name)
+	}
+
+	if len(*vhds) > 1 {
+		return errors.Wrapf(errors.InvalidInput, "Multiple virtual hard disks found with name %s", name)
+	}
+
+	if targetUrl == "" {
+		return errors.Wrapf(errors.InvalidInput, "targetUrl cannot be empty")
+	}
+
+	vhd := (*vhds)[0]
+
+	return c.internal.Upload(ctx, group, container, &vhd, targetUrl)
 }
 
 // Prechecks whether the system is able to create specified virtual hard disks.
