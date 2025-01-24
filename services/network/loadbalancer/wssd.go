@@ -472,6 +472,7 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 			Statuses:         status.GetStatuses(wssdLB.GetStatus()),
 			ReplicationCount: wssdLB.GetReplicationCount(),
 		},
+		Tags: tags.ProtoToMap(wssdLB.Tags),
 	}
 
 	// V2 BackendAddressPool
