@@ -170,16 +170,16 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 
 	if ipConfig.LoadBalancerBackendAddressPools != nil {
 		for _, addresspool := range *ipConfig.LoadBalancerBackendAddressPools {
-			wssdipconfig.Loadbalanceraddresspool = append(wssdipconfig.Loadbalanceraddresspool, *addresspool.Name)
 			// SLB V2 BackendAddressPoolRef
-			if len(strings.Split(*addresspool.Name, "/")) == 5 {
-				wssdipconfig.LoadBalancerAddressPoolsRef = append(
-					wssdipconfig.LoadBalancerAddressPoolsRef,
-					&wssdcommonproto.BackendAddressPoolReference{
-						ResourceRef: &wssdcommonproto.ResourceReference{
-							Name: *addresspool.Name,
-						},
-					})
+			beAPRef, err := getWssdBackendAddressPoolRef(addresspool.Name)
+			if err != nil {
+				return nil, err
+			}
+			// If there are no errors and beAPRef is not set, addresspool is not Qualified, and not V2. Use legacy
+			if beAPRef != nil {
+				wssdipconfig.LoadBalancerAddressPoolsRef = append(wssdipconfig.LoadBalancerAddressPoolsRef, beAPRef)
+			} else {
+				wssdipconfig.Loadbalanceraddresspool = append(wssdipconfig.Loadbalanceraddresspool, *addresspool.Name)
 			}
 		}
 	}
@@ -269,11 +269,18 @@ func getNetworkIpConfig(wssdcloudipconfig *wssdcloudnetwork.IpConfiguration) *ne
 	ipAllocationMethodProtobufToSdk(wssdcloudipconfig, ipconfig)
 
 	var addresspools []network.BackendAddressPool
-	for _, addresspool := range wssdcloudipconfig.Loadbalanceraddresspool {
-		bap := network.BackendAddressPool{
-			Name: &addresspool,
+	// if the V2 lb address pool is present, use it to populate the address pools. Else default to legacy
+	if len(wssdcloudipconfig.LoadBalancerAddressPoolsRef) != 0 {
+		for _, addresspoolRef := range wssdcloudipconfig.LoadBalancerAddressPoolsRef {
+			addresspools = append(addresspools, getQualifiedBackendAddressPoolRef(addresspoolRef))
 		}
-		addresspools = append(addresspools, bap)
+	} else {
+		for _, addresspool := range wssdcloudipconfig.Loadbalanceraddresspool {
+			bap := network.BackendAddressPool{
+				Name: &addresspool,
+			}
+			addresspools = append(addresspools, bap)
+		}
 	}
 	ipconfig.LoadBalancerBackendAddressPools = &addresspools
 
@@ -343,5 +350,42 @@ func getQualifiedSubnetReference(subnet *wssdcommonproto.SubnetReference) *netwo
 
 	return &network.APIEntityReference{
 		ID: &id,
+	}
+}
+
+func getWssdBackendAddressPoolRef(beAP *string) (*wssdcommonproto.BackendAddressPoolReference, error) {
+	// Expected format for a qualified BackendAddressPool name is:
+	// /loadbalancers/<loadbalancer name>/backendaddresspools/<backend address pool name>
+	if beAP == nil {
+		return nil, nil
+	}
+	beAPSplit := strings.Split(*beAP, "/")
+
+	if len(beAPSplit) != 5 {
+		return nil, nil
+	}
+
+	if strings.Compare(beAPSplit[1], "loadbalancers") != 0 ||
+		strings.Compare(beAPSplit[3], "backendaddresspools") != 0 {
+		return nil, errors.Wrapf(errors.InvalidInput, "Cannot parse qualified backend address pool for the vnic")
+	}
+
+	return &wssdcommonproto.BackendAddressPoolReference{
+		ResourceRef: &wssdcommonproto.ResourceReference{
+			Name: beAPSplit[4],
+		},
+		LoadBalancerRef: &wssdcommonproto.LoadBalancerReference{
+			ResourceRef: &wssdcommonproto.ResourceReference{
+				Name: beAPSplit[2],
+			},
+		},
+	}, nil
+}
+
+func getQualifiedBackendAddressPoolRef(beAPRef *wssdcommonproto.BackendAddressPoolReference) (network.BackendAddressPool) {
+	id := "/loadbalancers/" + beAPRef.GetLoadBalancerRef().GetResourceRef().GetName() + "/backendaddresspools/" + beAPRef.GetResourceRef().GetName()
+
+	return network.BackendAddressPool{
+		Name: &id,
 	}
 }

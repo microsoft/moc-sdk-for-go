@@ -19,6 +19,7 @@ type Service interface {
 	Delete(context.Context, string, string) error
 	DeleteWithVersion(context.Context, string, string, string) error
 	Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error)
+	PrecheckWithVersion(ctx context.Context, group string, loadBalancers []*network.LoadBalancer, apiVersion string) (bool, error)
 }
 
 // LoadBalancerClient structure
@@ -71,4 +72,10 @@ func (c *LoadBalancerClient) DeleteWithVersion(ctx context.Context, group, name,
 // Returns true if it is possible; or false with reason in error message if not.
 func (c *LoadBalancerClient) Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error) {
 	return c.internal.Precheck(ctx, group, loadBalancers)
+}
+
+// Prechecks whether the system is able to create specified loadBalancers.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *LoadBalancerClient) PrecheckWithVersion(ctx context.Context, group string, loadBalancers []*network.LoadBalancer, apiVersion string) (bool, error) {
+	return c.internal.PrecheckWithVersion(ctx, group, loadBalancers, apiVersion)
 }
