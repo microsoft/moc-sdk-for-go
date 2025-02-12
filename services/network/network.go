@@ -893,18 +893,20 @@ type PrivateEndpoint struct {
 	Tags map[string]*string `json:"tags"`
 }
 
-type PolicyType string
+type NetworkPolicyType string
 
 const (
-	PolicyType_Unknown PolicyType = "Unknown"
-	PolicyType_SDN_All PolicyType = "SDN_All"
+	NetworkPolicyType_Invalid NetworkPolicyType = "INVALID"
+	// SDN Policy
+	NetworkPolicyType_SDN NetworkPolicyType = "SDN"
 )
 
+// Advanced Network Policy for LogicalNetwork and NetworkInterface
 type AdvancedNetworkPolicy struct {
-	// PolicyType
-	Type PolicyType `json:"type,omitempty"`
+	// NetworkPolicyType
+	Type NetworkPolicyType `json:"type"`
 	// Enabled - Enable or disable advanced network policy
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled bool `json:"enabled"`
 }
 
 // InterfacePropertiesFormat networkInterface properties.
@@ -1114,6 +1116,8 @@ type LogicalNetworkPropertiesFormat struct {
 	Statuses map[string]*string `json:"statuses"`
 	// NetworkVirtualizationEnabled - Denotes if this lnet can be used as overlay for a vnet
 	NetworkVirtualizationEnabled *bool `json:"networkVirtualizationEnabled,omitempty"`
+	// AdvancedNetworkPolicies
+	AdvancedNetworkPolicies *[]AdvancedNetworkPolicy `json:"advancedNetworkPolicies,omitempty"`
 }
 
 // LogicalNetwork defines the structure of an LNET
