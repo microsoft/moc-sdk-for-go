@@ -52,7 +52,7 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 		GroupName:        group,
 		Dns:              getDns(c.DNSSettings),
 		Tags:             tags.MapToProto(c.Tags),
-		Policies:         getWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies),
+		AdvancedPolicies: network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies),
 	}
 
 	if c.Version != nil {
@@ -75,30 +75,6 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 	}
 
 	return vnic, nil
-}
-
-func getWssdAdvancedNetworkPolicies(policies *[]network.AdvancedNetworkPolicy) (wssdPolicies []*wssdcloudnetwork.AdvancedNetworkPolicy) {
-	if policies == nil {
-		return nil
-	}
-
-	for _, policy := range *policies {
-		wssdPolicy := &wssdcloudnetwork.AdvancedNetworkPolicy{
-			Type:    getPolicyType(policy.Type),
-			Enabled: policy.Enabled,
-		}
-		wssdPolicies = append(wssdPolicies, wssdPolicy)
-	}
-	return wssdPolicies
-}
-
-func getPolicyType(policyType network.PolicyType) wssdcloudnetwork.PolicyType {
-	switch policyType {
-	case network.PolicyType_SDN_All:
-		return wssdcloudnetwork.PolicyType_SDN_ALL
-	default:
-		return wssdcloudnetwork.PolicyType_UNKNOWN
-	}
 }
 
 func getWssdDNSSettings(dnssetting *wssdcommonproto.Dns) *network.InterfaceDNSSettings {
@@ -197,17 +173,6 @@ func getWssdNetworkInterfaceIPConfig(ipConfig *network.InterfaceIPConfiguration,
 			wssdipconfig.Loadbalanceraddresspool = append(wssdipconfig.Loadbalanceraddresspool, *addresspool.Name)
 		}
 	}
-
-	if ipConfig.LoadBalancerInboundNatRules != nil {
-		for _, natrule := range *ipConfig.LoadBalancerInboundNatRules {
-			if natrule.Name != nil {
-				inboundNatrule := &wssdcloudnetwork.InboundNatRule{}
-				inboundNatrule.Name = *natrule.Name
-				wssdipconfig.InboundNatRules = append(wssdipconfig.InboundNatRules, inboundNatrule)
-			}
-		}
-	}
-
 	return wssdipconfig, nil
 }
 
@@ -227,6 +192,8 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 		version = c.Status.Version.Number
 	}
 
+	advancedPolicies := network.GetNetworkAdvancedNetworkPolicies(c.AdvancedPolicies)
+
 	vnetIntf := &network.Interface{
 		Name:    &c.Name,
 		ID:      &c.Id,
@@ -238,6 +205,7 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			Statuses:                    status.GetStatuses(c.GetStatus()),
 			EnableAcceleratedNetworking: getIovSetting(c),
 			DNSSettings:                 getWssdDNSSettings(c.Dns),
+			AdvancedNetworkPolicies:     &advancedPolicies,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}

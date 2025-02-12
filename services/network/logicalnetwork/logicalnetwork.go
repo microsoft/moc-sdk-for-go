@@ -21,10 +21,12 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 	if c.Location == nil || len(*c.Location) == 0 {
 		return nil, errors.Wrapf(errors.InvalidInput, "Location is not specified")
 	}
+
 	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
-		Name:         *c.Name,
-		LocationName: *c.Location,
-		Tags:         tags.MapToProto(c.Tags),
+		Name:             *c.Name,
+		LocationName:     *c.Location,
+		Tags:             tags.MapToProto(c.Tags),
+		AdvancedPolicies: network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies),
 	}
 
 	if c.Version != nil {
@@ -187,7 +189,10 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 
 // Conversion function from wssdcloudnetwork to network
 func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwork {
-	return &network.LogicalNetwork{
+
+	advancedPolicies := network.GetNetworkAdvancedNetworkPolicies(c.AdvancedPolicies)
+
+	lnet := &network.LogicalNetwork{
 		Name:     &c.Name,
 		Location: &c.LocationName,
 		ID:       &c.Id,
@@ -197,9 +202,13 @@ func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwo
 			Statuses:                     status.GetStatuses(c.GetStatus()),
 			MacPoolName:                  &c.MacPoolName,
 			NetworkVirtualizationEnabled: &c.NetworkVirtualizationEnabled,
+			AdvancedNetworkPolicies:      &advancedPolicies,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
+
+	return lnet
+
 }
 
 func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network.LogicalSubnet {
