@@ -52,6 +52,7 @@ func getWssdNetworkInterface(c *network.Interface, group string) (*wssdcloudnetw
 		GroupName:        group,
 		Dns:              getDns(c.DNSSettings),
 		Tags:             tags.MapToProto(c.Tags),
+		AdvancedPolicies: network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies),
 	}
 
 	if c.Version != nil {
@@ -191,6 +192,8 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 		version = c.Status.Version.Number
 	}
 
+	advancedPolicies := network.GetNetworkAdvancedNetworkPolicies(c.AdvancedPolicies)
+
 	vnetIntf := &network.Interface{
 		Name:    &c.Name,
 		ID:      &c.Id,
@@ -202,6 +205,7 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			Statuses:                    status.GetStatuses(c.GetStatus()),
 			EnableAcceleratedNetworking: getIovSetting(c),
 			DNSSettings:                 getWssdDNSSettings(c.Dns),
+			AdvancedNetworkPolicies:     &advancedPolicies,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
