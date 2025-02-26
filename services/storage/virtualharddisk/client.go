@@ -18,6 +18,7 @@ import (
 type Service interface {
 	Get(context.Context, string, string, string) (*[]storage.VirtualHardDisk, error)
 	Hydrate(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
+	Snapshot(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
@@ -55,6 +56,11 @@ func (c *VirtualHardDiskClient) CreateOrUpdate(ctx context.Context, group, conta
 // (e.g. "C:\ClusterStorage\Userdata_1\abc123" for the container path and "my_disk.vhd" for the disk name)
 func (c *VirtualHardDiskClient) Hydrate(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
 	return c.internal.Hydrate(ctx, group, container, name, storage)
+}
+
+// The entry point for the hydrate call takes the group name, container name and the name of the disk file. The group is standard input for every call.
+func (c *VirtualHardDiskClient) Snapshot(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
+	return c.internal.Snapshot(ctx, group, container, name, storage)
 }
 
 // Delete methods invokes delete of the storage resource
