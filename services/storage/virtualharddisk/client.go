@@ -18,7 +18,7 @@ import (
 type Service interface {
 	Get(context.Context, string, string, string) (*[]storage.VirtualHardDisk, error)
 	Hydrate(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
-	Snapshot(context.Context, string, string, string, *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error)
+	Snapshot(context.Context, string, string, string, *storage.VirtualHardDisk) (backupVhdName string, err error)
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
@@ -59,7 +59,7 @@ func (c *VirtualHardDiskClient) Hydrate(ctx context.Context, group, container, n
 }
 
 // The entry point for the hydrate call takes the group name, container name and the name of the disk file. The group is standard input for every call.
-func (c *VirtualHardDiskClient) Snapshot(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
+func (c *VirtualHardDiskClient) Snapshot(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk) (backupVhdName string, err error) {
 	return c.internal.Snapshot(ctx, group, container, name, storage)
 }
 
