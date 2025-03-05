@@ -83,22 +83,23 @@ func (c *client) Hydrate(ctx context.Context, group, container, name string, vhd
 }
 
 // The snapshot call takes the group name, container name and the name of the disk file. The group is standard input for every call.
-func (c *client) Snapshot(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
+func (c *client) Snapshot(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk) (backupVhdName string, err error) {
 	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_SNAPSHOT, group, container, name, vhd, "", common.ImageSource_LOCAL_SOURCE)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	response, err := c.VirtualHardDiskAgentClient.Invoke(ctx, request)
 	if err != nil {
-		return nil, err
-	}
-	vhds := getVirtualHardDisksFromResponse(response, group)
-
-	if len(*vhds) == 0 {
-		return nil, fmt.Errorf("[VirtualHardDisk][SNAPSHOT] Unexpected error: Hydrating a storage interface returned no result")
+		return "", err
 	}
 
-	return &((*vhds)[0]), nil
+	vhds := response.GetVirtualHardDisks()
+
+	if len(vhds) != 1 {
+		return "", fmt.Errorf("[VirtualHardDisk][SNAPSHOT] Unexpected error: Snapshot should return a single disk")
+	}
+
+	return (vhds[0]).Name, nil
 }
 
 // Delete methods invokes create or update on the client
