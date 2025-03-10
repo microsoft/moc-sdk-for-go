@@ -33,7 +33,7 @@ func newKeyClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Get
 func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]keyvault.Key, error) {
-	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name)
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +44,9 @@ func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]key
 	return getKeysFromResponse(response, vaultName, nil)
 }
 
-// get
-func (c *client) get(ctx context.Context, group, vaultName, name string) ([]*wssdcloudsecurity.Key, error) {
-	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name)
+// keyID optional in get function
+func (c *client) get(ctx context.Context, group, vaultName, name, keyID string) ([]*wssdcloudsecurity.Key, error) {
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name, keyID)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +306,7 @@ func (c *client) Encrypt(ctx context.Context, group, vaultName, name string, par
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Encrypt)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, "", param, wssdcloudcommon.ProviderAccessOperation_Key_Encrypt)
 	if err != nil {
 		return
 	}
@@ -323,7 +323,7 @@ func (c *client) Decrypt(ctx context.Context, group, vaultName, name string, par
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Decrypt)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, "", param, wssdcloudcommon.ProviderAccessOperation_Key_Decrypt)
 	if err != nil {
 		return
 	}
@@ -340,7 +340,7 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, "", param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey)
 	if err != nil {
 		return
 	}
@@ -352,15 +352,33 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 	return
 }
 
-func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name, keyID string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
 	err = c.isSupportedWrapAlgorithm(param.Algorithm)
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, keyID, param, wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey)
 	if err != nil {
 		return
 	}
+	response, err := c.KeyAgentClient.Operate(ctx, request)
+	if err != nil {
+		return
+	}
+	result, err = getDataFromResponse(response)
+	return
+}
+
+func (c *client) RotateKey(ctx context.Context, group, vaultName, name, keyID string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+	err = c.isSupportedEncryptionAlgorithm(param.Algorithm)
+	if err != nil {
+		return
+	}
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, keyID, param, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
+	if err != nil {
+		return
+	}
+
 	response, err := c.KeyAgentClient.Operate(ctx, request)
 	if err != nil {
 		return
@@ -410,12 +428,13 @@ func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName stri
 	return &tmp, nil
 }
 
-func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name string) (*wssdcloudsecurity.KeyRequest, error) {
+// keyID optional in getKeyRequestByVaultName
+func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name, keyID string) (*wssdcloudsecurity.KeyRequest, error) {
 	request := &wssdcloudsecurity.KeyRequest{
 		OperationType: opType,
 		Keys:          []*wssdcloudsecurity.Key{},
 	}
-	key, err := getWssdKeyByVaultName(name, groupName, vaultName, opType)
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, keyID, opType)
 	if err != nil {
 		return nil, err
 	}
@@ -439,6 +458,7 @@ func getKeyRequest(opType wssdcloudcommon.Operation, groupName, vaultName, name 
 func getDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyOperationResult, err error) {
 	result = &keyvault.KeyOperationResult{
 		Result: &response.Data,
+		Kid:    &response.Key.KeyVersion,
 	}
 	return result, nil
 }
@@ -451,8 +471,9 @@ func getKeyVerifyResultFromResponse(response *wssdcloudsecurity.KeyOperationResp
 	return result, nil
 }
 
+// keyID optional in getKeyOperationRequest function
 func (c *client) getKeyOperationRequest(ctx context.Context,
-	groupName, vaultName, name string,
+	groupName, vaultName, name, keyID string,
 	param *keyvault.KeyOperationsParameters,
 	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
@@ -476,7 +497,7 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		Algorithm:     algo,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name)
+	key, err := c.get(ctx, groupName, vaultName, name, keyID)
 	if err != nil {
 		return nil, err
 	}
@@ -518,7 +539,7 @@ func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 		SignVerifyParams: &signVerifyParam,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name)
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -565,7 +586,7 @@ func (c *client) getKeyOperationRequestVerify(ctx context.Context,
 		SignVerifyParams: &signVerifyParam,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name)
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}

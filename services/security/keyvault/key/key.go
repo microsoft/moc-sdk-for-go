@@ -65,8 +65,9 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string, getCustomValue func(*w
 	return key, nil
 }
 
+// keyID optional in getWssdKeyByVaultName function
 func getWssdKeyByVaultName(name string, groupName,
-	vaultName string, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Key, error) {
+	vaultName, keyID string, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Key, error) {
 	key := &wssdcloudsecurity.Key{
 		Name:      name,
 		VaultName: vaultName,
@@ -77,6 +78,9 @@ func getWssdKeyByVaultName(name string, groupName,
 		Status:    status.InitStatus(),
 	}
 
+	if keyID != "" {
+		key.KeyVersion = keyID
+	}
 	// No Update support
 	return key, nil
 }
