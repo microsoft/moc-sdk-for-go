@@ -369,12 +369,8 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name, keyID st
 	return
 }
 
-func (c *client) RotateKey(ctx context.Context, group, vaultName, name, keyID string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
-	err = c.isSupportedEncryptionAlgorithm(param.Algorithm)
-	if err != nil {
-		return
-	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, keyID, param, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
+func (c *client) RotateKey(ctx context.Context, group, vaultName, name, keyID string) (result *keyvault.KeyOperationResult, err error) {
+	request, err := c.getKeyOperationRequestRotate(ctx, group, vaultName, name, keyID, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
 	if err != nil {
 		return
 	}
@@ -495,6 +491,27 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		OperationType: opType,
 		Data:          *param.Value,
 		Algorithm:     algo,
+	}
+
+	key, err := c.get(ctx, groupName, vaultName, name, keyID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(key) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
+	}
+
+	request.Key = key[0]
+	return request, nil
+}
+
+func (c *client) getKeyOperationRequestRotate(ctx context.Context,
+	groupName, vaultName, name, keyID string,
+	opType wssdcloudcommon.ProviderAccessOperation,
+) (*wssdcloudsecurity.KeyOperationRequest, error) {
+	request := &wssdcloudsecurity.KeyOperationRequest{
+		OperationType: opType,
 	}
 
 	key, err := c.get(ctx, groupName, vaultName, name, keyID)
