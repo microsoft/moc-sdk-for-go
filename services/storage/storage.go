@@ -41,6 +41,8 @@ type VirtualHardDiskProperties struct {
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
+	// Disable High Availability
+	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD
@@ -75,6 +77,8 @@ type ContainerProperties struct {
 	// State - State
 	Statuses       map[string]*string `json:"statuses"`
 	*ContainerInfo `json:"info"`
+	// Disable High Availability
+	DisableHighAvailability *bool `json:"disableHighAvailability,omitempty"`
 }
 
 // Container defines the structure of a VHD
