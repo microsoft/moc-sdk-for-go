@@ -53,7 +53,7 @@ func (c *VirtualHardDiskClient) CreateOrUpdate(ctx context.Context, group, conta
 
 // CreateOrUpdate methods invokes create or update on the client
 func (c *VirtualHardDiskClient) CreateFromSource(ctx context.Context, group, container, name string, storage *storage.VirtualHardDisk, sourcePath string) (*storage.VirtualHardDisk, error) {
-	return c.internal.CreateOrUpdate(ctx, group, container, name, storage, sourcePath, common.ImageSource_CLONE_SOURCE)
+	return c.internal.CreateOrUpdate(ctx, group, container, name, storage, sourcePath, common.ImageSource_LOCAL_SOURCE)
 }
 
 // The entry point for the hydrate call takes the group name, container name and the name of the disk file. The group is standard input for every call.
