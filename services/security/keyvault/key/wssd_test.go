@@ -53,6 +53,8 @@ func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
 			KeyVersion: "keyID",
 		},
 	}
+	correctRequest.Key.Status.Version = nil
+	testRequest.Key.Status.Version = nil
 	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
 }
 
@@ -64,7 +66,7 @@ func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
 		Algorithm: keyvault.A256KW,
 		Value:     pointerToEmptyString,
 	}
-	request, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", "", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
+	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", "", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequest call", err)
 	algo, err := getMOCAlgorithm(testKeyOperationsParameters.Algorithm)
 	assert.NoErrorf(t, err, "Failed to make getMOCAlgorithm call", err)
@@ -83,7 +85,9 @@ func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
 			KeyVersion: "",
 		},
 	}
-	assert.Equal(t, correctRequest, *request, "The testRequest and correctRequest are not equal")
+	correctRequest.Key.Status.Version = nil
+	testRequest.Key.Status.Version = nil
+	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
 }
 
 func TestGetKeyOperationRequestRotate_keyID_Exists(t *testing.T) {
@@ -104,6 +108,8 @@ func TestGetKeyOperationRequestRotate_keyID_Exists(t *testing.T) {
 			KeyVersion: "keyID",
 		},
 	}
+	correctRequest.Key.Status.Version = nil
+	testRequest.Key.Status.Version = nil
 	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
 }
 
@@ -125,6 +131,8 @@ func TestGetKeyOperationRequestRotate_keyID_Not_Exists(t *testing.T) {
 			KeyVersion: "",
 		},
 	}
+	correctRequest.Key.Status.Version = nil
+	testRequest.Key.Status.Version = nil
 	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
 }
 

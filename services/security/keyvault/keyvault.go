@@ -5,10 +5,10 @@ package keyvault
 
 import (
 	"encoding/json"
-	"time"
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
+	"github.com/golang/protobuf/ptypes/duration"
 
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/errors"
@@ -194,7 +194,7 @@ type Key struct {
 	// Type - READ-ONLY; The resource type of the key vault.
 	Type *string `json:"type,omitempty"`
 	// CreationTime
-	CreationTime *time.Time `json:"ct,omitempty"`
+	Age *duration.Duration `json:"age,omitempty"`
 	// Version
 	Version *string `json:"version,omitempty"`
 	// Location - The supported Azure location where the key vault should be created.
