@@ -202,6 +202,7 @@ func getNetworkInterface(server, group string, c *wssdcloudnetwork.NetworkInterf
 			Statuses:                    status.GetStatuses(c.GetStatus()),
 			EnableAcceleratedNetworking: getIovSetting(c),
 			DNSSettings:                 getWssdDNSSettings(c.Dns),
+			VirtualMachine:              &c.VirtualMachineName,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
