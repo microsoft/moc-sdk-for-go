@@ -195,6 +195,8 @@ type Key struct {
 	Type *string `json:"type,omitempty"`
 	// CreationTime
 	Age *duration.Duration `json:"age,omitempty"`
+	// KeyVersion
+	KeyVersion *string `json:"keyVersion,omitempty"`
 	// Version
 	Version *string `json:"version,omitempty"`
 	// Location - The supported Azure location where the key vault should be created.
