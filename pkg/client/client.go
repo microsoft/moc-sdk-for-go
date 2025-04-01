@@ -36,6 +36,10 @@ func init() {
 }
 
 func ClearConnectionCache() {
+	for _, conn := range connectionCache {
+		conn.Close()
+	}
+
 	connectionCache = map[string]*grpc.ClientConn{}
 }
 
@@ -131,7 +135,7 @@ func getAuthConnection(serverAddress *string, authorizer auth.Authorizer) (*grpc
 
 	conn, ok := connectionCache[endpoint]
 	if ok {
-		return conn, nil
+		conn.Close()
 	}
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(authorizer.WithTransportAuthorization()))
