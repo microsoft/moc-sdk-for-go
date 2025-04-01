@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the Apache v2.0 License.
 GOCMD=go
-GOBUILD=$(GOCMD) build -v 
+GOBUILD=$(GOCMD) build -v
 GOHOSTOS=$(strip $(shell $(GOCMD) env get GOHOSTOS))
 GOPATH_BIN := $(shell go env GOPATH)/bin
 
@@ -42,6 +42,7 @@ format:
 	gofmt -s -w pkg/ services/ 
 
 unittest:
+	GOARCH=amd64 go test -v ./pkg/client/...
 	GOARCH=amd64 go test -v ./services/security/...
 
 
