@@ -271,44 +271,28 @@ func getWssdNetworkSecurityGroupRules(securityRules *[]network.SecurityRule, isD
 			return nil, errors.Wrapf(errors.InvalidInput, "Unknown Protocol %s specified", rule.Protocol)
 		}
 
-		if rule.SourceAddressPrefix != nil {
+		if rule.SourceAddressPrefix != nil && len(*rule.SourceAddressPrefix) > 0 {
 			wssdCloudNSGRule.SourceAddressPrefix = *rule.SourceAddressPrefix
 		} else if rule.SourceAddressPrefixes != nil {
-			concatRule := ""
-			for _, prefix := range *rule.SourceAddressPrefixes {
-				concatRule += prefix
-			}
-			wssdCloudNSGRule.SourceAddressPrefix = concatRule
+			wssdCloudNSGRule.SourceAddressPrefix = strings.Join(*rule.SourceAddressPrefixes, ",")
 		}
 
-		if rule.DestinationAddressPrefix != nil {
+		if rule.DestinationAddressPrefix != nil && len(*rule.DestinationAddressPrefix) > 0 {
 			wssdCloudNSGRule.DestinationAddressPrefix = *rule.DestinationAddressPrefix
 		} else if rule.DestinationAddressPrefixes != nil {
-			concatRule := ""
-			for _, prefix := range *rule.DestinationAddressPrefixes {
-				concatRule += prefix
-			}
-			wssdCloudNSGRule.DestinationAddressPrefix = concatRule
+			wssdCloudNSGRule.DestinationAddressPrefix = strings.Join(*rule.DestinationAddressPrefixes, ",")
 		}
 
-		if rule.SourcePortRange != nil {
+		if rule.SourcePortRange != nil && len(*rule.SourcePortRange) > 0 {
 			wssdCloudNSGRule.SourcePortRange = *rule.SourcePortRange
 		} else if rule.SourcePortRanges != nil {
-			concatRule := ""
-			for _, prefix := range *rule.SourcePortRanges {
-				concatRule += prefix
-			}
-			wssdCloudNSGRule.SourcePortRange = concatRule
+			wssdCloudNSGRule.SourcePortRange = strings.Join(*rule.SourcePortRanges, ",")
 		}
 
-		if rule.DestinationPortRange != nil {
+		if rule.DestinationPortRange != nil && len(*rule.DestinationPortRange) > 0 {
 			wssdCloudNSGRule.DestinationPortRange = *rule.DestinationPortRange
 		} else if rule.DestinationPortRanges != nil {
-			concatRule := ""
-			for _, prefix := range *rule.DestinationPortRanges {
-				concatRule += prefix
-			}
-			wssdCloudNSGRule.DestinationPortRange = concatRule
+			wssdCloudNSGRule.DestinationPortRange = strings.Join(*rule.DestinationPortRanges, ",")
 		}
 
 		if strings.EqualFold(string(rule.Access), string(network.SecurityRuleAccessAllow)) {
