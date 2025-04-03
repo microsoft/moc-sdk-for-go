@@ -1,16 +1,20 @@
 module github.com/microsoft/moc-sdk-for-go
 
-go 1.22.4
+go 1.23.0
+
+toolchain go1.23.8
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/date v0.3.0
+	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/microsoft/moc v0.25.6
-	google.golang.org/grpc v1.62.1
+	google.golang.org/grpc v1.65.0
 	k8s.io/klog v1.0.0
+	sigs.k8s.io/controller-runtime v0.20.4
 )
 
 require (
