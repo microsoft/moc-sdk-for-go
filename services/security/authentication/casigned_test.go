@@ -94,4 +94,5 @@ func Test_LoginWithConfig(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, "mock-client-cert", result.ClientCertificate)
+	mockClient.AssertExpectations(t)
 }
