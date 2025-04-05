@@ -117,15 +117,16 @@ func renewRoutine(ctx context.Context, group, server string, logger logging.Logg
 
 // Get methods invokes the client Get method
 func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig, enableRenewRoutine bool) (*auth.WssdConfig, error) {
-	logger := log.FromContext(ctx) // Retrieve the logger from context
-	if logger.GetSink() == nil {   // Check if the logger has a valid sink
-		logger = log.Log // Use the global default logger as a fallback
+	loggr := log.FromContext(ctx) // Retrieve the logger from context
+	var logger logging.Logger
+	if loggr.GetSink() == nil { // Check if the logger has a valid sink
+		logger = &logging.DefaultLogger{} // Use the global default logger as a fallback
+	} else {
+		logger = loggr
 	}
 
-	logger.Info("Generating client CSR")
 	clientCsr, accessFile, err := auth.GenerateClientCsr(loginconfig)
 	if err != nil {
-		logger.Error(err, "Failed to generate client CSR")
 		return nil, err
 	}
 
@@ -134,35 +135,27 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 		Certificate: &clientCsr,
 	}
 
-	logger.Info("Attempting to log in with client CSR")
 	clientCert, err := c.Login(ctx, group, &id)
 	if err != nil {
-		logger.Error(err, "Login failed")
 		return nil, err
 	}
 	accessFile.ClientCertificate = *clientCert
 	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
 
-	logger.Info("Printing access file")
 	if err := auth.PrintAccessFile(accessFile); err != nil {
-		logger.Error(err, "PrintAccessFile failed")
 		return &accessFile, errors.Wrap(err, "PrintAccessFile failed")
 	}
 
-	logger.Info("Setting file permissions for WSSD config location")
 	if err := fs.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
-		logger.Error(err, "Failed to set file permissions")
 		return &accessFile, err
 	}
 	UpdateLoginConfig(loginconfig)
 	if enableRenewRoutine {
-		logger.Info("Starting renew routine")
 		once.Do(func() {
 			go renewRoutine(ctx, group, c.cloudFQDN, logger)
 		})
 	}
-	logger.Info("LoginWithConfig completed successfully")
 	return &accessFile, nil
 }
 

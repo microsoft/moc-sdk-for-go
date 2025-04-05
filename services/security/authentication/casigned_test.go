@@ -65,10 +65,41 @@ func (m *MockClient) Login(ctx context.Context, request *security.Authentication
 	return args.Get(0).(*security.AuthenticationResponse), args.Error(1)
 }
 
-func Test_LoginWithConfig(t *testing.T) {
+func Test_LoginWithConfigWithLoggerFromContext(t *testing.T) {
 	mockClient := new(MockClient)
 	ctx := context.Background()
 	ctx = log.IntoContext(ctx, accessLog) // Add the logger to the context
+	group := "test-group"
+	loginConfig := auth.LoginConfig{
+		Name:        "test-identity",
+		Token:       "dGVzdC10b2tlbg==",
+		Certificate: "dGVzdC1jZXJ0aWZpY2F0ZQ==",
+	}
+	enableRenewRoutine := true
+
+	// Mock the Login method
+	mockClient.On("Login", ctx, mock.AnythingOfType("*security.AuthenticationRequest")).Return(&security.AuthenticationResponse{
+		Token: "mock-client-cert",
+	}, nil)
+
+	c := &client{
+		AuthenticationAgentClient: mockClient,
+		cloudFQDN:                 "test-cloudFQDN",
+	}
+
+	// Act
+	result, err := c.LoginWithConfig(ctx, group, loginConfig, enableRenewRoutine)
+
+	// Assert
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, "mock-client-cert", result.ClientCertificate)
+	mockClient.AssertExpectations(t)
+}
+
+func Test_LoginWithConfigWithoutLoggerFromContext(t *testing.T) {
+	mockClient := new(MockClient)
+	ctx := context.Background()
 	group := "test-group"
 	loginConfig := auth.LoginConfig{
 		Name:        "test-identity",
