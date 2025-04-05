@@ -454,7 +454,7 @@ func getKeyRequest(opType wssdcloudcommon.Operation, groupName, vaultName, name 
 func getDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyOperationResult, err error) {
 	result = &keyvault.KeyOperationResult{
 		Result:     &response.Data,
-		KeyVersion: &response.Key.KeyVersion,
+		KeyVersion: &response.KeyVersion,
 	}
 	return result, nil
 }
