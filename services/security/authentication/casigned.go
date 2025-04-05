@@ -5,9 +5,6 @@ package authentication
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"os"
 	"sync"
 	"time"
 
@@ -18,8 +15,10 @@ import (
 	"github.com/microsoft/moc/pkg/certs"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/fs"
+	"github.com/microsoft/moc/pkg/logging"
 	"github.com/microsoft/moc/pkg/marshal"
 	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 	//log "k8s.io/klog"
 )
 
@@ -70,7 +69,7 @@ func (c *client) Login(ctx context.Context, group string, identity *security.Ide
 	return &response.Token, nil
 }
 
-func renewRoutine(ctx context.Context, group, server string) {
+func renewRoutine(ctx context.Context, group, server string, logger logging.Logger) {
 	renewalAttempt := 0
 	// Waiting for a few seconds to avoid spamming short-lived sdk user
 	time.Sleep(time.Second * 5)
@@ -78,46 +77,53 @@ func renewRoutine(ctx context.Context, group, server string) {
 		wssdConfig := auth.WssdConfig{}
 		err := marshal.FromJSONFile(auth.GetWssdConfigLocation(), &wssdConfig)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to open config file in location %s: %v\n", auth.GetWssdConfigLocation(), err)
+			logger.Error(err, "Failed to open config file", "location", auth.GetWssdConfigLocation())
 			return
 		}
 
 		sleepTime, renewalBackoff, expiry, err := renewTime(wssdConfig.ClientCertificate)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed while calculating certificate renew time %v \n", err)
+			logger.Error(err, "Failed while calculating certificate renew time")
 			return
 		}
-		log.Printf("Waiting for %v to renew cert\n", sleepTime)
+		logger.Info("Waiting to renew certificate", "sleepTime", sleepTime)
 		time.Sleep(sleepTime)
-		log.Printf("Attempting to renew certificate\n")
+		logger.Info("Attempting to renew certificate")
 		err = auth.RenewCertificates(server, auth.GetWssdConfigLocation())
 		if err != nil {
 			// If certificate is expired, we attempt to re-login with set login config
 			if errors.IsExpired(err) {
-				fmt.Fprintf(os.Stderr, "Certificate Expired, Attemptin re-login %v", err)
+				logger.Error(err, "Certificate expired, attempting re-login")
 				err = reLoginOnExpiry(ctx, loginConfig, group, server)
 				if err == nil {
-					log.Println("Re-Login successful")
+					logger.Info("Re-login successful")
 					renewalAttempt = 0
 					continue
 				} else {
-					fmt.Fprintf(os.Stderr, "Re-Login Failure %v", err)
+					logger.Error(err, "Re-login failure")
 				}
 			}
-			renewalAttempt += 1
-			log.Printf("Failed to renew cert: %v. Attempts %d\n", err, renewalAttempt)
-			log.Printf("Certificate Expiry %s, Now %s\n", expiry.UTC().String(), time.Now().UTC().String())
+			renewalAttempt++
+			logger.Error(err, "Failed to renew certificate", "attempts", renewalAttempt)
+			logger.Info("Certificate expiry details", "expiry", expiry.UTC().String(), "now", time.Now().UTC().String())
 			time.Sleep(renewalBackoff)
 			continue
 		}
-		//reset renewalAttempt after successful renewal
+		// Reset renewalAttempt after successful renewal
 		renewalAttempt = 0
-		log.Println("Certificate renewal complete")
+		logger.Info("Certificate renewal complete")
 	}
 }
 
 // Get methods invokes the client Get method
 func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig, enableRenewRoutine bool) (*auth.WssdConfig, error) {
+	loggr := log.FromContext(ctx) // Retrieve the logger from context
+	var logger logging.Logger
+	if loggr.GetSink() == nil { // Check if the logger has a valid sink
+		logger = &logging.DefaultLogger{} // Use the default logger as a fallback
+	} else {
+		logger = loggr
+	}
 
 	clientCsr, accessFile, err := auth.GenerateClientCsr(loginconfig)
 	if err != nil {
@@ -147,7 +153,7 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	UpdateLoginConfig(loginconfig)
 	if enableRenewRoutine {
 		once.Do(func() {
-			go renewRoutine(ctx, group, c.cloudFQDN)
+			go renewRoutine(ctx, group, c.cloudFQDN, logger)
 		})
 	}
 	return &accessFile, nil
