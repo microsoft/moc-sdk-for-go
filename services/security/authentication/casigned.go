@@ -120,7 +120,7 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 	loggr := log.FromContext(ctx) // Retrieve the logger from context
 	var logger logging.Logger
 	if loggr.GetSink() == nil { // Check if the logger has a valid sink
-		logger = &logging.DefaultLogger{} // Use the global default logger as a fallback
+		logger = &logging.DefaultLogger{} // Use the default logger as a fallback
 	} else {
 		logger = loggr
 	}
