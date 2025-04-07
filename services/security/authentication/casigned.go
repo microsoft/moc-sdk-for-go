@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-logr/logr"
 	wssdclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/pkg/constant"
 	"github.com/microsoft/moc-sdk-for-go/services/security"
@@ -16,6 +15,7 @@ import (
 	"github.com/microsoft/moc/pkg/certs"
 	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/pkg/fs"
+	"github.com/microsoft/moc/pkg/logging"
 	"github.com/microsoft/moc/pkg/marshal"
 	wssdsecurity "github.com/microsoft/moc/rpc/cloudagent/security"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -69,7 +69,7 @@ func (c *client) Login(ctx context.Context, group string, identity *security.Ide
 	return &response.Token, nil
 }
 
-func renewRoutine(ctx context.Context, group, server string, logger logr.Logger) {
+func renewRoutine(ctx context.Context, group, server string, logger logging.Logger) {
 	renewalAttempt := 0
 	// Waiting for a few seconds to avoid spamming short-lived sdk user
 	time.Sleep(time.Second * 5)
@@ -117,14 +117,16 @@ func renewRoutine(ctx context.Context, group, server string, logger logr.Logger)
 
 // Get methods invokes the client Get method
 func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig auth.LoginConfig, enableRenewRoutine bool) (*auth.WssdConfig, error) {
-	logger := log.FromContext(ctx) // Retrieve the logger from context
-	if logger.GetSink() == nil {
-		logger = logr.Discard() // Use a no-op logger to avoid panics
+	loggr := log.FromContext(ctx) // Retrieve the logger from context
+	var logger logging.Logger
+	if loggr.GetSink() == nil { // Check if the logger has a valid sink
+		logger = &logging.DefaultLogger{} // Use the default logger as a fallback
+	} else {
+		logger = loggr
 	}
-	logger.Info("Generating client CSR")
+
 	clientCsr, accessFile, err := auth.GenerateClientCsr(loginconfig)
 	if err != nil {
-		logger.Error(err, "Failed to generate client CSR")
 		return nil, err
 	}
 
@@ -133,35 +135,27 @@ func (c *client) LoginWithConfig(ctx context.Context, group string, loginconfig 
 		Certificate: &clientCsr,
 	}
 
-	logger.Info("Attempting to log in with client CSR")
 	clientCert, err := c.Login(ctx, group, &id)
 	if err != nil {
-		logger.Error(err, "Login failed")
 		return nil, err
 	}
 	accessFile.ClientCertificate = *clientCert
 	accessFile.ClientCertificateType = auth.CASigned
 	accessFile.IdentityName = loginconfig.Name
 
-	logger.Info("Printing access file")
 	if err := auth.PrintAccessFile(accessFile); err != nil {
-		logger.Error(err, "PrintAccessFile failed")
 		return &accessFile, errors.Wrap(err, "PrintAccessFile failed")
 	}
 
-	logger.Info("Setting file permissions for WSSD config location")
 	if err := fs.Chmod(auth.GetWssdConfigLocation(), 0600); err != nil {
-		logger.Error(err, "Failed to set file permissions")
 		return &accessFile, err
 	}
 	UpdateLoginConfig(loginconfig)
 	if enableRenewRoutine {
-		logger.Info("Starting renew routine")
 		once.Do(func() {
 			go renewRoutine(ctx, group, c.cloudFQDN, logger)
 		})
 	}
-	logger.Info("LoginWithConfig completed successfully")
 	return &accessFile, nil
 }
 
