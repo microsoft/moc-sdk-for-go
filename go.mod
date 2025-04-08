@@ -10,7 +10,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.25.6
+	github.com/microsoft/moc v0.28.4
 	google.golang.org/grpc v1.62.1
 	k8s.io/klog v1.0.0
 )
@@ -22,6 +22,7 @@ require (
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hectane/go-acl v0.0.0-20230122075934-ca0b05cb1adb // indirect
@@ -71,5 +72,3 @@ replace (
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
 )
-
-replace github.com/microsoft/moc => github.com/microsoft/moc v0.31.0-test.0.20250404203507-0dbcc9fc29d4
