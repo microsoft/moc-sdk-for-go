@@ -164,10 +164,25 @@ func ParseAndValidateImportParams(keyValue *string, importKey *wssdcloudsecurity
 		return err
 	}
 
-	if parsedImportParams.PrivateKeyWrappingInfo.KeyName == nil {
-		return errors.Wrapf(errors.InvalidInput, "Wrapping key name - Missing")
+	wrappingKeyName := ""
+
+	switch keyWrappingAlgo {
+	case wssdcloudcommon.KeyWrappingAlgorithm_CKM_RSA_AES_KEY_WRAP:
+		fallthrough
+	case wssdcloudcommon.KeyWrappingAlgorithm_RSA_AES_KEY_WRAP_256:
+		fallthrough
+	case wssdcloudcommon.KeyWrappingAlgorithm_RSA_AES_KEY_WRAP_384:
+		// wrapping key is required in all above cases
+		if parsedImportParams.PrivateKeyWrappingInfo.KeyName == nil {
+			return errors.Wrapf(errors.InvalidInput, "Wrapping key name - Missing")
+		}
+		wrappingKeyName = *parsedImportParams.PrivateKeyWrappingInfo.KeyName
+	case wssdcloudcommon.KeyWrappingAlgorithm_NO_KEY_WRAP:
+	default:
+		err = errors.Wrapf(errors.InvalidInput, "Invalid key wrapping algorithm")
+		return
+
 	}
-	wrappingKeyName := *parsedImportParams.PrivateKeyWrappingInfo.KeyName
 
 	importKey.PrivateKeyWrappingInfo = &wssdcloudsecurity.PrivateKeyWrappingInfo{
 		WrappingKeyName:   wrappingKeyName,
