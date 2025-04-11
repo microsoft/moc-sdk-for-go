@@ -419,3 +419,37 @@ func (c *client) virtualMachineValidations(opType wssdcloudproto.Operation, vmss
 	}
 	return nil
 }
+
+func (c *client) GetHyperVVmId(ctx context.Context, group, name string) (*compute.VirtualMachineHyperVVmId, error) {
+	vm, err := c.get(ctx, group, name)
+	if err != nil {
+		return nil, err
+	}
+
+	mocResponse, err := c.VirtualMachineAgentClient.GetHyperVVmId(ctx, vm[0])
+	if err != nil {
+		return nil, err
+	}
+	response := &compute.VirtualMachineHyperVVmId{
+		HyperVVmId: &mocResponse.HyperVVmId,
+	}
+
+	return response, nil
+}
+
+func (c *client) GetHostNodeName(ctx context.Context, group, name string) (*compute.VirtualMachineHostNodeName, error) {
+	vm, err := c.get(ctx, group, name)
+	if err != nil {
+		return nil, err
+	}
+
+	mocResponse, err := c.VirtualMachineAgentClient.GetHostNodeName(ctx, vm[0])
+	if err != nil {
+		return nil, err
+	}
+	response := &compute.VirtualMachineHostNodeName{
+		HostNodeName: &mocResponse.HostNodeName,
+	}
+
+	return response, nil
+}

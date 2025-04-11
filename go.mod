@@ -109,4 +109,5 @@ replace (
 	golang.org/x/image => golang.org/x/image v0.19.0
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
+	github.com/microsoft/moc => github.com/hvedati/moc v0.11.1-alpha
 )
