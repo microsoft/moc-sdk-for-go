@@ -821,6 +821,8 @@ type SecurityRule struct {
 	Etag *string `json:"etag,omitempty"`
 	// ID - Resource ID.
 	ID *string `json:"id,omitempty"`
+	// Tags - Resource tags.
+	Tags map[string]*string `json:"tags"`
 }
 
 // SecurityGroupPropertiesFormat network Security Group resource.
