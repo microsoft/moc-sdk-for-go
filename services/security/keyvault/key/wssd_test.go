@@ -12,23 +12,23 @@ import (
 	"google.golang.org/grpc"
 )
 
-type testKeyAgentClient struct {
+type KeyAgentClientMock struct {
 }
 
-func (s *testKeyAgentClient) Invoke(ctx context.Context, in *wssdcloudsecurity.KeyRequest, opts ...grpc.CallOption) (*wssdcloudsecurity.KeyResponse, error) {
+func (s *KeyAgentClientMock) Invoke(ctx context.Context, in *wssdcloudsecurity.KeyRequest, opts ...grpc.CallOption) (*wssdcloudsecurity.KeyResponse, error) {
 	out := new(wssdcloudsecurity.KeyResponse)
 	out.Keys = in.Keys
 	return out, nil
 }
 
-func (s *testKeyAgentClient) Operate(ctx context.Context, in *wssdcloudsecurity.KeyOperationRequest, opts ...grpc.CallOption) (*wssdcloudsecurity.KeyOperationResponse, error) {
+func (s *KeyAgentClientMock) Operate(ctx context.Context, in *wssdcloudsecurity.KeyOperationRequest, opts ...grpc.CallOption) (*wssdcloudsecurity.KeyOperationResponse, error) {
 	out := new(wssdcloudsecurity.KeyOperationResponse)
 	return out, nil
 }
 
 func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
-	testKeyAgentClient := &testKeyAgentClient{}
-	mockClient := &client{testKeyAgentClient}
+	KeyAgentClientMock := &KeyAgentClientMock{}
+	mockClient := &client{KeyAgentClientMock}
 	pointerToEmptyString := new(string)
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
 		Algorithm: keyvault.A256KW,
@@ -59,8 +59,8 @@ func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
 }
 
 func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
-	testKeyAgentClient := &testKeyAgentClient{}
-	mockClient := &client{testKeyAgentClient}
+	KeyAgentClientMock := &KeyAgentClientMock{}
+	mockClient := &client{KeyAgentClientMock}
 	pointerToEmptyString := new(string)
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
 		Algorithm: keyvault.A256KW,
@@ -91,8 +91,8 @@ func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
 }
 
 func TestGetKeyOperationRequestRotate_keyID_Exists(t *testing.T) {
-	testKeyAgentClient := &testKeyAgentClient{}
-	mockClient := &client{testKeyAgentClient}
+	KeyAgentClientMock := &KeyAgentClientMock{}
+	mockClient := &client{KeyAgentClientMock}
 	testRequest, err := mockClient.getKeyOperationRequestRotate(context.Background(), "groupName", "vaultName", "name", "keyID", wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequestRotate call", err)
 	correctRequest := wssdcloudsecurity.KeyOperationRequest{
@@ -114,8 +114,8 @@ func TestGetKeyOperationRequestRotate_keyID_Exists(t *testing.T) {
 }
 
 func TestGetKeyOperationRequestRotate_keyID_Not_Exists(t *testing.T) {
-	testKeyAgentClient := &testKeyAgentClient{}
-	mockClient := &client{testKeyAgentClient}
+	KeyAgentClientMock := &KeyAgentClientMock{}
+	mockClient := &client{KeyAgentClientMock}
 	testRequest, err := mockClient.getKeyOperationRequestRotate(context.Background(), "groupName", "vaultName", "name", "", wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequestRotate call", err)
 	correctRequest := wssdcloudsecurity.KeyOperationRequest{
