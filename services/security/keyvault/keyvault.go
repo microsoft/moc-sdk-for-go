@@ -100,8 +100,8 @@ type KeyProperties struct {
 // KeyOperationResult the key operation result.
 type KeyOperationResult struct {
 	autorest.Response `json:"-"`
-	// KeyVersion - READ-ONLY; Key identifier
-	KeyVersion *string `json:"kid,omitempty"`
+	// KeyVersion - READ-ONLY; Key version identifier
+	KeyVersion *string `json:"keyVersion,omitempty"`
 	// Result - READ-ONLY; a URL-encoded base64 string
 	Result *string `json:"value,omitempty"`
 }
