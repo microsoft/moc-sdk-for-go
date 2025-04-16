@@ -8,6 +8,7 @@ import (
 
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/date"
+	"github.com/golang/protobuf/ptypes/duration"
 
 	"github.com/microsoft/moc-sdk-for-go/services/security"
 	"github.com/microsoft/moc/pkg/errors"
@@ -99,8 +100,8 @@ type KeyProperties struct {
 // KeyOperationResult the key operation result.
 type KeyOperationResult struct {
 	autorest.Response `json:"-"`
-	// Kid - READ-ONLY; Key identifier
-	Kid *string `json:"kid,omitempty"`
+	// KeyVersion - READ-ONLY; Key version identifier
+	KeyVersion *string `json:"keyVersion,omitempty"`
 	// Result - READ-ONLY; a URL-encoded base64 string
 	Result *string `json:"value,omitempty"`
 }
@@ -192,6 +193,10 @@ type Key struct {
 	Name *string `json:"name,omitempty"`
 	// Type - READ-ONLY; The resource type of the key vault.
 	Type *string `json:"type,omitempty"`
+	// CreationTime
+	Age *duration.Duration `json:"age,omitempty"`
+	// KeyVersion
+	KeyVersion *string `json:"keyVersion,omitempty"`
 	// Version
 	Version *string `json:"version,omitempty"`
 	// Location - The supported Azure location where the key vault should be created.

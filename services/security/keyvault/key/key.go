@@ -22,9 +22,11 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string, getCustomValue func(*w
 	}
 
 	key := keyvault.Key{
-		ID:      &sec.Id,
-		Name:    &sec.Name,
-		Version: &sec.Status.Version.Number,
+		ID:         &sec.Id,
+		Name:       &sec.Name,
+		Version:    &sec.Status.Version.Number,
+		Age:        sec.KeyAge,
+		KeyVersion: &sec.KeyVersion,
 		KeyProperties: &keyvault.KeyProperties{
 			Statuses:                      status.GetStatuses(sec.GetStatus()),
 			KeyType:                       getKeyType(sec.Type),
@@ -65,18 +67,19 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string, getCustomValue func(*w
 	return key, nil
 }
 
+// keyID optional in getWssdKeyByVaultName function
 func getWssdKeyByVaultName(name string, groupName,
-	vaultName string, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Key, error) {
+	vaultName, keyID string, opType wssdcloudcommon.Operation) (*wssdcloudsecurity.Key, error) {
 	key := &wssdcloudsecurity.Key{
-		Name:      name,
-		VaultName: vaultName,
-		GroupName: groupName,
-		Type:      wssdcloudcommon.JsonWebKeyType_EC,
-		Size:      wssdcloudcommon.KeySize_K_UNKNOWN,
-		KeyOps:    []wssdcloudcommon.KeyOperation{},
-		Status:    status.InitStatus(),
+		Name:       name,
+		VaultName:  vaultName,
+		GroupName:  groupName,
+		Type:       wssdcloudcommon.JsonWebKeyType_EC,
+		Size:       wssdcloudcommon.KeySize_K_UNKNOWN,
+		KeyOps:     []wssdcloudcommon.KeyOperation{},
+		Status:     status.InitStatus(),
+		KeyVersion: keyID,
 	}
-
 	// No Update support
 	return key, nil
 }
