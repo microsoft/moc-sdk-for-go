@@ -30,6 +30,8 @@ type Service interface {
 	Validate(context.Context, string, string) error
 	Precheck(context.Context, string, []*compute.VirtualMachine) (bool, error)
 	RemoveIsoDisk(context.Context, string, string) error
+	GetHyperVVmId(context.Context, string, string) (*compute.VirtualMachineHyperVVmId, error)
+	GetHostNodeName(context.Context, string, string) (*compute.VirtualMachineHostNodeName, error)
 }
 
 type VirtualMachineClient struct {
@@ -395,4 +397,12 @@ func (c *VirtualMachineClient) Validate(ctx context.Context, group, name string)
 // Returns true with virtual machine placement in mapping from virtual machine names to node names; or false with reason in error message.
 func (c *VirtualMachineClient) Precheck(ctx context.Context, group string, vms []*compute.VirtualMachine) (bool, error) {
 	return c.internal.Precheck(ctx, group, vms)
+}
+
+func (c *VirtualMachineClient) GetHyperVVmId(ctx context.Context, group string, name string) (*compute.VirtualMachineHyperVVmId, error) {
+	return c.internal.GetHyperVVmId(ctx, group, name)
+}
+
+func (c *VirtualMachineClient) GetHostNodeName(ctx context.Context, group string, name string) (*compute.VirtualMachineHostNodeName, error) {
+	return c.internal.GetHostNodeName(ctx, group, name)
 }
