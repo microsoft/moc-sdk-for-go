@@ -21,6 +21,7 @@ type Service interface {
 	Snapshot(context.Context, string, string, string) (backupVhdName string, err error)
 	CreateOrUpdate(context.Context, string, string, string, *storage.VirtualHardDisk, string, common.ImageSource) (*storage.VirtualHardDisk, error)
 	Delete(context.Context, string, string, string) error
+	DeleteSnapshot(context.Context, string, string, string) error
 	Precheck(context.Context, string, string, []*storage.VirtualHardDisk) (bool, error)
 	Upload(context.Context, string, string, *storage.VirtualHardDisk, string) error
 }
@@ -71,6 +72,11 @@ func (c *VirtualHardDiskClient) Snapshot(ctx context.Context, group, container, 
 // Delete methods invokes delete of the storage resource
 func (c *VirtualHardDiskClient) Delete(ctx context.Context, group, container, name string) error {
 	return c.internal.Delete(ctx, group, container, name)
+}
+
+// Delete methods invokes delete of the storage resource
+func (c *VirtualHardDiskClient) DeleteSnapshot(ctx context.Context, group, container, name string) error {
+	return c.internal.DeleteSnapshot(ctx, group, container, name)
 }
 
 // Resize methods invokes Update to change size of the storage resource
