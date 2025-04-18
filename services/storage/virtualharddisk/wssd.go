@@ -109,6 +109,21 @@ func (c *client) Snapshot(ctx context.Context, group, container, name string) (b
 	return (vhds[0]).Name, nil
 }
 
+// The snapshot call takes the group name, container name and the name of the disk file. The group is standard input for every call.
+func (c *client) DeleteSnapshot(ctx context.Context, group, container, backupVhdName string) (err error) {
+
+	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_DELETESNAPSHOT, group, container, backupVhdName, nil, "", common.ImageSource_LOCAL_SOURCE)
+	if err != nil {
+		return err
+	}
+	_, err = c.VirtualHardDiskAgentClient.Invoke(ctx, request)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, container, name string) error {
 	vhd, err := c.Get(ctx, group, container, name)
