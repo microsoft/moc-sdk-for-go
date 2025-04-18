@@ -60,11 +60,11 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	golang.org/x/crypto v0.28.0 // indirect
+	golang.org/x/crypto v0.37.0 // indirect
 	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
-	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/term v0.31.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
@@ -105,7 +105,7 @@ replace (
 	github.com/hashicorp/go-retryablehttp => github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
-	golang.org/x/crypto => golang.org/x/crypto v0.32.0
+	golang.org/x/crypto => golang.org/x/crypto v0.37.0
 	golang.org/x/image => golang.org/x/image v0.19.0
 	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
