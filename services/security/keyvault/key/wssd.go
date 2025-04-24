@@ -44,9 +44,9 @@ func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]key
 	return getKeysFromResponse(response, vaultName, nil)
 }
 
-// keyID optional in get function
-func (c *client) get(ctx context.Context, group, vaultName, name, keyID string) ([]*wssdcloudsecurity.Key, error) {
-	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name, keyID)
+// keyVersion optional in get function
+func (c *client) get(ctx context.Context, group, vaultName, name, keyVersion string) ([]*wssdcloudsecurity.Key, error) {
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name, keyVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -439,13 +439,13 @@ func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName stri
 	return &tmp, nil
 }
 
-// keyID optional in getKeyRequestByVaultName
-func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name, keyID string) (*wssdcloudsecurity.KeyRequest, error) {
+// KeyVersion optional in getKeyRequestByVaultName
+func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name, keyVersion string) (*wssdcloudsecurity.KeyRequest, error) {
 	request := &wssdcloudsecurity.KeyRequest{
 		OperationType: opType,
 		Keys:          []*wssdcloudsecurity.Key{},
 	}
-	key, err := getWssdKeyByVaultName(name, groupName, vaultName, keyID, opType)
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, keyVersion, opType)
 	if err != nil {
 		return nil, err
 	}
@@ -482,7 +482,6 @@ func getKeyVerifyResultFromResponse(response *wssdcloudsecurity.KeyOperationResp
 	return result, nil
 }
 
-// keyID optional in getKeyOperationRequest function
 func (c *client) getKeyOperationRequest(ctx context.Context,
 	groupName, vaultName, name string,
 	param *keyvault.KeyOperationsParameters,
@@ -508,7 +507,7 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		Algorithm:     algo,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name, param.KeyID)
+	key, err := c.get(ctx, groupName, vaultName, name, param.KeyVersion)
 	if err != nil {
 		return nil, err
 	}

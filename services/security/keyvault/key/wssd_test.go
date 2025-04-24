@@ -68,7 +68,7 @@ func (c *CustomClient) getKeyOperationRequest(ctx context.Context,
 	}
 
 	// Call your overridden get method explicitly
-	key, err := c.get(ctx, groupName, vaultName, name, param.KeyID)
+	key, err := c.get(ctx, groupName, vaultName, name, param.KeyVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -102,14 +102,14 @@ func (c *CustomClient) getKeyOperationRequestRotate(ctx context.Context,
 	return request, nil
 }
 
-func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
+func TestGetKeyOperationRequest_KeyVersion_Exists(t *testing.T) {
 	KeyAgentClientMock := &KeyAgentClientMock{}
 	mockClient := &client{KeyAgentClientMock}
 	pointerToEmptyString := new(string)
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
-		Algorithm: keyvault.A256KW,
-		Value:     pointerToEmptyString,
-		KeyID:     "keyID",
+		Algorithm:  keyvault.A256KW,
+		Value:      pointerToEmptyString,
+		KeyVersion: "KeyVersion",
 	}
 	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequest call", err)
@@ -127,7 +127,7 @@ func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
 			Size:       wssdcloudcommon.KeySize_K_UNKNOWN,
 			KeyOps:     []wssdcloudcommon.KeyOperation{},
 			Status:     status.InitStatus(),
-			KeyVersion: "keyID",
+			KeyVersion: "KeyVersion",
 		},
 	}
 	correctRequest.Key.Status.Version = nil
@@ -135,14 +135,14 @@ func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
 	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
 }
 
-func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
+func TestGetKeyOperationRequest_KeyVersion_Not_Exists(t *testing.T) {
 	KeyAgentClientMock := &KeyAgentClientMock{}
 	mockClient := &client{KeyAgentClientMock}
 	pointerToEmptyString := new(string)
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
-		Algorithm: keyvault.A256KW,
-		Value:     pointerToEmptyString,
-		KeyID:     "",
+		Algorithm:  keyvault.A256KW,
+		Value:      pointerToEmptyString,
+		KeyVersion: "",
 	}
 	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequest call", err)
@@ -198,9 +198,9 @@ func TestGetKeyOperationRequest_KeyNotFoundScenario(t *testing.T) {
 
 	pointerToEmptyString := new(string)
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
-		Algorithm: keyvault.A256KW,
-		Value:     pointerToEmptyString,
-		KeyID:     "",
+		Algorithm:  keyvault.A256KW,
+		Value:      pointerToEmptyString,
+		KeyVersion: "",
 	}
 
 	_, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)

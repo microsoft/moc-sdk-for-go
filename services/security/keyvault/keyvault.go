@@ -124,8 +124,8 @@ const (
 
 // KeyOperationsParameters the key operations parameters.
 type KeyOperationsParameters struct {
-	// KeyID - The key identifier
-	KeyID string `json:"keyId,omitempty"`
+	// KeyVersion - The key identifier
+	KeyVersion string `json:"keyVersion,omitempty"`
 	// Algorithm - algorithm identifier. Possible values include: 'RSAOAEP', 'RSAOAEP256', 'RSA15', 'A256KW', "A256CBC"
 	Algorithm JSONWebKeyEncryptionAlgorithm `json:"alg,omitempty"`
 	// Value - a URL-encoded base64 string
