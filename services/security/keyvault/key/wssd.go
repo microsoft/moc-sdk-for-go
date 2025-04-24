@@ -321,7 +321,7 @@ func (c *client) Encrypt(ctx context.Context, group, vaultName, name string, par
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, "", param, wssdcloudcommon.ProviderAccessOperation_Key_Encrypt)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Encrypt)
 	if err != nil {
 		return
 	}
@@ -338,7 +338,7 @@ func (c *client) Decrypt(ctx context.Context, group, vaultName, name string, par
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, "", param, wssdcloudcommon.ProviderAccessOperation_Key_Decrypt)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Decrypt)
 	if err != nil {
 		return
 	}
@@ -355,7 +355,7 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, "", param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_WrapKey)
 	if err != nil {
 		return
 	}
@@ -367,12 +367,12 @@ func (c *client) WrapKey(ctx context.Context, group, vaultName, name string, par
 	return
 }
 
-func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name, keyID string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
+func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, param *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
 	err = c.isSupportedWrapAlgorithm(param.Algorithm)
 	if err != nil {
 		return
 	}
-	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, keyID, param, wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey)
+	request, err := c.getKeyOperationRequest(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_UnwrapKey)
 	if err != nil {
 		return
 	}
@@ -384,8 +384,8 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name, keyID st
 	return
 }
 
-func (c *client) RotateKey(ctx context.Context, group, vaultName, name, keyID string) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequestRotate(ctx, group, vaultName, name, keyID, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
+func (c *client) RotateKey(ctx context.Context, group, vaultName, name string) (result *keyvault.KeyOperationResult, err error) {
+	request, err := c.getKeyOperationRequestRotate(ctx, group, vaultName, name, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
 	if err != nil {
 		return
 	}
@@ -484,7 +484,7 @@ func getKeyVerifyResultFromResponse(response *wssdcloudsecurity.KeyOperationResp
 
 // keyID optional in getKeyOperationRequest function
 func (c *client) getKeyOperationRequest(ctx context.Context,
-	groupName, vaultName, name, keyID string,
+	groupName, vaultName, name string,
 	param *keyvault.KeyOperationsParameters,
 	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
@@ -508,7 +508,7 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		Algorithm:     algo,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name, keyID)
+	key, err := c.get(ctx, groupName, vaultName, name, param.KeyID)
 	if err != nil {
 		return nil, err
 	}
@@ -522,14 +522,14 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 }
 
 func (c *client) getKeyOperationRequestRotate(ctx context.Context,
-	groupName, vaultName, name, keyID string,
+	groupName, vaultName, name string,
 	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 	request := &wssdcloudsecurity.KeyOperationRequest{
 		OperationType: opType,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name, keyID)
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}

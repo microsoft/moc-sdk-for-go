@@ -124,6 +124,8 @@ const (
 
 // KeyOperationsParameters the key operations parameters.
 type KeyOperationsParameters struct {
+	// KeyID - The key identifier
+	KeyID string `json:"keyId,omitempty"`
 	// Algorithm - algorithm identifier. Possible values include: 'RSAOAEP', 'RSAOAEP256', 'RSA15', 'A256KW', "A256CBC"
 	Algorithm JSONWebKeyEncryptionAlgorithm `json:"alg,omitempty"`
 	// Value - a URL-encoded base64 string
@@ -194,7 +196,7 @@ type Key struct {
 	// Type - READ-ONLY; The resource type of the key vault.
 	Type *string `json:"type,omitempty"`
 	// CreationTime
-	Age *duration.Duration `json:"age,omitempty"`
+	KeyAge *duration.Duration `json:"keyAge,omitempty"`
 	// KeyVersion
 	KeyVersion *string `json:"keyVersion,omitempty"`
 	// Version

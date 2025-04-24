@@ -43,7 +43,7 @@ func (c *CustomClient) get(_ context.Context, _, _, _, _ string) ([]*wssdcloudse
 
 // Add this method to your CustomClient struct
 func (c *CustomClient) getKeyOperationRequest(ctx context.Context,
-	groupName, vaultName, name, keyID string,
+	groupName, vaultName, name string,
 	param *keyvault.KeyOperationsParameters,
 	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
@@ -68,7 +68,28 @@ func (c *CustomClient) getKeyOperationRequest(ctx context.Context,
 	}
 
 	// Call your overridden get method explicitly
-	key, err := c.get(ctx, groupName, vaultName, name, keyID)
+	key, err := c.get(ctx, groupName, vaultName, name, param.KeyID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(key) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
+	}
+
+	request.Key = key[0]
+	return request, nil
+}
+
+func (c *CustomClient) getKeyOperationRequestRotate(ctx context.Context,
+	groupName, vaultName, name string,
+	opType wssdcloudcommon.ProviderAccessOperation,
+) (*wssdcloudsecurity.KeyOperationRequest, error) {
+	request := &wssdcloudsecurity.KeyOperationRequest{
+		OperationType: opType,
+	}
+
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +109,9 @@ func TestGetKeyOperationRequest_keyID_Exists(t *testing.T) {
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
 		Algorithm: keyvault.A256KW,
 		Value:     pointerToEmptyString,
+		KeyID:     "keyID",
 	}
-	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", "keyID", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
+	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequest call", err)
 	algo, err := getMOCAlgorithm(testKeyOperationsParameters.Algorithm)
 	assert.NoErrorf(t, err, "Failed to make getMOCAlgorithm call", err)
@@ -120,8 +142,9 @@ func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
 		Algorithm: keyvault.A256KW,
 		Value:     pointerToEmptyString,
+		KeyID:     "",
 	}
-	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", "", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
+	testRequest, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequest call", err)
 	algo, err := getMOCAlgorithm(testKeyOperationsParameters.Algorithm)
 	assert.NoErrorf(t, err, "Failed to make getMOCAlgorithm call", err)
@@ -145,36 +168,13 @@ func TestGetKeyOperationRequest_keyID_Not_Exists(t *testing.T) {
 	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
 }
 
-func TestGetKeyOperationRequestRotate_keyID_Exists(t *testing.T) {
+func TestGetKeyOperationRequestRotate(t *testing.T) {
 	KeyAgentClientMock := &KeyAgentClientMock{}
 	mockClient := &client{KeyAgentClientMock}
-	testRequest, err := mockClient.getKeyOperationRequestRotate(context.Background(), "groupName", "vaultName", "name", "keyID", wssdcloudcommon.ProviderAccessOperation_Unspecified)
+	testRequest, err := mockClient.getKeyOperationRequestRotate(context.Background(), "groupName", "vaultName", "name", wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
 	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequestRotate call", err)
 	correctRequest := wssdcloudsecurity.KeyOperationRequest{
-		OperationType: wssdcloudcommon.ProviderAccessOperation_Unspecified,
-		Key: &wssdcloudsecurity.Key{
-			Name:       "name",
-			VaultName:  "vaultName",
-			GroupName:  "groupName",
-			Type:       wssdcloudcommon.JsonWebKeyType_EC,
-			Size:       wssdcloudcommon.KeySize_K_UNKNOWN,
-			KeyOps:     []wssdcloudcommon.KeyOperation{},
-			Status:     status.InitStatus(),
-			KeyVersion: "keyID",
-		},
-	}
-	correctRequest.Key.Status.Version = nil
-	testRequest.Key.Status.Version = nil
-	assert.Equal(t, correctRequest, *testRequest, "The testRequest and correctRequest are not equal")
-}
-
-func TestGetKeyOperationRequestRotate_keyID_Not_Exists(t *testing.T) {
-	KeyAgentClientMock := &KeyAgentClientMock{}
-	mockClient := &client{KeyAgentClientMock}
-	testRequest, err := mockClient.getKeyOperationRequestRotate(context.Background(), "groupName", "vaultName", "name", "", wssdcloudcommon.ProviderAccessOperation_Unspecified)
-	assert.NoErrorf(t, err, "Failed to make getKeyOperationRequestRotate call", err)
-	correctRequest := wssdcloudsecurity.KeyOperationRequest{
-		OperationType: wssdcloudcommon.ProviderAccessOperation_Unspecified,
+		OperationType: wssdcloudcommon.ProviderAccessOperation_Key_Rotate,
 		Key: &wssdcloudsecurity.Key{
 			Name:       "name",
 			VaultName:  "vaultName",
@@ -200,9 +200,21 @@ func TestGetKeyOperationRequest_KeyNotFoundScenario(t *testing.T) {
 	testKeyOperationsParameters := &keyvault.KeyOperationsParameters{
 		Algorithm: keyvault.A256KW,
 		Value:     pointerToEmptyString,
+		KeyID:     "",
 	}
 
-	_, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", "", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
+	_, err := mockClient.getKeyOperationRequest(context.Background(), "groupName", "vaultName", "name", testKeyOperationsParameters, wssdcloudcommon.ProviderAccessOperation_Unspecified)
+
+	assert.Error(t, err, "Expected error when key is not found")
+	assert.True(t, stdErrors.Is(err, errors.NotFound), "Expected NotFound error when key is not found")
+	assert.Contains(t, err.Error(), "Key[name] Vault[vaultName]", "Error message should indicate missing key and vault")
+}
+
+func TestGetKeyOperationRequestRotate_KeyNotFoundScenario(t *testing.T) {
+	mockClient := &CustomClient{
+		client: &client{KeyAgentClient: &KeyAgentClientMock{}},
+	}
+	_, err := mockClient.getKeyOperationRequestRotate(context.Background(), "groupName", "vaultName", "name", wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
 
 	assert.Error(t, err, "Expected error when key is not found")
 	assert.True(t, stdErrors.Is(err, errors.NotFound), "Expected NotFound error when key is not found")

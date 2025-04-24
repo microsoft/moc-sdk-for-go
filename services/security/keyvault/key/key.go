@@ -25,7 +25,7 @@ func getKey(sec *wssdcloudsecurity.Key, vaultName string, getCustomValue func(*w
 		ID:         &sec.Id,
 		Name:       &sec.Name,
 		Version:    &sec.Status.Version.Number,
-		Age:        sec.KeyAge,
+		KeyAge:     sec.KeyAge,
 		KeyVersion: &sec.KeyVersion,
 		KeyProperties: &keyvault.KeyProperties{
 			Statuses:                      status.GetStatuses(sec.GetStatus()),
