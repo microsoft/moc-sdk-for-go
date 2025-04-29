@@ -20,6 +20,7 @@ type Service interface {
 	CreateOrUpdate(context.Context, string, string, *compute.VirtualMachine) (*compute.VirtualMachine, error)
 	Hydrate(context.Context, string, string, *compute.VirtualMachine) (*compute.VirtualMachine, error)
 	Delete(context.Context, string, string) error
+	DeleteWithForce(context.Context, string, string, bool) error
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
@@ -69,6 +70,11 @@ func (c *VirtualMachineClient) Hydrate(ctx context.Context, group, name string, 
 // Delete methods invokes delete of the compute resource
 func (c *VirtualMachineClient) Delete(ctx context.Context, group string, name string) error {
 	return c.internal.Delete(ctx, group, name)
+}
+
+// DeleteWithForce methods invokes delete with a force flag
+func (c *VirtualMachineClient) DeleteWithForce(ctx context.Context, group string, name string, force bool) error {
+	return c.internal.DeleteWithForce(ctx, group, name, force)
 }
 
 // Query method invokes the client Get method and uses the provided query to filter the returned results
