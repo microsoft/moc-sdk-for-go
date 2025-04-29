@@ -97,20 +97,11 @@ func (c *client) Hydrate(ctx context.Context, group, name string, sg *compute.Vi
 
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name string) error {
-	vm, err := c.Get(ctx, group, name)
-	if err != nil {
-		return err
-	}
-	if len(*vm) == 0 {
-		return fmt.Errorf("Virtual Machine [%s] not found", name)
-	}
-
-	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DELETE, group, name, &(*vm)[0])
+	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_DELETE, group, name, nil)
 	if err != nil {
 		return err
 	}
 	_, err = c.VirtualMachineAgentClient.Invoke(ctx, request)
-
 	return err
 }
 
