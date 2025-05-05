@@ -33,7 +33,7 @@ func newKeyClient(subID string, authorizer auth.Authorizer) (*client, error) {
 
 // Get
 func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]keyvault.Key, error) {
-	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name)
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +44,9 @@ func (c *client) Get(ctx context.Context, group, vaultName, name string) (*[]key
 	return getKeysFromResponse(response, vaultName, nil)
 }
 
-// get
-func (c *client) get(ctx context.Context, group, vaultName, name string) ([]*wssdcloudsecurity.Key, error) {
-	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name)
+// keyVersion optional in get function
+func (c *client) get(ctx context.Context, group, vaultName, name, keyVersion string) ([]*wssdcloudsecurity.Key, error) {
+	request, err := getKeyRequestByVaultName(wssdcloudcommon.Operation_GET, group, vaultName, name, keyVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -384,6 +384,20 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, p
 	return
 }
 
+func (c *client) RotateKey(ctx context.Context, group, vaultName, name string) (result *keyvault.KeyOperationResult, err error) {
+	request, err := c.getKeyOperationRequestRotate(ctx, group, vaultName, name, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
+	if err != nil {
+		return
+	}
+
+	response, err := c.KeyAgentClient.Operate(ctx, request)
+	if err != nil {
+		return
+	}
+	result, err = getDataFromResponse(response)
+	return
+}
+
 func (c *client) Sign(ctx context.Context, group, vaultName, name string, param *keyvault.KeySignParameters) (result *keyvault.KeyOperationResult, err error) {
 	request, err := c.getKeyOperationRequestSigning(ctx, group, vaultName, name, param, wssdcloudcommon.ProviderAccessOperation_Key_Sign)
 	if err != nil {
@@ -425,12 +439,13 @@ func getKeysFromResponse(response *wssdcloudsecurity.KeyResponse, vaultName stri
 	return &tmp, nil
 }
 
-func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name string) (*wssdcloudsecurity.KeyRequest, error) {
+// KeyVersion optional in getKeyRequestByVaultName
+func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vaultName, name, keyVersion string) (*wssdcloudsecurity.KeyRequest, error) {
 	request := &wssdcloudsecurity.KeyRequest{
 		OperationType: opType,
 		Keys:          []*wssdcloudsecurity.Key{},
 	}
-	key, err := getWssdKeyByVaultName(name, groupName, vaultName, opType)
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, keyVersion, opType)
 	if err != nil {
 		return nil, err
 	}
@@ -453,7 +468,8 @@ func getKeyRequest(opType wssdcloudcommon.Operation, groupName, vaultName, name 
 
 func getDataFromResponse(response *wssdcloudsecurity.KeyOperationResponse) (result *keyvault.KeyOperationResult, err error) {
 	result = &keyvault.KeyOperationResult{
-		Result: &response.Data,
+		Result:     &response.Data,
+		KeyVersion: &response.KeyVersion,
 	}
 	return result, nil
 }
@@ -491,7 +507,28 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		Algorithm:     algo,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name)
+	key, err := c.get(ctx, groupName, vaultName, name, param.KeyVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(key) == 0 {
+		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
+	}
+
+	request.Key = key[0]
+	return request, nil
+}
+
+func (c *client) getKeyOperationRequestRotate(ctx context.Context,
+	groupName, vaultName, name string,
+	opType wssdcloudcommon.ProviderAccessOperation,
+) (*wssdcloudsecurity.KeyOperationRequest, error) {
+	request := &wssdcloudsecurity.KeyOperationRequest{
+		OperationType: opType,
+	}
+
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -533,7 +570,7 @@ func (c *client) getKeyOperationRequestSigning(ctx context.Context,
 		SignVerifyParams: &signVerifyParam,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name)
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
@@ -580,7 +617,7 @@ func (c *client) getKeyOperationRequestVerify(ctx context.Context,
 		SignVerifyParams: &signVerifyParam,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name)
+	key, err := c.get(ctx, groupName, vaultName, name, "")
 	if err != nil {
 		return nil, err
 	}
