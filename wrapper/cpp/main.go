@@ -208,6 +208,7 @@ func KeyvaultKeyEncryptDataCV(serverName *C.char, groupName *C.char, keyvaultNam
 	parameters := &keyvault.KeyOperationsParameters{
 		Value:     &value,
 		Algorithm: keyvault.A256CBC,
+		KeyVersion: "",
 	}
 
 	response, err := keyClient.Encrypt(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), parameters)
@@ -266,6 +267,7 @@ func KeyvaultKeyEncryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 	parameters := &keyvault.KeyOperationsParameters{
 		Value:     &value,
 		Algorithm: alg,
+		KeyVersion: "",
 	}
 
 	response, err := keyClient.Encrypt(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), parameters)
@@ -305,6 +307,7 @@ func KeyvaultKeyDecryptDataCV(serverName *C.char, groupName *C.char, keyvaultNam
 	parameters := &keyvault.KeyOperationsParameters{
 		Value:     &value,
 		Algorithm: keyvault.A256CBC,
+		KeyVersion: "",
 	}
 
 	response, err := keyClient.Decrypt(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), parameters)
@@ -360,6 +363,7 @@ func KeyvaultKeyDecryptDataV2(serverName *C.char, groupName *C.char, keyvaultNam
 	parameters := &keyvault.KeyOperationsParameters{
 		Value:     &value,
 		Algorithm: alg,
+		KeyVersion: "",
 	}
 
 	response, err := keyClient.Decrypt(ctx, C.GoString(groupName), C.GoString(keyvaultName), C.GoString(keyName), parameters)
