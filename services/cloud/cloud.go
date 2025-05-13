@@ -53,6 +53,13 @@ type Group struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+type NodeAgentAuthenticationModeType string
+
+const (
+	NodeAgentCertificateAuth NodeAgentAuthenticationModeType = "certificate"
+	NodeAgentPopTokenAuth    NodeAgentAuthenticationModeType = "poptoken"
+)
+
 // NodeProperties the resource group properties.
 type NodeProperties struct {
 	// State - State
@@ -65,6 +72,8 @@ type NodeProperties struct {
 	AuthorizerPort *int32 `json:"authorizerPort,omitempty"`
 
 	Certificate *string `json:"certificate,omitempty"`
+
+	NodeAgentAuthenticationMode *NodeAgentAuthenticationModeType `json:"nodeagentauthenticationMode,omitempty"`
 }
 
 // Node resource group information.
