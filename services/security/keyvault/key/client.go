@@ -20,6 +20,7 @@ type Service interface {
 	Decrypt(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	WrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
 	UnwrapKey(context.Context, string, string, string, *keyvault.KeyOperationsParameters) (*keyvault.KeyOperationResult, error)
+	RotateKey(context.Context, string, string, string) (*keyvault.KeyOperationResult, error)
 	ImportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
 	ExportKey(context.Context, string, string, string, *keyvault.Key) (*keyvault.Key, error)
 	Sign(context.Context, string, string, string, *keyvault.KeySignParameters) (*keyvault.KeyOperationResult, error)
@@ -88,6 +89,11 @@ func (c *KeyClient) WrapKey(ctx context.Context, group, vaultName, name string, 
 // UnwrapKey
 func (c *KeyClient) UnwrapKey(ctx context.Context, group, vaultName, name string, parameters *keyvault.KeyOperationsParameters) (result *keyvault.KeyOperationResult, err error) {
 	return c.internal.UnwrapKey(ctx, group, vaultName, name, parameters)
+}
+
+// RotateKey
+func (c *KeyClient) RotateKey(ctx context.Context, group, vaultName, name string) (result *keyvault.KeyOperationResult, err error) {
+	return c.internal.RotateKey(ctx, group, vaultName, name)
 }
 
 // Sign
