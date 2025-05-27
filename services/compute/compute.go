@@ -1313,3 +1313,11 @@ type ZoneConfiguration struct {
 	// Strict Placement
 	StrictPlacement *bool `json:"strictPlacement,omitempty"`
 }
+
+type VirtualMachineHyperVVmId struct {
+	HyperVVmId *string `json:"hyperVVmId ,omitempty"`
+}
+
+type VirtualMachineHostNodeName struct {
+	HostNodeName *string `json:"hostNodeName ,omitempty"`
+}
