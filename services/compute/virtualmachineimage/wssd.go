@@ -62,7 +62,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return err
 	}
 	if len(*vhd) == 0 {
-		return fmt.Errorf("Virtual Network [%s] not found", name)
+		return fmt.Errorf("VirtualMachineImage [%s] not found", name)
 	}
 
 	request, err := getVirtualMachineImageRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vhd)[0])

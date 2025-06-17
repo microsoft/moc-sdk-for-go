@@ -67,7 +67,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return err
 	}
 	if len(*container) == 0 {
-		return fmt.Errorf("Virtual Network [%s] not found", name)
+		return fmt.Errorf("Container [%s] not found", name)
 	}
 
 	request, err := getContainerRequest(wssdcloudcommon.Operation_DELETE, location, name, &(*container)[0])
