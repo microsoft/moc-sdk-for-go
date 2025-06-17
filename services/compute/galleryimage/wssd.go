@@ -67,7 +67,7 @@ func (c *client) Delete(ctx context.Context, location, name string) error {
 		return err
 	}
 	if len(*galleryimage) == 0 {
-		return fmt.Errorf("Virtual Network [%s] not found", name)
+		return fmt.Errorf("Gallery image [%s] not found", name)
 	}
 
 	request, err := getGalleryImageRequest(wssdcloudcommon.Operation_DELETE, location, "", name, &(*galleryimage)[0])
