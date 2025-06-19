@@ -5,7 +5,6 @@ package networkinterface
 
 import (
 	"context"
-	"fmt"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc-sdk-for-go/services/network"
@@ -86,15 +85,7 @@ func (c *client) Hydrate(ctx context.Context, group, name string, networkInterfa
 
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name string) error {
-	vnetInterface, err := c.Get(ctx, group, name)
-	if err != nil {
-		return err
-	}
-	if len(*vnetInterface) == 0 {
-		return fmt.Errorf("Virtual Network Interface [%s] not found", name)
-	}
-
-	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnetInterface)[0])
+	request, err := c.getNetworkInterfaceRequest(wssdcloudcommon.Operation_DELETE, group, name, nil)
 	if err != nil {
 		return err
 	}
