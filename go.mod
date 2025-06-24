@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.28.7
+	github.com/microsoft/moc v0.30.4
 	google.golang.org/grpc v1.72.0
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.20.4
@@ -107,6 +107,6 @@ replace (
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
 	golang.org/x/crypto => golang.org/x/crypto v0.37.0
 	golang.org/x/image => golang.org/x/image v0.19.0
-	golang.org/x/net => golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c
+	golang.org/x/net => golang.org/x/net v0.17.0
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
 )
