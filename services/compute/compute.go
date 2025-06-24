@@ -1321,3 +1321,7 @@ type VirtualMachineHyperVVmId struct {
 type VirtualMachineHostNodeName struct {
 	HostNodeName *string `json:"hostNodeName ,omitempty"`
 }
+
+type VirtualMachineHostNodeIpAddress struct {
+	HostNodeIpAddress *string `json:"hostNodeIpAddress ,omitempty"`
+}

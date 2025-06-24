@@ -32,6 +32,7 @@ type Service interface {
 	RemoveIsoDisk(context.Context, string, string) error
 	GetHyperVVmId(context.Context, string, string) (*compute.VirtualMachineHyperVVmId, error)
 	GetHostNodeName(context.Context, string, string) (*compute.VirtualMachineHostNodeName, error)
+	GetHostNodeIpAddress(context.Context, string, string) (*compute.VirtualMachineHostNodeIpAddress, error)
 }
 
 type VirtualMachineClient struct {
@@ -405,4 +406,8 @@ func (c *VirtualMachineClient) GetHyperVVmId(ctx context.Context, group string, 
 
 func (c *VirtualMachineClient) GetHostNodeName(ctx context.Context, group string, name string) (*compute.VirtualMachineHostNodeName, error) {
 	return c.internal.GetHostNodeName(ctx, group, name)
+}
+
+func (c *VirtualMachineClient) GetHostNodeIpAddress(ctx context.Context, group string, name string) (*compute.VirtualMachineHostNodeIpAddress, error) {
+	return c.internal.GetHostNodeIpAddress(ctx, group, name)
 }

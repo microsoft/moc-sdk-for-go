@@ -101,8 +101,8 @@ github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T
 github.com/hectane/go-acl v0.0.0-20230122075934-ca0b05cb1adb h1:PGufWXXDq9yaev6xX1YQauaO1MV90e6Mpoq1I7Lz/VM=
 github.com/hectane/go-acl v0.0.0-20230122075934-ca0b05cb1adb/go.mod h1:QiyDdbZLaJ/mZP4Zwc9g2QsfaEA4o7XvvgZegSci5/E=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
-github.com/hvedati/moc v0.11.0-alpha.3 h1:j92P8dubAZWCDPqT9biL7uf8uJyMXXIeN5wJh7d1DKY=
-github.com/hvedati/moc v0.11.0-alpha.3/go.mod h1:ZZ4/WPkZCkm3I0UWRiO5P4uR9kpMG9/iGoiAs3K8Cjo=
+github.com/hvedati/moc v0.11.0-alpha.4 h1:SPE7BFZhu8Io+n/zYIRdruRsqV5t090kircGfanuM7w=
+github.com/hvedati/moc v0.11.0-alpha.4/go.mod h1:ZZ4/WPkZCkm3I0UWRiO5P4uR9kpMG9/iGoiAs3K8Cjo=
 github.com/jmespath/go-jmespath v0.4.0 h1:BEgLn5cpjn8UN1mAw4NjwDrS35OdebyEtFe+9YPoQUg=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGwWFoC7ycTf1rcQZHOlsJ6N8=

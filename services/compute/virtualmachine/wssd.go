@@ -444,3 +444,20 @@ func (c *client) GetHostNodeName(ctx context.Context, group, name string) (*comp
 
 	return response, nil
 }
+
+func (c *client) GetHostNodeIpAddress(ctx context.Context, group, name string) (*compute.VirtualMachineHostNodeIpAddress, error) {
+	vm, err := c.get(ctx, group, name)
+	if err != nil {
+		return nil, err
+	}
+
+	mocResponse, err := c.VirtualMachineAgentClient.GetHostNodeIpAddress(ctx, vm[0])
+	if err != nil {
+		return nil, err
+	}
+	response := &compute.VirtualMachineHostNodeIpAddress{
+		HostNodeIpAddress: &mocResponse.HostNodeIpAddress,
+	}
+
+	return response, nil
+}
