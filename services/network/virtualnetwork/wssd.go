@@ -102,15 +102,7 @@ func (c *client) CreateOrUpdateWithVersion(ctx context.Context, group, name stri
 
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name string) error {
-	vnet, err := c.Get(ctx, group, name)
-	if err != nil {
-		return err
-	}
-	if len(*vnet) == 0 {
-		return fmt.Errorf("Virtual Network [%s] not found", name)
-	}
-
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0], "")
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, nil, "")
 	if err != nil {
 		return err
 	}
@@ -121,15 +113,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 
 // Delete methods invokes create or update on the client
 func (c *client) DeleteWithVersion(ctx context.Context, group, name string, apiVersion string) error {
-	vnet, err := c.GetWithVersion(ctx, group, name, apiVersion)
-	if err != nil {
-		return err
-	}
-	if len(*vnet) == 0 {
-		return fmt.Errorf("virtual Network [%s] not found", name)
-	}
-
-	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*vnet)[0], apiVersion)
+	request, err := getVirtualNetworkRequest(wssdcloudcommon.Operation_DELETE, group, name, nil, apiVersion)
 	if err != nil {
 		return err
 	}
