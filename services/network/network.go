@@ -896,7 +896,7 @@ type PrivateEndpoint struct {
 // InterfacePropertiesFormat networkInterface properties.
 type InterfacePropertiesFormat struct {
 	// VirtualMachine - READ-ONLY; The reference of a virtual machine.
-	VirtualMachine *SubResource `json:"virtualMachine,omitempty"`
+	VirtualMachine *string `json:"virtualMachine,omitempty"`
 	// PrivateEndpoint - READ-ONLY; A reference to the private endpoint to which the network interface is linked.
 	PrivateEndpoint *PrivateEndpoint `json:"privateEndpoint,omitempty"`
 	// IPConfigurations - A list of IPConfigurations of the network interface.
