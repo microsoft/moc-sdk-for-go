@@ -22,7 +22,7 @@ export GO111MODULE=on
 
 PKG := 
 
-all: format  build unittest
+all: vendor format build unittest
 
 clean:
 	rm -rf ${OUT} ${OUTEXE} 
@@ -46,6 +46,6 @@ unittest:
 	GOARCH=amd64 go test -v ./services/security/...
 
 
-golangci-lint:
+golangci-lint: vendor
 	$(GOCMD) install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	$(GOPATH_BIN)/golangci-lint run --config .golangci.yml
