@@ -22,7 +22,7 @@ export GO111MODULE=on
 
 PKG := 
 
-all: format  build unittest
+all: vendor format build unittest
 
 clean:
 	rm -rf ${OUT} ${OUTEXE} 
