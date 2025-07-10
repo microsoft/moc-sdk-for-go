@@ -45,11 +45,7 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 		}
 		wssdnetwork.Subnets = subnets
 
-		portForwardingRules, err := getWssdNetworkPortForwardingRules(c.PortForwardingRules)
-		if err != nil {
-			return nil, err
-		}
-		wssdnetwork.Portforwardingrules = portForwardingRules
+		wssdnetwork.Portforwardingrules = getWssdNetworkPortForwardingRules(c.PortForwardingRules)
 
 		if c.VirtualNetworkPropertiesFormat.MacPoolName != nil {
 			wssdnetwork.MacPoolName = *c.VirtualNetworkPropertiesFormat.MacPoolName
@@ -230,7 +226,7 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 	return
 }
 
-func getWssdNetworkPortForwardingRules(rules *[]network.PortForwardingRule) (wssdrules []*wssdcloudnetwork.PortForwardingRule, err error) {
+func getWssdNetworkPortForwardingRules(rules *[]network.PortForwardingRule) (wssdrules []*wssdcloudnetwork.PortForwardingRule) {
 	wssdrules = []*wssdcloudnetwork.PortForwardingRule{}
 	if rules == nil {
 		return
