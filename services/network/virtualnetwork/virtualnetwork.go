@@ -45,6 +45,12 @@ func getWssdVirtualNetwork(c *network.VirtualNetwork, groupName string) (*wssdcl
 		}
 		wssdnetwork.Subnets = subnets
 
+		portForwardingRules, err := getWssdNetworkPortForwardingRules(c.PortForwardingRules)
+		if err != nil {
+			return nil, err
+		}
+		wssdnetwork.Portforwardingrules = portForwardingRules
+
 		if c.VirtualNetworkPropertiesFormat.MacPoolName != nil {
 			wssdnetwork.MacPoolName = *c.VirtualNetworkPropertiesFormat.MacPoolName
 		}
@@ -224,6 +230,25 @@ func getWssdNetworkRoutes(routetable *network.RouteTable) (wssdcloudroutes []*ws
 	return
 }
 
+func getWssdNetworkPortForwardingRules(rules *[]network.PortForwardingRule) (wssdrules []*wssdcloudnetwork.PortForwardingRule, err error) {
+	wssdrules = []*wssdcloudnetwork.PortForwardingRule{}
+	if rules == nil {
+		return
+	}
+
+	for _, rule := range *rules {
+		wssdrules = append(wssdrules, &wssdcloudnetwork.PortForwardingRule{
+			Type:           *rule.Type,
+			Connectaddress: *rule.ConnectAddress,
+			Connectport:    *rule.ConnectPort,
+			Listenaddress:  *rule.ListenAddress,
+			Listenport:     *rule.ListenPort,
+		})
+	}
+
+	return
+}
+
 // Conversion function from wssdcloudnetwork to network
 func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *network.VirtualNetwork {
 	stringType := virtualNetworkTypeToString(c.Type)
@@ -239,9 +264,10 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 		Type:     &stringType,
 		Version:  &c.Status.Version.Number,
 		VirtualNetworkPropertiesFormat: &network.VirtualNetworkPropertiesFormat{
-			Subnets:     getNetworkSubnets(c.Subnets),
-			Statuses:    status.GetStatuses(c.GetStatus()),
-			MacPoolName: &c.MacPoolName,
+			Subnets:             getNetworkSubnets(c.Subnets),
+			PortForwardingRules: getNetworkPortForwardingRules(c.Portforwardingrules),
+			Statuses:            status.GetStatuses(c.GetStatus()),
+			MacPoolName:         &c.MacPoolName,
 			DhcpOptions: &network.DhcpOptions{
 				DNSServers: &dnsservers,
 			},
@@ -320,6 +346,22 @@ func getNetworkRoutetable(wssdcloudroutes []*wssdcommonproto.Route) *network.Rou
 			Routes: &routes,
 		},
 	}
+}
+
+func getNetworkPortForwardingRules(wssdrules []*wssdcloudnetwork.PortForwardingRule) *[]network.PortForwardingRule {
+	rules := []network.PortForwardingRule{}
+
+	for _, wssdrule := range wssdrules {
+		rules = append(rules, network.PortForwardingRule{
+			Type:           &wssdrule.Type,
+			ConnectAddress: &wssdrule.Connectaddress,
+			ConnectPort:    &wssdrule.Connectport,
+			ListenAddress:  &wssdrule.Listenaddress,
+			ListenPort:     &wssdrule.Listenport,
+		})
+	}
+
+	return &rules
 }
 
 func getVlan(wssdvlan uint32) *uint16 {
