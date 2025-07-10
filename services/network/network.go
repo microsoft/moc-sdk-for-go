@@ -543,6 +543,20 @@ type DhcpOptions struct {
 	DNSServers *[]string `json:"dnsServers,omitempty"`
 }
 
+// PortForwardingRule defines the structure of a port forwading rule
+type PortForwardingRule struct {
+	// Type
+	Type *string `json:"type,omitempty"`
+	// ConnectAddress
+	ConnectAddress *string `json:"connectaddress,omitempty"`
+	// ConnectPort
+	ConnectPort *string `json:"connectport,omitempty"`
+	// ListenAddress
+	ListenAddress *string `json:"listenaddress,omitempty"`
+	// ListenPort
+	ListenPort *string `json:"listenport,omitempty"`
+}
+
 // VirtualNetworkPropertiesFormat properties of the virtual network.
 type VirtualNetworkPropertiesFormat struct {
 	// AddressSpace - The AddressSpace that contains an array of IP address ranges that can be used by subnets.
@@ -555,6 +569,8 @@ type VirtualNetworkPropertiesFormat struct {
 	MacPoolName *string `json:"macPoolName,omitempty"`
 	// ProvisioningState - The provisioning state of the PublicIP resource. Possible values are: 'Updating', 'Deleting', and 'Failed'.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// Port forwarding rules
+	PortForwardingRules *[]PortForwardingRule `json:"portforwardingrules,omitempty"`
 	// State - State
 	Statuses map[string]*string `json:"statuses"`
 }
