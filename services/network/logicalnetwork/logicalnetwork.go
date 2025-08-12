@@ -3,6 +3,7 @@
 package logicalnetwork
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/microsoft/moc-sdk-for-go/services/network"
@@ -20,6 +21,18 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 	}
 	if c.Location == nil || len(*c.Location) == 0 {
 		return nil, errors.Wrapf(errors.InvalidInput, "Location is not specified")
+	}
+
+	// Debug: Print tags to identify nil pointer issue
+	fmt.Printf("DEBUG: c.Tags = %+v\n", c.Tags)
+	if c.Tags != nil {
+		for k, v := range c.Tags {
+			if v == nil {
+				fmt.Printf("DEBUG: Found nil value for key '%s'\n", k)
+			} else {
+				fmt.Printf("DEBUG: Key '%s' = '%s'\n", k, *v)
+			}
+		}
 	}
 
 	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
