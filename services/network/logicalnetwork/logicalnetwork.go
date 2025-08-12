@@ -37,7 +37,16 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 
 	// Debug: Check AdvancedNetworkPolicies
 	fmt.Printf("DEBUG: About to check c.AdvancedNetworkPolicies\n")
-	fmt.Printf("DEBUG: c.AdvancedNetworkPolicies = %+v\n", c.AdvancedNetworkPolicies)
+	if c.AdvancedNetworkPolicies == nil {
+		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is nil\n")
+	} else {
+		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is not nil, checking contents...\n")
+		// Try to safely access the contents
+		fmt.Printf("DEBUG: AdvancedNetworkPolicies length = %d\n", len(*c.AdvancedNetworkPolicies))
+		for i, policy := range *c.AdvancedNetworkPolicies {
+			fmt.Printf("DEBUG: Policy at index %d: %+v\n", i, policy)
+		}
+	}
 
 	fmt.Printf("DEBUG: About to call network.GetWssdAdvancedNetworkPolicies\n")
 	ap := network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies)
