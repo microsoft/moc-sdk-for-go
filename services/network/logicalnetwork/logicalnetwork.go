@@ -3,7 +3,6 @@
 package logicalnetwork
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/microsoft/moc-sdk-for-go/services/network"
@@ -23,64 +22,10 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 		return nil, errors.Wrapf(errors.InvalidInput, "Location is not specified")
 	}
 
-	// Debug: Print tags to identify nil pointer issue
-	fmt.Printf("DEBUG: c.Tags = %+v\n", c.Tags)
-	if c.Tags != nil {
-		for k, v := range c.Tags {
-			if v == nil {
-				fmt.Printf("DEBUG: Found nil value for key '%s'\n", k)
-			} else {
-				fmt.Printf("DEBUG: Key '%s' = '%s'\n", k, *v)
-			}
-		}
-	}
-
-	// Debug: Check AdvancedNetworkPolicies
-	fmt.Printf("DEBUG: About to check c.AdvancedNetworkPolicies\n")
-	if c.AdvancedNetworkPolicies == nil {
-		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is nil\n")
-	} else {
-		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is not nil, pointer value = %p\n", c.AdvancedNetworkPolicies)
-		// Use defer and recover to catch panic during access
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					fmt.Printf("DEBUG: Panic when accessing AdvancedNetworkPolicies: %v\n", r)
-				}
-			}()
-			fmt.Printf("DEBUG: AdvancedNetworkPolicies length = %d\n", len(*c.AdvancedNetworkPolicies))
-		}()
-	}
-
-	// Defensive fix: Handle potential dangling pointer in AdvancedNetworkPolicies
-	var safeAdvancedNetworkPolicies *[]network.AdvancedNetworkPolicy
-	if c.AdvancedNetworkPolicies != nil {
-		// Try to safely access the slice
-		func() {
-			defer func() {
-				if r := recover(); r != nil {
-					fmt.Printf("DEBUG: Detected dangling pointer in AdvancedNetworkPolicies, using nil instead\n")
-					safeAdvancedNetworkPolicies = nil
-				}
-			}()
-			// Test if we can access the slice
-			_ = len(*c.AdvancedNetworkPolicies)
-			safeAdvancedNetworkPolicies = c.AdvancedNetworkPolicies
-		}()
-	} else {
-		safeAdvancedNetworkPolicies = nil
-	}
-
-	fmt.Printf("DEBUG: About to call network.GetWssdAdvancedNetworkPolicies\n")
-	ap := network.GetWssdAdvancedNetworkPolicies(safeAdvancedNetworkPolicies)
-	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies returned successfully\n")
-	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies result = %+v\n", ap)
-
 	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
-		Name:             *c.Name,
-		LocationName:     *c.Location,
-		Tags:             tags.MapToProto(c.Tags),
-		AdvancedPolicies: ap,
+		Name:         *c.Name,
+		LocationName: *c.Location,
+		Tags:         tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -103,6 +48,10 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 
 		if c.LogicalNetworkPropertiesFormat.NetworkVirtualizationEnabled != nil {
 			wssdnetwork.NetworkVirtualizationEnabled = *c.LogicalNetworkPropertiesFormat.NetworkVirtualizationEnabled
+		}
+
+		if c.LogicalNetworkPropertiesFormat.AdvancedNetworkPolicies != nil {
+			wssdnetwork.AdvancedPolicies = network.GetWssdAdvancedNetworkPolicies(c.LogicalNetworkPropertiesFormat.AdvancedNetworkPolicies)
 		}
 	}
 
