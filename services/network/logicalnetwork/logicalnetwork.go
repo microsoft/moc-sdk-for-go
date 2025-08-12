@@ -35,11 +35,16 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 		}
 	}
 
+	// Debug: Check AdvancedNetworkPolicies
+	fmt.Printf("DEBUG: c.AdvancedNetworkPolicies = %+v\n", c.AdvancedNetworkPolicies)
+	ap := network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies)
+	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies result = %+v\n", ap)
+
 	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
 		Name:             *c.Name,
 		LocationName:     *c.Location,
 		Tags:             tags.MapToProto(c.Tags),
-		AdvancedPolicies: network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies),
+		AdvancedPolicies: ap,
 	}
 
 	if c.Version != nil {
