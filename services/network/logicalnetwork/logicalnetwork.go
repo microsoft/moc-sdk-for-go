@@ -40,16 +40,39 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 	if c.AdvancedNetworkPolicies == nil {
 		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is nil\n")
 	} else {
-		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is not nil, checking contents...\n")
-		// Try to safely access the contents
-		fmt.Printf("DEBUG: AdvancedNetworkPolicies length = %d\n", len(*c.AdvancedNetworkPolicies))
-		for i, policy := range *c.AdvancedNetworkPolicies {
-			fmt.Printf("DEBUG: Policy at index %d: %+v\n", i, policy)
-		}
+		fmt.Printf("DEBUG: c.AdvancedNetworkPolicies is not nil, pointer value = %p\n", c.AdvancedNetworkPolicies)
+		// Use defer and recover to catch panic during access
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Printf("DEBUG: Panic when accessing AdvancedNetworkPolicies: %v\n", r)
+				}
+			}()
+			fmt.Printf("DEBUG: AdvancedNetworkPolicies length = %d\n", len(*c.AdvancedNetworkPolicies))
+		}()
+	}
+
+	// Defensive fix: Handle potential dangling pointer in AdvancedNetworkPolicies
+	var safeAdvancedNetworkPolicies *[]network.AdvancedNetworkPolicy
+	if c.AdvancedNetworkPolicies != nil {
+		// Try to safely access the slice
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					fmt.Printf("DEBUG: Detected dangling pointer in AdvancedNetworkPolicies, using nil instead\n")
+					safeAdvancedNetworkPolicies = nil
+				}
+			}()
+			// Test if we can access the slice
+			_ = len(*c.AdvancedNetworkPolicies)
+			safeAdvancedNetworkPolicies = c.AdvancedNetworkPolicies
+		}()
+	} else {
+		safeAdvancedNetworkPolicies = nil
 	}
 
 	fmt.Printf("DEBUG: About to call network.GetWssdAdvancedNetworkPolicies\n")
-	ap := network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies)
+	ap := network.GetWssdAdvancedNetworkPolicies(safeAdvancedNetworkPolicies)
 	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies returned successfully\n")
 	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies result = %+v\n", ap)
 
