@@ -36,8 +36,12 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 	}
 
 	// Debug: Check AdvancedNetworkPolicies
+	fmt.Printf("DEBUG: About to check c.AdvancedNetworkPolicies\n")
 	fmt.Printf("DEBUG: c.AdvancedNetworkPolicies = %+v\n", c.AdvancedNetworkPolicies)
+
+	fmt.Printf("DEBUG: About to call network.GetWssdAdvancedNetworkPolicies\n")
 	ap := network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies)
+	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies returned successfully\n")
 	fmt.Printf("DEBUG: GetWssdAdvancedNetworkPolicies result = %+v\n", ap)
 
 	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
