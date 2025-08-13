@@ -23,10 +23,9 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 	}
 
 	wssdnetwork := &wssdcloudnetwork.LogicalNetwork{
-		Name:             *c.Name,
-		LocationName:     *c.Location,
-		Tags:             tags.MapToProto(c.Tags),
-		AdvancedPolicies: network.GetWssdAdvancedNetworkPolicies(c.AdvancedNetworkPolicies),
+		Name:         *c.Name,
+		LocationName: *c.Location,
+		Tags:         tags.MapToProto(c.Tags),
 	}
 
 	if c.Version != nil {
@@ -49,6 +48,10 @@ func getWssdLogicalNetwork(c *network.LogicalNetwork) (*wssdcloudnetwork.Logical
 
 		if c.LogicalNetworkPropertiesFormat.NetworkVirtualizationEnabled != nil {
 			wssdnetwork.NetworkVirtualizationEnabled = *c.LogicalNetworkPropertiesFormat.NetworkVirtualizationEnabled
+		}
+
+		if c.LogicalNetworkPropertiesFormat.AdvancedNetworkPolicies != nil {
+			wssdnetwork.AdvancedPolicies = network.GetWssdAdvancedNetworkPolicies(c.LogicalNetworkPropertiesFormat.AdvancedNetworkPolicies)
 		}
 	}
 
