@@ -12,6 +12,14 @@ jobs:
     value: true
 
   steps:
+  - task: InstallSSHKey@0
+    inputs:
+      knownHostsEntry: '$(KNOWN_HOST)' 
+      sshPublicKey: '$(SSH_PUBLIC_KEY)'
+      sshKeySecureFile: 'azure-pipelines-ssh-key-new'
+  - script: |
+      git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+    displayName: 'Set up the Go workspace'
 
   - task: NodeTool@0
     inputs:
