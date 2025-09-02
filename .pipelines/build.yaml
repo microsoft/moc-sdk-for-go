@@ -75,6 +75,16 @@ jobs:
     inputs:
       version: '1.22.5'
 
+  steps:
+  - task: InstallSSHKey@0
+    inputs:
+      knownHostsEntry: '$(KNOWN_HOST)' 
+      sshPublicKey: '$(SSH_PUBLIC_KEY)'
+      sshKeySecureFile: 'azure-pipelines-ssh-key-new'
+  - script: |
+      git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+    displayName: 'Set up the Go workspace'
+
   - script: |
       make golangci-lint
     displayName: 'Run GolangCI-Lint'
