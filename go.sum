@@ -122,8 +122,8 @@ github.com/magiconair/properties v1.8.7 h1:IeQXZAiQcpL9mgcAe1Nu6cX9LLw6ExEHKjN0V
 github.com/magiconair/properties v1.8.7/go.mod h1:Dhd985XPs7jluiymwWYZ0G4Z61jb3vdS329zhj2hYo0=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
 github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
-github.com/microsoft/moc v0.34.1-0.20250813171736-80c54149b359 h1:YnrLM3ooczm5xsuvaC6rIQLdd5z8jypi0kZxmLSGo+I=
-github.com/microsoft/moc v0.34.1-0.20250813171736-80c54149b359/go.mod h1:OZ1rc2/qs9AVRKCLfwY0N8R+ZXJlVz5UyWYS5vNH4m0=
+github.com/microsoft/moc v0.35.1-0.20250902193635-ea32f7a38890 h1:r93DjKmSg4FaC4A4lOjUMMzI61LsCOz4pYZMtneCwkc=
+github.com/microsoft/moc v0.35.1-0.20250902193635-ea32f7a38890/go.mod h1:OZ1rc2/qs9AVRKCLfwY0N8R+ZXJlVz5UyWYS5vNH4m0=
 github.com/microsoft/moc-pkg v1.1.115 h1:ylmr/TazweS3ZZ5awXeHgR+zA6U0qSOLYPp2BfSHm4I=
 github.com/microsoft/moc-pkg v1.1.115/go.mod h1:1P020M1SfUILsV60uDV3bII7iNJNy3snLLoTL/gh6EY=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
