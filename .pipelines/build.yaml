@@ -75,7 +75,6 @@ jobs:
     inputs:
       version: '1.22.5'
 
-  steps:
   - task: InstallSSHKey@0
     inputs:
       knownHostsEntry: '$(KNOWN_HOST)' 
