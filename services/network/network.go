@@ -893,6 +893,22 @@ type PrivateEndpoint struct {
 	Tags map[string]*string `json:"tags"`
 }
 
+type NetworkPolicyType string
+
+const (
+	NetworkPolicyType_Invalid NetworkPolicyType = "INVALID"
+	// SDN Policy
+	NetworkPolicyType_SDN NetworkPolicyType = "SDN"
+)
+
+// Advanced Network Policy for LogicalNetwork and NetworkInterface
+type AdvancedNetworkPolicy struct {
+	// NetworkPolicyType
+	Type NetworkPolicyType `json:"type"`
+	// Enabled - Enable or disable advanced network policy
+	Enabled bool `json:"enabled"`
+}
+
 // InterfacePropertiesFormat networkInterface properties.
 type InterfacePropertiesFormat struct {
 	// VirtualMachine - READ-ONLY; The reference of a virtual machine.
@@ -921,6 +937,8 @@ type InterfacePropertiesFormat struct {
 	EnableDHCPGuard *bool `json:"enableDHCPGuard,omitempty"`
 	// EnableRouterAdvertisementGuard
 	EnableRouterAdvertisementGuard *bool `json:"enableRouterAdvertisementGuard,omitempty"`
+	// AdvancedNetworkPolicies
+	AdvancedNetworkPolicies *[]AdvancedNetworkPolicy `json:"advancedNetworkPolicies,omitempty"`
 }
 
 // VirtualNetwork defines the structure of a VNET
@@ -1098,6 +1116,8 @@ type LogicalNetworkPropertiesFormat struct {
 	Statuses map[string]*string `json:"statuses"`
 	// NetworkVirtualizationEnabled - Denotes if this lnet can be used as overlay for a vnet
 	NetworkVirtualizationEnabled *bool `json:"networkVirtualizationEnabled,omitempty"`
+	// AdvancedNetworkPolicies
+	AdvancedNetworkPolicies *[]AdvancedNetworkPolicy `json:"advancedNetworkPolicies,omitempty"`
 }
 
 // LogicalNetwork defines the structure of an LNET
