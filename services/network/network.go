@@ -18,6 +18,12 @@ const (
 	TransportProtocolUDP TransportProtocol = "Udp"
 )
 
+var TransportProtocol_value = map[string]TransportProtocol{
+	"All": TransportProtocolAll,
+	"Tcp": TransportProtocolTCP,
+	"Udp": TransportProtocolUDP,
+}
+
 // SubResource reference to another subresource.
 type SubResource struct {
 	// ID - Resource ID.
@@ -313,6 +319,12 @@ const (
 	LoadDistributionSourceIPProtocol LoadDistribution = "SourceIPProtocol"
 )
 
+var LoadDistribution_value = map[string]LoadDistribution{
+	"Default":          LoadDistributionDefault,
+	"SourceIp":         LoadDistributionSourceIP,
+	"SourceIPProtocol": LoadDistributionSourceIPProtocol,
+}
+
 // LoadBalancingRulePropertiesFormat properties of the load balancer.
 type LoadBalancingRulePropertiesFormat struct {
 	// FrontendIPConfiguration - A reference to frontend IP addresses.
@@ -369,6 +381,12 @@ const (
 	// ProbeProtocolTCP ...
 	ProbeProtocolTCP ProbeProtocol = "Tcp"
 )
+
+var ProbeProtocol_value = map[string]ProbeProtocol{
+	"Http":  ProbeProtocolHTTP,
+	"Https": ProbeProtocolHTTPS,
+	"Tcp":   ProbeProtocolTCP,
+}
 
 // ProbePropertiesFormat load balancer probe resource.
 type ProbePropertiesFormat struct {
@@ -454,6 +472,12 @@ const (
 	// LoadBalancerOutboundRuleProtocolUDP ...
 	LoadBalancerOutboundRuleProtocolUDP LoadBalancerOutboundRuleProtocol = "Udp"
 )
+
+var LoadBalancerOutboundRuleProtocol_value = map[string]LoadBalancerOutboundRuleProtocol{
+	"All": LoadBalancerOutboundRuleProtocolAll,
+	"Tcp": LoadBalancerOutboundRuleProtocolTCP,
+	"Udp": LoadBalancerOutboundRuleProtocolUDP,
+}
 
 // OutboundRulePropertiesFormat outbound rule of the load balancer.
 type OutboundRulePropertiesFormat struct {
