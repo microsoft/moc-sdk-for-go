@@ -108,5 +108,6 @@ replace (
 	golang.org/x/crypto => golang.org/x/crypto v0.37.0
 	golang.org/x/image => golang.org/x/image v0.19.0
 	golang.org/x/net => golang.org/x/net v0.17.0
+	golang.org/x/oauth2 => golang.org/x/oauth2 v0.27.0
 	golang.org/x/sys => golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24
 )
