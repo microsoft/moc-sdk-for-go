@@ -382,7 +382,7 @@ func getWssdBackendAddressPoolRef(beAP *string) (*wssdcommonproto.BackendAddress
 	}, nil
 }
 
-func getQualifiedBackendAddressPoolRef(beAPRef *wssdcommonproto.BackendAddressPoolReference) (network.BackendAddressPool) {
+func getQualifiedBackendAddressPoolRef(beAPRef *wssdcommonproto.BackendAddressPoolReference) network.BackendAddressPool {
 	id := "/loadbalancers/" + beAPRef.GetLoadBalancerRef().GetResourceRef().GetName() + "/backendaddresspools/" + beAPRef.GetResourceRef().GetName()
 
 	return network.BackendAddressPool{
