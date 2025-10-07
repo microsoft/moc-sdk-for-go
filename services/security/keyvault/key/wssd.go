@@ -298,6 +298,25 @@ func (c *client) validate(vaultName, name string, param *keyvault.Key) error {
 	return nil
 }
 
+func (c *client) validateKeyOperationRequest(vaultName, name string, param *keyvault.KeyOperationsParameters, paramOptional bool) error {
+	if len(vaultName) == 0 {
+		return errors.Wrapf(errors.InvalidInput, "Keyvault name is missing")
+	}
+	if len(name) == 0 {
+		return errors.Wrapf(errors.InvalidInput, "Key name is missing")
+	}
+	if paramOptional {
+		return nil
+	}
+	if param == nil {
+		return errors.Wrapf(errors.InvalidInput, "Missing KeyOperationsParameters")
+	}
+	if param.Value == nil {
+		return errors.Wrapf(errors.InvalidInput, "Missing Value to be operated on")
+	}
+	return nil
+}
+
 // Delete methods invokes create or update on the client
 func (c *client) Delete(ctx context.Context, group, name, vaultName string) error {
 	key, err := c.Get(ctx, group, vaultName, name)
@@ -385,7 +404,7 @@ func (c *client) UnwrapKey(ctx context.Context, group, vaultName, name string, p
 }
 
 func (c *client) RotateKey(ctx context.Context, group, vaultName, name string) (result *keyvault.KeyOperationResult, err error) {
-	request, err := c.getKeyOperationRequestRotate(ctx, group, vaultName, name, wssdcloudcommon.ProviderAccessOperation_Key_Rotate)
+	request, err := c.getKeyOperationRequestRotate(ctx, group, vaultName, name)
 	if err != nil {
 		return
 	}
@@ -445,7 +464,7 @@ func getKeyRequestByVaultName(opType wssdcloudcommon.Operation, groupName, vault
 		OperationType: opType,
 		Keys:          []*wssdcloudsecurity.Key{},
 	}
-	key, err := getWssdKeyByVaultName(name, groupName, vaultName, keyVersion, opType)
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, keyVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -488,12 +507,9 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 
-	if param == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Missing KeyOperationsParameters")
-	}
-
-	if param.Value == nil {
-		return nil, errors.Wrapf(errors.InvalidInput, "Missing Value to be operated on")
+	err := c.validateKeyOperationRequest(vaultName, name, param, false)
+	if err != nil {
+		return nil, err
 	}
 
 	algo, err := getMOCAlgorithm(param.Algorithm)
@@ -507,37 +523,33 @@ func (c *client) getKeyOperationRequest(ctx context.Context,
 		Algorithm:     algo,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name, param.KeyVersion)
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, param.KeyVersion)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(key) == 0 {
-		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
-	}
-
-	request.Key = key[0]
+	request.Key = key
 	return request, nil
 }
 
 func (c *client) getKeyOperationRequestRotate(ctx context.Context,
 	groupName, vaultName, name string,
-	opType wssdcloudcommon.ProviderAccessOperation,
 ) (*wssdcloudsecurity.KeyOperationRequest, error) {
 	request := &wssdcloudsecurity.KeyOperationRequest{
-		OperationType: opType,
+		OperationType: wssdcloudcommon.ProviderAccessOperation_Key_Rotate,
 	}
 
-	key, err := c.get(ctx, groupName, vaultName, name, "")
+	err := c.validateKeyOperationRequest(vaultName, name, nil, true)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(key) == 0 {
-		return nil, errors.Wrapf(errors.NotFound, "Key[%s] Vault[%s]", name, vaultName)
+	key, err := getWssdKeyByVaultName(name, groupName, vaultName, "")
+	if err != nil {
+		return nil, err
 	}
 
-	request.Key = key[0]
+	request.Key = key
 	return request, nil
 }
 
