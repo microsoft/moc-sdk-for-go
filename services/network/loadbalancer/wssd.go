@@ -6,17 +6,22 @@ package loadbalancer
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	wssdcloudclient "github.com/microsoft/moc-sdk-for-go/pkg/client"
 	"github.com/microsoft/moc/pkg/auth"
 	"github.com/microsoft/moc/pkg/errors"
-	"github.com/microsoft/moc/pkg/status"
-	"github.com/microsoft/moc/pkg/tags"
 	wssdcloudnetwork "github.com/microsoft/moc/rpc/cloudagent/network"
+	"github.com/microsoft/moc/rpc/common"
 	wssdcloudcommon "github.com/microsoft/moc/rpc/common"
+)
+
+const (
+	// supported API Versions for Load Balancers
+	Version_Default = ""
+	Version_1_0     = "1.0"
+	Version_2_0     = "2.0"
 )
 
 type client struct {
@@ -33,9 +38,16 @@ func newLoadBalancerClient(subID string, authorizer auth.Authorizer) (*client, e
 }
 
 // Get load balancers by name.  If name is nil, get all load balancers
-func (c *client) Get(ctx context.Context, group, name string) (*[]network.LoadBalancer, error) {
+func (c *client) GetWithVersion(ctx context.Context, group, name, apiVersion string) (*[]network.LoadBalancer, error) {
+	return c.internalGetWithVersion(ctx, group, name, apiVersion)
+}
 
-	request, err := c.getLoadBalancerRequestByName(wssdcloudcommon.Operation_GET, group, name)
+func (c *client) Get(ctx context.Context, group, name string) (*[]network.LoadBalancer, error) {
+	return c.internalGetWithVersion(ctx, group, name, Version_Default)
+}
+
+func (c *client) internalGetWithVersion(ctx context.Context, group, name, apiVersion string) (*[]network.LoadBalancer, error) {
+	request, err := c.getLoadBalancerRequestByName(wssdcloudcommon.Operation_GET, group, name, apiVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -50,17 +62,24 @@ func (c *client) Get(ctx context.Context, group, name string) (*[]network.LoadBa
 	}
 
 	return lbs, nil
-
 }
 
 // CreateOrUpdate creates a load balancer if it does not exist, or updates an existing load balancer
+func (c *client) CreateOrUpdateWithVersion(ctx context.Context, group, name string, inputLB *network.LoadBalancer, apiVersion string) (*network.LoadBalancer, error) {
+	return c.internalCreateOrUpdateWithVersion(ctx, group, name, inputLB, apiVersion)
+}
+
 func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputLB *network.LoadBalancer) (*network.LoadBalancer, error) {
+	return c.internalCreateOrUpdateWithVersion(ctx, group, name, inputLB, Version_Default)
+}
+
+func (c *client) internalCreateOrUpdateWithVersion(ctx context.Context, group, name string, inputLB *network.LoadBalancer, apiVersion string) (*network.LoadBalancer, error) {
 
 	if inputLB == nil || inputLB.LoadBalancerPropertiesFormat == nil {
 		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Load Balancer Properties")
 	}
 
-	request, err := c.getLoadBalancerRequest(wssdcloudcommon.Operation_POST, group, name, inputLB)
+	request, err := c.getLoadBalancerRequest(wssdcloudcommon.Operation_POST, group, name, inputLB, apiVersion)
 	if err != nil {
 		return nil, err
 	}
@@ -77,8 +96,16 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, name string, inputLB
 }
 
 // Delete a load balancer
+func (c *client) DeleteWithVersion(ctx context.Context, group, name, apiVersion string) error {
+	return c.internalDeleteWithVersion(ctx, group, name, apiVersion)
+}
+
 func (c *client) Delete(ctx context.Context, group, name string) error {
-	lbs, err := c.Get(ctx, group, name)
+	return c.internalDeleteWithVersion(ctx, group, name, Version_Default)
+}
+
+func (c *client) internalDeleteWithVersion(ctx context.Context, group, name, apiVersion string) error {
+	lbs, err := c.GetWithVersion(ctx, group, name, apiVersion)
 	if err != nil {
 		return err
 	}
@@ -86,7 +113,7 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 		return fmt.Errorf("Load Balancer [%s] not found", name)
 	}
 
-	request, err := c.getLoadBalancerRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*lbs)[0])
+	request, err := c.getLoadBalancerRequest(wssdcloudcommon.Operation_DELETE, group, name, &(*lbs)[0], apiVersion)
 	if err != nil {
 		return err
 	}
@@ -100,7 +127,15 @@ func (c *client) Delete(ctx context.Context, group, name string) error {
 }
 
 func (c *client) Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error) {
-	request, err := getLoadBalancerPrecheckRequest(group, loadBalancers)
+	return c.internalPrecheckWithVersion(ctx, group, loadBalancers, Version_Default)
+}
+
+func (c *client) PrecheckWithVersion(ctx context.Context, group string, loadBalancers []*network.LoadBalancer, apiVersion string) (bool, error) {
+	return c.internalPrecheckWithVersion(ctx, group, loadBalancers, apiVersion)
+}
+
+func (c *client) internalPrecheckWithVersion(ctx context.Context, group string, loadBalancers []*network.LoadBalancer, apiVersion string) (bool, error) {
+	request, err := getLoadBalancerPrecheckRequest(group, loadBalancers, apiVersion)
 	if err != nil {
 		return false, err
 	}
@@ -111,15 +146,20 @@ func (c *client) Precheck(ctx context.Context, group string, loadBalancers []*ne
 	return getLoadBalancerPrecheckResponse(response)
 }
 
-func getLoadBalancerPrecheckRequest(group string, loadBalancers []*network.LoadBalancer) (*wssdcloudnetwork.LoadBalancerPrecheckRequest, error) {
+func getLoadBalancerPrecheckRequest(group string, loadBalancers []*network.LoadBalancer, apiVersion string) (*wssdcloudnetwork.LoadBalancerPrecheckRequest, error) {
 	request := &wssdcloudnetwork.LoadBalancerPrecheckRequest{}
+
+	version, err := getApiVersion(apiVersion)
+	if err != nil {
+		return nil, err
+	}
 
 	protoLoadBalancers := make([]*wssdcloudnetwork.LoadBalancer, 0, len(loadBalancers))
 
 	for _, lb := range loadBalancers {
 		// can lb ever be nil here? what would be the meaning of that?
 		if lb != nil {
-			protoLB, err := getWssdLoadBalancer(lb, group)
+			protoLB, err := getWssdLoadBalancer(lb, group, version)
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to convert LoadBalancer to Protobuf representation")
 			}
@@ -139,15 +179,22 @@ func getLoadBalancerPrecheckResponse(response *wssdcloudnetwork.LoadBalancerPrec
 	return result, nil
 }
 
-func (c *client) getLoadBalancerRequestByName(opType wssdcloudcommon.Operation, group, name string) (*wssdcloudnetwork.LoadBalancerRequest, error) {
+func (c *client) getLoadBalancerRequestByName(opType wssdcloudcommon.Operation, group, name, apiVersion string) (*wssdcloudnetwork.LoadBalancerRequest, error) {
 	networkLB := network.LoadBalancer{
 		Name: &name,
 	}
-	return c.getLoadBalancerRequest(opType, group, name, &networkLB)
+	return c.getLoadBalancerRequest(opType, group, name, &networkLB, apiVersion)
 }
 
 // getLoadBalancerRequest converts our internal representation of a load balancer (network.LoadBalancer) into a protobuf request (wssdcloudnetwork.LoadBalancerRequest) that can be sent to wssdcloudagent
-func (c *client) getLoadBalancerRequest(opType wssdcloudcommon.Operation, group, name string, networkLB *network.LoadBalancer) (*wssdcloudnetwork.LoadBalancerRequest, error) {
+func (c *client) getLoadBalancerRequest(opType wssdcloudcommon.Operation, group, name string, networkLB *network.LoadBalancer, apiVersion string) (*wssdcloudnetwork.LoadBalancerRequest, error) {
+
+	var err error
+	var version *common.ApiVersion
+
+	if version, err = getApiVersion(apiVersion); err != nil {
+		return nil, err
+	}
 
 	if networkLB == nil {
 		return nil, errors.InvalidInput
@@ -156,10 +203,10 @@ func (c *client) getLoadBalancerRequest(opType wssdcloudcommon.Operation, group,
 	request := &wssdcloudnetwork.LoadBalancerRequest{
 		OperationType: opType,
 		LoadBalancers: []*wssdcloudnetwork.LoadBalancer{},
+		Version:       version,
 	}
-	var err error
 
-	wssdCloudLB, err := getWssdLoadBalancer(networkLB, group)
+	wssdCloudLB, err := getWssdLoadBalancer(networkLB, group, version)
 	if err != nil {
 		return nil, err
 	}
@@ -182,196 +229,4 @@ func (c *client) getLoadBalancersFromResponse(response *wssdcloudnetwork.LoadBal
 	}
 
 	return &networkLBs, nil
-}
-
-// getWssdLoadBalancer convert our internal representation of a loadbalancer (network.LoadBalancer) to the cloud load balancer protobuf used by wssdcloudagent (wssdnetwork.LoadBalancer)
-func getWssdLoadBalancer(networkLB *network.LoadBalancer, group string) (wssdCloudLB *wssdcloudnetwork.LoadBalancer, err error) {
-
-	if len(group) == 0 {
-		return nil, errors.Wrapf(errors.InvalidGroup, "Group not specified")
-	}
-
-	if networkLB.Name == nil {
-		return nil, errors.Wrapf(errors.InvalidConfiguration, "Missing Name for Load Balancer")
-	}
-
-	wssdCloudLB = &wssdcloudnetwork.LoadBalancer{
-		Name:      *networkLB.Name,
-		GroupName: group,
-	}
-
-	if networkLB.Version != nil {
-		if wssdCloudLB.Status == nil {
-			wssdCloudLB.Status = status.InitStatus()
-		}
-		wssdCloudLB.Status.Version.Number = *networkLB.Version
-	}
-
-	if networkLB.Location != nil {
-		wssdCloudLB.LocationName = *networkLB.Location
-	}
-
-	if networkLB.Tags != nil {
-		wssdCloudLB.Tags = tags.MapToProto(networkLB.Tags)
-	}
-
-	if networkLB.LoadBalancerPropertiesFormat != nil {
-		lbp := networkLB.LoadBalancerPropertiesFormat
-		if lbp.BackendAddressPools != nil && len(*lbp.BackendAddressPools) > 0 {
-			bap := *lbp.BackendAddressPools
-			if bap[0].Name != nil {
-				wssdCloudLB.Backendpoolnames = append(wssdCloudLB.Backendpoolnames, *bap[0].Name)
-			}
-		}
-		if lbp.FrontendIPConfigurations != nil && len(*lbp.FrontendIPConfigurations) > 0 {
-			fipc := *lbp.FrontendIPConfigurations
-			if fipc[0].FrontendIPConfigurationPropertiesFormat != nil {
-				fipcf := fipc[0].FrontendIPConfigurationPropertiesFormat
-				if fipcf.Subnet != nil {
-					subnet := fipcf.Subnet
-					if subnet.ID != nil {
-						wssdCloudLB.Networkid = *subnet.ID
-					}
-				}
-				if fipcf.IPAddress != nil {
-					wssdCloudLB.FrontendIP = *fipcf.IPAddress
-				}
-			}
-		}
-		if lbp.LoadBalancingRules != nil && len(*lbp.LoadBalancingRules) > 0 {
-			rules := *lbp.LoadBalancingRules
-			for _, rule := range rules {
-				if rule.FrontendPort == nil {
-					return nil, errors.Wrapf(errors.InvalidInput, "Frontend port not specified")
-				}
-				if rule.BackendPort == nil {
-					return nil, errors.Wrapf(errors.InvalidInput, "Backend port not specified")
-				}
-
-				var protocol wssdcloudcommon.Protocol
-
-				if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolAll)) {
-					protocol = wssdcloudcommon.Protocol_All
-				} else if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolTCP)) {
-					protocol = wssdcloudcommon.Protocol_Tcp
-				} else if strings.EqualFold(string(rule.Protocol), string(network.TransportProtocolUDP)) {
-					protocol = wssdcloudcommon.Protocol_Udp
-				} else {
-					return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", rule.Protocol)
-				}
-
-				wssdCloudLBRule := &wssdcloudnetwork.LoadBalancingRule{
-					FrontendPort: uint32(*rule.FrontendPort),
-					BackendPort:  uint32(*rule.BackendPort),
-					Protocol:     protocol,
-				}
-				wssdCloudLB.Loadbalancingrules = append(wssdCloudLB.Loadbalancingrules, wssdCloudLBRule)
-			}
-		}
-	}
-
-	return wssdCloudLB, nil
-}
-
-// getLoadBalancer converts the cloud load balancer protobuf returned from wssdcloudagent (wssdcloudnetwork.LoadBalancer) to our internal representation of a loadbalancer (network.LoadBalancer)
-func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.LoadBalancer, err error) {
-	networkLB = &network.LoadBalancer{
-		Name:     &wssdLB.Name,
-		Location: &wssdLB.LocationName,
-		ID:       &wssdLB.Id,
-		Version:  &wssdLB.Status.Version.Number,
-		LoadBalancerPropertiesFormat: &network.LoadBalancerPropertiesFormat{
-			Statuses:         status.GetStatuses(wssdLB.GetStatus()),
-			ReplicationCount: wssdLB.GetReplicationCount(),
-		},
-	}
-
-	if len(wssdLB.Backendpoolnames) > 0 {
-		backendAddressPools := []network.BackendAddressPool{}
-
-		for _, backendName := range wssdLB.Backendpoolnames {
-			if backendName != "" {
-				backendAddressPools = append(backendAddressPools, network.BackendAddressPool{Name: &backendName})
-			}
-		}
-		networkLB.LoadBalancerPropertiesFormat.BackendAddressPools = &backendAddressPools
-	}
-
-	if len(wssdLB.FrontendIP) != 0 || len(wssdLB.Networkid) != 0 {
-
-		frontendipconfigurations := []network.FrontendIPConfiguration{
-			{
-				FrontendIPConfigurationPropertiesFormat: &network.FrontendIPConfigurationPropertiesFormat{},
-			},
-		}
-		if len(wssdLB.FrontendIP) != 0 {
-			frontendipconfigurations[0].FrontendIPConfigurationPropertiesFormat.IPAddress = &wssdLB.FrontendIP
-		}
-		if len(wssdLB.Networkid) != 0 {
-			frontendipconfigurations[0].FrontendIPConfigurationPropertiesFormat.Subnet = &network.Subnet{ID: &wssdLB.Networkid}
-		}
-		networkLB.LoadBalancerPropertiesFormat.FrontendIPConfigurations = &frontendipconfigurations
-	}
-
-	if len(wssdLB.Loadbalancingrules) > 0 {
-		networkLBRules := []network.LoadBalancingRule{}
-
-		for _, loadbalancingrule := range wssdLB.Loadbalancingrules {
-			frontendport := int32(loadbalancingrule.FrontendPort)
-			backendport := int32(loadbalancingrule.BackendPort)
-			var protocol network.TransportProtocol
-
-			if loadbalancingrule.Protocol == wssdcloudcommon.Protocol_All {
-				protocol = network.TransportProtocolAll
-			} else if loadbalancingrule.Protocol == wssdcloudcommon.Protocol_Tcp {
-				protocol = network.TransportProtocolTCP
-			} else if loadbalancingrule.Protocol == wssdcloudcommon.Protocol_Udp {
-				protocol = network.TransportProtocolUDP
-			} else {
-				return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", loadbalancingrule.Protocol)
-			}
-			networkLBRules = append(networkLBRules, network.LoadBalancingRule{
-				LoadBalancingRulePropertiesFormat: &network.LoadBalancingRulePropertiesFormat{
-					FrontendPort: &frontendport,
-					BackendPort:  &backendport,
-					Protocol:     protocol,
-				},
-			})
-		}
-		networkLB.LoadBalancerPropertiesFormat.LoadBalancingRules = &networkLBRules
-	}
-
-	if len(wssdLB.InboundNatRules) > 0 {
-		networkInboundNatRules := []network.InboundNatRule{}
-
-		for _, wssdInboundNatRule := range wssdLB.InboundNatRules {
-			fePort := int32(wssdInboundNatRule.FrontendPort)
-			bePort := int32(wssdInboundNatRule.BackendPort)
-			var protocol network.TransportProtocol
-			if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_All {
-				protocol = network.TransportProtocolAll
-			} else if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_Tcp {
-				protocol = network.TransportProtocolTCP
-			} else if wssdInboundNatRule.Protocol == wssdcloudcommon.Protocol_Udp {
-				protocol = network.TransportProtocolUDP
-			} else {
-				return nil, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", wssdInboundNatRule.Protocol)
-			}
-
-			newNetworkInboundNatRule := network.InboundNatRule{
-				Name: &wssdInboundNatRule.Name,
-				InboundNatRulePropertiesFormat: &network.InboundNatRulePropertiesFormat{
-					FrontendPort: &fePort,
-					BackendPort:  &bePort,
-					Protocol:     protocol,
-				},
-			}
-
-			networkInboundNatRules = append(networkInboundNatRules, newNetworkInboundNatRule)
-		}
-
-		networkLB.InboundNatRules = &networkInboundNatRules
-	}
-
-	return networkLB, nil
 }
