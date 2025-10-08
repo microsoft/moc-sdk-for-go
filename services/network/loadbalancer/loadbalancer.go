@@ -4,6 +4,8 @@
 package loadbalancer
 
 import (
+	"strings"
+
 	"github.com/microsoft/moc-sdk-for-go/services/network"
 
 	"github.com/microsoft/moc/pkg/errors"
@@ -586,14 +588,37 @@ func toBoolPtr(b bool) *bool {
 }
 
 func getWssdProtocol(protocol string) (wssdcloudcommon.Protocol, error) {
+	// Normalize protocol string to match protobuf enum casing for backward compatibility
+	normalizedProtocol := normalizeProtocolCase(protocol)
+
 	// Hash lookup where the protocol string is the key and the enum int is the value
-	protocolInt, ok := wssdcloudcommon.Protocol_value[protocol]
+	protocolInt, ok := wssdcloudcommon.Protocol_value[normalizedProtocol]
 	if !ok {
-		// string not found in has of approved protocols
+		// string not found in hash of approved protocols
 		return wssdcloudcommon.Protocol_All, errors.Wrapf(errors.InvalidInput, "Unknown protocol %s specified", protocol)
 	}
 	// Convert the int back into the Protocol enum
 	return wssdcloudcommon.Protocol(protocolInt), nil
+}
+
+// normalizeProtocolCase converts common protocol string variations to the correct casing
+// Expected protobuf enum values: "All", "Tcp", "Udp", "Icmpv4", "Icmpv6"
+func normalizeProtocolCase(protocol string) string {
+	switch strings.ToLower(protocol) {
+	case "all":
+		return "All"
+	case "tcp":
+		return "Tcp"
+	case "udp":
+		return "Udp"
+	case "icmpv4":
+		return "Icmpv4"
+	case "icmpv6":
+		return "Icmpv6"
+	default:
+		// Return as-is if no normalization rule matches
+		return protocol
+	}
 }
 
 func getNetworkProtocol(wssdProtocol wssdcloudcommon.Protocol) (network.TransportProtocol, error) {
