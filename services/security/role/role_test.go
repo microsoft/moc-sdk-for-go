@@ -124,7 +124,7 @@ func Test_getMocRole(t *testing.T) {
 
 	mocRole, err := getMocRole(&expectedRole)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf(err.Error(), "error")
 	}
 
 	if mocRole.Name != expectedMocRole.Name {
@@ -179,7 +179,7 @@ func Test_getRole(t *testing.T) {
 
 	role, err := getRole(&inputMocRole)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf(err.Error(), "error")
 	}
 
 	if *role.ID != *outRole.ID {
