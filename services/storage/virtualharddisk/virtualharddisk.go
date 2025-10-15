@@ -87,6 +87,7 @@ func getVirtualHardDisk(c *wssdcloudstorage.VirtualHardDisk, group string) *stor
 			HyperVGeneration:    c.HyperVGeneration,
 			DiskFileFormat:      c.DiskFileFormat,
 			ContainerName:       &c.ContainerName,
+			Path:                &c.Path,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
 	}
