@@ -41,6 +41,8 @@ type VirtualHardDiskProperties struct {
 	CloudInitDataSource common.CloudInitDataSource `json:"cloudInitDataSource,omitempty"`
 	// Container name
 	ContainerName *string `json:"containername,omitempty"`
+	// Path - Full path of the disk file
+	Path *string `json:"path,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD
