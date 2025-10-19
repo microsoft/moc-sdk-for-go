@@ -70,7 +70,7 @@ require (
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/time v0.7.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.4.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251007200510-49b9836ed3ff // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251014184007-4626949a642f // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -105,7 +105,7 @@ replace (
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
 	github.com/hashicorp/go-retryablehttp => github.com/hashicorp/go-retryablehttp v0.7.7
-	github.com/microsoft/moc => github.com/YuanMSFT/moc v0.0.0-20251014172948-b76a852dd9e8
+	github.com/microsoft/moc => github.com/YuanMSFT/moc v0.0.0-20251019194434-4b0c7279f130
 	github.com/miekg/dns => github.com/miekg/dns v1.1.25
 	github.com/nats-io/nkeys => github.com/nats-io/nkeys v0.4.6
 	golang.org/x/crypto => golang.org/x/crypto v0.37.0
