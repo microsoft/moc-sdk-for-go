@@ -86,7 +86,7 @@ require (
 )
 
 require (
-	github.com/Microsoft/go-winio v0.6.1
+	github.com/Microsoft/go-winio v0.6.2
 	github.com/golang/protobuf v1.5.4
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
