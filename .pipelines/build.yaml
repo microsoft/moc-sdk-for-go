@@ -21,13 +21,30 @@ jobs:
       version: '1.22.5'
   - task: InstallSSHKey@0
     inputs:
-      knownHostsEntry: '$(KNOWN_HOST)' 
+      knownHostsEntry: |
+        $(KNOWN_HOST_GITHUB)
+        $(KNOWN_HOST_GITHUB_ECDSA)
+        $(KNOWN_HOST_GITHUB_Ed25519)
       sshPublicKey: '$(SSH_PUBLIC_KEY)'
       sshKeySecureFile: 'azure-pipelines-ssh-key-new'
-  - script: |
-      git config --global url.ssh://git@github.com/.insteadOf https://github.com/
-      git config --global url."msazure@vs-ssh.visualstudio.com:v3".insteadOf https://msazure.visualstudio.com
-    displayName: 'Set up the Go workspace'
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: 'kva-azuredevops-gcm'
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+
+        # Note that the resource is specified to limit the token to Azure DevOps
+        aadToken=$(az account get-access-token --query accessToken --resource 499b84ac-1321-427f-aa17-267ca6975798 -o tsv)
+
+        # uncomment these for more debugging spew
+        # GIT_TRACE=1
+        # GIT_CURL_VERBOSE=1
+
+        git config --global http.extraheader "AUTHORIZATION: bearer $aadToken"
+        git config --global url."ssh://git@github.com/".insteadOf "https://github.com/"
+      displayName: 'Set git config'
 
   - script: |
       sudo apt-get install gcc-mingw-w64
