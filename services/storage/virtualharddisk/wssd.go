@@ -61,11 +61,9 @@ func (c *client) CreateOrUpdate(ctx context.Context, group, container, name stri
 	return &((*vhds)[0]), nil
 }
 
-// The hydrate call takes the group name, container name and the name of the disk file. The group is standard input for every call.
-// Ultimately, we need the full path on disk to the disk file which we assemble from the path of the container plus the file name of the disk.
-// (e.g. "C:\ClusterStorage\Userdata_1\abc123" for the container path and "my_disk.vhd" for the disk name)
-func (c *client) Hydrate(ctx context.Context, group, container, name string, vhd *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
-	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_HYDRATE, group, container, name, vhd, "", common.ImageSource_LOCAL_SOURCE)
+// The hydrate call takes the group name and the path to the disk file. The group is standard input for every call.
+func (c *client) Hydrate(ctx context.Context, group, name string, vhd *storage.VirtualHardDisk) (*storage.VirtualHardDisk, error) {
+	request, err := getVirtualHardDiskRequest(wssdcloudcommon.Operation_HYDRATE, group, "", name, vhd, "", common.ImageSource_LOCAL_SOURCE)
 	if err != nil {
 		return nil, err
 	}
