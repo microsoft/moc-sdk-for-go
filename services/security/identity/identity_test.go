@@ -127,11 +127,11 @@ func Test_getWssdIdeneityValid(t *testing.T) {
 	var err error
 	_, err = getWssdIdentity(&expectedIdenityAutoRotateDisabled)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	_, err = getWssdIdentity(&expectedIdenityAutoRotateEnabledEmptyPath)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	if runtime.GOOS == "windows" {
 		expectedIdenityAutoRotateEnabledAbsolutePath.LoginFilePath = &LoginFilePathAbsoluteWindows
@@ -140,7 +140,7 @@ func Test_getWssdIdeneityValid(t *testing.T) {
 	}
 	_, err = getWssdIdentity(&expectedIdenityAutoRotateEnabledAbsolutePath)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 }
 
