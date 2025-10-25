@@ -43,6 +43,8 @@ type VirtualHardDiskProperties struct {
 	ContainerName *string `json:"containername,omitempty"`
 	// Path - Full path of the disk file
 	Path *string `json:"path,omitempty"`
+	// PlatformDiskId of the VHD
+	PlatformDiskId *string `json:"platformDiskId,omitempty"`
 }
 
 // VirtualHardDisk defines the structure of a VHD

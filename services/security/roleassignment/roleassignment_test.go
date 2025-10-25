@@ -58,10 +58,10 @@ var (
 func Test_getMocRoleAssignmentNoName(t *testing.T) {
 	mocRA, err := getMocRoleAssignment(&expectedRA)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 	if err := compareMocRas(mocRA, &expectedMocRA); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 }
 
@@ -73,11 +73,11 @@ func Test_getMocRoleAssignment(t *testing.T) {
 
 	mocRA, err := getMocRoleAssignment(&inputRA)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 
 	if err := compareMocRas(mocRA, &outMocRA); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 }
 
@@ -91,7 +91,7 @@ func Test_getRoleAssignmentNoName(t *testing.T) {
 
 	ra := getRoleAssignment(&inputMocRA)
 	if err := compareRas(ra, &outRA); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 }
 
@@ -105,7 +105,7 @@ func Test_getRoleAssignment(t *testing.T) {
 
 	ra := getRoleAssignment(&inputMocRA)
 	if err := compareRas(ra, &outRA); err != nil {
-		t.Errorf(err.Error())
+		t.Error(err.Error())
 	}
 }
 
