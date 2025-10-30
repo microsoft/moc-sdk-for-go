@@ -23,6 +23,7 @@ type Service interface {
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
+	Poweroff(context.Context, string, string, bool) error
 	Pause(context.Context, string, string) error
 	Save(context.Context, string, string) error
 	RepairGuestAgent(context.Context, string, string) error
@@ -88,6 +89,15 @@ func (c *VirtualMachineClient) Start(ctx context.Context, group string, name str
 // Stop the Virtual Machine
 func (c *VirtualMachineClient) Stop(ctx context.Context, group string, name string) (err error) {
 	err = c.internal.Stop(ctx, group, name)
+	return
+}
+
+// Poweroff initiates a VM shutdown operation
+// skipShutdown: false (default/recommended) = graceful shutdown with guest OS notification
+//
+//	true = force immediate shutdown (not recommended, may cause data loss)
+func (c *VirtualMachineClient) Poweroff(ctx context.Context, group string, name string, skipShutdown bool) (err error) {
+	err = c.internal.Poweroff(ctx, group, name, skipShutdown)
 	return
 }
 
