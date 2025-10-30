@@ -54,12 +54,13 @@ func getWssdVirtualHardDisk(c *storage.VirtualHardDisk, groupName, containerName
 		if c.VirtualMachineName != nil {
 			wssdvhd.VirtualmachineName = *c.VirtualMachineName
 		}
+		if c.Path != nil {
+			wssdvhd.Path = *c.Path
+		}
 		wssdvhd.SourcePath = sourcePath
-
 		wssdvhd.SourceType = sourceType
 		wssdvhd.HyperVGeneration = c.HyperVGeneration
 		wssdvhd.DiskFileFormat = c.DiskFileFormat
-
 		wssdvhd.CloudInitDataSource = c.CloudInitDataSource
 
 		if c.PlatformDiskId != nil {
@@ -90,6 +91,7 @@ func getVirtualHardDisk(c *wssdcloudstorage.VirtualHardDisk, group string) *stor
 			HyperVGeneration:    c.HyperVGeneration,
 			DiskFileFormat:      c.DiskFileFormat,
 			ContainerName:       &c.ContainerName,
+			Path:                &c.Path,
 			PlatformDiskId:      &c.PlatformDiskId,
 		},
 		Tags: tags.ProtoToMap(c.Tags),
