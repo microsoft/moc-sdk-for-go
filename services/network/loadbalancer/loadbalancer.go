@@ -277,11 +277,7 @@ func getLoadBalancerPropertiesV2(lbp *network.LoadBalancerPropertiesFormat,
 				wssdCloudProbe.Protocol = wssdcloudnetwork.ProbeProtocol(protocolInt)
 			}
 			if probe.RequestPath != nil && *probe.RequestPath != "" {
-				wssdCloudProbe.RequestPath = &wssdcloudcommon.ProbeRequestPathReference{
-					ResourceRef: &wssdcloudcommon.ResourceReference{
-						Name: *probe.RequestPath,
-					},
-				}
+				wssdCloudProbe.RequestPath = *probe.RequestPath
 			}
 			wssdCloudLB.Probes = append(wssdCloudLB.Probes, wssdCloudProbe)
 		}
@@ -502,8 +498,8 @@ func getLoadBalancer(wssdLB *wssdcloudnetwork.LoadBalancer) (networkLB *network.
 					NumberOfProbes:    toInt32Ptr(int32(probe.NumberOfProbes)),
 				},
 			}
-			if probe.RequestPath != nil && probe.RequestPath.ResourceRef != nil {
-				networkProbe.ProbePropertiesFormat.RequestPath = toStringPtr(probe.RequestPath.ResourceRef.Name)
+			if probe.RequestPath != "" {
+				networkProbe.ProbePropertiesFormat.RequestPath = toStringPtr(probe.RequestPath)
 			}
 			protocol, ok := wssdcloudnetwork.ProbeProtocol_name[int32(probe.Protocol)]
 			if !ok {
