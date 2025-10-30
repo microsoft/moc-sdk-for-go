@@ -92,10 +92,7 @@ func (c *VirtualMachineClient) Stop(ctx context.Context, group string, name stri
 	return
 }
 
-// Poweroff initiates a VM shutdown operation
-// skipShutdown: false (default/recommended) = graceful shutdown with guest OS notification
-//
-//	true = force immediate shutdown (not recommended, may cause data loss)
+// Poweroff the Virtual Machine
 func (c *VirtualMachineClient) Poweroff(ctx context.Context, group string, name string, skipShutdown bool) (err error) {
 	err = c.internal.Poweroff(ctx, group, name, skipShutdown)
 	return
