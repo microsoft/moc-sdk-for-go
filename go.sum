@@ -123,8 +123,8 @@ github.com/magiconair/properties v1.8.7 h1:IeQXZAiQcpL9mgcAe1Nu6cX9LLw6ExEHKjN0V
 github.com/magiconair/properties v1.8.7/go.mod h1:Dhd985XPs7jluiymwWYZ0G4Z61jb3vdS329zhj2hYo0=
 github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
 github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
-github.com/microsoft/moc v0.35.5 h1:3Kl83HXK0iAP6B1SMSSypBK75S+pwbuzJPrjUqwzkUk=
-github.com/microsoft/moc v0.35.5/go.mod h1:lF4GKU8OLgqWmOCmu7qLXc/CAqY1Svr5TNsSRLqbt+U=
+github.com/microsoft/moc v0.38.1 h1:W81M+Yu7gmBvX/g6bp7yfxm1MIfV0eeo78C/CJF/UzQ=
+github.com/microsoft/moc v0.38.1/go.mod h1:lF4GKU8OLgqWmOCmu7qLXc/CAqY1Svr5TNsSRLqbt+U=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
 github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=

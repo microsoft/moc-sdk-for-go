@@ -13,9 +13,13 @@ import (
 // Service interface
 type Service interface {
 	Get(context.Context, string, string) (*[]network.LoadBalancer, error)
+	GetWithVersion(context.Context, string, string, string) (*[]network.LoadBalancer, error)
 	CreateOrUpdate(context.Context, string, string, *network.LoadBalancer) (*network.LoadBalancer, error)
+	CreateOrUpdateWithVersion(context.Context, string, string, *network.LoadBalancer, string) (*network.LoadBalancer, error)
 	Delete(context.Context, string, string) error
+	DeleteWithVersion(context.Context, string, string, string) error
 	Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error)
+	PrecheckWithVersion(ctx context.Context, group string, loadBalancers []*network.LoadBalancer, apiVersion string) (bool, error)
 }
 
 // LoadBalancerClient structure
@@ -39,9 +43,19 @@ func (c *LoadBalancerClient) Get(ctx context.Context, group, name string) (*[]ne
 	return c.internal.Get(ctx, group, name)
 }
 
+// Get methods invokes the client Get method
+func (c *LoadBalancerClient) GetWithVersion(ctx context.Context, group, name, apiVersion string) (*[]network.LoadBalancer, error) {
+	return c.internal.GetWithVersion(ctx, group, name, apiVersion)
+}
+
 // Ensure methods invokes create or update on the client
 func (c *LoadBalancerClient) CreateOrUpdate(ctx context.Context, group, name string, lb *network.LoadBalancer) (*network.LoadBalancer, error) {
 	return c.internal.CreateOrUpdate(ctx, group, name, lb)
+}
+
+// Ensure methods invokes create or update on the client
+func (c *LoadBalancerClient) CreateOrUpdateWithVersion(ctx context.Context, group, name string, lb *network.LoadBalancer, apiVersion string) (*network.LoadBalancer, error) {
+	return c.internal.CreateOrUpdateWithVersion(ctx, group, name, lb, apiVersion)
 }
 
 // Delete methods invokes delete of the network resource
@@ -49,8 +63,19 @@ func (c *LoadBalancerClient) Delete(ctx context.Context, group, name string) err
 	return c.internal.Delete(ctx, group, name)
 }
 
+// Delete methods invokes delete of the network resource
+func (c *LoadBalancerClient) DeleteWithVersion(ctx context.Context, group, name, apiVersion string) error {
+	return c.internal.DeleteWithVersion(ctx, group, name, apiVersion)
+}
+
 // Prechecks whether the system is able to create specified loadBalancers.
 // Returns true if it is possible; or false with reason in error message if not.
 func (c *LoadBalancerClient) Precheck(ctx context.Context, group string, loadBalancers []*network.LoadBalancer) (bool, error) {
 	return c.internal.Precheck(ctx, group, loadBalancers)
+}
+
+// Prechecks whether the system is able to create specified loadBalancers.
+// Returns true if it is possible; or false with reason in error message if not.
+func (c *LoadBalancerClient) PrecheckWithVersion(ctx context.Context, group string, loadBalancers []*network.LoadBalancer, apiVersion string) (bool, error) {
+	return c.internal.PrecheckWithVersion(ctx, group, loadBalancers, apiVersion)
 }
