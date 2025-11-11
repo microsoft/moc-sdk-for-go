@@ -23,6 +23,7 @@ type Service interface {
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
 	Stop(context.Context, string, string) error
+	StopGraceful(context.Context, string, string, bool) error
 	Pause(context.Context, string, string) error
 	Save(context.Context, string, string) error
 	RepairGuestAgent(context.Context, string, string) error
@@ -87,7 +88,16 @@ func (c *VirtualMachineClient) Start(ctx context.Context, group string, name str
 
 // Stop the Virtual Machine
 func (c *VirtualMachineClient) Stop(ctx context.Context, group string, name string) (err error) {
-	err = c.internal.Stop(ctx, group, name)
+	//Calling StopGraceful with skipShutdown=true to force immediate shutdown. Maintaining current Stop behaviour.
+	err = c.internal.StopGraceful(ctx, group, name, true)
+	return
+}
+
+// Stop VM with graceful option
+// The parameter to request non-graceful VM shutdown. True value for this flag indicates non-graceful shutdown whereas false
+// indicates otherwise. Default value for this flag is false if not specified
+func (c *VirtualMachineClient) StopGraceful(ctx context.Context, group string, name string, skipShutdown bool) (err error) {
+	err = c.internal.StopGraceful(ctx, group, name, skipShutdown)
 	return
 }
 

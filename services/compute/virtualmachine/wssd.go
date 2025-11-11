@@ -136,6 +136,17 @@ func (c *client) Stop(ctx context.Context, group, name string) (err error) {
 	return
 }
 
+// StopGraceful performs a graceful shutdown of the VM
+// skipShutdown: false  = graceful shutdown, true = force immediate shutdown
+func (c *client) StopGraceful(ctx context.Context, group, name string, skipShutdown bool) (err error) {
+	request, err := c.getVirtualMachineOperationRequestForPowerOff(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_StopGraceful, group, name, skipShutdown)
+	if err != nil {
+		return
+	}
+	_, err = c.VirtualMachineAgentClient.Operate(ctx, request)
+	return
+}
+
 // Start
 func (c *client) Start(ctx context.Context, group, name string) (err error) {
 	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Start, group, name)
@@ -378,6 +389,23 @@ func (c *client) getVirtualMachineOperationRequest(ctx context.Context,
 	request = &wssdcloudcompute.VirtualMachineOperationRequest{
 		OperationType:   opType,
 		VirtualMachines: vms,
+	}
+	return
+}
+
+func (c *client) getVirtualMachineOperationRequestForPowerOff(ctx context.Context,
+	opType wssdcloudproto.ProviderAccessOperation,
+	group, name string, skipShutdown bool) (request *wssdcloudcompute.VirtualMachineOperationRequest, err error) {
+
+	vms, err := c.get(ctx, group, name)
+	if err != nil {
+		return
+	}
+
+	request = &wssdcloudcompute.VirtualMachineOperationRequest{
+		OperationType:   opType,
+		VirtualMachines: vms,
+		SkipShutdown:    skipShutdown,
 	}
 	return
 }
