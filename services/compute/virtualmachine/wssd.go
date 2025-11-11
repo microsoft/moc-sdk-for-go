@@ -136,13 +136,13 @@ func (c *client) Stop(ctx context.Context, group, name string) (err error) {
 	return
 }
 
-// Poweroff
-func (c *client) Poweroff(ctx context.Context, group, name string, skipShutdown bool) (err error) {
-	request, err := c.getVirtualMachineOperationRequestForPowerOff(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Poweroff, group, name, skipShutdown)
+// StopGraceful performs a graceful shutdown of the VM
+// skipShutdown: false  = graceful shutdown, true = force immediate shutdown
+func (c *client) StopGraceful(ctx context.Context, group, name string, skipShutdown bool) (err error) {
+	request, err := c.getVirtualMachineOperationRequestForPowerOff(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_StopGraceful, group, name, skipShutdown)
 	if err != nil {
 		return
 	}
-
 	_, err = c.VirtualMachineAgentClient.Operate(ctx, request)
 	return
 }
