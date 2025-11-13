@@ -126,8 +126,13 @@ func (c *client) Query(ctx context.Context, group, query string) (*[]compute.Vir
 }
 
 // Stop
-func (c *client) Stop(ctx context.Context, group, name string) (err error) {
-	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Stop, group, name)
+func (c *client) Stop(ctx context.Context, group, name string, graceful bool) (err error) {
+	var request *wssdcloudcompute.VirtualMachineOperationRequest
+	if graceful {
+		request, err = c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Stop_Graceful, group, name)
+	} else {
+		request, err = c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Stop, group, name)
+	}
 	if err != nil {
 		return
 	}
