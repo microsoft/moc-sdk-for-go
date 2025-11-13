@@ -22,7 +22,8 @@ type Service interface {
 	Delete(context.Context, string, string) error
 	Query(context.Context, string, string) (*[]compute.VirtualMachine, error)
 	Start(context.Context, string, string) error
-	Stop(context.Context, string, string, bool) error
+	Stop(context.Context, string, string) error
+	StopGraceful(context.Context, string, string) error
 	Pause(context.Context, string, string) error
 	Save(context.Context, string, string) error
 	RepairGuestAgent(context.Context, string, string) error
@@ -86,14 +87,20 @@ func (c *VirtualMachineClient) Start(ctx context.Context, group string, name str
 }
 
 // Stop the Virtual Machine
-func (c *VirtualMachineClient) Stop(ctx context.Context, group string, name string, graceful bool) (err error) {
-	err = c.internal.Stop(ctx, group, name, graceful)
+func (c *VirtualMachineClient) Stop(ctx context.Context, group string, name string) (err error) {
+	err = c.internal.Stop(ctx, group, name)
+	return
+}
+
+// Stop the Virtual Machine gracefully
+func (c *VirtualMachineClient) StopGraceful(ctx context.Context, group string, name string) (err error) {
+	err = c.internal.StopGraceful(ctx, group, name)
 	return
 }
 
 // Restart the Virtual Machine
 func (c *VirtualMachineClient) Restart(ctx context.Context, group string, name string) (err error) {
-	err = c.internal.Stop(ctx, group, name, true)
+	err = c.internal.Stop(ctx, group, name)
 	if err != nil {
 		return
 	}
