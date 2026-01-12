@@ -334,3 +334,7 @@ ASALocalRun/
 .mfractor/
 
 vendor/
+
+# claude
+!.claude/
+!CLAUDE.md
