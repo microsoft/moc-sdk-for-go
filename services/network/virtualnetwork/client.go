@@ -19,6 +19,7 @@ type Service interface {
 	Delete(context.Context, string, string) error
 	DeleteWithVersion(context.Context, string, string, string) error
 	Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error)
+	GetNetworkControllerConfig(ctx context.Context) (*network.NetworkControllerConfig, error)
 }
 
 // Client structure
@@ -71,4 +72,9 @@ func (c *VirtualNetworkClient) DeleteWithVersion(ctx context.Context, group, nam
 // Returns true if it is possible; or false with reason in error message if not.
 func (c *VirtualNetworkClient) Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error) {
 	return c.internal.Precheck(ctx, group, virtualNetworks)
+}
+
+// GetNetworkControllerConfig returns the SDN/Network Controller configuration state
+func (c *VirtualNetworkClient) GetNetworkControllerConfig(ctx context.Context) (*network.NetworkControllerConfig, error) {
+	return c.internal.GetNetworkControllerConfig(ctx)
 }
