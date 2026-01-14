@@ -65,15 +65,15 @@ type RouteTablePropertiesFormat struct {
 // NetworkControllerConfig represents the SDN/Network Controller configuration state
 type NetworkControllerConfig struct {
 	// IsSdnEnabled - Whether SDN (Network Controller) is enabled
-	IsSdnEnabled bool `json:"isSdnEnabled,omitempty"`
+	IsSdnEnabled bool `json:"isSdnEnabled"`
 	// IsSdnVnetEnabled - Whether SDN VNET is enabled (either V2 or legacy)
-	IsSdnVnetEnabled bool `json:"isSdnVnetEnabled,omitempty"`
+	IsSdnVnetEnabled bool `json:"isSdnVnetEnabled"`
 	// IsSdnVnetV2Enabled - Whether SDN VNET V2 is enabled
-	IsSdnVnetV2Enabled bool `json:"isSdnVnetV2Enabled,omitempty"`
+	IsSdnVnetV2Enabled bool `json:"isSdnVnetV2Enabled"`
 	// IsSdnLBV2Enabled - Whether SDN LB V2 is enabled
-	IsSdnLBV2Enabled bool `json:"isSdnLBV2Enabled,omitempty"`
+	IsSdnLBV2Enabled bool `json:"isSdnLBV2Enabled"`
 	// IsLegacySdnEnabled - Whether legacy SDN (AKS-HCI) is enabled
-	IsLegacySdnEnabled bool `json:"isLegacySdnEnabled,omitempty"`
+	IsLegacySdnEnabled bool `json:"isLegacySdnEnabled"`
 }
 
 // RouteTable route table resource.
