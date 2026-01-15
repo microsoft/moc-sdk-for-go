@@ -216,7 +216,7 @@ func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwo
 }
 
 // getNetworkControllerConfig converts proto NetworkControllerConfig to SDK NetworkControllerConfig
-func getNetworkControllerConfig(c *wssdcloudnetwork.NetworkControllerConfig) *network.NetworkControllerConfig {
+func getNetworkControllerConfig(c *wssdcommonproto.NetworkControllerConfig) *network.NetworkControllerConfig {
 	if c == nil {
 		return nil
 	}
