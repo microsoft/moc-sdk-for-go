@@ -599,6 +599,8 @@ type VirtualNetwork struct {
 	Tags map[string]*string `json:"tags"`
 	// VirtualNetworkProperties - Properties of the virtual network.
 	*VirtualNetworkPropertiesFormat `json:"properties,omitempty"`
+	// NetworkControllerConfig - The network controller configuration
+	NetworkControllerConfig *NetworkControllerConfig `json:"networkControllerConfig,omitempty"`
 }
 
 // IPAllocationMethod enumerates the values for ip allocation method.
@@ -1158,4 +1160,6 @@ type LogicalNetwork struct {
 	Tags map[string]*string `json:"tags"`
 	// LogicalNetworkProperties - Properties of the Logical network.
 	*LogicalNetworkPropertiesFormat `json:"properties,omitempty"`
+	// NetworkControllerConfig - The network controller configuration
+	NetworkControllerConfig *NetworkControllerConfig `json:"networkControllerConfig,omitempty"`
 }

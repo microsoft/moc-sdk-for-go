@@ -207,11 +207,26 @@ func getLogicalNetwork(c *wssdcloudnetwork.LogicalNetwork) *network.LogicalNetwo
 			NetworkVirtualizationEnabled: &c.NetworkVirtualizationEnabled,
 			AdvancedNetworkPolicies:      &advancedPolicies,
 		},
-		Tags: tags.ProtoToMap(c.Tags),
+		Tags:                    tags.ProtoToMap(c.Tags),
+		NetworkControllerConfig: getNetworkControllerConfig(c.NetworkControllerConfig),
 	}
 
 	return lnet
 
+}
+
+// getNetworkControllerConfig converts proto NetworkControllerConfig to SDK NetworkControllerConfig
+func getNetworkControllerConfig(c *wssdcloudnetwork.NetworkControllerConfig) *network.NetworkControllerConfig {
+	if c == nil {
+		return nil
+	}
+	return &network.NetworkControllerConfig{
+		IsSdnEnabled:       c.IsSdnEnabled,
+		IsSdnVnetEnabled:   c.IsSdnVnetEnabled,
+		IsSdnVnetV2Enabled: c.IsSdnVnetV2Enabled,
+		IsSdnLBV2Enabled:   c.IsSdnLBV2Enabled,
+		IsLegacySdnEnabled: c.IsLegacySdnEnabled,
+	}
 }
 
 func getNetworkSubnets(wssdsubnets []*wssdcloudnetwork.LogicalSubnet) *[]network.LogicalSubnet {
