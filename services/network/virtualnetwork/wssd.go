@@ -178,6 +178,30 @@ func getVirtualNetworkPrecheckResponse(response *wssdcloudnetwork.VirtualNetwork
 	return result, nil
 }
 
+// GetNetworkControllerConfig returns the SDN/Network Controller configuration state
+func (c *client) GetNetworkControllerConfig(ctx context.Context) (*network.NetworkControllerConfig, error) {
+	request := &wssdcloudnetwork.NetworkControllerConfigRequest{}
+	response, err := c.VirtualNetworkAgentClient.GetNetworkControllerConfig(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return getNetworkControllerConfigFromResponse(response), nil
+}
+
+func getNetworkControllerConfigFromResponse(response *wssdcloudnetwork.NetworkControllerConfigResponse) *network.NetworkControllerConfig {
+	if response == nil || response.GetConfig() == nil {
+		return nil
+	}
+	config := response.GetConfig()
+	return &network.NetworkControllerConfig{
+		IsSdnEnabled:       config.GetIsSdnEnabled(),
+		IsSdnVnetEnabled:   config.GetIsSdnVnetEnabled(),
+		IsSdnVnetV2Enabled: config.GetIsSdnVnetV2Enabled(),
+		IsSdnLBV2Enabled:   config.GetIsSdnLBV2Enabled(),
+		IsLegacySdnEnabled: config.GetIsLegacySdnEnabled(),
+	}
+}
+
 func getVirtualNetworkRequest(opType wssdcloudcommon.Operation,
 	group, name string, network *network.VirtualNetwork, apiVersion string) (*wssdcloudnetwork.VirtualNetworkRequest, error) {
 
