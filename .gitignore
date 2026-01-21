@@ -334,3 +334,6 @@ ASALocalRun/
 .mfractor/
 
 vendor/
+
+# Go module sum file (generated dynamically)
+go.sum
