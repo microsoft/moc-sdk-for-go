@@ -45,7 +45,7 @@ func Test_getWssdVirtualMachineProxyConfiguration(t *testing.T) {
 
 	caCert, _, err := certs.GenerateClientCertificate("ValidCertificate")
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatalf("%s", err.Error())
 	}
 	certBytes := certs.EncodeCertPEM(caCert)
 	TrustedCa := string(certBytes)
