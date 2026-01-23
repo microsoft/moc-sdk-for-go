@@ -249,7 +249,22 @@ func getVirtualNetwork(c *wssdcloudnetwork.VirtualNetwork, group string) *networ
 				AddressPrefixes: &c.Cidr,
 			},
 		},
-		Tags: tags.ProtoToMap(c.Tags),
+		Tags:                    tags.ProtoToMap(c.Tags),
+		NetworkControllerConfig: getNetworkControllerConfig(c.NetworkControllerConfig),
+	}
+}
+
+// getNetworkControllerConfig converts proto NetworkControllerConfig to SDK NetworkControllerConfig
+func getNetworkControllerConfig(c *wssdcommonproto.NetworkControllerConfig) *network.NetworkControllerConfig {
+	if c == nil {
+		return nil
+	}
+	return &network.NetworkControllerConfig{
+		IsSdnEnabled:       c.IsSdnEnabled,
+		IsSdnVnetEnabled:   c.IsSdnVnetEnabled,
+		IsSdnVnetV2Enabled: c.IsSdnVnetV2Enabled,
+		IsSdnLBV2Enabled:   c.IsSdnLBV2Enabled,
+		IsLegacySdnEnabled: c.IsLegacySdnEnabled,
 	}
 }
 
