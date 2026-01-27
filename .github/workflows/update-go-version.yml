@@ -28,7 +28,7 @@ jobs:
       - name: Get current Go version from go.mod
         id: current-version
         run: |
-          CURRENT_VERSION=$(grep -E '^go [0-9]+\.[0-9]+' go.mod | awk '{print $2}')
+          CURRENT_VERSION=$(grep -E '^go [0-9]+\.[0-9]+(\.[0-9]+)?' go.mod | awk '{print $2}')
           echo "Current Go version: $CURRENT_VERSION"
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
@@ -50,14 +50,14 @@ jobs:
         if: steps.check-update.outputs.needed == 'true'
         run: |
           LATEST_VERSION="${{ steps.go-version.outputs.version }}"
-          sed -i "s/^go [0-9]\+\.[0-9]\+.*/go $LATEST_VERSION/" go.mod
+          sed -i "s/^go [0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?.*/go $LATEST_VERSION/" go.mod
           echo "Updated go.mod to Go $LATEST_VERSION"
 
       - name: Update Azure Pipelines build.yaml
         if: steps.check-update.outputs.needed == 'true'
         run: |
           LATEST_VERSION="${{ steps.go-version.outputs.version }}"
-          sed -i "s/version: '[0-9]\+\.[0-9]\+\.[0-9]\+'/version: '$LATEST_VERSION'/" .pipelines/build.yaml
+          sed -i "s/version: '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?'/version: '$LATEST_VERSION'/" .pipelines/build.yaml
           echo "Updated .pipelines/build.yaml to Go $LATEST_VERSION"
 
       - name: Setup Go
