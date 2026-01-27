@@ -12,6 +12,19 @@ Then run
 
 Note: Try running `go mod tidy` if there are any issues with go packages when building
 
+## Automated Workflows
+
+### Go Version Updates
+
+This repository uses a GitHub Actions workflow that automatically checks for new Go versions on the first day of each month. When a new stable Go version is released, the workflow:
+
+1. Updates the Go version in `go.mod`
+2. Updates the Go version in `.pipelines/build.yaml` (Azure Pipelines configuration)
+3. Runs `go mod tidy` to update dependencies
+4. Creates a pull request with the changes
+
+The workflow can also be triggered manually from the Actions tab in GitHub if an immediate update is needed.
+
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
