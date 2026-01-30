@@ -25,25 +25,14 @@ The MOC SDK provides clients for managing various cloud infrastructure resources
 - **[Cloud Services](services/cloud.md)** - Locations, zones, nodes, and resource groups
 - **[Admin Services](services/admin.md)** - Version management, health monitoring, logging, and validation
 
-### Advanced Topics
-
-- [gRPC Communication](advanced/grpc-communication.md) - Deep dive into gRPC implementation
-- [Error Handling](advanced/error-handling.md) - Error handling patterns and best practices
-- [Connection Management](advanced/connection-management.md) - Connection pooling, caching, and keep-alive
-- [C++ Wrapper](advanced/cpp-wrapper.md) - Using the C++ wrapper for cross-language interoperability
-
 ### Code Examples
 
 - [Virtual Machine Management](examples/vm-management.md) - Create, manage, and delete VMs
-- [Network Setup](examples/network-setup.md) - Configure virtual networks and network resources
-- [Storage Operations](examples/storage-operations.md) - Manage virtual hard disks and storage
 
 ### Development
 
 - [Building from Source](development/building.md) - Build the SDK locally
-- [Testing Guidelines](development/testing.md) - Run and write tests
 - [Contributing Guide](development/contributing.md) - Contribute to the project
-- [CI/CD Pipelines](development/ci-cd.md) - Understanding the build and release process
 
 ### Additional Resources
 
