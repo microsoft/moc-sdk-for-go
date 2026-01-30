@@ -152,9 +152,14 @@ func getSecret(secretClient *secret.SecretClient) error {
     }
     
     secret := &(*secrets)[0]
+    var secretValue string
     if secret.Properties != nil && secret.Properties.Value != nil {
-        fmt.Printf("Secret value: %s\n", *secret.Properties.Value)
+        secretValue = *secret.Properties.Value
     }
+    
+    // Use secretValue for secure operations (for example, to establish a database connection).
+    // Do not log or print secretValue to avoid leaking sensitive information.
+    _ = secretValue
     
     return nil
 }
@@ -290,7 +295,7 @@ func assignRole(raClient *roleassignment.RoleAssignmentClient) error {
         Properties: &security.RoleAssignmentProperties{
             RoleDefinitionID: stringPtr("/default/roles/vm-operator"),
             PrincipalID:      stringPtr("/production/identities/app-identity"),
-            Scope:            stringPtr("/production/virtualma chines/*"),
+            Scope:            stringPtr("/production/virtualmachines/*"),
         },
     }
     
@@ -335,7 +340,7 @@ func authenticateWithCA(authClient *authentication.AuthenticationClient) error {
         return err
     }
     
-    fmt.Printf("Token: %s\n", *token.Token)
+    fmt.Println("Successfully obtained CA-signed token")
     fmt.Printf("Expires: %s\n", token.ExpiresOn)
     
     return nil
