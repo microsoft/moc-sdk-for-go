@@ -310,7 +310,7 @@ authorizer, err := auth.NewAuthorizerFromCertificate(
     "/tmp/cert.pem", // Don't hardcode paths
     "/tmp/key.pem",
     "/tmp/ca.pem",
-    "password123", // Don't hardcode passwords
+    "", // Don't hardcode passwords - use secure storage
 )
 ```
 

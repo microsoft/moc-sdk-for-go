@@ -115,7 +115,10 @@ func createKeyVault(kvClient *keyvault.KeyVaultClient) error {
 ### Secrets Management
 
 ```go
-import "github.com/microsoft/moc-sdk-for-go/services/security/keyvault/secret"
+import (
+    "os"
+    "github.com/microsoft/moc-sdk-for-go/services/security/keyvault/secret"
+)
 
 func createSecret(secretClient *secret.SecretClient) error {
     ctx := context.Background()
@@ -124,7 +127,7 @@ func createSecret(secretClient *secret.SecretClient) error {
         Name:     stringPtr("database-password"),
         Location: stringPtr("default"),
         Properties: &security.SecretProperties{
-            Value: stringPtr("MySecurePassword123!"),
+            Value: stringPtr(os.Getenv("DB_PASSWORD")), // Use environment variable
         },
     }
     
@@ -136,6 +139,9 @@ func createSecret(secretClient *secret.SecretClient) error {
     fmt.Printf("Created secret: %s\n", *sec.Name)
     return nil
 }
+
+// Security Note: Set DB_PASSWORD environment variable before running:
+//   export DB_PASSWORD="your-secure-database-password"
 
 func getSecret(secretClient *secret.SecretClient) error {
     ctx := context.Background()

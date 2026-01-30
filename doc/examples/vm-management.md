@@ -11,6 +11,7 @@ import (
     "context"
     "fmt"
     "log"
+    "os"
     "time"
 
     "github.com/microsoft/moc-sdk-for-go/services/compute"
@@ -93,7 +94,7 @@ func createVM(vmClient *virtualmachine.VirtualMachineClient) error {
             OsProfile: &compute.OSProfile{
                 ComputerName:  stringPtr("web-server-01"),
                 AdminUsername: stringPtr("azureuser"),
-                AdminPassword: stringPtr("SecurePassword123!"),
+                AdminPassword: stringPtr(os.Getenv("VM_ADMIN_PASSWORD")), // Use environment variable
                 LinuxConfiguration: &compute.LinuxConfiguration{
                     DisablePasswordAuthentication: boolPtr(false),
                 },
@@ -123,6 +124,9 @@ func createVM(vmClient *virtualmachine.VirtualMachineClient) error {
 
     return nil
 }
+
+// Security Note: Set VM_ADMIN_PASSWORD environment variable before running:
+//   export VM_ADMIN_PASSWORD="your-secure-password"
 
 func listVMs(vmClient *virtualmachine.VirtualMachineClient) error {
     ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

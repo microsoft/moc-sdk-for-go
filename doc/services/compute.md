@@ -22,6 +22,7 @@ Virtual machines are the core compute resource.
 ```go
 import (
     "context"
+    "os"
     "github.com/microsoft/moc-sdk-for-go/services/compute"
     "github.com/microsoft/moc-sdk-for-go/services/compute/virtualmachine"
 )
@@ -48,7 +49,7 @@ func createVM(vmClient *virtualmachine.VirtualMachineClient) error {
             OsProfile: &compute.OSProfile{
                 ComputerName:  stringPtr("web-server-01"),
                 AdminUsername: stringPtr("azureuser"),
-                AdminPassword: stringPtr("SecureP@ssw0rd!"),
+                AdminPassword: stringPtr(os.Getenv("VM_ADMIN_PASSWORD")), // Use environment variable
                 LinuxConfiguration: &compute.LinuxConfiguration{
                     DisablePasswordAuthentication: boolPtr(false),
                 },
@@ -71,6 +72,12 @@ func createVM(vmClient *virtualmachine.VirtualMachineClient) error {
     fmt.Printf("Created VM: %s\n", *vm.ID)
     return nil
 }
+```
+
+**Security Note:** The example above uses `os.Getenv("VM_ADMIN_PASSWORD")` to retrieve the password from an environment variable. Never hardcode passwords in your code. Set the environment variable before running:
+
+```bash
+export VM_ADMIN_PASSWORD="your-secure-password"
 ```
 
 ### VM Operations
