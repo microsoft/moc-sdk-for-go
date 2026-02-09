@@ -1,0 +1,102 @@
+name: Update Go Version
+
+on:
+  schedule:
+    # Run on the first day of every month at 00:00 UTC
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-go-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get latest Go version
+        id: go-version
+        run: |
+          # Fetch the latest stable Go version from the official Go website
+          LATEST_GO_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1 | sed 's/go//')
+          echo "Latest Go version: $LATEST_GO_VERSION"
+          echo "version=$LATEST_GO_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Get current Go version from go.mod
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(grep -E '^go [0-9]+\.[0-9]+(\.[0-9]+)?' go.mod | awk '{print $2}')
+          echo "Current Go version: $CURRENT_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if update is needed
+        id: check-update
+        run: |
+          LATEST="${{ steps.go-version.outputs.version }}"
+          CURRENT="${{ steps.current-version.outputs.version }}"
+          
+          if [ "$LATEST" != "$CURRENT" ]; then
+            echo "Update needed from $CURRENT to $LATEST"
+            echo "needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Already on latest version $CURRENT"
+            echo "needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update go.mod
+        if: steps.check-update.outputs.needed == 'true'
+        run: |
+          LATEST_VERSION="${{ steps.go-version.outputs.version }}"
+          sed -i "s/^go [0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?.*/go $LATEST_VERSION/" go.mod
+          echo "Updated go.mod to Go $LATEST_VERSION"
+
+      - name: Update Azure Pipelines build.yaml
+        if: steps.check-update.outputs.needed == 'true'
+        run: |
+          LATEST_VERSION="${{ steps.go-version.outputs.version }}"
+          sed -i "s/version: '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?'/version: '$LATEST_VERSION'/" .pipelines/build.yaml
+          echo "Updated .pipelines/build.yaml to Go $LATEST_VERSION"
+
+      - name: Setup Go
+        if: steps.check-update.outputs.needed == 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ steps.go-version.outputs.version }}
+
+      - name: Run go mod tidy
+        if: steps.check-update.outputs.needed == 'true'
+        run: |
+          go mod tidy
+          echo "Ran go mod tidy"
+
+      - name: Create Pull Request
+        if: steps.check-update.outputs.needed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update Go version to ${{ steps.go-version.outputs.version }}"
+          title: "chore: update Go version to ${{ steps.go-version.outputs.version }}"
+          body: |
+            ## Automated Go Version Update
+            
+            This PR updates the Go version from **${{ steps.current-version.outputs.version }}** to **${{ steps.go-version.outputs.version }}**.
+            
+            ### Changes
+            - Updated `go.mod` to Go ${{ steps.go-version.outputs.version }}
+            - Updated `.pipelines/build.yaml` to use Go ${{ steps.go-version.outputs.version }}
+            - Ran `go mod tidy` to update dependencies
+            
+            ### Checklist
+            - [ ] Review the changes
+            - [ ] Ensure all tests pass
+            - [ ] Verify the build succeeds with the new Go version
+            
+            This PR was automatically created by the [Update Go Version workflow](.github/workflows/update-go-version.yml).
+          branch: automated/update-go-${{ steps.go-version.outputs.version }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated

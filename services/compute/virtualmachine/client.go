@@ -100,7 +100,7 @@ func (c *VirtualMachineClient) StopGraceful(ctx context.Context, group string, n
 
 // Restart the Virtual Machine
 func (c *VirtualMachineClient) Restart(ctx context.Context, group string, name string) (err error) {
-	err = c.internal.Stop(ctx, group, name)
+	err = c.internal.StopGraceful(ctx, group, name)
 	if err != nil {
 		return
 	}
