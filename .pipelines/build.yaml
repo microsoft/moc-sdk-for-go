@@ -16,9 +16,20 @@ jobs:
     value: true
 
   steps:
-  - task: GoTool@0
-    inputs:
-      version: '1.22.5'
+  - script: |
+      echo "Removing existing Go installation"
+      sudo rm -rf /usr/local/go
+      echo "Downloading Go from Microsoft URL"
+      # Latest download link can be found at https://raw.githubusercontent.com/microsoft/go/refs/heads/microsoft/main/eng/doc/release-branch-links.json
+      curl -L -o go.tar.gz "https://aka.ms/golang/release/latest/go1.26.linux-amd64.tar.gz"
+      echo "Extracting Go"
+      sudo tar -C /usr/local -xzf go.tar.gz
+      echo "Adding Go to PATH"
+      echo "##vso[task.prependpath]/usr/local/go/bin"
+      export PATH=/usr/local/go/bin:$PATH
+      echo "Verifying Go installation"
+      go version
+    displayName: "Install Microsoft Go"
   - task: InstallSSHKey@0
     inputs:
       knownHostsEntry: '$(KNOWN_HOST)' 
@@ -71,9 +82,20 @@ jobs:
     value: 'on'
 
   steps:
-  - task: GoTool@0
-    inputs:
-      version: '1.22.5'
+  - script: |
+      echo "Removing existing Go installation"
+      sudo rm -rf /usr/local/go
+      echo "Downloading Go from Microsoft URL"
+      # Latest download link can be found at https://raw.githubusercontent.com/microsoft/go/refs/heads/microsoft/main/eng/doc/release-branch-links.json
+      curl -L -o go.tar.gz "https://aka.ms/golang/release/latest/go1.26.linux-amd64.tar.gz"
+      echo "Extracting Go"
+      sudo tar -C /usr/local -xzf go.tar.gz
+      echo "Adding Go to PATH"
+      echo "##vso[task.prependpath]/usr/local/go/bin"
+      export PATH=/usr/local/go/bin:$PATH
+      echo "Verifying Go installation"
+      go version
+    displayName: "Install Microsoft Go"
 
   - script: |
       make golangci-lint

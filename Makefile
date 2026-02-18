@@ -32,7 +32,7 @@ vendor:
 	go mod tidy
 
 build:
-	GOARCH=amd64 go build -v ./...
+	GOARCH=amd64 CGO_ENABLED=0 GOEXPERIMENT=ms_nocgo_opensslcrypto go build -v ./...
 	GOARCH=amd64 GOOS=windows CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc $(GOBUILD) -buildmode=c-shared -o $(CPP_WRAPPER_OUT) -ldflags="$(LD_FLAGS_WINDOWS_CSHARED)" github.com/microsoft/moc-sdk-for-go/wrapper/cpp/
 
 test:
