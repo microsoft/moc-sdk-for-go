@@ -136,6 +136,17 @@ func (c *client) Stop(ctx context.Context, group, name string) (err error) {
 	return
 }
 
+// StopGraceful
+func (c *client) StopGraceful(ctx context.Context, group, name string) (err error) {
+	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Stop_Graceful, group, name)
+	if err != nil {
+		return
+	}
+
+	_, err = c.VirtualMachineAgentClient.Operate(ctx, request)
+	return
+}
+
 // Start
 func (c *client) Start(ctx context.Context, group, name string) (err error) {
 	request, err := c.getVirtualMachineOperationRequest(ctx, wssdcloudproto.ProviderAccessOperation_VirtualMachine_Start, group, name)

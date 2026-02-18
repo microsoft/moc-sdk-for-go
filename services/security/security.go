@@ -222,6 +222,7 @@ const (
 	VirtualMachine_PauseAccess         ProviderAccessOperation = "virtualmachine_pause"
 	VirtualMachine_SaveAccess          ProviderAccessOperation = "virtualmachine_save"
 	VirtualMachine_RemoveIsoDiskAccess ProviderAccessOperation = "virtualmachine_removeisodisk"
+	VirtualMachine_StopGracefulAccess  ProviderAccessOperation = "virtualmachine_stopgraceful"
 
 	Cluster_CreateAccess        ProviderAccessOperation = "cluster_create"
 	Cluster_UpdateAccess        ProviderAccessOperation = "cluster_update"
