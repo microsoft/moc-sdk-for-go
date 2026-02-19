@@ -381,6 +381,8 @@ type VirtualMachineProperties struct {
 	// GuestAgentInstanceView - READ-ONLY; The info of the Agent running on the virtual machine, which only appears in the response.
 	GuestAgentInstanceView *GuestAgentInstanceView `json:"guestAgentInstanceView,omitempty"`
 	// VMID - READ-ONLY; Specifies the VM unique ID which is a 128-bits identifier that is encoded and stored in all Azure IaaS VMs SMBIOS and can be read using platform BIOS commands.
+	// NOTE: This field is not wired to any proto field and is never populated. It is a vestigial
+	// placeholder from the Azure compute API model.
 	VMID *string `json:"vmId,omitempty"`
 	// VmType - The type of the VM.  Can be either tenant or loadbalancer vm
 	VmType VMType `json:"vmType,omitempty"`
@@ -392,6 +394,12 @@ type VirtualMachineProperties struct {
 	ZoneConfiguration *ZoneConfiguration `json:"zoneConfiguration,omitempty"`
 	// Priority
 	Priority common.Priority `json:"priority,omitempty"`
+	// HyperVVmId - READ-ONLY; The Hyper-V VM identifier.
+	HyperVVmId *string `json:"hyperVVmId,omitempty"`
+	// HostNodeName - READ-ONLY; The name of the host node where the VM is running.
+	HostNodeName *string `json:"hostNodeName,omitempty"`
+	// HostNodeIpAddress - READ-ONLY; The IP address of the host node where the VM is running.
+	HostNodeIpAddress *string `json:"hostNodeIpAddress,omitempty"`
 }
 
 type VirtualMachine struct {
