@@ -17,15 +17,21 @@ CPP_WRAPPER_OUT=$(BIN_DIR)/$(CPP_WRAPPER_NAME)$(CPP_WRAPPER_EXT)
 
 # Private repo workaround
 export GOPRIVATE=github.com/microsoft
+export GONOSUMCHECK=github.com/microsoft/*
+export GOFLAGS=-mod=mod
 # Active module mode, as we use go modules to manage dependencies
 export GO111MODULE=on
 
 PKG := 
 
-all: vendor format build unittest
+all: tidy vendor format build unittest
 
 clean:
 	rm -rf ${OUT} ${OUTEXE} 
+
+.PHONY: tidy
+tidy:
+	-go mod tidy -e
 
 .PHONY: vendor
 vendor:
