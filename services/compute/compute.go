@@ -852,6 +852,15 @@ type CloneImageProperties struct {
 	CloneSource string `json:"cloneSource,omitempty"`
 }
 
+// AzureBlobImage properties for downloading images from Azure Storage Blob
+type AzureBlobImageProperties struct {
+	Version     string `json:"version,omitempty"`
+	ReleaseName string `json:"releasename,omitempty"`
+	Parts       int32  `json:"parts,omitempty"`
+	Cloud       string `json:"cloud,omitempty"`
+	Endpoint    string `json:"endpoint,omitempty"`
+}
+
 // Azure GalleryImage properties
 type AzureGalleryImageProperties struct {
 	// SasURL - Specifies the SAS URI for the image
