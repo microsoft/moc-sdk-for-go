@@ -854,8 +854,10 @@ type CloneImageProperties struct {
 
 // AzureBlobImage properties for downloading images from Azure Storage Blob
 type AzureBlobImageProperties struct {
+	CatalogName string `json:"catalogName,omitempty"`
+	Audience    string `json:"audience,omitempty"`
 	Version     string `json:"version,omitempty"`
-	ReleaseName string `json:"releasename,omitempty"`
+	ReleaseName string `json:"releaseName,omitempty"`
 	Parts       int32  `json:"parts,omitempty"`
 	Cloud       string `json:"cloud,omitempty"`
 	Endpoint    string `json:"endpoint,omitempty"`
