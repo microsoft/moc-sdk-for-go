@@ -111,3 +111,6 @@ replace (
 	golang.org/x/oauth2 => golang.org/x/oauth2 v0.27.0
 	golang.org/x/sys => golang.org/x/sys v0.39.0
 )
+
+// TODO: Remove before merging - local replace for testing
+replace github.com/microsoft/moc => github.com/oukoedwin/moc v0.40.3-0.20260416173451-7404e67fa999
