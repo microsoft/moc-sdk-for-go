@@ -2,15 +2,13 @@ module github.com/microsoft/moc-sdk-for-go
 
 go 1.26
 
-replace github.com/microsoft/moc => ../../moc.worktree/moc-reserveip
-
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.40.2
+	github.com/microsoft/moc v0.42.1-0.20260519002637-944d459a263c
 	google.golang.org/grpc v1.79.3
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/klog v1.0.0
