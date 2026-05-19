@@ -25,20 +25,22 @@ type IPAddressUpdateFailure = registeredips.IPAddressUpdateFailure
 // methods defined on the underlying type are accessible through this alias.
 type IPUpdateErrorCode = registeredips.IPUpdateErrorCode
 
-const (
-	IPUpdateUnknown          = registeredips.IPUpdateUnknown
-	IPUpdateInvalidFormat    = registeredips.IPUpdateInvalidFormat
-	IPUpdateOutOfRange       = registeredips.IPUpdateOutOfRange
-	IPUpdateSubnetNotFound   = registeredips.IPUpdateSubnetNotFound
-	IPUpdateAlreadyAllocated = registeredips.IPUpdateAlreadyAllocated
-	IPUpdateNoPoolsInSubnet  = registeredips.IPUpdateNoPoolsInSubnet
-)
-
 // UpdateRegisteredIPs wraps the gRPC UpdateRegisteredIPs RPC. See
 // VirtualNetworkClient.UpdateRegisteredIPs in interfaces.go for the full
 // contract (subnet-scoped full-replace, IP-level best effort, partial-success
 // semantics).
 func (c *client) UpdateRegisteredIPs(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
+	return c.UpdateRegisteredIPsWithVersion(ctx, groupName, name, subnetRegisteredIPs, Version_Default)
+}
+
+// UpdateRegisteredIPsWithVersion is the API-version-aware variant of
+// UpdateRegisteredIPs.apiVersion=="" or "1.0" preserves the default v1
+// behavior; apiVersion=="2.0" opts the caller out of the cluster-wide
+// VNET->LNET migration shim on the cloudagent side, so the registered-IP
+// write lands on the VNET provider's IPAM regardless of
+// disableLogicalNetworkMigration. Mirrors the Get/CreateOrUpdate/Delete
+// *WithVersion shape used elsewhere in the VNET SDK.
+func (c *client) UpdateRegisteredIPsWithVersion(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs, apiVersion string) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
 	if len(groupName) == 0 {
 		return nil, nil, errors.Wrapf(errors.InvalidInput, "GroupName is not specified")
 	}
@@ -46,10 +48,16 @@ func (c *client) UpdateRegisteredIPs(ctx context.Context, groupName, name string
 		return nil, nil, errors.Wrapf(errors.InvalidInput, "Name is not specified")
 	}
 
+	version, err := getApiVersion(apiVersion)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	req := &wssdcloudnetwork.VirtualNetworkIPUpdateRequest{
 		GroupName: groupName,
 		Name:      name,
 		IPUpdates: subnetsToProto(subnetRegisteredIPs),
+		Version:   version,
 	}
 
 	resp, err := c.VirtualNetworkAgentClient.UpdateRegisteredIPs(ctx, req)

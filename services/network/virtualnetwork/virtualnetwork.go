@@ -159,12 +159,11 @@ func getWssdNetworkSubnets(subnets *[]network.Subnet, location *string) (wssdsub
 				ippoolType = wssdcommonproto.IPPoolType_VIPPool
 			}
 			wssdsubnet.Ippools = append(wssdsubnet.Ippools, &wssdcommonproto.IPPool{
-				Name:                  ippool.Name,
-				Type:                  ippoolType,
-				Start:                 ippool.Start,
-				End:                   ippool.End,
-				Info:                  getWssdNetworkIPPoolInfo(ippool.Info),
-				RegisteredIPAddresses: ippool.RegisteredIPAddresses,
+				Name:  ippool.Name,
+				Type:  ippoolType,
+				Start: ippool.Start,
+				End:   ippool.End,
+				Info:  getWssdNetworkIPPoolInfo(ippool.Info),
 			})
 		}
 

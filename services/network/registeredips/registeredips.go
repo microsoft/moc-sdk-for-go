@@ -24,17 +24,17 @@ type SubnetRegisteredIPs struct {
 	// Subnet name on the target network (NOT the network name itself;
 	// the network is identified by separate parameters on the
 	// UpdateRegisteredIPs call).
-	SubnetName            string
-	RegisteredIPAddresses []string
+	SubnetName            string   `json:"subnetName" yaml:"subnetName"`
+	RegisteredIPAddresses []string `json:"registeredIPAddresses" yaml:"registeredIPAddresses"`
 }
 
 // IPAddressUpdateFailure describes a single IP that MOC rejected during an
 // UpdateRegisteredIPs call.
 type IPAddressUpdateFailure struct {
-	SubnetName string
-	IPAddress  string
-	Code       IPUpdateErrorCode
-	Error      string
+	SubnetName string            `json:"subnetName" yaml:"subnetName"`
+	IPAddress  string            `json:"ipAddress" yaml:"ipAddress"`
+	Code       IPUpdateErrorCode `json:"code" yaml:"code"`
+	Error      string            `json:"error" yaml:"error"`
 }
 
 // IPUpdateErrorCode mirrors moc's wssdcommon IPUpdateErrorCode enum.
@@ -74,6 +74,37 @@ func (c IPUpdateErrorCode) String() string {
 // MarshalJSON renders the code as its readable string form.
 func (c IPUpdateErrorCode) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.String())
+}
+
+// UnmarshalJSON accepts either a string name (the canonical wire form) or
+// the underlying numeric value for backwards/forwards compatibility.
+func (c *IPUpdateErrorCode) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		switch s {
+		case "Unknown", "":
+			*c = IPUpdateUnknown
+		case "InvalidFormat":
+			*c = IPUpdateInvalidFormat
+		case "OutOfRange":
+			*c = IPUpdateOutOfRange
+		case "SubnetNotFound":
+			*c = IPUpdateSubnetNotFound
+		case "AlreadyAllocated":
+			*c = IPUpdateAlreadyAllocated
+		case "NoPoolsInSubnet":
+			*c = IPUpdateNoPoolsInSubnet
+		default:
+			return fmt.Errorf("unknown IPUpdateErrorCode %q", s)
+		}
+		return nil
+	}
+	var n int32
+	if err := json.Unmarshal(data, &n); err != nil {
+		return fmt.Errorf("IPUpdateErrorCode: %w", err)
+	}
+	*c = IPUpdateErrorCode(n)
+	return nil
 }
 
 // MarshalYAML renders the code as its readable string form.

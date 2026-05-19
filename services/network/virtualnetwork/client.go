@@ -20,6 +20,7 @@ type Service interface {
 	DeleteWithVersion(context.Context, string, string, string) error
 	Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error)
 	UpdateRegisteredIPs(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error)
+	UpdateRegisteredIPsWithVersion(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs, apiVersion string) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error)
 }
 
 // Client structure
@@ -88,4 +89,11 @@ func (c *VirtualNetworkClient) Precheck(ctx context.Context, group string, virtu
 // transport error).
 func (c *VirtualNetworkClient) UpdateRegisteredIPs(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
 	return c.internal.UpdateRegisteredIPs(ctx, groupName, name, subnetRegisteredIPs)
+}
+
+// UpdateRegisteredIPsWithVersion is the API-version-aware variant of
+// UpdateRegisteredIPs. See the implementation note in registered_ips.go for
+// the semantics of apiVersion ("", "1.0", "2.0").
+func (c *VirtualNetworkClient) UpdateRegisteredIPsWithVersion(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs, apiVersion string) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
+	return c.internal.UpdateRegisteredIPsWithVersion(ctx, groupName, name, subnetRegisteredIPs, apiVersion)
 }

@@ -25,15 +25,6 @@ type IPAddressUpdateFailure = registeredips.IPAddressUpdateFailure
 // methods defined on the underlying type are accessible through this alias.
 type IPUpdateErrorCode = registeredips.IPUpdateErrorCode
 
-const (
-	IPUpdateUnknown          = registeredips.IPUpdateUnknown
-	IPUpdateInvalidFormat    = registeredips.IPUpdateInvalidFormat
-	IPUpdateOutOfRange       = registeredips.IPUpdateOutOfRange
-	IPUpdateSubnetNotFound   = registeredips.IPUpdateSubnetNotFound
-	IPUpdateAlreadyAllocated = registeredips.IPUpdateAlreadyAllocated
-	IPUpdateNoPoolsInSubnet  = registeredips.IPUpdateNoPoolsInSubnet
-)
-
 // UpdateRegisteredIPs wraps the gRPC UpdateRegisteredIPs RPC. See
 // LogicalNetworkClient.UpdateRegisteredIPs in interfaces.go for the full
 // contract (subnet-scoped full-replace, IP-level best effort, partial-success
