@@ -19,6 +19,8 @@ type Service interface {
 	Delete(context.Context, string, string) error
 	DeleteWithVersion(context.Context, string, string, string) error
 	Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error)
+	UpdateRegisteredIPs(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error)
+	UpdateRegisteredIPsWithVersion(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs, apiVersion string) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error)
 }
 
 // Client structure
@@ -71,4 +73,27 @@ func (c *VirtualNetworkClient) DeleteWithVersion(ctx context.Context, group, nam
 // Returns true if it is possible; or false with reason in error message if not.
 func (c *VirtualNetworkClient) Precheck(ctx context.Context, group string, virtualNetworks []*network.VirtualNetwork) (bool, error) {
 	return c.internal.Precheck(ctx, group, virtualNetworks)
+}
+
+// UpdateRegisteredIPs replaces the registeredIPAddresses list on each
+// referenced subnet with the supplied list (subnet-scoped full-replace) and
+// applies the corresponding bitmap delta in MOC. This is independent from the
+// VirtualNetwork spec Update path: it does not run validation, does not touch
+// ProvisionState, and does not fan out to nodeagents. IP-level validation
+// failures are returned in the failures slice without failing the call.
+//
+// subnetPersistedIPs reflects what is now stored in MOC (only trustworthy when err
+// is nil). failures contains IP-level rejections (may be non-empty even when err is
+// nil - partial success). A non-nil err signals a whole-call failure
+// (VNET-not-found, lookup error, lock-acquisition error, store save error,
+// transport error).
+func (c *VirtualNetworkClient) UpdateRegisteredIPs(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
+	return c.internal.UpdateRegisteredIPs(ctx, groupName, name, subnetRegisteredIPs)
+}
+
+// UpdateRegisteredIPsWithVersion is the API-version-aware variant of
+// UpdateRegisteredIPs. See the implementation note in registered_ips.go for
+// the semantics of apiVersion ("", "1.0", "2.0").
+func (c *VirtualNetworkClient) UpdateRegisteredIPsWithVersion(ctx context.Context, groupName, name string, subnetRegisteredIPs []SubnetRegisteredIPs, apiVersion string) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
+	return c.internal.UpdateRegisteredIPsWithVersion(ctx, groupName, name, subnetRegisteredIPs, apiVersion)
 }

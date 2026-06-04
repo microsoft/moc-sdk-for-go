@@ -16,6 +16,7 @@ type Service interface {
 	CreateOrUpdate(context.Context, string, string, *network.LogicalNetwork) (*network.LogicalNetwork, error)
 	Delete(context.Context, string, string) error
 	Precheck(ctx context.Context, location string, logicalNetworks []*network.LogicalNetwork) (bool, error)
+	UpdateRegisteredIPs(ctx context.Context, locationName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error)
 }
 
 // Client structure
@@ -53,4 +54,17 @@ func (c *LogicalNetworkClient) Delete(ctx context.Context, location, name string
 // Returns true if it is possible; or false with reason in error message if not.
 func (c *LogicalNetworkClient) Precheck(ctx context.Context, location string, logicalNetworks []*network.LogicalNetwork) (bool, error) {
 	return c.internal.Precheck(ctx, location, logicalNetworks)
+}
+
+// UpdateRegisteredIPs replaces the registeredIPAddresses list on each
+// referenced subnet with the supplied list (subnet-scoped full-replace) and
+// applies the corresponding bitmap delta in MOC.
+//
+// subnetPersistedIPs reflects what is now stored in MOC (only trustworthy when err
+// is nil). failures contains IP-level rejections (may be non-empty even when err is
+// nil - partial success). A non-nil err signals a whole-call failure
+// (LNET-not-found, lookup error, lock-acquisition error, store save error,
+// transport error).
+func (c *LogicalNetworkClient) UpdateRegisteredIPs(ctx context.Context, locationName, name string, subnetRegisteredIPs []SubnetRegisteredIPs) (subnetPersistedIPs []SubnetRegisteredIPs, failures []IPAddressUpdateFailure, err error) {
+	return c.internal.UpdateRegisteredIPs(ctx, locationName, name, subnetRegisteredIPs)
 }

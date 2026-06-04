@@ -293,11 +293,12 @@ func getIPPools(wssdcloudippools []*wssdcommonproto.IPPool) []network.IPPool {
 			ippoolType = network.VIPPOOL
 		}
 		ippool = append(ippool, network.IPPool{
-			Name:  wssdcloudippool.Name,
-			Type:  ippoolType,
-			Start: wssdcloudippool.Start,
-			End:   wssdcloudippool.End,
-			Info:  getNetworkIPPoolInfo(wssdcloudippool),
+			Name:                  wssdcloudippool.Name,
+			Type:                  ippoolType,
+			Start:                 wssdcloudippool.Start,
+			End:                   wssdcloudippool.End,
+			Info:                  getNetworkIPPoolInfo(wssdcloudippool),
+			RegisteredIPAddresses: wssdcloudippool.GetRegisteredIPAddresses(),
 		})
 	}
 	return ippool

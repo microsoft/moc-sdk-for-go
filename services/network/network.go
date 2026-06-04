@@ -171,6 +171,8 @@ type IPPool struct {
 	End string `json:"end,omitempty"`
 	// Auxilliary info associated with an ip pool
 	Info *IPPoolInfo `json:"info,omitempty"`
+	// RegisteredIPAddresses - IPs explicitly registered as allocated outside of MOC IPAM
+	RegisteredIPAddresses []string `json:"registeredIPAddresses,omitempty"`
 }
 
 // MACRange is associated with MACPool and respresents the start and end addresses.
