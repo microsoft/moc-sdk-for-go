@@ -113,4 +113,4 @@ replace (
 )
 
 // TODO: Remove before merging - local replace for testing
-replace github.com/microsoft/moc => github.com/oukoedwin/moc v0.0.0-20260609164722-cce55cb8e94d
+replace github.com/microsoft/moc => github.com/oukoedwin/moc v0.0.0-20260610180132-ec9b769ccbb1
