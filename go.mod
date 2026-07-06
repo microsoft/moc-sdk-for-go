@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.43.1
+	github.com/microsoft/moc v0.43.2
 	google.golang.org/grpc v1.79.3
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/klog v1.0.0
@@ -111,6 +111,3 @@ replace (
 	golang.org/x/oauth2 => golang.org/x/oauth2 v0.27.0
 	golang.org/x/sys => golang.org/x/sys v0.39.0
 )
-
-// TODO: Remove before merging - local replace for testing
-replace github.com/microsoft/moc => github.com/oukoedwin/moc v0.0.0-20260610180132-ec9b769ccbb1
