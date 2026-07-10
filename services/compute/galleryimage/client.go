@@ -96,7 +96,6 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 }
 
 // UploadImageFromAzureStorageBlob provisions an image via Azure Storage Blob download
-// TODO: Update go.mod to pin github.com/microsoft/moc to a version containing AZURESTORAGEBLOB_SOURCE enum (>= the moc PR merge)
 func (c *GalleryImageClient) UploadImageFromAzureStorageBlob(ctx context.Context, location, name string, galImage *compute.GalleryImage, blobImg *compute.AzureBlobImageProperties) (*compute.GalleryImage, error) {
 	data, err := json.Marshal(blobImg)
 	if err != nil {
