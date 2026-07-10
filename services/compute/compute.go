@@ -858,7 +858,7 @@ type AzureBlobImageProperties struct {
 	Audience    string `json:"audience,omitempty"`
 	Version     string `json:"version,omitempty"`
 	ReleaseName string `json:"releaseName,omitempty"`
-	Parts       int32  `json:"parts,omitempty"`
+	Parts       uint32  `json:"parts,omitempty"`
 	Cloud       string `json:"cloud,omitempty"`
 	Endpoint    string `json:"endpoint,omitempty"`
 }
