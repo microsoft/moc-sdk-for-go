@@ -82,21 +82,18 @@ func TestUploadImageFromAzureStorageBlob_SetsSourceTypeAndEncodesJSON(t *testing
 	assert.Equal(t, *blobImg, roundTrip)
 }
 
-func TestUploadImageFromAzureStorageBlob_NilPropertiesDoesNotSetSourceType(t *testing.T) {
+func TestUploadImageFromAzureStorageBlob_NilPropertiesReturnsError(t *testing.T) {
 	fake := &fakeInternal{}
 	c := &GalleryImageClient{internal: fake}
 
-	// galImage without GalleryImageProperties: the wrapper must NOT attempt to
-	// set SourceType (would panic via nil embedded pointer), mirroring the
-	// guard used in UploadImageFromSFS / UploadImageFromHttp.
+	// galImage without GalleryImageProperties: the wrapper must return an error
+	// because SourceType cannot be set, which would cause the download to be
+	// routed incorrectly downstream.
 	galImage := &compute.GalleryImage{}
 	blobImg := &compute.AzureBlobImageProperties{CatalogName: "cat"}
 
 	_, err := c.UploadImageFromAzureStorageBlob(context.Background(), "loc-1", "img-1", galImage, blobImg)
-	require.NoError(t, err)
-	require.Equal(t, 1, fake.callCount)
-
-	require.NotNil(t, fake.gotImage)
-	assert.Nil(t, fake.gotImage.GalleryImageProperties,
-		"GalleryImageProperties must remain nil so the SFS/Blob wrappers skip SourceType assignment")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "GalleryImageProperties are required")
+	assert.Equal(t, 0, fake.callCount, "CreateOrUpdate must not be called when properties are nil")
 }

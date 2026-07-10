@@ -9,6 +9,7 @@ import (
 
 	"github.com/microsoft/moc-sdk-for-go/services/compute"
 	"github.com/microsoft/moc/pkg/auth"
+	"github.com/microsoft/moc/pkg/errors"
 	"github.com/microsoft/moc/rpc/common"
 )
 
@@ -96,14 +97,14 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 }
 
 // UploadImageFromAzureStorageBlob provisions an image via Azure Storage Blob download
-// TODO: Update go.mod to pin github.com/microsoft/moc to a version containing AZURESTORAGEBLOB_SOURCE enum (>= the moc PR merge)
 func (c *GalleryImageClient) UploadImageFromAzureStorageBlob(ctx context.Context, location, name string, galImage *compute.GalleryImage, blobImg *compute.AzureBlobImageProperties) (*compute.GalleryImage, error) {
+	if galImage == nil || galImage.GalleryImageProperties == nil {
+		return nil, errors.Wrapf(errors.InvalidInput, "GalleryImage and GalleryImageProperties are required")
+	}
 	data, err := json.Marshal(blobImg)
 	if err != nil {
 		return nil, err
 	}
-	if galImage != nil && galImage.GalleryImageProperties != nil {
-		galImage.SourceType = common.ImageSource_AZURESTORAGEBLOB_SOURCE
-	}
+	galImage.SourceType = common.ImageSource_AZURESTORAGEBLOB_SOURCE
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
