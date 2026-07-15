@@ -94,3 +94,15 @@ func (c *GalleryImageClient) UploadImageFromHttp(ctx context.Context, location, 
 	}
 	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
 }
+
+// UploadImageFromAzureStorageBlob provisions an image via Azure Storage Blob download
+func (c *GalleryImageClient) UploadImageFromAzureStorageBlob(ctx context.Context, location, name string, galImage *compute.GalleryImage, blobImg *compute.AzureBlobImageProperties) (*compute.GalleryImage, error) {
+	data, err := json.Marshal(blobImg)
+	if err != nil {
+		return nil, err
+	}
+	if galImage != nil && galImage.GalleryImageProperties != nil {
+		galImage.SourceType = common.ImageSource_AZURESTORAGEBLOB_SOURCE
+	}
+	return c.internal.CreateOrUpdate(ctx, location, string(data), name, galImage)
+}
