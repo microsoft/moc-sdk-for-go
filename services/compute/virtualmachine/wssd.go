@@ -217,6 +217,53 @@ func (c *client) RunCommand(ctx context.Context, group, name string, request *co
 	return
 }
 
+// UpdateDisks attaches or detaches the given data disks on an existing virtual
+// machine via the agent's UpdateDisks RPC. It never recreates the VM: a missing
+// VM results in NotFound from the agent.
+func (c *client) UpdateDisks(ctx context.Context, group, name string, dataDisks []compute.DataDisk, operation compute.VirtualMachineDiskOperation) (*compute.VirtualMachine, error) {
+	request, err := c.getVirtualMachineDiskRequest(group, name, dataDisks, operation)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := c.VirtualMachineAgentClient.UpdateDisks(ctx, request)
+	if err != nil {
+		return nil, err
+	}
+	return c.getVirtualMachineFromDiskResponse(response, group)
+}
+
+func (c *client) getVirtualMachineDiskRequest(group, name string, dataDisks []compute.DataDisk, operation compute.VirtualMachineDiskOperation) (*wssdcloudcompute.VirtualMachineDiskRequest, error) {
+	request := &wssdcloudcompute.VirtualMachineDiskRequest{
+		GroupName: group,
+		VmName:    name,
+		Operation: wssdcloudcompute.VirtualMachineDiskOperation(operation),
+		Disks:     []*wssdcloudcompute.Disk{},
+	}
+	for i := range dataDisks {
+		disk, err := c.getWssdVirtualMachineStorageConfigurationDataDisk(&dataDisks[i])
+		if err != nil {
+			return nil, err
+		}
+		request.Disks = append(request.Disks, disk)
+	}
+	return request, nil
+}
+
+func (c *client) getVirtualMachineFromDiskResponse(response *wssdcloudcompute.VirtualMachineDiskResponse, group string) (*compute.VirtualMachine, error) {
+	if response == nil {
+		return nil, errors.Wrapf(errors.Failed, "UpdateDisks returned an empty response")
+	}
+	if response.GetResult() != nil && !response.GetResult().GetValue() {
+		return nil, errors.New(response.GetError())
+	}
+	vm := response.GetVirtualMachine()
+	if vm == nil {
+		return nil, nil
+	}
+	return c.getVirtualMachine(vm), nil
+}
+
 // Get
 func (c *client) Validate(ctx context.Context, group, name string) error {
 	request, err := c.getVirtualMachineRequest(wssdcloudproto.Operation_VALIDATE, group, name, nil)

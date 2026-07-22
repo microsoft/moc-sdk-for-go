@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest/date v0.3.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/microsoft/moc v0.43.3
+	github.com/microsoft/moc v0.43.4
 	google.golang.org/grpc v1.83.2
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/klog v1.0.0
