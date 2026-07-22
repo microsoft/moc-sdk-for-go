@@ -149,6 +149,21 @@ type StorageProfile struct {
 	// VMConfigContainerName - Name of the storage container that hosts the VM configuration file
 	VmConfigContainerName *string `json:"vmConfigContainerName,omitempty"`
 }
+
+// VirtualMachineDiskOperation selects whether UpdateDisks attaches or detaches
+// the supplied data disks on an existing virtual machine. The values mirror the
+// wire enum moc.cloudagent.compute.VirtualMachineDiskOperation.
+type VirtualMachineDiskOperation int32
+
+const (
+	// VirtualMachineDiskOperationUnspecified is invalid and rejected by the agent.
+	VirtualMachineDiskOperationUnspecified VirtualMachineDiskOperation = 0
+	// VirtualMachineDiskOperationAttach attaches the supplied data disks.
+	VirtualMachineDiskOperationAttach VirtualMachineDiskOperation = 1
+	// VirtualMachineDiskOperationDetach detaches the supplied data disks.
+	VirtualMachineDiskOperationDetach VirtualMachineDiskOperation = 2
+)
+
 type SSHPublicKey struct {
 	// Path - Specifies the full path on the created VM where ssh public key is stored. If the file already exists, the specified key is appended to the file. Example: /home/user/.ssh/authorized_keys
 	Path *string `json:"path,omitempty"`
@@ -858,7 +873,7 @@ type AzureBlobImageProperties struct {
 	Audience    string `json:"audience,omitempty"`
 	Version     string `json:"version,omitempty"`
 	ReleaseName string `json:"releaseName,omitempty"`
-	Parts       uint32  `json:"parts,omitempty"`
+	Parts       uint32 `json:"parts,omitempty"`
 	Cloud       string `json:"cloud,omitempty"`
 	Endpoint    string `json:"endpoint,omitempty"`
 }

@@ -34,6 +34,7 @@ type Service interface {
 	GetHyperVVmId(context.Context, string, string) (*compute.VirtualMachineHyperVVmId, error)
 	GetHostNodeName(context.Context, string, string) (*compute.VirtualMachineHostNodeName, error)
 	GetHostNodeIpAddress(context.Context, string, string) (*compute.VirtualMachineHostNodeIpAddress, error)
+	UpdateDisks(context.Context, string, string, []compute.DataDisk, compute.VirtualMachineDiskOperation) (*compute.VirtualMachine, error)
 }
 
 type VirtualMachineClient struct {
@@ -195,71 +196,23 @@ func (c *VirtualMachineClient) ResizeEx(ctx context.Context, group string, vmNam
 	return
 }
 
+// DiskAttach attaches diskName to vmName. It delegates to the UpdateDisks RPC,
+// which resolves the VM and routes through Update (never Create), so a request
+// that races with a delete fails with NotFound instead of resurrecting the VM.
+// Attaching an already-attached disk is an idempotent no-op.
 func (c *VirtualMachineClient) DiskAttach(ctx context.Context, group string, vmName, diskName string) (err error) {
-	for {
-		vms, err := c.Get(ctx, group, vmName)
-		if err != nil {
-			return err
-		}
-		if vms == nil || len(*vms) == 0 {
-			return errors.Wrapf(errors.NotFound, "Unable to find Virtual Machine [%s]", vmName)
-		}
-
-		vm := (*vms)[0]
-
-		for _, disk := range *vm.StorageProfile.DataDisks {
-			if *disk.Vhd.URI == diskName {
-				return errors.Wrapf(errors.AlreadyExists, "DataDisk [%s] is already attached to the VM [%s]", diskName, vmName)
-			}
-		}
-
-		*vm.StorageProfile.DataDisks = append(*vm.StorageProfile.DataDisks, compute.DataDisk{Vhd: &compute.VirtualHardDisk{URI: &diskName}})
-
-		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
-		if err != nil {
-			if errors.IsInvalidVersion(err) {
-				// Retry only on invalid version
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			return err
-		}
-		break
-	}
-	return
+	dataDisks := []compute.DataDisk{{Vhd: &compute.VirtualHardDisk{URI: &diskName}}}
+	_, err = c.UpdateDisks(ctx, group, vmName, dataDisks, compute.VirtualMachineDiskOperationAttach)
+	return err
 }
+
+// DiskDetach detaches diskName from vmName. Like DiskAttach it delegates to the
+// UpdateDisks RPC (Update, never Create). Detaching an absent disk is an
+// idempotent no-op.
 func (c *VirtualMachineClient) DiskDetach(ctx context.Context, group string, vmName, diskName string) (err error) {
-	for {
-		vms, err := c.Get(ctx, group, vmName)
-		if err != nil {
-			return err
-		}
-		if vms == nil || len(*vms) == 0 {
-			return errors.Wrapf(errors.NotFound, "Unable to find Virtual Machine [%s]", vmName)
-		}
-
-		vm := (*vms)[0]
-
-		for i, element := range *vm.StorageProfile.DataDisks {
-			if *element.Vhd.URI == diskName {
-				*vm.StorageProfile.DataDisks = append((*vm.StorageProfile.DataDisks)[:i], (*vm.StorageProfile.DataDisks)[i+1:]...)
-				break
-			}
-		}
-
-		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
-		if err != nil {
-			if errors.IsInvalidVersion(err) {
-				log.Printf("Retrying because of stale version\n")
-				// Retry only on invalid version
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			return err
-		}
-		break
-	}
-	return
+	dataDisks := []compute.DataDisk{{Vhd: &compute.VirtualHardDisk{URI: &diskName}}}
+	_, err = c.UpdateDisks(ctx, group, vmName, dataDisks, compute.VirtualMachineDiskOperationDetach)
+	return err
 }
 
 func (c *VirtualMachineClient) NetworkInterfaceAdd(ctx context.Context, group string, vmName, nicName string) (err error) {
@@ -348,6 +301,15 @@ func (c *VirtualMachineClient) GetByComputerName(ctx context.Context, group stri
 
 func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
 	return c.internal.RunCommand(ctx, group, vmName, request)
+}
+
+// UpdateDisks attaches or detaches the supplied data disks on an existing
+// virtual machine via the agent's UpdateDisks RPC. Unlike DiskAttach/DiskDetach,
+// it does not read-modify-write the full VM through CreateOrUpdate, so it will
+// not recreate a VM that was deleted concurrently: a missing VM returns NotFound.
+// Only the disks in dataDisks are acted on; every other disk is preserved.
+func (c *VirtualMachineClient) UpdateDisks(ctx context.Context, group, vmName string, dataDisks []compute.DataDisk, operation compute.VirtualMachineDiskOperation) (*compute.VirtualMachine, error) {
+	return c.internal.UpdateDisks(ctx, group, vmName, dataDisks, operation)
 }
 
 func (c *VirtualMachineClient) RepairGuestAgent(ctx context.Context, group, vmName string) (err error) {
