@@ -196,71 +196,23 @@ func (c *VirtualMachineClient) ResizeEx(ctx context.Context, group string, vmNam
 	return
 }
 
+// DiskAttach attaches diskName to vmName. It delegates to the UpdateDisks RPC,
+// which resolves the VM and routes through Update (never Create), so a request
+// that races with a delete fails with NotFound instead of resurrecting the VM.
+// Attaching an already-attached disk is an idempotent no-op.
 func (c *VirtualMachineClient) DiskAttach(ctx context.Context, group string, vmName, diskName string) (err error) {
-	for {
-		vms, err := c.Get(ctx, group, vmName)
-		if err != nil {
-			return err
-		}
-		if vms == nil || len(*vms) == 0 {
-			return errors.Wrapf(errors.NotFound, "Unable to find Virtual Machine [%s]", vmName)
-		}
-
-		vm := (*vms)[0]
-
-		for _, disk := range *vm.StorageProfile.DataDisks {
-			if *disk.Vhd.URI == diskName {
-				return errors.Wrapf(errors.AlreadyExists, "DataDisk [%s] is already attached to the VM [%s]", diskName, vmName)
-			}
-		}
-
-		*vm.StorageProfile.DataDisks = append(*vm.StorageProfile.DataDisks, compute.DataDisk{Vhd: &compute.VirtualHardDisk{URI: &diskName}})
-
-		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
-		if err != nil {
-			if errors.IsInvalidVersion(err) {
-				// Retry only on invalid version
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			return err
-		}
-		break
-	}
-	return
+	dataDisks := []compute.DataDisk{{Vhd: &compute.VirtualHardDisk{URI: &diskName}}}
+	_, err = c.UpdateDisks(ctx, group, vmName, dataDisks, compute.VirtualMachineDiskOperationAttach)
+	return err
 }
+
+// DiskDetach detaches diskName from vmName. Like DiskAttach it delegates to the
+// UpdateDisks RPC (Update, never Create). Detaching an absent disk is an
+// idempotent no-op.
 func (c *VirtualMachineClient) DiskDetach(ctx context.Context, group string, vmName, diskName string) (err error) {
-	for {
-		vms, err := c.Get(ctx, group, vmName)
-		if err != nil {
-			return err
-		}
-		if vms == nil || len(*vms) == 0 {
-			return errors.Wrapf(errors.NotFound, "Unable to find Virtual Machine [%s]", vmName)
-		}
-
-		vm := (*vms)[0]
-
-		for i, element := range *vm.StorageProfile.DataDisks {
-			if *element.Vhd.URI == diskName {
-				*vm.StorageProfile.DataDisks = append((*vm.StorageProfile.DataDisks)[:i], (*vm.StorageProfile.DataDisks)[i+1:]...)
-				break
-			}
-		}
-
-		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
-		if err != nil {
-			if errors.IsInvalidVersion(err) {
-				log.Printf("Retrying because of stale version\n")
-				// Retry only on invalid version
-				time.Sleep(100 * time.Millisecond)
-				continue
-			}
-			return err
-		}
-		break
-	}
-	return
+	dataDisks := []compute.DataDisk{{Vhd: &compute.VirtualHardDisk{URI: &diskName}}}
+	_, err = c.UpdateDisks(ctx, group, vmName, dataDisks, compute.VirtualMachineDiskOperationDetach)
+	return err
 }
 
 func (c *VirtualMachineClient) NetworkInterfaceAdd(ctx context.Context, group string, vmName, nicName string) (err error) {
