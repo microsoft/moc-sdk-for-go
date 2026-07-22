@@ -34,6 +34,7 @@ type Service interface {
 	GetHyperVVmId(context.Context, string, string) (*compute.VirtualMachineHyperVVmId, error)
 	GetHostNodeName(context.Context, string, string) (*compute.VirtualMachineHostNodeName, error)
 	GetHostNodeIpAddress(context.Context, string, string) (*compute.VirtualMachineHostNodeIpAddress, error)
+	UpdateDisks(context.Context, string, string, []compute.DataDisk, compute.VirtualMachineDiskOperation) (*compute.VirtualMachine, error)
 }
 
 type VirtualMachineClient struct {
@@ -348,6 +349,15 @@ func (c *VirtualMachineClient) GetByComputerName(ctx context.Context, group stri
 
 func (c *VirtualMachineClient) RunCommand(ctx context.Context, group, vmName string, request *compute.VirtualMachineRunCommandRequest) (response *compute.VirtualMachineRunCommandResponse, err error) {
 	return c.internal.RunCommand(ctx, group, vmName, request)
+}
+
+// UpdateDisks attaches or detaches the supplied data disks on an existing
+// virtual machine via the agent's UpdateDisks RPC. Unlike DiskAttach/DiskDetach,
+// it does not read-modify-write the full VM through CreateOrUpdate, so it will
+// not recreate a VM that was deleted concurrently: a missing VM returns NotFound.
+// Only the disks in dataDisks are acted on; every other disk is preserved.
+func (c *VirtualMachineClient) UpdateDisks(ctx context.Context, group, vmName string, dataDisks []compute.DataDisk, operation compute.VirtualMachineDiskOperation) (*compute.VirtualMachine, error) {
+	return c.internal.UpdateDisks(ctx, group, vmName, dataDisks, operation)
 }
 
 func (c *VirtualMachineClient) RepairGuestAgent(ctx context.Context, group, vmName string) (err error) {
