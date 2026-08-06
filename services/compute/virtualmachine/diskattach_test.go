@@ -63,9 +63,11 @@ func dataDiskURIs(vm *compute.VirtualMachine) []string {
 	return uris
 }
 
-// Test_DiskAttach_Idempotency verifies that DiskAttach is a clean no-op success when the
-// disk is already attached to the target VM (regression guard for the CSI retry / stranded
-// VolumeAttachment bug), while still attaching disks that are not yet present.
+// Test_DiskAttach_Idempotency verifies that DiskAttach does not short-circuit when the disk
+// is already attached to the target VM: it still issues CreateOrUpdate so the CloudAgent can
+// perform the attach idempotently (regression guard for the CSI retry / stranded
+// VolumeAttachment bug), without duplicating the disk in the storage profile. It also still
+// attaches disks that are not yet present.
 func Test_DiskAttach_Idempotency(t *testing.T) {
 	ctx := context.Background()
 	const (
@@ -74,14 +76,23 @@ func Test_DiskAttach_Idempotency(t *testing.T) {
 		disk   = "disk-a"
 	)
 
-	t.Run("disk already attached to this VM is an idempotent no-op success", func(t *testing.T) {
+	t.Run("disk already attached to this VM still reaches CreateOrUpdate without duplicating", func(t *testing.T) {
 		fake := &fakeDiskAttachService{vm: vmWithDataDisks(vmName, disk)}
 		c := &VirtualMachineClient{internal: fake}
 
 		err := c.DiskAttach(ctx, group, vmName, disk)
 
 		assert.NoError(t, err, "re-attaching an already-attached disk must succeed, not return AlreadyExists")
-		assert.Equal(t, 0, fake.createOrUpdateCalls, "no store update should be issued when the disk is already attached")
+		assert.Equal(t, 1, fake.createOrUpdateCalls, "the attach must still reach the CloudAgent so it can reconcile idempotently")
+		if assert.NotNil(t, fake.lastUpdated) {
+			count := 0
+			for _, u := range dataDiskURIs(fake.lastUpdated) {
+				if u == disk {
+					count++
+				}
+			}
+			assert.Equal(t, 1, count, "the disk must not be duplicated in the VM's storage profile")
+		}
 	})
 
 	t.Run("disk not attached is appended and persisted", func(t *testing.T) {

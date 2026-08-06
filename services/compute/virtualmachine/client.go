@@ -196,8 +196,10 @@ func (c *VirtualMachineClient) ResizeEx(ctx context.Context, group string, vmNam
 }
 
 // DiskAttach attaches the data disk identified by diskName to the VM. It is idempotent:
-// if the disk is already attached to the VM, it returns nil (no-op success) rather than
-// AlreadyExists, so retried attaches do not fail.
+// when the disk is already attached to the VM it does not short-circuit but still sends the
+// desired state to the CloudAgent via CreateOrUpdate, which performs the attach idempotently.
+// This makes a retried attach (e.g. a CSI ControllerPublishVolume retry) a clean success
+// instead of an AlreadyExists error, without duplicating the disk in the storage profile.
 func (c *VirtualMachineClient) DiskAttach(ctx context.Context, group string, vmName, diskName string) (err error) {
 	for {
 		vms, err := c.Get(ctx, group, vmName)
@@ -210,17 +212,21 @@ func (c *VirtualMachineClient) DiskAttach(ctx context.Context, group string, vmN
 
 		vm := (*vms)[0]
 
-		// Idempotency: if the disk is already attached to this VM, the desired end state is
-		// already achieved, so report success instead of AlreadyExists. This makes a retried
-		// attach (e.g. a CSI ControllerPublishVolume retry) a clean no-op and avoids stranding
-		// the caller's VolumeAttachment. Mirrors DiskDetach, which is already idempotent.
+		// Only add the disk to the desired storage profile if it is not already present, to
+		// avoid a duplicate entry. Either way we fall through to CreateOrUpdate so the request
+		// reaches the CloudAgent, which handles the attach idempotently. Not returning early
+		// keeps a retried attach a clean success and avoids stranding the caller's
+		// VolumeAttachment.
+		alreadyAttached := false
 		for _, disk := range *vm.StorageProfile.DataDisks {
 			if *disk.Vhd.URI == diskName {
-				return nil
+				alreadyAttached = true
+				break
 			}
 		}
-
-		*vm.StorageProfile.DataDisks = append(*vm.StorageProfile.DataDisks, compute.DataDisk{Vhd: &compute.VirtualHardDisk{URI: &diskName}})
+		if !alreadyAttached {
+			*vm.StorageProfile.DataDisks = append(*vm.StorageProfile.DataDisks, compute.DataDisk{Vhd: &compute.VirtualHardDisk{URI: &diskName}})
+		}
 
 		_, err = c.CreateOrUpdate(ctx, group, vmName, &vm)
 		if err != nil {
