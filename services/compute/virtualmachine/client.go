@@ -195,6 +195,9 @@ func (c *VirtualMachineClient) ResizeEx(ctx context.Context, group string, vmNam
 	return
 }
 
+// DiskAttach attaches the data disk identified by diskName to the VM. It is idempotent:
+// if the disk is already attached to the VM, it returns nil (no-op success) rather than
+// AlreadyExists, so retried attaches do not fail.
 func (c *VirtualMachineClient) DiskAttach(ctx context.Context, group string, vmName, diskName string) (err error) {
 	for {
 		vms, err := c.Get(ctx, group, vmName)
@@ -207,9 +210,13 @@ func (c *VirtualMachineClient) DiskAttach(ctx context.Context, group string, vmN
 
 		vm := (*vms)[0]
 
+		// Idempotency: if the disk is already attached to this VM, the desired end state is
+		// already achieved, so report success instead of AlreadyExists. This makes a retried
+		// attach (e.g. a CSI ControllerPublishVolume retry) a clean no-op and avoids stranding
+		// the caller's VolumeAttachment. Mirrors DiskDetach, which is already idempotent.
 		for _, disk := range *vm.StorageProfile.DataDisks {
 			if *disk.Vhd.URI == diskName {
-				return errors.Wrapf(errors.AlreadyExists, "DataDisk [%s] is already attached to the VM [%s]", diskName, vmName)
+				return nil
 			}
 		}
 
