@@ -11,116 +11,76 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// fakeDiskAttachService is a minimal Service implementation that lets us drive
-// DiskAttach without a live cloud agent. Only Get and CreateOrUpdate are used; the
-// embedded Service interface satisfies the rest of the contract (they must not be
-// called by these tests).
-type fakeDiskAttachService struct {
+type fakeDiskUpdateService struct {
 	Service
-	vm     *compute.VirtualMachine
-	getErr error
 
-	createOrUpdateCalls int
-	lastUpdated         *compute.VirtualMachine
+	calls     int
+	group     string
+	vmName    string
+	dataDisks []compute.DataDisk
+	operation compute.VirtualMachineDiskOperation
 }
 
-func (f *fakeDiskAttachService) Get(ctx context.Context, group, name string) (*[]compute.VirtualMachine, error) {
-	if f.getErr != nil {
-		return nil, f.getErr
-	}
-	vms := []compute.VirtualMachine{*f.vm}
-	return &vms, nil
+func (f *fakeDiskUpdateService) UpdateDisks(
+	_ context.Context,
+	group string,
+	vmName string,
+	dataDisks []compute.DataDisk,
+	operation compute.VirtualMachineDiskOperation,
+) (*compute.VirtualMachine, error) {
+	f.calls++
+	f.group = group
+	f.vmName = vmName
+	f.dataDisks = dataDisks
+	f.operation = operation
+	return &compute.VirtualMachine{}, nil
 }
 
-func (f *fakeDiskAttachService) CreateOrUpdate(ctx context.Context, group, name string, vm *compute.VirtualMachine) (*compute.VirtualMachine, error) {
-	f.createOrUpdateCalls++
-	f.lastUpdated = vm
-	return vm, nil
-}
-
-func vmWithDataDisks(name string, diskURIs ...string) *compute.VirtualMachine {
-	disks := make([]compute.DataDisk, 0, len(diskURIs))
-	for i := range diskURIs {
-		uri := diskURIs[i]
-		disks = append(disks, compute.DataDisk{Vhd: &compute.VirtualHardDisk{URI: &uri}})
-	}
-	n := name
-	return &compute.VirtualMachine{
-		Name: &n,
-		VirtualMachineProperties: &compute.VirtualMachineProperties{
-			StorageProfile: &compute.StorageProfile{
-				DataDisks: &disks,
-			},
-		},
-	}
-}
-
-func dataDiskURIs(vm *compute.VirtualMachine) []string {
-	uris := []string{}
-	for _, d := range *vm.StorageProfile.DataDisks {
-		uris = append(uris, *d.Vhd.URI)
-	}
-	return uris
-}
-
-// Test_DiskAttach_Idempotency verifies that DiskAttach does not short-circuit when the disk
-// is already attached to the target VM: it still issues CreateOrUpdate so the CloudAgent can
-// perform the attach idempotently (regression guard for the CSI retry / stranded
-// VolumeAttachment bug), without duplicating the disk in the storage profile. It also still
-// attaches disks that are not yet present.
-func Test_DiskAttach_Idempotency(t *testing.T) {
-	ctx := context.Background()
+func TestDiskOperationsUseUpdateDisks(t *testing.T) {
 	const (
-		group  = "grp"
-		vmName = "vm0"
-		disk   = "disk-a"
+		group    = "grp"
+		vmName   = "vm0"
+		diskName = "disk-a"
 	)
 
-	t.Run("disk already attached to this VM still reaches CreateOrUpdate without duplicating", func(t *testing.T) {
-		fake := &fakeDiskAttachService{vm: vmWithDataDisks(vmName, disk)}
-		c := &VirtualMachineClient{internal: fake}
+	tests := []struct {
+		name          string
+		run           func(*VirtualMachineClient) error
+		wantOperation compute.VirtualMachineDiskOperation
+	}{
+		{
+			name: "attach",
+			run: func(client *VirtualMachineClient) error {
+				return client.DiskAttach(context.Background(), group, vmName, diskName)
+			},
+			wantOperation: compute.VirtualMachineDiskOperationAttach,
+		},
+		{
+			name: "detach",
+			run: func(client *VirtualMachineClient) error {
+				return client.DiskDetach(context.Background(), group, vmName, diskName)
+			},
+			wantOperation: compute.VirtualMachineDiskOperationDetach,
+		},
+	}
 
-		err := c.DiskAttach(ctx, group, vmName, disk)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			service := &fakeDiskUpdateService{}
+			client := &VirtualMachineClient{internal: service}
 
-		assert.NoError(t, err, "re-attaching an already-attached disk must succeed, not return AlreadyExists")
-		assert.Equal(t, 1, fake.createOrUpdateCalls, "the attach must still reach the CloudAgent so it can reconcile idempotently")
-		if assert.NotNil(t, fake.lastUpdated) {
-			count := 0
-			for _, u := range dataDiskURIs(fake.lastUpdated) {
-				if u == disk {
-					count++
-				}
+			err := tt.run(client)
+
+			assert.NoError(t, err)
+			assert.Equal(t, 1, service.calls)
+			assert.Equal(t, group, service.group)
+			assert.Equal(t, vmName, service.vmName)
+			assert.Equal(t, tt.wantOperation, service.operation)
+			if assert.Len(t, service.dataDisks, 1) &&
+				assert.NotNil(t, service.dataDisks[0].Vhd) &&
+				assert.NotNil(t, service.dataDisks[0].Vhd.URI) {
+				assert.Equal(t, diskName, *service.dataDisks[0].Vhd.URI)
 			}
-			assert.Equal(t, 1, count, "the disk must not be duplicated in the VM's storage profile")
-		}
-	})
-
-	t.Run("disk not attached is appended and persisted", func(t *testing.T) {
-		fake := &fakeDiskAttachService{vm: vmWithDataDisks(vmName)}
-		c := &VirtualMachineClient{internal: fake}
-
-		err := c.DiskAttach(ctx, group, vmName, disk)
-
-		assert.NoError(t, err)
-		assert.Equal(t, 1, fake.createOrUpdateCalls, "a new disk must be persisted via CreateOrUpdate")
-		if assert.NotNil(t, fake.lastUpdated) {
-			assert.Contains(t, dataDiskURIs(fake.lastUpdated), disk, "the new disk must be present in the persisted VM")
-		}
-	})
-
-	t.Run("attaching a different disk preserves the already-attached one", func(t *testing.T) {
-		existing := "disk-existing"
-		fake := &fakeDiskAttachService{vm: vmWithDataDisks(vmName, existing)}
-		c := &VirtualMachineClient{internal: fake}
-
-		err := c.DiskAttach(ctx, group, vmName, disk)
-
-		assert.NoError(t, err)
-		assert.Equal(t, 1, fake.createOrUpdateCalls)
-		if assert.NotNil(t, fake.lastUpdated) {
-			uris := dataDiskURIs(fake.lastUpdated)
-			assert.Contains(t, uris, existing, "the existing disk must be preserved")
-			assert.Contains(t, uris, disk, "the new disk must be added")
-		}
-	})
+		})
+	}
 }
