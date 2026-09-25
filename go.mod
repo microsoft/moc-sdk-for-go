@@ -3,7 +3,7 @@ module github.com/microsoft/moc-sdk-for-go
 go 1.26.0
 
 require (
-	code.cloudfoundry.org/bytefmt v0.90.0
+	code.cloudfoundry.org/bytefmt v0.91.0
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/date v0.3.1
 	github.com/google/go-cmp v0.7.0
