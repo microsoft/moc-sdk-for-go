@@ -18,7 +18,7 @@ jobs:
   steps:
   - task: GoTool@0
     inputs:
-      version: '1.26'
+      version: '1.26.10'
   - task: InstallSSHKey@0
     inputs:
       knownHostsEntry: '$(KNOWN_HOST)' 
@@ -26,6 +26,8 @@ jobs:
       sshKeySecureFile: 'azure-pipelines-ssh-key-new'
   - script: |
       git config --global url.ssh://git@github.com/.insteadOf https://github.com/
+    # Fork builds cannot install the SSH key; fetch public dependencies over HTTPS.
+    condition: and(succeeded(), ne(variables['System.PullRequest.IsFork'], 'True'))
     displayName: 'Set up the Go workspace'
 
   - script: |
@@ -73,7 +75,7 @@ jobs:
   steps:
   - task: GoTool@0
     inputs:
-      version: '1.26'
+      version: '1.26.10'
 
   - script: |
       make golangci-lint
