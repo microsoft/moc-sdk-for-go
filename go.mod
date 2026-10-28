@@ -95,7 +95,7 @@ require (
 )
 
 require (
-	github.com/Microsoft/go-winio v0.6.2
+	github.com/Microsoft/go-winio v0.6.4
 	github.com/golang/protobuf v1.5.4
 	github.com/sagikazarmark/locafero v0.6.0 // indirect
 	github.com/spf13/cast v1.7.0 // indirect
@@ -103,7 +103,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
 	google.golang.org/protobuf v1.36.12
 )
 
