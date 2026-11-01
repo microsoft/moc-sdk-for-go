@@ -18,7 +18,7 @@ jobs:
   steps:
   - task: GoTool@0
     inputs:
-      version: '1.26.10'
+      version: '1.27.3'
   - task: InstallSSHKey@0
     inputs:
       knownHostsEntry: '$(KNOWN_HOST)' 
@@ -75,7 +75,7 @@ jobs:
   steps:
   - task: GoTool@0
     inputs:
-      version: '1.26.10'
+      version: '1.27.3'
 
   - script: |
       make golangci-lint
